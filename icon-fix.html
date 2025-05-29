@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Fix</title>
+    <script>
+        // FontAwesome replacement script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Replace FontAwesome classes with fallback icons
+            const iconMap = {
+                'fa-home': 'icon-home',
+                'fa-user': 'icon-user',
+                'fa-users': 'icon-users',
+                'fa-chart-bar': 'icon-chart',
+                'fa-file-alt': 'icon-report',
+                'fa-cog': 'icon-settings',
+                'fa-database': 'icon-database',
+                'fa-money-bill': 'icon-money',
+                'fa-search': 'icon-search',
+                'fa-plus': 'icon-plus',
+                'fa-edit': 'icon-edit',
+                'fa-trash': 'icon-delete',
+                'fa-download': 'icon-download',
+                'fa-upload': 'icon-upload',
+                'fa-print': 'icon-print',
+                'fa-eye': 'icon-view',
+                'fa-lock': 'icon-lock',
+                'fa-unlock': 'icon-unlock',
+                'fa-calendar': 'icon-calendar',
+                'fa-clock': 'icon-clock',
+                'fa-check': 'icon-check',
+                'fa-times': 'icon-times',
+                'fa-warning': 'icon-warning',
+                'fa-info': 'icon-info',
+                'fa-arrow-up': 'icon-arrow-up',
+                'fa-arrow-down': 'icon-arrow-down',
+                'fa-bars': 'icon-menu'
+            };
+
+            // Replace all FontAwesome icons
+            Object.keys(iconMap).forEach(faClass => {
+                const elements = document.querySelectorAll('.' + faClass);
+                elements.forEach(el => {
+                    el.classList.remove(faClass, 'fas', 'far', 'fab');
+                    el.classList.add('icon', iconMap[faClass]);
+                });
+            });
+
+            // Add mobile menu toggle if not exists
+            if (!document.querySelector('.mobile-menu-toggle')) {
+                const toggle = document.createElement('button');
+                toggle.className = 'mobile-menu-toggle';
+                toggle.innerHTML = '<span class="icon icon-menu"></span>';
+                toggle.onclick = function() {
+                    const sidebar = document.querySelector('.sidebar');
+                    if (sidebar) {
+                        sidebar.classList.toggle('active');
+                    }
+                };
+                document.body.appendChild(toggle);
+            }
+        });
+    </script>
+</head>
+<body>
+    <!-- This file provides icon fallbacks -->
+</body>
+</html>

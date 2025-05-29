@@ -1548,6 +1548,106 @@ nav ul li a span {
   }
 }
 
+/* Icon Fallbacks - Add these after the existing CSS */
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  text-align: center;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+}
+
+/* FontAwesome fallback icons using CSS */
+.fa-home::before, .icon-home::before { content: "🏠"; }
+.fa-user::before, .icon-user::before { content: "👤"; }
+.fa-users::before, .icon-users::before { content: "👥"; }
+.fa-chart-bar::before, .icon-chart::before { content: "📊"; }
+.fa-file-alt::before, .icon-report::before { content: "📄"; }
+.fa-cog::before, .icon-settings::before { content: "⚙️"; }
+.fa-database::before, .icon-database::before { content: "🗄️"; }
+.fa-money-bill::before, .icon-money::before { content: "💰"; }
+.fa-search::before, .icon-search::before { content: "🔍"; }
+.fa-plus::before, .icon-plus::before { content: "➕"; }
+.fa-edit::before, .icon-edit::before { content: "✏️"; }
+.fa-trash::before, .icon-delete::before { content: "🗑️"; }
+.fa-download::before, .icon-download::before { content: "⬇️"; }
+.fa-upload::before, .icon-upload::before { content: "⬆️"; }
+.fa-print::before, .icon-print::before { content: "🖨️"; }
+.fa-eye::before, .icon-view::before { content: "👁️"; }
+.fa-lock::before, .icon-lock::before { content: "🔒"; }
+.fa-unlock::before, .icon-unlock::before { content: "🔓"; }
+.fa-calendar::before, .icon-calendar::before { content: "📅"; }
+.fa-clock::before, .icon-clock::before { content: "🕐"; }
+.fa-check::before, .icon-check::before { content: "✅"; }
+.fa-times::before, .icon-times::before { content: "❌"; }
+.fa-warning::before, .icon-warning::before { content: "⚠️"; }
+.fa-info::before, .icon-info::before { content: "ℹ️"; }
+.fa-arrow-up::before, .icon-arrow-up::before { content: "⬆️"; }
+.fa-arrow-down::before, .icon-arrow-down::before { content: "⬇️"; }
+.fa-bars::before, .icon-menu::before { content: "☰"; }
+.fa-times::before, .icon-close::before { content: "✖️"; }
+
+/* Enhanced icon styles for better visibility */
+.sidebar nav ul li a i,
+.sidebar nav ul li a .icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.btn i,
+.btn .icon {
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mobile-menu-toggle:hover {
+  background: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .main-content {
+    padding-top: 4rem;
+  }
+}
+
+/* Loading fallback for missing icons */
+.icon-loading {
+  animation: spin 1s linear infinite;
+}
+
+.icon-loading::before {
+  content: "⟳";
+}
+
+/* Table container overflow fix */
 .table-container {
   overflow-x: auto;
   margin: 1rem 0;
