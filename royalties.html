@@ -1,0 +1,1286 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining Royalties Manager</title>
+  <link rel="stylesheet" href="royalties.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2>Mining Royalties Manager</h2>
+      <p>Loading your workspace...</p>
+    </div>
+  </div>
+
+  <div class="login-section">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="login-logo"><i class="fas fa-gem"></i></div>
+        <h1>Mining Royalties Manager</h1>
+        <p>Secure access to your royalty management system</p>
+      </div>
+      <form class="login-form" id="login-form">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" placeholder="Username" required>
+          <div class="validation-error">Username is required</div>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Password" required>
+          <button type="button" class="password-toggle"><i class="fas fa-eye"></i></button>
+          <div class="validation-error">Password is required</div>
+        </div>
+        <button type="submit" class="btn-primary btn-large">
+          <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Sign In</span>
+          <span class="btn-spinner spinner"></span>
+        </button>
+        <div class="error-message hidden"></div>
+      </form>
+      <div class="login-footer">
+        <p>Demo Credentials: admin/admin123 or editor/editor123</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><i class="fas fa-gem"></i></div>
+      <h2>Royalties Manager</h2>
+      <button class="sidebar-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="sidebar-content">
+      <ul class="nav-menu">
+        <li><a href="#dashboard" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+        <li><a href="#user-management" class="nav-link"><i class="fas fa-users"></i><span>User Management</span></a></li>
+        <li><a href="#royalty-records" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Royalty Records</span></a></li>
+        <li><a href="#contract-management" class="nav-link"><i class="fas fa-file-contract"></i><span>Contract Management</span></a></li>
+        <li><a href="#audit-dashboard" class="nav-link"><i class="fas fa-search"></i><span>Audit Dashboard</span></a></li>
+        <li><a href="#reporting-analytics" class="nav-link"><i class="fas fa-chart-bar"></i><span>Reporting & Analytics</span></a></li>
+        <li><a href="#compliance" class="nav-link"><i class="fas fa-check-circle"></i><span>Compliance</span></a></li>
+      </ul>
+      <div class="nav-secondary">
+        <ul class="nav-menu">
+          <li><a href="#my-profile" class="nav-link"><i class="fas fa-user-circle"></i><span>My Profile</span></a></li>
+          <li><a href="#notifications" class="nav-link"><i class="fas fa-bell"></i><span>Notifications</span><span class="notification-badge" id="notification-count">0</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <div class="app-container hidden">
+    <button class="mobile-menu-toggle"><span></span><span></span><span></span></button>
+    <button class="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button>
+
+    <div class="main-content">
+      <section id="dashboard" class="content-section">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Dashboard</h1>
+            <p>Welcome back, <span id="user-name">User</span></p>
+          </div>
+          <div class="page-actions">
+            <div class="user-info">
+              <span class="user-role" id="user-role">Admin</span>
+              <div class="user-avatar"><i class="fas fa-user"></i></div>
+            </div>
+            <button class="notification-trigger"><i class="fas fa-bell"></i><span class="notification-badge" id="dashboard-notification-count">0</span></button>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Total Royalties (YTD)</h3>
+            </div>
+            <div class="card-body">
+              <p id="total-royalties">E0.00</p>
+              <small id="royalty-trend">+0% from last year</small>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Active Entities</h3>
+            </div>
+            <div class="card-body">
+              <p id="active-entities">0</p>
+              <small>No change</small>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Compliance Rate</h3>
+            </div>
+            <div class="card-body">
+              <p id="compliance-rate">0%</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Pending Approvals</h3>
+            </div>
+            <div class="card-body">
+              <p id="pending-approvals">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Royalty Trends</h3>
+              <div class="chart-controls">
+                <select class="chart-period" id="royalty-trends-period">
+                  <option>Last 6 months</option>
+                  <option>Last year</option>
+                  <option>Last 2 years</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-container"><canvas id="royalty-trends-chart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Mineral Distribution</h3>
+            </div>
+            <div class="chart-container"><canvas id="mineral-distribution-chart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="user-management" class="content-section">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Manage Users</h1>
+          </div>
+        </div>
+        <form class="form-group grid-3" id="add-user-form">
+          <div class="form-group">
+            <label for="new-username">Username</label>
+            <input type="text" id="new-username" required>
+            <div class="validation-error">Username is required (min 3 characters)</div>
+          </div>
+          <div class="form-group">
+            <label for="new-role">Role</label>
+            <select id="new-role" required>
+              <option value="">Select Role</option>
+              <option value="admin">Admin</option>
+              <option value="editor">Editor</option>
+              <option value="viewer">Viewer</option>
+            </select>
+            <div class="validation-error">Role is required</div>
+          </div>
+          <div class="form-group">
+            <label for="new-password">Password</label>
+            <input type="password" id="new-password" required>
+            <div class="validation-error">Password is required (min 6 characters)</div>
+          </div>
+          <button type="submit" class="btn-primary">Add User</button>
+        </form>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="royalty-records" class="content-section enhanced-royalty-records">
+        <div class="royalty-header">
+          <h3>Royalty Records</h3>
+          <p class="subtitle">Manage and review all royalty payments</p>
+        </div>
+        <div class="royalty-form">
+          <h4>Record Royalty Payment</h4>
+          <form class="grid-4-inputs" id="royalty-form">
+            <div class="form-group">
+              <label for="entity">Entity</label>
+              <select id="entity" required>
+                <option value="">Select Entity</option>
+                <option value="Kwalini Quarry">Kwalini Quarry</option>
+                <option value="Mbabane Quarry">Mbabane Quarry</option>
+                <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+                <option value="Maloma Colliery">Maloma Colliery</option>
+                <option value="Ngwenya Mine">Ngwenya Mine</option>
+                <option value="Malolotja Mine">Malolotja Mine</option>
+              </select>
+              <div class="validation-error">Entity is required</div>
+            </div>
+            <div class="form-group">
+              <label for="mineral">Mineral</label>
+              <select id="mineral" required>
+                <option value="">Select Mineral</option>
+                <option value="Coal">Coal</option>
+                <option value="Iron Ore">Iron Ore</option>
+                <option value="Green Chert">Green Chert</option>
+                <option value="Gravel">Gravel</option>
+                <option value="River Sand">River Sand</option>
+                <option value="Plaster Sand">Plaster Sand</option>
+                <option value="Quarried Stone">Quarried Stone</option>
+              </select>
+              <div class="validation-error">Mineral is required</div>
+            </div>
+            <div class="form-group">
+              <label for="volume">Volume (m³)</label>
+              <input type="number" id="volume" min="0" step="0.01" required>
+              <div class="validation-error">Volume must be a positive number</div>
+            </div>
+            <div class="form-group">
+              <label for="tariff">Royalty Tariff (E/m³)</label>
+              <input type="number" id="tariff" min="0" step="0.01" value="15.00" required>
+              <div class="validation-error">Tariff must be a positive number</div>
+            </div>
+            <div class="form-group">
+              <label for="royalty-date">Date</label>
+              <input type="date" id="royalty-date" required>
+              <div class="validation-error">Date is required</div>
+            </div>
+            <button type="submit" class="btn-primary">Save Royalty</button>
+          </form>
+        </div>
+        <hr class="royalty-divider">
+        <div class="royalty-table">
+          <h4>Royalty Records Table</h4>
+          <div class="filters">
+            <div class="form-group">
+              <label for="filter-entity">Entity</label>
+              <select id="filter-entity">
+                <option value="">All Entities</option>
+                <option value="Kwalini Quarry">Kwalini Quarry</option>
+                <option value="Mbabane Quarry">Mbabane Quarry</option>
+                <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+                <option value="Maloma Colliery">Maloma Colliery</option>
+                <option value="Ngwenya Mine">Ngwenya Mine</option>
+                <option value="Malolotja Mine">Malolotja Mine</option>
+              </select>
+            </div>
+            <button class="btn-primary">Apply Filters</button>
+            <button class="btn-secondary" id="export-royalties">Export Report</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Mineral</th>
+                  <th>Volume (m³)</th>
+                  <th>Tariff (E/m³)</th>
+                  <th>Royalties (E)</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="royalties-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="contract-management" class="content-section">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Contract Management</h1>
+            <p>Manage royalty agreements for mines and quarries</p>
+          </div>
+        </div>
+        <div class="contract-form">
+          <h4>Add Contract</h4>
+          <form class="grid-3" id="contract-form">
+            <div class="form-group">
+              <label for="contract-entity">Entity</label>
+              <select id="contract-entity" required>
+                <option value="">Select Entity</option>
+                <option value="Kwalini Quarry">Kwalini Quarry</option>
+                <option value="Mbabane Quarry">Mbabane Quarry</option>
+                <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+                <option value="Maloma Colliery">Maloma Colliery</option>
+                <option value="Ngwenya Mine">Ngwenya Mine</option>
+                <option value="Malolotja Mine">Malolotja Mine</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="contract-rate">Royalty Rate (E/m³)</label>
+              <input type="number" id="contract-rate" min="0" step="0.01" value="15.00" required>
+            </div>
+            <div class="form-group">
+              <label for="contract-start">Start Date</label>
+              <input type="date" id="contract-start" required>
+            </div>
+            <button type="submit" class="btn-primary">Save Contract</button>
+          </form>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Entity</th>
+                <th>Royalty Rate (E/m³)</th>
+                <th>Start Date</th>
+                <th>Document</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contracts-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="audit-dashboard" class="content-section">
+        <div class="audit-header">
+          <h3>Audit Dashboard</h3>
+          <p class="subtitle">Review discrepancies and audit reports</p>
+        </div>
+        <div class="filters">
+          <div class="form-group">
+            <label for="audit-entity">Entity</label>
+            <select id="audit-entity">
+              <option value="">All Entities</option>
+              <option value="Kwalini Quarry">Kwalini Quarry</option>
+              <option value="Mbabane Quarry">Mbabane Quarry</option>
+              <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+              <option value="Maloma Colliery">Maloma Colliery</option>
+              <option value="Ngwenya Mine">Ngwenya Mine</option>
+              <option value="Malolotja Mine">Malolotja Mine</option>
+            </select>
+          </div>
+          <button class="btn-primary">Apply Filters</button>
+          <button class="btn-secondary" id="export-audit">Export Audit Report</button>
+        </div>
+        <div class="audit-table">
+          <h4>Discrepancies</h4>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Mineral</th>
+                  <th>Declared (m³)</th>
+                  <th>Verified (m³)</th>
+                  <th>Outstanding (E)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="discrepancies-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="reporting-analytics" class="content-section">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Reporting & Analytics</h1>
+            <p>Generate royalty and audit reports</p>
+          </div>
+        </div>
+        <div class="reports-section">
+          <h3>Generate Reports</h3>
+          <form class="grid-3" id="report-form">
+            <div class="form-group">
+              <label for="report-type">Report Type</label>
+              <select id="report-type" required>
+                <option value="">Select Report Type</option>
+                <option value="royalty-summary">Royalty Summary</option>
+                <option value="audit-discrepancies">Audit Discrepancies</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="report-entity">Entity</label>
+              <select id="report-entity">
+                <option value="">All Entities</option>
+                <option value="Kwalini Quarry">Kwalini Quarry</option>
+                <option value="Mbabane Quarry">Mbabane Quarry</option>
+                <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+                <option value="Maloma Colliery">Maloma Colliery</option>
+                <option value="Ngwenya Mine">Ngwenya Mine</option>
+                <option value="Malolotja Mine">Malolotja Mine</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="report-date">Date Range</label>
+              <select id="report-date">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary">Generate Report</button>
+          </form>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Report Name</th>
+                  <th>Type</th>
+                  <th>Entity</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reports-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="compliance" class="content-section">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Compliance Dashboard</h1>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header"><h3>Submission Deadlines</h3></div>
+            <div class="card-body"><p id="deadlines">Next deadline: 30/06/2025</p></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Discrepancy Alerts</h3></div>
+            <div class="card-body"><p id="discrepancy-alerts">1 discrepancy found</p></div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        // Data from document
+        const entities = [
+          { name: 'Kwalini Quarry', type: 'Quarry', tariff: 15.00 },
+          { name: 'Mbabane Quarry', type: 'Quarry', tariff: 15.00 },
+          { name: 'Sidvokodvo Quarry', type: 'Quarry', tariff: 15.00 },
+          { name: 'Maloma Colliery', type: 'Mine', tariff: 5.00 },
+          { name: 'Ngwenya Mine', type: 'Mine', tariff: 5.00 },
+          { name: 'Malolotja Mine', type: 'Mine', tariff: 5.00 }
+        ];
+        const minerals = ['Coal', 'Iron Ore', 'Green Chert', 'Gravel', 'River Sand', 'Plaster Sand', 'Quarried Stone'];
+        const royaltyRecords = [
+          { entity: 'Kwalini Quarry', mineral: 'Gravel', volume: 10352, tariff: 15.00, date: '2024-06-30', status: 'Verified' },
+          { entity: 'Kwalini Quarry', mineral: 'Gravel', volume: 11254, tariff: 15.00, date: '2024-09-30', status: 'Verified' },
+          { entity: 'Kwalini Quarry', mineral: 'Gravel', volume: 12569, tariff: 15.00, date: '2024-12-31', status: 'Verified' },
+          { entity: 'Kwalini Quarry', mineral: 'Gravel', volume: 12546, tariff: 15.00, date: '2025-03-31', status: 'Verified' },
+          { entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 9653, tariff: 15.00, date: '2024-06-30', status: 'Verified' },
+          { entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 10589, tariff: 15.00, date: '2024-09-30', status: 'Verified' },
+          { entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 11258, tariff: 15.00, date: '2024-12-31', status: 'Verified' },
+          { entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 12356, tariff: 15.00, date: '2025-03-31', status: 'Verified' }
+        ];
+        const auditData = [
+          {
+            project: 'Rehabilitation of Nkomazi and Malanti Culvert',
+            discrepancies: [
+              { mineral: 'Gravel', declared: 5000, verified: 11350, tariff: 5.00 },
+              { mineral: 'River Sand', declared: 350, verified: 470, tariff: 5.00 },
+              { mineral: 'Quarried Stone', declared: 3500, verified: 8000, tariff: 5.00 }
+            ]
+          }
+        ];
+
+        let currentUser = null;
+
+        // Define all functions first before they are called
+        function updateRoyaltiesTable(data) {
+          const tableBody = document.querySelector('#royalties-table');
+          if (!tableBody) return;
+          
+          tableBody.innerHTML = data.map((r, index) => `
+            <tr>
+              <td>${r.entity || 'N/A'}</td>
+              <td>${r.mineral || 'N/A'}</td>
+              <td>${(r.volume || 0).toFixed(2)}</td>
+              <td>${(r.tariff || 0).toFixed(2)}</td>
+              <td>E${(r.royalties || 0).toFixed(2)}</td>
+              <td>${r.date || 'N/A'}</td>
+              <td><span class="status-badge ${(r.status || 'pending').toLowerCase()}">${r.status || 'Pending'}</span></td>
+              <td class="table-actions">
+                <button class="btn btn-sm btn-primary" onclick="editRoyalty(${r.id || index})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteRoyalty(${r.id || index})">Delete</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+        
+        function updateContractsTable(contracts) {
+          const table = document.querySelector('#contracts-table');
+          if (!table) return;
+          
+          table.innerHTML = contracts.map((c, index) => `
+            <tr>
+              <td>${c.entity || 'N/A'}</td>
+              <td>${(c.rate || 0).toFixed(2)}</td>
+              <td>${c.startDate || 'N/A'}</td>
+              <td><a href="#" onclick="downloadContract('${c.entity || 'Unknown'}')">View Contract</a></td>
+              <td>
+                <button class="btn btn-sm btn-primary" onclick="editContract(${c.id || index})">Edit</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+        
+        function updateAuditTable(data) {
+          const tableBody = document.querySelector('#discrepancies-table');
+          if (!tableBody) return;
+          
+          tableBody.innerHTML = data.flatMap(project => 
+            project.discrepancies.map(d => `
+              <tr>
+                <td>${project.project || 'N/A'}</td>
+                <td>${d.mineral || 'N/A'}</td>
+                <td>${(d.declared || 0).toFixed(2)}</td>
+                <td>${(d.verified || 0).toFixed(2)}</td>
+                <td>E${(((d.verified || 0) - (d.declared || 0)) * (d.tariff || 0)).toFixed(2)}</td>
+                <td><span class="status-badge pending">Pending</span></td>
+              </tr>
+            `)
+          ).join('');
+        }
+
+        function updateDashboard(data) {
+          if (!data || data.length === 0) {
+            document.getElementById('total-royalties').textContent = 'E0.00';
+            document.getElementById('active-entities').textContent = '0';
+            document.getElementById('compliance-rate').textContent = '0%';
+            document.getElementById('pending-approvals').textContent = '0';
+            document.getElementById('royalty-trend').textContent = '+0% from last year';
+            return;
+          }
+
+          const totalRoyalties = data.reduce((sum, r) => sum + (r.royalties || 0), 0);
+          const activeEntities = new Set(data.map(r => r.entity).filter(Boolean)).size;
+          const verifiedCount = data.filter(r => r.status === 'Verified').length;
+          const complianceRate = data.length > 0 ? (verifiedCount / data.length * 100).toFixed(1) : '0';
+          const pendingApprovals = data.filter(r => r.status === 'Pending').length;
+          
+          document.getElementById('total-royalties').textContent = `E${totalRoyalties.toFixed(2)}`;
+          document.getElementById('active-entities').textContent = activeEntities;
+          document.getElementById('compliance-rate').textContent = `${complianceRate}%`;
+          document.getElementById('pending-approvals').textContent = pendingApprovals;
+          
+          const lastYear = data.filter(r => r.date && new Date(r.date).getFullYear() === 2024)
+                               .reduce((sum, r) => sum + (r.royalties || 0), 0);
+          const trend = lastYear ? ((totalRoyalties - lastYear) / lastYear * 100).toFixed(1) : 0;
+          document.getElementById('royalty-trend').textContent = `${trend > 0 ? '+' : ''}${trend}% from last year`;
+          
+          if (pendingApprovals > 0) {
+            addNotification(`${pendingApprovals} pending royalty approvals`);
+          }
+        }
+        
+        function renderCharts(data) {
+          if (!window.Chart || !data || data.length === 0) return;
+          
+          try {
+            const trendsCtx = document.getElementById('royalty-trends-chart');
+            const mineralCtx = document.getElementById('mineral-distribution-chart');
+            
+            if (!trendsCtx || !mineralCtx) return;
+            
+            const trendsContext = trendsCtx.getContext('2d');
+            const mineralContext = mineralCtx.getContext('2d');
+            
+            const monthlyData = {};
+            data.forEach(r => {
+              if (r.date && r.royalties) {
+                const month = r.date.slice(0, 7);
+                monthlyData[month] = (monthlyData[month] || 0) + r.royalties;
+              }
+            });
+            
+            // Clear existing charts
+            Chart.getChart(trendsCtx)?.destroy();
+            Chart.getChart(mineralCtx)?.destroy();
+            
+            new Chart(trendsContext, {
+              type: 'line',
+              data: {
+                labels: Object.keys(monthlyData),
+                datasets: [{
+                  label: 'Royalty Payments (E)',
+                  data: Object.values(monthlyData),
+                  borderColor: '#2563eb',
+                  backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                  fill: true
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false
+              }
+            });
+            
+            const mineralCounts = minerals.reduce((acc, m) => { 
+              acc[m] = data.filter(r => r.mineral === m).reduce((sum, r) => sum + (r.volume || 0), 0); 
+              return acc; 
+            }, {});
+            
+            // Filter out minerals with zero volume
+            const filteredMineralData = Object.entries(mineralCounts)
+              .filter(([, volume]) => volume > 0)
+              .reduce((acc, [mineral, volume]) => {
+                acc.labels.push(mineral);
+                acc.data.push(volume);
+                return acc;
+              }, { labels: [], data: [] });
+            
+            new Chart(mineralContext, {
+              type: 'pie',
+              data: {
+                labels: filteredMineralData.labels,
+                datasets: [{
+                  label: 'Volume by Mineral (m³)',
+                  data: filteredMineralData.data,
+                  backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#c9cbcf']
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false
+              }
+            });
+          } catch (error) {
+            console.error('Error rendering charts:', error);
+          }
+        }
+
+        function initializeWithDummyData() {
+          console.log('Initializing with dummy data due to database error');
+          const dummyRoyalties = royaltyRecords.map((r, index) => ({
+            ...r, 
+            id: index + 1,
+            royalties: r.volume * r.tariff
+          }));
+          const dummyContracts = entities.map((e, index) => ({
+            id: index + 1, 
+            entity: e.name, 
+            rate: e.tariff, 
+            startDate: '2024-01-01'
+          }));
+          
+          updateDashboard(dummyRoyalties);
+          updateRoyaltiesTable(dummyRoyalties);
+          updateContractsTable(dummyContracts);
+          updateAuditTable(auditData);
+          
+          if (window.Chart) {
+            renderCharts(dummyRoyalties);
+          }
+        }
+
+        function addNotification(message) {
+          const count = parseInt(document.querySelector('#notification-count').textContent || '0');
+          document.getElementById('notification-count').textContent = count + 1;
+          document.getElementById('dashboard-notification-count').textContent = count + 1;
+          
+          // Create notification element if notifications section exists
+          const notificationsSection = document.querySelector('#notifications');
+          if (notificationsSection) {
+            let notificationsList = notificationsSection.querySelector('.notifications-list');
+            if (!notificationsList) {
+              notificationsList = document.createElement('div');
+              notificationsList.className = 'notifications-list';
+              notificationsSection.appendChild(notificationsList);
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'notification-item';
+            div.innerHTML = `
+              <div class="notification-content">
+                <strong>${new Date().toLocaleString()}</strong>
+                <p>${message}</p>
+              </div>
+            `;
+            notificationsList.insertBefore(div, notificationsList.firstChild);
+          }
+          
+          console.log(`Notification: ${message}`);
+        }
+
+        // Add missing sections for notifications and profile
+        function addMissingSections() {
+          const mainContent = document.querySelector('.main-content');
+          
+          // Add notifications section if missing
+          if (!document.querySelector('#notifications')) {
+            const notificationsSection = document.createElement('section');
+            notificationsSection.id = 'notifications';
+            notificationsSection.className = 'content-section';
+            notificationsSection.innerHTML = `
+              <div class="page-header">
+                <div class="page-title">
+                  <h1>Notifications</h1>
+                  <p>View system notifications and alerts</p>
+                </div>
+              </div>
+              <div class="notifications-list">
+                <div class="notification-item">
+                  <div class="notification-content">
+                    <strong>System</strong>
+                    <p>Welcome to the Mining Royalties Manager</p>
+                  </div>
+                </div>
+              </div>
+            `;
+            mainContent.appendChild(notificationsSection);
+          }
+          
+          // Add profile section if missing
+          if (!document.querySelector('#my-profile')) {
+            const profileSection = document.createElement('section');
+            profileSection.id = 'my-profile';
+            profileSection.className = 'content-section';
+            profileSection.innerHTML = `
+              <div class="page-header">
+                <div class="page-title">
+                  <h1>My Profile</h1>
+                  <p>Manage your account settings</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h3>Profile Information</h3>
+                </div>
+                <div class="card-body">
+                  <p><strong>Username:</strong> <span id="profile-username">-</span></p>
+                  <p><strong>Role:</strong> <span id="profile-role">-</span></p>
+                  <p><strong>Last Login:</strong> <span id="profile-last-login">${new Date().toLocaleString()}</span></p>
+                </div>
+              </div>
+            `;
+            mainContent.appendChild(profileSection);
+          }
+        }
+
+        function updateProfileInfo() {
+          if (currentUser) {
+            const profileUsername = document.querySelector('#profile-username');
+            const profileRole = document.querySelector('#profile-role');
+            
+            if (profileUsername) profileUsername.textContent = currentUser.username || 'N/A';
+            if (profileRole) profileRole.textContent = currentUser.role || 'N/A';
+          }
+        }
+
+        function showLoginError(message) {
+          const errorMessage = document.querySelector('.error-message');
+          if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+          }
+          console.error('Login error:', message);
+        }
+
+        // Placeholder functions
+        function editRoyalty(id) {
+          console.log('Edit royalty', id);
+        }
+        
+        function deleteRoyalty(id) {
+          console.log('Delete royalty', id);
+        }
+        
+        function editContract(id) {
+          console.log('Edit contract', id);
+        }
+        
+        function downloadContract(entity) {
+          alert(`Simulated download of contract for ${entity}`);
+        }
+
+        window.addEventListener('load', async () => {
+          // Library checks
+          if (!window.Chart) {
+            console.error('Chart.js failed to load');
+            const trendsChart = document.querySelector('#royalty-trends-chart');
+            if (trendsChart && trendsChart.parentElement) {
+              trendsChart.parentElement.innerHTML = '<div class="chart-empty"><i class="fas fa-exclamation-circle"></i><p>Chart failed to load</p></div>';
+            }
+          }
+          if (!window.jspdf) {
+            console.error('jsPDF failed to load');
+            const exportRoyalties = document.querySelector('#export-royalties');
+            const exportAudit = document.querySelector('#export-audit');
+            if (exportRoyalties) exportRoyalties.disabled = true;
+            if (exportAudit) exportAudit.disabled = true;
+          }
+
+          // Add missing sections first
+          addMissingSections();
+
+          // Initialize with dummy data to ensure the app works even without IndexedDB
+          initializeWithDummyData();
+
+          // Login handler - moved to top and simplified
+          const loginForm = document.getElementById('login-form');
+          if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              
+              const usernameInput = document.getElementById('username');
+              const passwordInput = document.getElementById('password');
+              
+              if (!usernameInput || !passwordInput) {
+                console.error('Login form inputs not found');
+                return;
+              }
+              
+              const username = usernameInput.value.trim();
+              const password = passwordInput.value.trim();
+              
+              console.log('Login attempt:', username); // Debug log
+              
+              if (!username || !password) {
+                showLoginError('Please enter both username and password');
+                return;
+              }
+              
+              // Hardcoded users for demo (fallback authentication)
+              const users = [
+                { username: 'admin', password: 'admin123', role: 'admin' },
+                { username: 'editor', password: 'editor123', role: 'editor' },
+                { username: 'viewer', password: 'viewer123', role: 'viewer' }
+              ];
+              
+              const user = users.find(u => u.username === username && u.password === password);
+              
+              if (user) {
+                console.log('Login successful for:', username); // Debug log
+                authenticateUser(user, username);
+              } else {
+                console.log('Login failed for:', username); // Debug log
+                showLoginError('Invalid username or password. Try: admin/admin123 or editor/editor123');
+              }
+            });
+          }
+
+          // Enhanced authentication function (moved inside load event)
+          function authenticateUser(user, username) {
+            console.log('Authenticating user:', username); // Debug log
+            
+            currentUser = user;
+            
+            // Update user display
+            const userNameElement = document.getElementById('user-name');
+            const userRoleElement = document.getElementById('user-role');
+            
+            if (userNameElement) userNameElement.textContent = username;
+            if (userRoleElement) userRoleElement.textContent = user.role;
+            
+            // Update profile info
+            updateProfileInfo();
+            
+            // Hide login section and show app
+            const loginSection = document.querySelector('.login-section');
+            const appContainer = document.querySelector('.app-container');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (loginSection) loginSection.classList.add('hidden');
+            if (appContainer) {
+              appContainer.classList.remove('hidden');
+              appContainer.classList.add('show');
+            }
+            
+            // Ensure sidebar is visible
+            if (sidebar) {
+              sidebar.classList.remove('hidden');
+              sidebar.style.display = 'block';
+            }
+            
+            // Hide user management for non-admin users
+            if (user.role !== 'admin') {
+              const userMgmt = document.querySelector('#user-management');
+              if (userMgmt) userMgmt.classList.add('hidden');
+            }
+            
+            // Clear any error messages
+            const errorMessage = document.querySelector('.error-message');
+            if (errorMessage) errorMessage.classList.add('hidden');
+            
+            // Add welcome notification
+            addNotification(`Welcome back, ${username}!`);
+            
+            console.log('Authentication complete'); // Debug log
+          }
+
+          // Try IndexedDB initialization (optional)
+          try {
+            const getVersionRequest = indexedDB.open('RoyaltiesDB');
+            
+            getVersionRequest.onsuccess = (event) => {
+              const existingDb = event.target.result;
+              const currentVersion = existingDb.version;
+              existingDb.close();
+              
+              const targetVersion = Math.max(currentVersion + 1, 3);
+              const dbRequest = indexedDB.open('RoyaltiesDB', targetVersion);
+              
+              dbRequest.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                
+                if (!db.objectStoreNames.contains('royalties')) {
+                  db.createObjectStore('royalties', { keyPath: 'id', autoIncrement: true });
+                }
+                if (!db.objectStoreNames.contains('users')) {
+                  db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+                }
+                if (!db.objectStoreNames.contains('contracts')) {
+                  db.createObjectStore('contracts', { keyPath: 'id', autoIncrement: true });
+                }
+              };
+              
+              dbRequest.onsuccess = async (event) => {
+                const db = event.target.result;
+                
+                try {
+                  const transaction = db.transaction(['royalties', 'users', 'contracts'], 'readwrite');
+
+                  // Initialize users
+                  const userStore = transaction.objectStore('users');
+                  const userCount = await new Promise(resolve => {
+                    const req = userStore.count();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(0);
+                  });
+                  
+                  if (userCount === 0) {
+                    userStore.add({ username: 'admin', password: 'admin123', role: 'admin' });
+                    userStore.add({ username: 'editor', password: 'editor123', role: 'editor' });
+                    userStore.add({ username: 'viewer', password: 'viewer123', role: 'viewer' });
+                  }
+
+                  // Initialize royalties
+                  const royaltyStore = transaction.objectStore('royalties');
+                  const royaltyCount = await new Promise(resolve => {
+                    const req = royaltyStore.count();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(0);
+                  });
+                  
+                  if (royaltyCount === 0) {
+                    royaltyRecords.forEach(record => {
+                      royaltyStore.add({
+                        entity: record.entity,
+                        mineral: record.mineral,
+                        volume: record.volume,
+                        tariff: record.tariff,
+                        royalties: record.volume * record.tariff,
+                        date: record.date,
+                        status: record.status
+                      });
+                    });
+                  }
+
+                  // Initialize contracts
+                  const contractStore = transaction.objectStore('contracts');
+                  const contractCount = await new Promise(resolve => {
+                    const req = contractStore.count();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(0);
+                  });
+                  
+                  if (contractCount === 0) {
+                    entities.forEach(entity => {
+                      contractStore.add({
+                        entity: entity.name,
+                        rate: entity.tariff,
+                        startDate: '2024-01-01'
+                      });
+                    });
+                  }
+
+                  await new Promise(resolve => {
+                    transaction.oncomplete = resolve;
+                    transaction.onerror = resolve;
+                  });
+
+                  // Reload data from database
+                  const newTransaction = db.transaction(['royalties', 'contracts'], 'readonly');
+                  
+                  const royaltyData = await new Promise(resolve => {
+                    const req = newTransaction.objectStore('royalties').getAll();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve([]);
+                  });
+                  
+                  if (royaltyData.length > 0) {
+                    updateDashboard(royaltyData);
+                    updateRoyaltiesTable(royaltyData);
+                    if (window.Chart) {
+                      renderCharts(royaltyData);
+                    }
+                  }
+
+                  const contractData = await new Promise(resolve => {
+                    const req = newTransaction.objectStore('contracts').getAll();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve([]);
+                  });
+                  updateContractsTable(contractData);
+
+                } catch (error) {
+                  console.error('Error with IndexedDB:', error);
+                  // App already initialized with dummy data, so continue
+                }
+              };
+              
+              dbRequest.onerror = (event) => {
+                console.error('Database error:', event.target.error);
+                // App already initialized with dummy data
+              };
+            };
+            
+            getVersionRequest.onerror = (event) => {
+              console.error('Database version check failed:', event.target.error);
+              // App already initialized with dummy data
+            };
+            
+          } catch (error) {
+            console.error('IndexedDB initialization failed:', error);
+            // App already initialized with dummy data
+          }
+
+          // Royalty form submission
+          document.getElementById('royalty-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const record = {
+              entity: document.getElementById('entity').value,
+              mineral: document.getElementById('mineral').value,
+              volume: parseFloat(document.getElementById('volume').value),
+              tariff: parseFloat(document.getElementById('tariff').value),
+              royalties: parseFloat(document.getElementById('volume').value) * parseFloat(document.getElementById('tariff').value),
+              date: document.getElementById('royalty-date').value,
+              status: 'Pending'
+            };
+            const db = await new Promise(resolve => {
+              const req = indexedDB.open('RoyaltiesDB', 2);
+              req.onsuccess = (event) => resolve(event.target.result);
+            });
+            const transaction = db.transaction(['royalties'], 'readwrite');
+            const store = transaction.objectStore('royalties');
+            await new Promise(resolve => {
+              const req = store.add(record);
+              req.onsuccess = () => resolve();
+            });
+            const data = await new Promise(resolve => {
+              const req = store.getAll();
+              req.onsuccess = () => resolve(req);
+            });
+            updateRoyaltiesTable(data.result);
+            updateDashboard(data.result);
+            renderCharts(data.result);
+            addNotification('New royalty record added');
+          });
+
+          // Contract form submission
+          document.getElementById('contract-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const contract = {
+              entity: document.getElementById('contract-entity').value,
+              rate: parseFloat(document.getElementById('contract-rate').value),
+              startDate: document.getElementById('contract-start').value
+            };
+            const db = await new Promise(resolve => {
+              const req = indexedDB.open('RoyaltiesDB', 2);
+              req.onsuccess = (event) => resolve(event.target.result);
+            });
+            const transaction = db.transaction(['contracts'], 'readwrite');
+            const store = transaction.objectStore('contracts');
+            await new Promise(resolve => {
+              const req = store.add(contract);
+              req.onsuccess = () => resolve();
+            });
+            const data = await new Promise(resolve => {
+              const req = store.getAll();
+              req.onsuccess = () => resolve(req);
+            });
+            updateContractsTable(data.result);
+            addNotification('New contract added');
+          });
+
+          // Report generation
+          document.getElementById('report-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('report-type').value;
+            const entity = document.getElementById('report-entity').value;
+            const date = document.getElementById('report-date').value;
+            if (window.jspdf && type === 'royalty-summary') {
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF();
+              doc.setFont("Arial", "normal");
+              doc.setFontSize(16);
+              doc.text('Royalty Summary Report', 20, 20);
+              doc.setFontSize(12);
+              doc.text(`Entity: ${entity || 'All Entities'}, Date: ${date}`, 20, 30);
+              const db = await new Promise(resolve => {
+                const req = indexedDB.open('RoyaltiesDB', 2);
+                req.onsuccess = (event) => resolve(event.target.result);
+              });
+              const transaction = db.transaction(['royalties'], 'readonly');
+              const store = transaction.objectStore('royalties');
+              const data = await new Promise(resolve => {
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result.filter(r => !entity || r.entity === entity));
+              });
+              let y = 50;
+              doc.text('Entity,Mineral,Volume (m³),Tariff (E/m³),Royalties (E),Date,Status', 20, y);
+              data.forEach((record, index) => {
+                y += 10;
+                doc.text(`${record.entity},${record.mineral},${record.volume},${record.tariff},${record.royalties.toFixed(2)},${record.date},${record.status}`, 20, y);
+              });
+              doc.save(`royalty_${entity || 'all'}_${date}.pdf`);
+              addNotification('Royalty report generated');
+            } else if (window.jspdf && type === 'audit-discrepancies') {
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF();
+              doc.setFont("Arial", "normal");
+              doc.setFontSize(16);
+              doc.text('Audit Discrepancy Report', 20, 20);
+              doc.setFontSize(12);
+              doc.text(`Project: Rehabilitation of Nkomazi and Malanti Culvert`, 20, 30);
+              let y = 50;
+              doc.text('Mineral,Declared (m³),Verified (m³),Outstanding (E)', 20, y);
+              auditData[0].discrepancies.forEach((d, index) => {
+                const outstanding = (d.verified - d.declared) * d.tariff;
+                y += 10;
+                doc.text(`${d.mineral},${d.declared},${d.verified},${outstanding.toFixed(2)}`, 20, y);
+              });
+              y += 20;
+              doc.text(`Total Outstanding: E${auditData[0].discrepancies.reduce((sum, d) => sum + (d.verified - d.declared) * d.tariff, 0).toFixed(2)}`, 20, y);
+              doc.save('audit_discrepancy_report.pdf');
+              addNotification('Audit report generated');
+            }
+          });
+
+          // Navigation handling
+          const navLinks = document.querySelectorAll('.nav-link');
+          
+          // Show dashboard by default
+          document.querySelectorAll('.content-section').forEach(section => section.style.display = 'none');
+          const dashboardSection = document.getElementById('dashboard');
+          if (dashboardSection) dashboardSection.style.display = 'block';
+          
+          navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const targetId = link.getAttribute('href').substring(1);
+              
+              // Hide all sections
+              document.querySelectorAll('.content-section').forEach(section => section.style.display = 'none');
+              
+              // Show target section
+              const targetSection = document.getElementById(targetId);
+              if (targetSection) {
+                targetSection.style.display = 'block';
+              } else {
+                console.warn(`Section ${targetId} not found`);
+              }
+              
+              // Update active link
+              navLinks.forEach(l => l.classList.remove('active'));
+              link.classList.add('active');
+            });
+          });
+          
+          // Set dashboard as active
+          const dashboardLink = document.querySelector('a[href="#dashboard"]');
+          if (dashboardLink) {
+            dashboardLink.classList.add('active');
+          }
+
+          // Logout functionality
+          const logoutBtn = document.querySelector('.logout-btn');
+          if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+              currentUser = null;
+              const loginSection = document.querySelector('.login-section');
+              const appContainer = document.querySelector('.app-container');
+              const sidebar = document.querySelector('.sidebar');
+              const usernameInput = document.getElementById('username');
+              const passwordInput = document.getElementById('password');
+              
+              if (loginSection) loginSection.classList.remove('hidden');
+              if (appContainer) appContainer.classList.add('hidden');
+              if (sidebar) sidebar.style.display = 'none';
+              if (usernameInput) usernameInput.value = '';
+              if (passwordInput) passwordInput.value = '';
+            });
+          }
+
+          // Mobile menu toggle
+          const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+          if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+              const sidebar = document.querySelector('.sidebar');
+              if (sidebar) sidebar.classList.toggle('sidebar-mobile-open');
+            });
+          }
+
+          // Sidebar close button (for mobile)
+          const sidebarClose = document.querySelector('.sidebar-close');
+          if (sidebarClose) {
+            sidebarClose.addEventListener('click', () => {
+              const sidebar = document.querySelector('.sidebar');
+              if (sidebar) sidebar.classList.remove('sidebar-mobile-open');
+            });
+          }
+
+          // Hide loading screen
+          setTimeout(() => {
+            const loadingScreen = document.querySelector('.loading-screen');
+            if (loadingScreen) loadingScreen.style.display = 'none';
+          }, 1000);
+        });
+      </script>
+    </div>
+  </div>
+</body>
+</html>
