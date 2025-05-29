@@ -89,7 +89,7 @@
     </div>
   </div>
 
-  <div class="sidebar">
+  <div class="sidebar hidden" style="display: none;">
     <div class="sidebar-header">
       <div class="sidebar-logo"><i class="fas fa-gem"></i></div>
       <h2>Royalties Manager</h2>
@@ -117,7 +117,7 @@
     </div>
   </div>
 
-  <div class="app-container hidden">
+  <div class="app-container hidden" style="display: none;">
     <button class="mobile-menu-toggle"><span></span><span></span><span></span></button>
     <button class="theme-toggle"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button>
 
@@ -837,6 +837,29 @@
         }
 
         window.addEventListener('load', async () => {
+          // Ensure only login section is visible initially
+          const loginSection = document.querySelector('.login-section');
+          const appContainer = document.querySelector('.app-container');
+          const sidebar = document.querySelector('.sidebar');
+          
+          // Force login page to be visible
+          if (loginSection) {
+            loginSection.classList.remove('hidden');
+            loginSection.style.display = 'flex';
+          }
+          
+          // Force main app to be hidden
+          if (appContainer) {
+            appContainer.classList.add('hidden');
+            appContainer.style.display = 'none';
+          }
+          
+          // Force sidebar to be hidden
+          if (sidebar) {
+            sidebar.classList.add('hidden');
+            sidebar.style.display = 'none';
+          }
+
           // Library checks
           if (!window.Chart) {
             console.error('Chart.js failed to load');
@@ -853,7 +876,13 @@
             if (exportAudit) exportAudit.disabled = true;
           }
 
-          // Add missing sections first
+          // Hide loading screen
+          setTimeout(() => {
+            const loadingScreen = document.querySelector('.loading-screen');
+            if (loadingScreen) loadingScreen.style.display = 'none';
+          }, 1000);
+
+          // Add missing sections first (but keep them hidden)
           addMissingSections();
 
           // Initialize with dummy data to ensure the app works even without IndexedDB
@@ -923,13 +952,17 @@
             const appContainer = document.querySelector('.app-container');
             const sidebar = document.querySelector('.sidebar');
             
-            if (loginSection) loginSection.classList.add('hidden');
+            if (loginSection) {
+              loginSection.classList.add('hidden');
+              loginSection.style.display = 'none';
+            }
             if (appContainer) {
               appContainer.classList.remove('hidden');
+              appContainer.style.display = 'block';
               appContainer.classList.add('show');
             }
             
-            // Ensure sidebar is visible
+            // Ensure sidebar is visible after login
             if (sidebar) {
               sidebar.classList.remove('hidden');
               sidebar.style.display = 'block';
@@ -1247,9 +1280,25 @@
               const usernameInput = document.getElementById('username');
               const passwordInput = document.getElementById('password');
               
-              if (loginSection) loginSection.classList.remove('hidden');
-              if (appContainer) appContainer.classList.add('hidden');
-              if (sidebar) sidebar.style.display = 'none';
+              // Show login page
+              if (loginSection) {
+                loginSection.classList.remove('hidden');
+                loginSection.style.display = 'flex';
+              }
+              
+              // Hide main app
+              if (appContainer) {
+                appContainer.classList.add('hidden');
+                appContainer.style.display = 'none';
+              }
+              
+              // Hide sidebar
+              if (sidebar) {
+                sidebar.classList.add('hidden');
+                sidebar.style.display = 'none';
+              }
+              
+              // Clear form inputs
               if (usernameInput) usernameInput.value = '';
               if (passwordInput) passwordInput.value = '';
             });
