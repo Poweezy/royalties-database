@@ -5,7 +5,8 @@
   "start_url": "./royalties.html",
   "display": "standalone",
   "background_color": "#2563eb",
-  "theme_color": "#ffffff",
+  "theme_color": "#1a365d",
+  "scope": "/",
   "orientation": "portrait-primary",
   "icons": [
     {

@@ -43,123 +43,190 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mining Royalties Manager</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="royalties.css">
-  <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="./favicon-512.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="loading-screen" id="loadingScreen">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <h2>Loading your workspace...</h2>
-    </div>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-spinner"></div>
+    <p>Loading your workspace...</p>
   </div>
 
-  <div class="login-section" id="loginSection">
+  <!-- Login Section -->
+  <section class="login-section" id="login-section">
     <div class="login-container">
       <div class="login-header">
-        <div class="login-logo">MR</div>
-        <h1>Mining Royalties Manager</h1>
+        <div class="login-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+        <h2>Mining Royalties Manager</h2>
         <p>Secure access to your royalty management system</p>
       </div>
-      <div class="login-form">
+      <form class="login-form">
         <div class="input-group">
           <i class="fas fa-user"></i>
-          <input type="text" id="username" placeholder="Username" required>
-          <div class="validation-error" id="usernameError">Username is required</div>
+          <input type="text" id="username" placeholder="Username" aria-describedby="username-error">
+          <div class="validation-error" id="username-error">Username is required</div>
         </div>
         <div class="input-group">
           <i class="fas fa-lock"></i>
-          <input type="password" id="password" placeholder="Password" required>
-          <button class="password-toggle" type="button" onclick="togglePassword()">
+          <input type="password" id="password" placeholder="Password" aria-describedby="password-error">
+          <button type="button" class="password-toggle" aria-label="Toggle password visibility">
             <i class="fas fa-eye"></i>
           </button>
-          <div class="validation-error" id="passwordError">Password is required</div>
+          <div class="validation-error" id="password-error">Password is required</div>
         </div>
-        <button class="btn btn-primary btn-large" onclick="login()">Sign In</button>
-      </div>
+        <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+      </form>
       <div class="login-footer">
-        <p>Demo Credentials: admin/admin123 or editor/editor123</p>
+        <p>Please contact your administrator for credentials.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="app-container" id="appContainer" style="display: none;">
+  <!-- Main App -->
+  <div class="app-container" id="app-container" style="display: none;">
+    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-logo">MR</div>
+        <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
         <h2>Royalties Manager</h2>
-        <button class="sidebar-close" onclick="toggleSidebar()">
+        <button class="sidebar-close" aria-label="Close sidebar">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <nav>
         <ul>
-          <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="#dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
           <li><a href="#user-management"><i class="fas fa-users"></i> User Management</a></li>
           <li><a href="#royalty-records"><i class="fas fa-file-invoice"></i> Royalty Records</a></li>
           <li><a href="#contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
-          <li><a href="#communication"><i class="fas fa-comments"></i> Communication</a></li>
-          <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span class="notification-badge">3</span></a></li>
+          <li><a href="#communication"><i class="fas fa-envelope"></i> Communication</a></li>
+          <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span>3</span></a></li>
           <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance</a></li>
-          <li><a href="#profile"><i class="fas fa-user-circle"></i> My Profile</a></li>
-          <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li><a href="#profile"><i class="fas fa-user"></i> My Profile</a></li>
+          <li><a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
+      <!-- Dashboard -->
       <section id="dashboard">
         <div class="page-header">
           <div class="page-title">
             <h1>Dashboard</h1>
-            <p>Welcome back, User</p>
+            <p>Welcome back, <span id="user-name">User</span></p>
           </div>
           <div class="page-actions">
             <button class="btn btn-primary">Admin</button>
-            <span>0</span>
+            <button class="btn btn-secondary">0</button>
           </div>
         </div>
         <div class="charts-grid">
-          <div class="card">
-            <div class="card-header"><h3>Total Royalties (YTD)</h3></div>
-            <div class="card-body"><p>E0.00</p><small>+0% from last year</small></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><h3>Active Entities</h3></div>
-            <div class="card-body"><p>0</p><small>No change</small></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><h3>Compliance Rate</h3></div>
-            <div class="card-body"><p>0%</p></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><h3>Pending Approvals</h3></div>
-            <div class="card-body"><p>0</p></div>
-          </div>
-        </div>
-        <div class="charts-grid">
-          <div class="card">
-            <div class="card-header"><h3>Royalty Trends</h3></div>
-            <div class="card-body">
-              <select>
-                <option>Last 6 months</option>
-                <option>Last year</option>
-                <option>Last 2 years</option>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Total Royalties (YTD)</h3>
+              <select class="metric-period">
+                <option>2024</option>
+                <option>2023</option>
+                <option>All Time</option>
               </select>
-              <div id="royalty-trends-chart"></div>
+            </div>
+            <div class="card-body">
+              <p id="total-royalties">E0.00</p>
+              <small class="trend-positive">+0% from last year</small>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><h3>Mineral Distribution</h3></div>
-            <div class="card-body"><div id="mineral-distribution-chart"></div></div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Active Entities</h3>
+              <select class="metric-period">
+                <option>This Quarter</option>
+                <option>Last Quarter</option>
+                <option>YTD</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <p id="active-entities">0</p>
+              <small class="trend-stable">No change</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Compliance Rate</h3>
+            </div>
+            <div class="card-body">
+              <p id="compliance-rate">0%</p>
+              <div class="collection-progress">
+                <div class="progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Pending Approvals</h3>
+            </div>
+            <div class="card-body">
+              <p id="pending-approvals">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="analytics-chart card">
+            <div class="chart-header">
+              <h5>Revenue Trends</h5>
+              <div class="chart-controls">
+                <button class="chart-btn active">Line</button>
+                <button class="chart-btn">Bar</button>
+                <button class="chart-btn">Area</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="revenue-trends-chart"></canvas>
+            </div>
+            ```chartjs
+            {
+              "type": "line",
+              "data": {
+                "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                "datasets": [{
+                  "label": "Revenue (E)",
+                  "data": [500000, 600000, 750000, 700000, 800000, 900000],
+                  "borderColor": "#1a365d",
+                  "backgroundColor": "rgba(26, 54, 93, 0.2)",
+                  "fill": true
+                }]
+              },
+              "options": {
+                "responsive": true,
+                "maintainAspectRatio": false,
+                "scales": {
+                  "y": {
+                    "beginAtZero": true
+                  }
+                }
+              }
+            }
+            ```
+          </div>
+          <div class="analytics-chart card">
+            <div class="chart-header">
+              <h5>Production by Entity</h5>
+            </div>
+            <div class="chart-container">
+              <p class="chart-placeholder"><i class="fas fa-chart-pie"></i> Production distribution chart</p>
+            </div>
           </div>
         </div>
       </section>
 
+      <!-- User Management -->
       <section id="user-management">
         <div class="page-header">
           <div class="page-title">
@@ -167,54 +234,76 @@
             <p>Manage users with role-based access control and security monitoring</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary">View Audit Log</button>
-            <button class="btn btn-secondary">Export Report</button>
-            <button class="btn btn-primary">Add User</button>
+            <button class="btn btn-primary">View Audit Log</button>
+            <button class="btn btn-primary">Export Report</button>
+            <button class="btn btn-success">Add User</button>
           </div>
         </div>
         <div class="charts-grid">
-          <div class="card">
-            <div class="card-header"><h3>Active Users</h3></div>
-            <div class="card-body"><p>3</p><small>Currently online</small></div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Active Users</h3>
+            </div>
+            <div class="card-body">
+              <p>3</p>
+              <small>Currently online</small>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-header"><h3>Failed Logins</h3></div>
-            <div class="card-body"><p>0</p><small>Last 24 hours</small></div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Failed Logins</h3>
+            </div>
+            <div class="card-body">
+              <p>0</p>
+              <small>Last 24 hours</small>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-header"><h3>Security Alerts</h3></div>
-            <div class="card-body"><p>None</p><small>All systems secure</small></div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Security Alerts</h3>
+            </div>
+            <div class="card-body">
+              <p>None</p>
+              <small>All systems secure</small>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-header"><h3>Password Compliance</h3></div>
-            <div class="card-body"><p>100%</p><small>Meeting security standards</small></div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Password Compliance</h3>
+            </div>
+            <div class="card-body">
+              <p>100%</p>
+              <small>Meeting security standards</small>
+            </div>
           </div>
         </div>
         <div class="user-form-container">
           <h4>Add New User</h4>
           <div class="grid-4">
             <div class="form-group">
-              <label>Username</label>
-              <input type="text" placeholder="Username">
-              <div class="validation-success">✓ Username available</div>
+              <label for="new-username">Username</label>
+              <input type="text" id="new-username" placeholder="Username" aria-describedby="username-validation">
+              <div class="validation-success" id="username-validation">✓ Username available</div>
             </div>
             <div class="form-group">
-              <label>Email Address</label>
-              <input type="email" placeholder="Valid email address">
+              <label for="new-email">Email Address</label>
+              <input type="email" id="new-email" placeholder="Email Address" aria-describedby="email-validation">
+              <div class="validation-error" id="email-validation">Email is required</div>
             </div>
             <div class="form-group">
-              <label>Role</label>
-              <select>
+              <label for="new-role">Role</label>
+              <select id="new-role" aria-describedby="role-validation">
                 <option>Select Role</option>
                 <option>👑 Admin (Full Access)</option>
                 <option>✏️ Editor (Read/Write)</option>
                 <option>👁️ Viewer (Read Only)</option>
                 <option>🔍 Auditor (Audit Access)</option>
               </select>
+              <div class="validation-error" id="role-validation">Role is required</div>
             </div>
             <div class="form-group">
-              <label>Department</label>
-              <select>
+              <label for="new-department">Department</label>
+              <select id="new-department" aria-describedby="department-validation">
                 <option>Select Department</option>
                 <option>💰 Finance</option>
                 <option>⚙️ Operations</option>
@@ -222,39 +311,47 @@
                 <option>🔍 Audit</option>
                 <option>👔 Management</option>
               </select>
+              <div class="validation-error" id="department-validation">Department is required</div>
             </div>
             <div class="form-group">
-              <label>Password</label>
-              <input type="password" placeholder="Password">
+              <label for="new-password">Password</label>
+              <input type="password" id="new-password" placeholder="Password" aria-describedby="password-strength">
               <div class="password-strength-meter">
-                <div class="strength-bar strength-weak"><div class="strength-bar-fill"></div></div>
-                <span class="strength-text">Password Strength</span>
+                <div class="strength-bar strength-weak">
+                  <div class="strength-bar-fill"></div>
+                </div>
+                <p>Password Strength</p>
               </div>
+              <div class="validation-error" id="password-strength">Password is required</div>
             </div>
             <div class="form-group">
-              <label>Confirm Password</label>
-              <input type="password" placeholder="Confirm Password">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" id="confirm-password" placeholder="Confirm Password" aria-describedby="confirm-password-validation">
+              <div class="validation-error" id="confirm-password-validation">Passwords must match</div>
             </div>
             <div class="form-group">
-              <label>Account Expires</label>
-              <input type="date" placeholder="Leave blank for no expiration">
+              <label for="account-expires">Account Expires</label>
+              <input type="date" id="account-expires" aria-describedby="expires-validation">
+              <div class="validation-error" id="expires-validation">Expiration date is required</div>
             </div>
             <div class="form-group">
               <label class="checkbox-label">
-                <input type="checkbox"> Force password change on first login
+                <input type="checkbox" id="force-password-change">
+                Force password change on first login
               </label>
             </div>
-            <div class="form-group">
-              <button class="btn btn-secondary">Cancel</button>
-              <button class="btn btn-primary">Create User</button>
-            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-success">Create User</button>
           </div>
         </div>
         <div class="user-form-container">
           <h4>User Accounts</h4>
           <div class="grid-4">
             <div class="form-group">
-              <select>
+              <label for="filter-role">Role</label>
+              <select id="filter-role">
                 <option>All Roles</option>
                 <option>Admin</option>
                 <option>Editor</option>
@@ -263,7 +360,8 @@
               </select>
             </div>
             <div class="form-group">
-              <select>
+              <label for="filter-status">Status</label>
+              <select id="filter-status">
                 <option>All Status</option>
                 <option>Active</option>
                 <option>Locked</option>
@@ -274,37 +372,39 @@
               <button class="btn btn-primary">Apply Filters</button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Department</th>
-                <th>Status</th>
-                <th>Last Login</th>
-                <th>Failed Attempts</th>
-                <th>Expires</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                  <th>Last Login</th>
+                  <th>Failed Attempts</th>
+                  <th>Expires</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
         <div class="user-form-container">
           <h4>Security Audit Log</h4>
           <div class="grid-4">
             <div class="form-group">
-              <label>From Date</label>
-              <input type="date">
+              <label for="audit-from-date">From Date</label>
+              <input type="date" id="audit-from-date">
             </div>
             <div class="form-group">
-              <label>To Date</label>
-              <input type="date">
+              <label for="audit-to-date">To Date</label>
+              <input type="date" id="audit-to-date">
             </div>
             <div class="form-group">
-              <label>Action Type</label>
-              <select>
+              <label for="audit-action-type">Action Type</label>
+              <select id="audit-action-type">
                 <option>All Actions</option>
                 <option>Login</option>
                 <option>Logout</option>
@@ -319,22 +419,25 @@
               <button class="btn btn-primary">Apply Filters</button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Target</th>
-                <th>IP Address</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>IP Address</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
+      <!-- Royalty Records -->
       <section id="royalty-records">
         <div class="page-header">
           <div class="page-title">
@@ -342,15 +445,15 @@
             <p>Manage and review all royalty payments</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Record Payment</button>
+            <button class="btn btn-success">Record Payment</button>
           </div>
         </div>
         <div class="user-form-container">
           <h4>Record Royalty Payment</h4>
           <div class="grid-4">
             <div class="form-group">
-              <label>Entity</label>
-              <select>
+              <label for="entity">Entity</label>
+              <select id="entity" aria-describedby="entity-validation">
                 <option>Select Entity</option>
                 <option>Kwalini Quarry</option>
                 <option>Mbabane Quarry</option>
@@ -359,11 +462,11 @@
                 <option>Ngwenya Mine</option>
                 <option>Malolotja Mine</option>
               </select>
-              <div class="validation-error">Entity is required</div>
+              <div class="validation-error" id="entity-validation">Entity is required</div>
             </div>
             <div class="form-group">
-              <label>Mineral</label>
-              <select>
+              <label for="mineral">Mineral</label>
+              <select id="mineral" aria-describedby="mineral-validation">
                 <option>Select Mineral</option>
                 <option>Coal</option>
                 <option>Iron Ore</option>
@@ -373,33 +476,34 @@
                 <option>Plaster Sand</option>
                 <option>Quarried Stone</option>
               </select>
-              <div class="validation-error">Mineral is required</div>
+              <div class="validation-error" id="mineral-validation">Mineral is required</div>
             </div>
             <div class="form-group">
-              <label>Volume (m³)</label>
-              <input type="number" placeholder="Volume">
-              <div class="validation-error">Volume must be a positive number</div>
+              <label for="volume">Volume (m³)</label>
+              <input type="number" id="volume" placeholder="Volume (m³)" aria-describedby="volume-validation">
+              <div class="validation-error" id="volume-validation">Volume must be a positive number</div>
             </div>
             <div class="form-group">
-              <label>Royalty Tariff (E/m³)</label>
-              <input type="number" placeholder="Tariff">
-              <div class="validation-error">Tariff must be a positive number</div>
+              <label for="tariff">Royalty Tariff (E/m³)</label>
+              <input type="number" id="tariff" placeholder="Tariff (E/m³)" aria-describedby="tariff-validation">
+              <div class="validation-error" id="tariff-validation">Tariff must be a positive number</div>
             </div>
             <div class="form-group">
-              <label>Date</label>
-              <input type="date">
-              <div class="validation-error">Date is required</div>
+              <label for="payment-date">Date</label>
+              <input type="date" id="payment-date" aria-describedby="date-validation">
+              <div class="validation-error" id="date-validation">Date is required</div>
             </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Save Royalty</button>
-            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-success">Save Royalty</button>
           </div>
         </div>
         <div class="user-form-container">
           <h4>Royalty Records Table</h4>
           <div class="grid-4">
             <div class="form-group">
-              <select>
+              <label for="filter-entity">Entity</label>
+              <select id="filter-entity">
                 <option>All Entities</option>
                 <option>Kwalini Quarry</option>
                 <option>Mbabane Quarry</option>
@@ -411,27 +515,30 @@
             </div>
             <div class="form-group">
               <button class="btn btn-primary">Apply Filters</button>
-              <button class="btn btn-secondary">Export Report</button>
+              <button class="btn btn-primary">Export Report</button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Entity</th>
-                <th>Mineral</th>
-                <th>Volume (m³)</th>
-                <th>Tariff (E/m³)</th>
-                <th>Royalties (E)</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Mineral</th>
+                  <th>Volume (m³)</th>
+                  <th>Tariff (E/m³)</th>
+                  <th>Royalties (E)</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
+      <!-- Contract Management -->
       <section id="contract-management">
         <div class="page-header">
           <div class="page-title">
@@ -439,15 +546,15 @@
             <p>Manage royalty agreements for mines and quarries</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Add Contract</button>
+            <button class="btn btn-success">Add Contract</button>
           </div>
         </div>
         <div class="user-form-container">
           <h4>Add Contract</h4>
           <div class="grid-4">
             <div class="form-group">
-              <label>Entity</label>
-              <select>
+              <label for="contract-entity">Entity</label>
+              <select id="contract-entity" aria-describedby="contract-entity-validation">
                 <option>Select Entity</option>
                 <option>Kwalini Quarry</option>
                 <option>Mbabane Quarry</option>
@@ -456,51 +563,58 @@
                 <option>Ngwenya Mine</option>
                 <option>Malolotja Mine</option>
               </select>
+              <div class="validation-error" id="contract-entity-validation">Entity is required</div>
             </div>
             <div class="form-group">
-              <label>Royalty Rate (E/m³)</label>
-              <input type="number" placeholder="Rate">
+              <label for="royalty-rate">Royalty Rate (E/m³)</label>
+              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
+              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
             </div>
             <div class="form-group">
-              <label>Start Date</label>
-              <input type="date">
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Save Contract</button>
+              <label for="start-date">Start Date</label>
+              <input type="date" id="start-date" aria-describedby="start-date-validation">
+              <div class="validation-error" id="start-date-validation">Start date is required</div>
             </div>
           </div>
+          <div class="form-actions">
+            <button class="btn btn-success">Save Contract</button>
+          </div>
         </div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Entity</th>
-              <th>Royalty Rate (E/m³)</th>
-              <th>Start Date</th>
-              <th>Document</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Entity</th>
+                <th>Royalty Rate (E/m³)</th>
+                <th>Start Date</th>
+                <th>Document</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </section>
 
+      <!-- Audit Dashboard -->
       <section id="audit-dashboard">
         <div class="page-header">
           <div class="page-title">
-            <h1>Audit Dashboard</h1>
+            <h1>audit Dashboard</h1>
             <p>Review discrepancies and audit reports</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Export Audit Report</button>
+            <button class="btn btn-primary">Export Report</button>
           </div>
         </div>
         <div class="user-form-container">
           <div class="grid-4">
             <div class="form-group">
-              <select>
+              <label for="audit-filter-entity">Entity</label>
+              <select id="audit-filter-entity">
                 <option>All Entities</option>
                 <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
+                <option>Mbabane Quarry</option>>
                 <option>Sidvokodvo Quarry</option>
                 <option>Maloma Colliery</option>
                 <option>Ngwenya Mine</option>
@@ -512,46 +626,40 @@
             </div>
           </div>
           <h4>Discrepancies</h4>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Project</th>
-                <th>Mineral</th>
-                <th>Declared (m³)</th>
-                <th>Verified (m³)</th>
-                <th>Outstanding (E)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Mineral</th>
+                  <th>Declared (m³)</th>
+                  <th>Verified (m³)</th>
+                  <th>Outstanding (E)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
       </section>
 
+      <!-- Reporting & Analytics -->
       <section id="reporting-analytics">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-chart-bar"></i> Reporting & Analytics</h1>
+            <h1>Reporting & Analytics</h1>
             <p>Comprehensive reporting, real-time analytics, and KPI dashboards for stakeholder insights</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary" onclick="exportDashboard()">
-              <i class="fas fa-download"></i> Export Dashboard
-            </button>
-            <button class="btn btn-secondary" onclick="scheduleReport()">
-              <i class="fas fa-clock"></i> Schedule Reports
-            </button>
-            <button class="btn btn-primary" onclick="generateCustomReport()">
-              <i class="fas fa-chart-line"></i> Generate Report
-            </button>
+            <button class="btn btn-primary">Export Dashboard</button>
+            <button class="btn btn-primary">Schedule Report</button>
+            <button class="btn btn-success">Generate Report</button>
           </div>
         </div>
-
-        <!-- KPI Dashboard -->
         <div class="charts-grid">
-          <div class="card metric-card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-money-bill-wave"></i> Total Revenue (YTD)</h3>
+              <h3>Total Revenue (YTD)</h3>
               <select class="metric-period">
                 <option>2024</option>
                 <option>2023</option>
@@ -561,13 +669,12 @@
             <div class="card-body">
               <p>E 2,847,650.00</p>
               <small class="trend-positive">+15.8% from last year</small>
-              <div class="mini-chart" id="revenue-trend"></div>
+              <div class="mini-chart">Trend</div>
             </div>
           </div>
-          
-          <div class="card metric-card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-industry"></i> Production Volume</h3>
+              <h3>Production Volume</h3>
               <select class="metric-period">
                 <option>This Quarter</option>
                 <option>Last Quarter</option>
@@ -576,62 +683,43 @@
             </div>
             <div class="card-body">
               <p>485,250 m³</p>
-              <small class="trend-positive">+8.2% from last quarter</small>
-              <div class="mini-chart" id="production-trend"></div>
+              <small class="trend-positive">+08.2% from last quarter</small>
             </div>
           </div>
-          
-          <div class="card metric-card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-percentage"></i> Collection Rate</h3>
+              <h3>Collection Rate</h3>
             </div>
             <div class="card-body">
               <p>96.5%</p>
-              <small class="trend-stable">Maintained high collection rate</small>
+              <small>Maintained high collection rate</small>
               <div class="collection-progress">
-                <div class="progress-bar" style="width: 96.5%"></div>
+                <div class="progress-bar" style="width: 96.5%;"></div>
               </div>
             </div>
           </div>
-          
-          <div class="card metric-card warning">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-exclamation-triangle"></i> Outstanding Amounts</h3>
+              <h3>Outstanding Amounts</h3>
             </div>
             <div class="card-body">
               <p>E 125,400.00</p>
-              <small class="trend-negative">3 entities with overdue payments</small>
-              <button class="btn btn-sm btn-warning">View Details</button>
+              <small>3 entities with overdue payments</small>
+              <button class="btn btn-primary btn-sm">View Details</button>
             </div>
           </div>
         </div>
-
-        <!-- Report Generation Hub -->
         <div class="user-form-container">
-          <h4><i class="fas fa-file-alt"></i> Report Generation Hub</h4>
-          
           <div class="report-tabs">
-            <button class="tab-btn active" onclick="showReportTab('quick')">
-              <i class="fas fa-bolt"></i> Quick Reports
-            </button>
-            <button class="tab-btn" onclick="showReportTab('custom')">
-              <i class="fas fa-cogs"></i> Custom Reports
-            </button>
-            <button class="tab-btn" onclick="showReportTab('scheduled')">
-              <i class="fas fa-calendar"></i> Scheduled Reports
-            </button>
-            <button class="tab-btn" onclick="showReportTab('audit')">
-              <i class="fas fa-shield-alt"></i> Audit Trail Reports
-            </button>
+            <button class="tab-btn active" data-tab="#quick-reports">Quick Reports</button>
+            <button class="tab-btn" data-tab="#custom-reports">Custom Reports</button>
+            <button class="tab-btn" data-tab="#scheduled-reports">Scheduled Reports</button>
+            <button class="btn tab-btn" data-tab="#audit-trail-reports">Audit Trail Reports</button>
           </div>
-          
-          <!-- Quick Reports Tab -->
-          <div id="quick-tab" class="tab-content active">
+          <div class="tab-content active" id="quick-reports">
             <div class="quick-reports-grid">
               <div class="report-card">
-                <div class="report-icon">
-                  <i class="fas fa-money-check-alt"></i>
-                </div>
+                <div class="report-icon">📊</div>
                 <div class="report-info">
                   <h5>Monthly Royalty Summary</h5>
                   <p>Comprehensive overview of all royalty payments for the current month</p>
@@ -640,32 +728,22 @@
                     <span><i class="fas fa-file-pdf"></i> PDF</span>
                   </div>
                 </div>
-                <button class="btn btn-primary" onclick="generateQuickReport('monthly-summary')">
-                  Generate
-                </button>
+                <button class="btn btn-primary">Generate</button>
               </div>
-              
               <div class="report-card">
-                <div class="report-icon">
-                  <i class="fas fa-chart-pie"></i>
-                </div>
+                <div class="report-icon">📈</div>
                 <div class="report-info">
                   <h5>Entity Performance Analysis</h5>
-                  <p>Production, payments, and compliance metrics by mining entity</p>
+                  <p>Production and payment metrics by mining entity</p>
                   <div class="report-meta">
                     <span><i class="fas fa-clock"></i> 3-5 minutes</span>
                     <span><i class="fas fa-file-excel"></i> Excel</span>
                   </div>
                 </div>
-                <button class="btn btn-primary" onclick="generateQuickReport('entity-performance')">
-                  Generate
-                </button>
+                <button class="btn btn-primary">Generate</button>
               </div>
-              
               <div class="report-card">
-                <div class="report-icon">
-                  <i class="fas fa-balance-scale"></i>
-                </div>
+                <div class="report-icon">📋</div>
                 <div class="report-info">
                   <h5>Compliance Status Report</h5>
                   <p>Current compliance standings and upcoming requirements</p>
@@ -674,15 +752,10 @@
                     <span><i class="fas fa-file-pdf"></i> PDF</span>
                   </div>
                 </div>
-                <button class="btn btn-primary" onclick="generateQuickReport('compliance-status')">
-                  Generate
-                </button>
+                <button class="btn btn-primary">Generate</button>
               </div>
-              
               <div class="report-card">
-                <div class="report-icon">
-                  <i class="fas fa-exclamation-circle"></i>
-                </div>
+                <div class="report-icon">💰</div>
                 <div class="report-info">
                   <h5>Outstanding Payments</h5>
                   <p>Detailed breakdown of overdue and pending payments</p>
@@ -691,765 +764,279 @@
                     <span><i class="fas fa-file-csv"></i> CSV</span>
                   </div>
                 </div>
-                <button class="btn btn-warning" onclick="generateQuickReport('outstanding-payments')">
-                  Generate
-                </button>
+                <button class="btn btn-primary">Generate</button>
               </div>
             </div>
           </div>
-          
-          <!-- Custom Reports Tab -->
-          <div id="custom-tab" class="tab-content">
+          <div class="tab-content" id="custom-reports">
             <div class="custom-report-builder">
               <div class="builder-section">
                 <h5><i class="fas fa-filter"></i> Report Criteria</h5>
                 <div class="grid-4">
                   <div class="form-group">
-                    <label>Report Type</label>
-                    <select id="custom-report-type" onchange="updateReportOptions()">
-                      <option value="">Select Report Type</option>
-                      <option value="financial">Financial Analysis</option>
-                      <option value="production">Production Analysis</option>
-                      <option value="compliance">Compliance Tracking</option>
-                      <option value="entity">Entity Performance</option>
-                      <option value="audit">Audit & Verification</option>
-                      <option value="comparative">Comparative Analysis</option>
+                    <label for="report-type">Report Type</label>
+                    <select id="report-type" aria-describedby="report-type-validation">
+                      <option>Select Report Type</option>
+                      <option>Financial Analysis</option>
+                      <option>Production Analysis</option>
+                      <option>Compliance Tracking</option>
+                      <option>Entity Performance</option>
+                      <option>Audit & Verification</option>
+                      <option>Comparative Analysis</option>
                     </select>
+                    <div class="validation-error" id="report-type-validation">Report type is required</div>
                   </div>
                   <div class="form-group">
-                    <label>Date Range</label>
-                    <select id="custom-date-range">
-                      <option value="current-month">Current Month</option>
-                      <option value="last-month">Last Month</option>
-                      <option value="current-quarter">Current Quarter</option>
-                      <option value="last-quarter">Last Quarter</option>
-                      <option value="ytd">Year to Date</option>
-                      <option value="last-year">Last Year</option>
-                      <option value="custom">Custom Range</option>
+                    <label for="report-period">Period</label>
+                    <select id="report-period" aria-describedby="period-validation">
+                      <option>Select Period</option>
+                      <option>Monthly</option>
+                      <option>Quarterly</option>
+                      <option>Yearly</option>
+                      <option>Custom Range</option>
                     </select>
+                    <div class="validation-error" id="period-validation">Period is required</div>
                   </div>
                   <div class="form-group">
-                    <label>Entities</label>
-                    <select id="custom-entities" multiple>
-                      <option value="all">All Entities</option>
-                      <option value="kwalini">Kwalini Quarry</option>
-                      <option value="mbabane">Mbabane Quarry</option>
-                      <option value="sidvokodvo">Sidvokodvo Quarry</option>
-                      <option value="maloma">Maloma Colliery</option>
-                      <option value="ngwenya">Ngwenya Mine</option>
-                      <option value="malolotja">Malolotja Mine</option>
+                    <label for="report-entity">Entity</label>
+                    <select id="report-entity" aria-describedby="entity-report-validation">
+                      <option>All Entities</option>
+                      <option>Kwalini Quarry</option>
+                      <option>Mbabane Quarry</option>
+                      <option>Sidvokodvo Quarry</option>
+                      <option>Maloma Colliery</option>
+                      <option>Ngwenya Mine</option>
+                      <option>Malolotja Mine</option>
                     </select>
+                    <div class="validation-error" id="entity-report-validation">Entity selection required</div>
                   </div>
                   <div class="form-group">
-                    <label>Minerals</label>
-                    <select id="custom-minerals" multiple>
-                      <option value="all">All Minerals</option>
-                      <option value="coal">Coal</option>
-                      <option value="iron-ore">Iron Ore</option>
-                      <option value="green-chert">Green Chert</option>
-                      <option value="gravel">Gravel</option>
-                      <option value="sand">Sand</option>
-                      <option value="stone">Quarried Stone</option>
+                    <label for="output-format">Output Format</label>
+                    <select id="output-format" aria-describedby="format-validation">
+                      <option>PDF</option>
+                      <option>Excel</option>
+                      <option>CSV</option>
+                      <option>HTML</option>
                     </select>
-                  </div>
-                </div>
-                
-                <div class="custom-date-inputs" id="custom-date-inputs" style="display: none;">
-                  <div class="grid-4">
-                    <div class="form-group">
-                      <label>Start Date</label>
-                      <input type="date" id="custom-start-date">
-                    </div>
-                    <div class="form-group">
-                      <label>End Date</label>
-                      <input type="date" id="custom-end-date">
-                    </div>
+                    <div class="validation-error" id="format-validation">Output format is required</div>
                   </div>
                 </div>
               </div>
-              
               <div class="builder-section">
-                <h5><i class="fas fa-chart-bar"></i> Data Fields & Metrics</h5>
+                <h5><i class="fas fa-chart-bar"></i> Metrics Selection</h5>
                 <div class="metrics-selector">
                   <div class="metric-category">
                     <h6>Financial Metrics</h6>
                     <div class="metric-options">
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="total-revenue" checked>
-                        <span>Total Revenue</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="royalty-amounts">
-                        <span>Royalty Amounts</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="outstanding-payments">
-                        <span>Outstanding Payments</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="payment-trends">
-                        <span>Payment Trends</span>
-                      </label>
+                      <label class="checkbox-label"><input type="checkbox">Total Royalties</label>
+                      <label class="checkbox-label"><input type="checkbox">Outstanding Payments</label>
+                      <label class="checkbox-label"><input type="checkbox">Revenue Trends</label>
                     </div>
                   </div>
-                  
                   <div class="metric-category">
                     <h6>Production Metrics</h6>
                     <div class="metric-options">
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="production-volume">
-                        <span>Production Volume</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="extraction-rates">
-                        <span>Extraction Rates</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="mineral-breakdown">
-                        <span>Mineral Breakdown</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="capacity-utilization">
-                        <span>Capacity Utilization</span>
-                      </label>
+                      <label class="checkbox-label"><input type="checkbox">Volume Extracted</label>
+                      <label class="checkbox-label"><input type="checkbox">Production Rate</label>
                     </div>
                   </div>
-                  
                   <div class="metric-category">
                     <h6>Compliance Metrics</h6>
                     <div class="metric-options">
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="compliance-rate">
-                        <span>Compliance Rate</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="submission-timeliness">
-                        <span>Submission Timeliness</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="audit-findings">
-                        <span>Audit Findings</span>
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" name="metrics" value="regulatory-updates">
-                        <span>Regulatory Updates</span>
-                      </label>
+                      <label class="checkbox-label"><input type="checkbox">Compliance Rate</label>
+                      <label class="checkbox-label"><input type="checkbox">Audit Findings</label>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div class="builder-section">
-                <h5><i class="fas fa-cog"></i> Output Configuration</h5>
-                <div class="grid-4">
-                  <div class="form-group">
-                    <label>Output Format</label>
-                    <select id="custom-output-format">
-                      <option value="pdf">PDF Report</option>
-                      <option value="excel">Excel Spreadsheet</option>
-                      <option value="csv">CSV Data</option>
-                      <option value="dashboard">Interactive Dashboard</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label>Chart Types</label>
-                    <select id="custom-chart-types" multiple>
-                      <option value="line">Line Charts</option>
-                      <option value="bar">Bar Charts</option>
-                      <option value="pie">Pie Charts</option>
-                      <option value="table">Data Tables</option>
-                      <option value="trend">Trend Analysis</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label>Report Template</label>
-                    <select id="custom-template">
-                      <option value="standard">Standard Template</option>
-                      <option value="executive">Executive Summary</option>
-                      <option value="detailed">Detailed Analysis</option>
-                      <option value="regulatory">Regulatory Compliance</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="checkbox-label">
-                      <input type="checkbox" id="include-comparisons">
-                      <span>Include Historical Comparisons</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
               <div class="form-actions">
-                <button class="btn btn-secondary" onclick="saveReportTemplate()">
-                  <i class="fas fa-save"></i> Save as Template
-                </button>
-                <button class="btn btn-primary" onclick="generateCustomReport()">
-                  <i class="fas fa-chart-line"></i> Generate Report
-                </button>
+                <button class="btn btn-secondary">Reset</button>
+                <button class="btn btn-success">Preview Report</button>
               </div>
             </div>
           </div>
-          
-          <!-- Scheduled Reports Tab -->
-          <div id="scheduled-tab" class="tab-content">
+          <div class="tab-content" id="scheduled-reports">
             <div class="scheduled-reports-header">
-              <button class="btn btn-primary" onclick="createSchedule()">
-                <i class="fas fa-plus"></i> Create Schedule
-              </button>
+              <button class="btn btn-success">Add Scheduled Report</button>
             </div>
-            
             <div class="scheduled-reports-list">
+              <div class="schedule-item">
+                <div class="schedule-info">
+                  <h5>Weekly Royalty Summary</h5>
+                  <p>Summary of royalty payments sent every Monday</p>
+                  <div class="schedule-details">
+                    <span><i class="fas fa-clock"></i> Weekly on Monday at 9 AM</span>
+                    <span><i class="fas fa-file-pdf"></i> PDF</span>
+                    <span><i class="fas fa-envelope"></i> finance@example.com</span>
+                  </div>
+                </div>
+                <div class="schedule-actions">
+                  <button class="btn btn-primary btn-sm">Edit</button>
+                  <button class="btn btn-danger btn-sm">Delete</button>
+                </div>
+              </div>
               <div class="schedule-item active">
                 <div class="schedule-info">
-                  <h5>Monthly Royalty Summary</h5>
-                  <p>Comprehensive monthly report for all stakeholders</p>
+                  <h5>Monthly Compliance Report</h5>
+                  <p>Compliance status sent to all entities monthly</p>
                   <div class="schedule-details">
-                    <span><i class="fas fa-calendar"></i> Every 1st of month</span>
-                    <span><i class="fas fa-envelope"></i> 5 recipients</span>
-                    <span><i class="fas fa-clock"></i> Next: Feb 1, 2024</span>
+                    <span><i class="fas fa-clock"></i> Monthly on 1st at 8 AM</span>
+                    <span><i class="fas fa-file-excel"></i> Excel</span>
+                    <span><i class="fas fa-envelope"></i> Active</span>
                   </div>
                 </div>
                 <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-warning">
-                    <i class="fas fa-pause"></i> Pause
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-paper-plane"></i> Send Now
-                  </button>
-                </div>
-              </div>
-              
-              <div class="schedule-item">
-                <div class="schedule-info">
-                  <h5>Quarterly Compliance Report</h5>
-                  <p>Regulatory compliance status for government submission</p>
-                  <div class="schedule-details">
-                    <span><i class="fas fa-calendar"></i> Quarterly</span>
-                    <span><i class="fas fa-envelope"></i> 3 recipients</span>
-                    <span><i class="fas fa-clock"></i> Next: Mar 31, 2024</span>
-                  </div>
-                </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-success">
-                    <i class="fas fa-play"></i> Resume
-                  </button>
-                </div>
-              </div>
-              
-              <div class="schedule-item">
-                <div class="schedule-info">
-                  <h5>Weekly Outstanding Payments</h5>
-                  <p>Alert report for overdue and pending payments</p>
-                  <div class="schedule-details">
-                    <span><i class="fas fa-calendar"></i> Every Monday</span>
-                    <span><i class="fas fa-envelope"></i> 2 recipients</span>
-                    <span><i class="fas fa-clock"></i> Next: Jan 29, 2024</span>
-                  </div>
-                </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-danger">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
+                  <button class="btn btn-primary btn-sm">Edit</button>
+                  <button class="btn btn-danger btn-sm">Delete</button>
                 </div>
               </div>
             </div>
           </div>
-          
-          <!-- Audit Trail Reports Tab -->
-          <div id="audit-tab" class="tab-content">
-            <div class="audit-report-controls">
+          <div class="tab-content" id="audit-trail-reports">
+            <div class="report-history-controls">
               <div class="grid-4">
                 <div class="form-group">
-                  <label>Audit Period</label>
-                  <select id="audit-period">
-                    <option value="last-24h">Last 24 Hours</option>
-                    <option value="last-week">Last Week</option>
-                    <option value="last-month">Last Month</option>
-                    <option value="last-quarter">Last Quarter</option>
-                    <option value="custom">Custom Range</option>
+                  <label for="audit-report-from-date">From Date</label>
+                  <input type="date" id="audit-report-from-date">
+                </div>
+                <div class="form-group">
+                  <label for="audit-report-to-date">To Date</label>
+                  <input type="date" id="audit-report-to-date">
+                </div>
+                <div class="form-group">
+                  <label for="audit-report-type">Report Type</label>
+                  <select id="audit-report-type">
+                    <option>All Types</option>
+                    <option>Financial</option>
+                    <option>Production</option>
+                    <option>Compliance</option>
+                    <option>Audit</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Activity Type</label>
-                  <select id="audit-activity-type">
-                    <option value="all">All Activities</option>
-                    <option value="data-changes">Data Changes</option>
-                    <option value="calculations">Calculations</option>
-                    <option value="user-actions">User Actions</option>
-                    <option value="system-events">System Events</option>
-                    <option value="security-events">Security Events</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>User/System</label>
-                  <select id="audit-user">
-                    <option value="all">All Users</option>
-                    <option value="admin">Administrator</option>
-                    <option value="system">System Generated</option>
-                    <option value="editor">Editor Users</option>
-                    <option value="viewer">Viewer Users</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <button class="btn btn-primary" onclick="generateAuditReport()">
-                    <i class="fas fa-search"></i> Generate Audit Report
-                  </button>
+                  <button class="btn btn-primary">Generate Audit Report</button>
                 </div>
               </div>
             </div>
-            
-            <div class="audit-summary-cards">
-              <div class="audit-card">
-                <div class="audit-icon">
-                  <i class="fas fa-edit"></i>
-                </div>
-                <div class="audit-stats">
-                  <h6>Data Modifications</h6>
-                  <p>247 changes</p>
-                  <small>Last 30 days</small>
-                </div>
-              </div>
-              
-              <div class="audit-card">
-                <div class="audit-icon">
-                  <i class="fas fa-calculator"></i>
-                </div>
-                <div class="audit-stats">
-                  <h6>Calculations</h6>
-                  <p>1,824 processes</p>
-                  <small>Last 30 days</small>
-                </div>
-              </div>
-              
-              <div class="audit-card warning">
-                <div class="audit-icon">
-                  <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="audit-stats">
-                  <h6>Security Events</h6>
-                  <p>3 incidents</p>
-                  <small>Requires review</small>
-                </div>
-              </div>
-              
-              <div class="audit-card">
-                <div class="audit-icon">
-                  <i class="fas fa-users"></i>
-                </div>
-                <div class="audit-stats">
-                  <h6>User Sessions</h6>
-                  <p>156 logins</p>
-                  <small>Last 30 days</small>
-                </div>
-              </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Report Name</th>
+                    <th>Type</th>
+                    <th>Generated</th>
+                    <th>By</th>
+                    <th>Format</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Financial Audit Q2</td>
+                    <td class="report-type financial">Financial</td>
+                    <td>2024-07-01</td>
+                    <td>Admin</td>
+                    <td>PDF</td>
+                    <td>
+                      <button class="btn btn-primary btn-sm">View</button>
+                      <button class="btn btn-secondary btn-sm">Download</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-
-        <!-- Analytics Dashboard -->
-        <div class="user-form-container">
-          <h4><i class="fas fa-chart-line"></i> Real-Time Analytics Dashboard</h4>
-          
-          <div class="analytics-controls">
-            <div class="analytics-filters">
-              <select id="analytics-timeframe">
-                <option value="real-time">Real-Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="quarter">This Quarter</option>
-              </select>
-              <select id="analytics-entity">
-                <option value="all">All Entities</option>
-                <option value="kwalini">Kwalini Quarry</option>
-                <option value="mbabane">Mbabane Quarry</option>
-                <option value="sidvokodvo">Sidvokodvo Quarry</option>
-                <option value="maloma">Maloma Colliery</option>
-                <option value="ngwenya">Ngwenya Mine</option>
-                <option value="malolotja">Malolotja Mine</option>
-              </select>
-              <button class="btn btn-secondary" onclick="refreshAnalytics()">
-                <i class="fas fa-sync"></i> Refresh
-              </button>
-            </div>
-          </div>
-          
-          <div class="analytics-grid">
-            <div class="analytics-chart large">
-              <div class="chart-header">
-                <h5>Revenue Trends</h5>
-                <div class="chart-controls">
-                  <button class="chart-btn active" data-chart="line">Line</button>
-                  <button class="chart-btn" data-chart="bar">Bar</button>
-                  <button class="chart-btn" data-chart="area">Area</button>
-                </div>
-              </div>
-              <div class="chart-container" id="revenue-trends-chart">
-                <div class="chart-placeholder">
-                  <i class="fas fa-chart-line"></i>
-                  <p>Revenue trends chart will appear here</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="analytics-chart">
-              <div class="chart-header">
-                <h5>Production by Entity</h5>
-              </div>
-              <div class="chart-container" id="production-by-entity-chart">
-                <div class="chart-placeholder">
-                  <i class="fas fa-chart-pie"></i>
-                  <p>Production distribution chart</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="analytics-chart">
-              <div class="chart-header">
-                <h5>Payment Status</h5>
-              </div>
-              <div class="chart-container" id="payment-status-chart">
-                <div class="chart-placeholder">
-                  <i class="fas fa-chart-donut"></i>
-                  <p>Payment status breakdown</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="analytics-chart">
-              <div class="chart-header">
-                <h5>Compliance Scores</h5>
-              </div>
-              <div class="chart-container" id="compliance-scores-chart">
-                <div class="chart-placeholder">
-                  <i class="fas fa-chart-bar"></i>
-                  <p>Compliance metrics by entity</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Generated Reports History -->
-        <div class="user-form-container">
-          <h4><i class="fas fa-history"></i> Report History & Management</h4>
-          
-          <div class="report-history-controls">
-            <div class="grid-4">
-              <div class="form-group">
-                <select>
-                  <option>All Report Types</option>
-                  <option>Financial Reports</option>
-                  <option>Production Reports</option>
-                  <option>Compliance Reports</option>
-                  <option>Audit Reports</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <select>
-                  <option>Last 30 days</option>
-                  <option>Last 3 months</option>
-                  <option>Last 6 months</option>
-                  <option>This year</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <input type="search" placeholder="Search reports...">
-              </div>
-              <div class="form-group">
-                <button class="btn btn-primary">
-                  <i class="fas fa-filter"></i> Apply Filters
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Report Name</th>
-                <th>Type</th>
-                <th>Generated By</th>
-                <th>Date Created</th>
-                <th>Format</th>
-                <th>Recipients</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>January 2024 Monthly Summary</td>
-                <td><span class="report-type financial">Financial</span></td>
-                <td>System Auto</td>
-                <td>2024-01-24 09:00</td>
-                <td><i class="fas fa-file-pdf"></i> PDF</td>
-                <td>5 recipients</td>
-                <td><span class="status-badge active">Delivered</span></td>
-                <td>
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-download"></i> Download
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-share"></i> Share
-                  </button>
-                  <button class="btn btn-sm btn-warning">
-                    <i class="fas fa-redo"></i> Regenerate
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>Q4 2023 Compliance Review</td>
-                <td><span class="report-type compliance">Compliance</span></td>
-                <td>John Administrator</td>
-                <td>2024-01-15 14:30</td>
-                <td><i class="fas fa-file-excel"></i> Excel</td>
-                <td>3 recipients</td>
-                <td><span class="status-badge active">Delivered</span></td>
-                <td>
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-download"></i> Download
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-share"></i> Share
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>Entity Performance Analysis - December</td>
-                <td><span class="report-type production">Production</span></td>
-                <td>Mary Editor</td>
-                <td>2024-01-10 11:15</td>
-                <td><i class="fas fa-file-csv"></i> CSV</td>
-                <td>2 recipients</td>
-                <td><span class="status-badge expired">Archived</span></td>
-                <td>
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-download"></i> Download
-                  </button>
-                  <button class="btn btn-sm btn-warning">
-                    <i class="fas fa-redo"></i> Regenerate
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </section>
 
+      <!-- Communication -->
       <section id="communication">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-comments"></i> Communication Center</h1>
-            <p>Manage stakeholder communications, automated notifications, and alerts</p>
+            <h1>Communication</h1>
+            <p>Manage notifications and messages to stakeholders</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary" onclick="showStakeholderModal()">
-              <i class="fas fa-users"></i> Manage Stakeholders
-            </button>
-            <button class="btn btn-secondary" onclick="showNotificationTemplates()">
-              <i class="fas fa-file-alt"></i> Templates
-            </button>
-            <button class="btn btn-primary" onclick="composeMessage()">
-              <i class="fas fa-paper-plane"></i> Compose Message
-            </button>
+            <button class="btn btn-success">Send Message</button>
+            <button class="btn btn-primary">View Message History</button>
           </div>
         </div>
-
-        <!-- Communication Dashboard Cards -->
-        <div class="charts-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fas fa-paper-plane"></i> Messages Sent</h3>
-            </div>
-            <div class="card-body">
-              <p id="messages-sent">142</p>
-              <small>This month</small>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fas fa-bell"></i> Active Alerts</h3>
-            </div>
-            <div class="card-body">
-              <p id="active-alerts">8</p>
-              <small>Pending notifications</small>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fas fa-users"></i> Stakeholders</h3>
-            </div>
-            <div class="card-body">
-              <p id="total-stakeholders">45</p>
-              <small>Registered contacts</small>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
-            </div>
-            <div class="card-body">
-              <p id="upcoming-deadlines">5</p>
-              <small>Next 30 days</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Automated Notification Settings -->
         <div class="user-form-container">
-          <h4><i class="fas fa-cog"></i> Automated Notification Settings</h4>
-          <div class="notification-settings-grid">
-            <div class="notification-category">
-              <h5><i class="fas fa-calendar-alt"></i> Payment Schedules</h5>
-              <div class="notification-options">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="payment-reminder" checked>
-                  <span>Payment due reminders (7 days before)</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="payment-overdue" checked>
-                  <span>Overdue payment alerts</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="payment-confirmation">
-                  <span>Payment confirmation notifications</span>
-                </label>
-              </div>
+          <h4>Send New Message</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="recipient">Recipient</label>
+              <select id="recipient" aria-describedby="recipient-validation">
+                <option>Select Recipient</option>
+                <option>All Entities</option>
+                <option>Kwalini Quarry</option>
+                <option>Mbabane Quarry</option>
+                <option>Sidvokodvo Quarry</option>
+                <option>Maloma Colliery</option>
+                <option>Ngwenya Mine</option>
+                <option>Malolotja Mine</option>
+              </select>
+              <div class="validation-error" id="recipient-validation">Recipient is required</div>
             </div>
-            
-            <div class="notification-category">
-              <h5><i class="fas fa-file-alt"></i> Report Availability</h5>
-              <div class="notification-options">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="report-generated" checked>
-                  <span>New report generation alerts</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="monthly-reports" checked>
-                  <span>Monthly summary reports</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="quarterly-reports">
-                  <span>Quarterly compliance reports</span>
-                </label>
-              </div>
+            <div class="form-group">
+              <label for="message-type">Message Type</label>
+              <select id="message-type" aria-describedby="message-type-validation">
+                <option>Select Type</option>
+                <option>Payment Reminder</option>
+                <option>Compliance Notice</option>
+                <option>General Announcement</option>
+              </select>
+              <div class="validation-error" id="message-type-validation">Message type is required</div>
             </div>
-            
-            <div class="notification-category">
-              <h5><i class="fas fa-file-contract"></i> Contract Management</h5>
-              <div class="notification-options">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="contract-expiry" checked>
-                  <span>Contract expiration alerts (30 days)</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="contract-renewal">
-                  <span>Contract renewal reminders</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="contract-modifications">
-                  <span>Contract modification notifications</span>
-                </label>
-              </div>
+            <div class="form-group">
+              <label for="subject">Subject</label>
+              <input type="text" id="subject" placeholder="Subject" aria-describedby="subject-validation">
+              <div class="validation-error" id="subject-validation">Subject is required</div>
             </div>
-            
-            <div class="notification-category">
-              <h5><i class="fas fa-check-circle"></i> Compliance Deadlines</h5>
-              <div class="notification-options">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="compliance-deadline" checked>
-                  <span>Compliance deadline reminders</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="submission-status" checked>
-                  <span>Submission status updates</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="audit-alerts">
-                  <span>Audit requirement notifications</span>
-                </label>
-              </div>
-            </div>
+          </div>
+          <div class="form-group">
+            <label for="message-content">Message Content</label>
+            <textarea id="message-content" rows="5" placeholder="Enter your message here" aria-describedby="content-validation"></textarea>
+            <div class="validation-error" id="content-validation">Message content is required</div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-primary" onclick="saveNotificationSettings()">
-              <i class="fas fa-save"></i> Save Settings
-            </button>
-            <button class="btn btn-secondary" onclick="testNotifications()">
-              <i class="fas fa-vial"></i> Test Notifications
-            </button>
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-success">Send Message</button>
           </div>
         </div>
-
-        <!-- Message Center -->
         <div class="user-form-container">
-          <h4><i class="fas fa-inbox"></i> Message Center</h4>
-          <div class="message-tabs">
-            <button class="tab-btn active" onclick="showTab('outgoing')">
-              <i class="fas fa-paper-plane"></i> Outgoing Messages
-            </button>
-            <button class="tab-btn" onclick="showTab('scheduled')">
-              <i class="fas fa-clock"></i> Scheduled Messages
-            </button>
-            <button class="tab-btn" onclick="showTab('templates')">
-              <i class="fas fa-file-alt"></i> Message Templates
-            </button>
-          </div>
-          
-          <div id="outgoing-tab" class="tab-content active">
-            <div class="message-filters">
-              <div class="grid-4">
-                <div class="form-group">
-                  <label>Date Range</label>
-                  <select>
-                    <option>Last 7 days</option>
-                    <option>Last 30 days</option>
-                    <option>Last 3 months</option>
-                    <option>Custom range</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Message Type</label>
-                  <select>
-                    <option>All Types</option>
-                    <option>Payment Reminders</option>
-                    <option>Report Notifications</option>
-                    <option>Contract Alerts</option>
-                    <option>Compliance Notices</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Status</label>
-                  <select>
-                    <option>All Status</option>
-                    <option>Sent</option>
-                    <option>Delivered</option>
-                    <option>Failed</option>
-                    <option>Pending</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <button class="btn btn-primary">
-                    <i class="fas fa-filter"></i> Apply Filters
-                  </button>
-                </div>
-              </div>
+          <h4>Message History</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="filter-recipient">Recipient</label>
+              <select id="filter-recipient">
+                <option>All Recipients</option>
+                <option>Kwalini Quarry</option>
+                <option>Mbabane Quarry</option>
+                <option>Sidvokodvo Quarry</option>
+                <option>Maloma Colliery</option>
+                <option>Ngwenya Mine</option>
+                <option>Malolotja Mine</option>
+              </select>
             </div>
-            
+            <div class="form-group">
+              <label for="filter-message-type">Message Type</label>
+              <select id="filter-message-type">
+                <option>All Types</option>
+                <option>Payment Reminder</option>
+                <option>Compliance Notice</option>
+                <option>General Announcement</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary">Apply Filters</button>
+            </div>
+          </div>
+          <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Date/Time</th>
+                  <th>Date</th>
                   <th>Recipient</th>
                   <th>Type</th>
                   <th>Subject</th>
@@ -1457,836 +1044,309 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="outgoing-messages">
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notifications -->
+      <section id="notifications">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Notifications</h1>
+            <p>View and manage system alerts and notifications</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary">Mark All as read</button>
+            <button class="btn btn-primary">Clear Notifications</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <h4>Recent Notifications</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="filter-notification-type">Type</label>
+              <select id="filter-notification-type">
+                <option>All Types</option>
+                <option>Payment Due</option>
+                <option>Compliance Alert</option>
+                <option>System Update</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="filter-notification-status">Status</label>
+              <select id="filter-notification-status">
+                <option>All Statuses</option>
+                <option>Unread</option>
+                <option>Read</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary">Apply Filters</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
                 <tr>
-                  <td>2024-01-15 14:30</td>
-                  <td>Kwalini Quarry</td>
-                  <td><span class="action-badge payment_reminder">Payment Reminder</span></td>
-                  <td>Quarterly Royalty Payment Due</td>
-                  <td><span class="status-badge active">Delivered</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-secondary">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="btn btn-sm btn-primary">
-                      <i class="fas fa-redo"></i> Resend
-                    </button>
-                  </td>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>2024-05-10</td>
+                  <td class="report-type warning">Payment Due</td>
+                  <td>Payment overdue for Kwalini Quarry</td>
+                  <td>Unread</td>
                 </tr>
                 <tr>
-                  <td>2024-01-14 09:15</td>
-                  <td>All Entities</td>
-                  <td><span class="action-badge create_user">Report Available</span></td>
-                  <td>December 2023 Royalty Summary Report</td>
-                  <td><span class="status-badge active">Sent</span></td>
-                  <td>
-                    <button class="btn btn-sm btn-secondary">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                  </td>
+                  <td>2024-05-09</td>
+                  <td class="report-type compliance">Compliance</td>
+                  <td>Compliance report submitted</td>
+                  <td>Read</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          
-          <div id="scheduled-tab" class="tab-content">
-            <div class="scheduled-messages">
-              <div class="message-item">
-                <div class="message-header">
-                  <h5>Monthly Compliance Reminder</h5>
-                  <span class="schedule-badge">
-                    <i class="fas fa-calendar"></i> Next: Feb 1, 2024
-                  </span>
-                </div>
-                <p>Automated reminder for monthly royalty submissions</p>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-warning">
-                    <i class="fas fa-pause"></i> Pause
-                  </button>
-                </div>
-              </div>
-              
-              <div class="message-item">
-                <div class="message-header">
-                  <h5>Contract Expiry Alert</h5>
-                  <span class="schedule-badge warning">
-                    <i class="fas fa-exclamation-triangle"></i> Due: Jan 30, 2024
-                  </span>
-                </div>
-                <p>Alert for Maloma Colliery contract expiring in 30 days</p>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-paper-plane"></i> Send Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div id="templates-tab" class="tab-content">
-            <div class="template-grid">
-              <div class="template-card">
-                <div class="template-header">
-                  <h5>Payment Reminder</h5>
-                  <span class="template-type">Email</span>
-                </div>
-                <p>Standard template for payment due notifications</p>
-                <div class="template-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-paper-plane"></i> Use
-                  </button>
-                </div>
-              </div>
-              
-              <div class="template-card">
-                <div class="template-header">
-                  <h5>Contract Expiry Notice</h5>
-                  <span class="template-type">Email</span>
-                </div>
-                <p>Notification template for contract expiration alerts</p>
-                <div class="template-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-paper-plane"></i> Use
-                  </button>
-                </div>
-              </div>
-              
-              <div class="template-card">
-                <div class="template-header">
-                  <h5>Report Available</h5>
-                  <span class="template-type">Email</span>
-                </div>
-                <p>Template for report generation notifications</p>
-                <div class="template-actions">
-                  <button class="btn btn-sm btn-secondary">
-                    <i class="fas fa-edit"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-primary">
-                    <i class="fas fa-paper-plane"></i> Use
-                  </button>
-                </div>
-              </div>
-            </div
-            
-            <div class="form-actions">
-              <button class="btn btn-primary" onclick="createTemplate()">
-                <i class="fas fa-plus"></i> Create New Template
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section id="notifications">
-        <div class="page-header">
-          <div class="page-title">
-            <h1><i class="fas fa-bell"></i> Notifications</h1>
-            <p>View system notifications, alerts, and activity updates</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-secondary" onclick="markAllRead()">
-              <i class="fas fa-check"></i> Mark All Read
-            </button>
-            <button class="btn btn-secondary" onclick="notificationSettings()">
-              <i class="fas fa-cog"></i> Settings
-            </button>
-            <button class="btn btn-primary" onclick="clearNotifications()">
-              <i class="fas fa-trash"></i> Clear All
-            </button>
-          </div>
-        </div>
-
-        <div class="notification-filters">
-          <div class="filter-buttons">
-            <button class="filter-btn active" data-filter="all">
-              <i class="fas fa-list"></i> All Notifications
-            </button>
-            <button class="filter-btn" data-filter="unread">
-              <i class="fas fa-circle"></i> Unread
-            </button>
-            <button class="filter-btn" data-filter="system">
-              <i class="fas fa-cog"></i> System
-            </button>
-            <button class="filter-btn" data-filter="security">
-              <i class="fas fa-shield-alt"></i> Security
-            </button>
-            <button class="filter-btn" data-filter="payments">
-              <i class="fas fa-dollar-sign"></i> Payments
-            </button>
-          </div>
-        </div>
-
-        <div class="notifications-container">
-          <div class="notification-item unread">
-            <div class="notification-icon success">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="notification-content">
-              <div class="notification-header">
-                <h5>Payment Received</h5>
-                <span class="notification-time">2 minutes ago</span>
-              </div>
-              <p>Kwalini Quarry payment of E185,280.00 has been processed successfully.</p>
-              <div class="notification-actions">
-                <button class="btn btn-sm btn-secondary">View Details</button>
-                <button class="btn btn-sm btn-primary">Generate Receipt</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="notification-item unread">
-            <div class="notification-icon warning">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="notification-content">
-              <div class="notification-header">
-                <h5>Contract Expiring Soon</h5>
-                <span class="notification-time">1 hour ago</span>
-              </div>
-              <p>Maloma Colliery contract expires in 15 days. Renewal process should be initiated.</p>
-              <div class="notification-actions">
-                <button class="btn btn-sm btn-secondary">View Contract</button>
-                <button class="btn btn-sm btn-warning">Start Renewal</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="notification-item">
-            <div class="notification-icon info">
-              <i class="fas fa-info-circle"></i>
-            </div>
-            <div class="notification-content">
-              <div class="notification-header">
-                <h5>Monthly Report Generated</h5>
-                <span class="notification-time">3 hours ago</span>
-              </div>
-              <p>December 2023 royalty summary report has been generated and is ready for review.</p>
-              <div class="notification-actions">
-                <button class="btn btn-sm btn-primary">Download Report</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="notification-item">
-            <div class="notification-icon danger">
-              <i class="fas fa-shield-alt"></i>
-            </div>
-            <div class="notification-content">
-              <div class="notification-header">
-                <h5>Security Alert</h5>
-                <span class="notification-time">5 hours ago</span>
-              </div>
-              <p>Failed login attempt detected for user 'admin' from IP 192.168.1.100.</p>
-              <div class="notification-actions">
-                <button class="btn btn-sm btn-danger">View Security Log</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <!-- Compliance -->
       <section id="compliance">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-check-circle"></i> Compliance Dashboard</h1>
-            <p>Monitor regulatory compliance, deadlines, and submission requirements</p>
+            <h1>Compliance</h1>
+            <p>Monitor and manage compliance with regulatory requirements</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary">
-              <i class="fas fa-calendar-alt"></i> View Calendar
-            </button>
-            <button class="btn btn-primary">
-              <i class="fas fa-file-upload"></i> Submit Documentation
-            </button>
+            <button class="btn btn-primary">Export Compliance Report</button>
+            <button class="btn btn-success">Submit Compliance Report</button>
           </div>
         </div>
-
         <div class="charts-grid">
-          <div class="card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
+              <h3>Compliance Rate</h3>
+              <select class="metric-period">
+                <option>This Quarter</option>
+                <option>Last Quarter</option>
+                <option>YTD</option>
+              </select>
             </div>
             <div class="card-body">
               <p>98.5%</p>
-              <small>Current period</small>
+              <small class="trend-positive">+1.5% from last quarter</small>
             </div>
           </div>
-          <div class="card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
-            </div>
-            <div class="card-body">
-              <p>3</p>
-              <small>Next 30 days</small>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3><i class="fas fa-file-alt"></i> Pending Submissions</h3>
+              <h3>Pending Audits</h3>
             </div>
             <div class="card-body">
               <p>2</p>
-              <small>Require attention</small>
+              <small>Scheduled for next week</small>
             </div>
           </div>
-          <div class="card">
+          <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-exclamation-triangle"></i> Outstanding Issues</h3>
-            </div>
-            <div class="card-body">
-              <p>1</p>
-              <small>Needs resolution</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="user-form-container">
-          <h4><i class="fas fa-calendar-check"></i> Compliance Calendar</h4>
-          <div class="compliance-timeline">
-            <div class="timeline-item upcoming">
-              <div class="timeline-marker">
-                <i class="fas fa-clock"></i>
+              <h3>Compliance Issues</h3>
               </div>
-              <div class="timeline-content">
-                <h5>Quarterly Royalty Submission</h5>
-                <p>Due: January 31, 2024</p>
-                <span class="days-remaining">7 days remaining</span>
-                <div class="timeline-actions">
-                  <button class="btn btn-sm btn-primary">Prepare Submission</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="timeline-item overdue">
-              <div class="timeline-marker">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-              <div class="timeline-content">
-                <h5>Environmental Impact Report</h5>
-                <p>Due: January 15, 2024</p>
-                <span class="days-overdue">9 days overdue</span>
-                <div class="timeline-actions">
-                  <button class="btn btn-sm btn-danger">Submit Now</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="timeline-item completed">
-              <div class="timeline-marker">
-                <i class="fas fa-check"></i>
-              </div>
-              <div class="timeline-content">
-                <h5>Annual Compliance Review</h5>
-                <p>Completed: December 20, 2023</p>
-                <span class="status-completed">Approved</span>
+              <div class="card-body">
+                <p>0</p>
+                <small>No active issues</small>
               </div>
             </div>
           </div>
+          <div class="user-form-container">
+            <h4>Compliance Status</h4>
+            <div class="grid-4">
+              <div class="form-group">
+                <label for="compliance-filter-entity">Entity</label>
+                <select id="compliance-filter-entity">
+                  <option>All Entities</option>
+                  <option>Kwalini Quarry</option>
+                  <option>Mbabane Quarry</option>
+                  <option>Sidvokodvo Quarry</option>
+                  <option>Maloma Colliery</option>
+                  <option>Ngwenya Mine</option>
+                  <option>Malolotja Mine</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <button class="btn btn-primary">Apply Filters</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Entity</th>
+                    <th>Compliance Rate</th>
+                    <th>Last Audit</th>
+                    <th>Issues</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+      </section>
+
+      <!-- My Profile -->
+      <section id="profile">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>My Profile</h1>
+            <p>Manage your account details and preferences</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary">Save Changes</button>
+          </div>
         </div>
-
         <div class="user-form-container">
-          <h4><i class="fas fa-tasks"></i> Compliance Checklist</h4>
-          <div class="compliance-checklist">
-            <div class="checklist-category">
-              <h5><i class="fas fa-file-contract"></i> Documentation Requirements</h5>
-              <div class="checklist-items">
-                <label class="checklist-item completed">
-                  <input type="checkbox" checked disabled>
-                  <span>Mining licenses updated</span>
-                  <i class="fas fa-check-circle"></i>
-                </label>
-                <label class="checklist-item completed">
-                  <input type="checkbox" checked disabled>
-                  <span>Environmental permits current</span>
-                  <i class="fas fa-check-circle"></i>
-                </label>
-                <label class="checklist-item pending">
-                  <input type="checkbox">
-                  <span>Safety compliance certificates</span>
-                  <i class="fas fa-clock"></i>
-                </label>
-              </div>
+          <h4>Profile Information</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="profile-username">Username</label>
+              <input type="text" id="profile-username" placeholder="Username" aria-describedby="profile-username-validation">
+              <div class="validation-error" id="profile-username-validation">Username is required</div>
             </div>
-
-            <div class="checklist-category">
-              <h5><i class="fas fa-dollar-sign"></i> Financial Compliance</h5>
-              <div class="checklist-items">
-                <label class="checklist-item completed">
-                  <input type="checkbox" checked disabled>
-                  <span>Q4 2023 royalty payments</span>
-                  <i class="fas fa-check-circle"></i>
-                </label>
-                <label class="checklist-item pending">
-                  <input type="checkbox">
-                  <span>Q1 2024 provisional payments</span>
-                  <i class="fas fa-clock"></i>
-                </label>
-                <label class="checklist-item overdue">
-                  <input type="checkbox">
-                  <span>Tax clearance certificates</span>
-                  <i class="fas fa-exclamation-triangle"></i>
-                </label>
-              </div>
+            <div class="form-group">
+              <label for="profile-email">Email</label>
+              <input type="email" id="profile-email" placeholder="Email" aria-describedby="profile-email-validation">
+              <div class="validation-error" id="profile-email-validation">Email is required</div>
             </div>
+            <div class="form-group">
+              <label for="profile-department">Department</label>
+              <select id="profile-department" aria-describedby="profile-department-validation">
+                <option>Select Department</option>
+                <option>Finance</option>
+                <option>Operations</option>
+                <option>Compliance</option>
+                <option>Audit</option>
+                <option>Management</option>
+              </select>
+              <div class="validation-error" id="profile-department-validation">Department is required</div>
+            </div>
+          </div>
+          <h4>Change Password</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" placeholder="Current Password" aria-describedby="current-password-validation">
+              <div class="validation-error" id="current-password-validation">Current password is required</div>
+            </div>
+            <div class="form-group">
+              <label for="new-profile-password">New Password</label>
+              <input type="password" id="new-profile-password" placeholder="New Password" aria-describedby="new-profile-password-validation">
+              <div class="validation-error" id="new-profile-password-validation">New password is required</div>
+            </div>
+            <div class="form-group">
+              <label for="confirm-profile-password">Confirm New Password</label>
+              <input type="password" id="confirm-profile-password" placeholder="Confirm New Password" aria-describedby="confirm-profile-password-validation">
+              <div class="validation-error" id="confirm-profile-password-validation">Passwords must match</div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-success">Update Profile</button>
           </div>
         </div>
       </section>
 
-      <section id="profile">
+      <!-- Logout -->
+      <section id="logout">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
-            <p>Manage your account settings and preferences</p>
+            <h1>Logout</h1>
+            <p>Securely end your session</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary">
-              <i class="fas fa-download"></i> Export Data
-            </button>
-            <button class="btn btn-primary" onclick="editProfile()">
-              <i class="fas fa-edit"></i> Edit Profile
-            </button>
+            <button class="btn btn-danger">Confirm Logout</button>
           </div>
         </div>
-
-        <div class="profile-container">
-          <div class="profile-sidebar">
-            <div class="profile-avatar">
-              <div class="avatar-circle">
-                <i class="fas fa-user"></i>
-              </div>
-              <button class="btn btn-sm btn-secondary">
-                <i class="fas fa-camera"></i> Change Photo
-              </button>
-            </div>
-            
-            <div class="profile-info">
-              <h3 id="profile-display-name">John Administrator</h3>
-              <p id="profile-role-display">System Administrator</p>
-              <p id="profile-email-display">admin@royalties.gov.sz</p>
-            </div>
-          </div>
-
-          <div class="profile-content">
-            <div class="profile-section">
-              <h4><i class="fas fa-info-circle"></i> Personal Information</h4>
-              <div class="grid-4">
-                <div class="form-group">
-                  <label>First Name</label>
-                  <input type="text" id="profile-first-name" value="John" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Last Name</label>
-                  <input type="text" id="profile-last-name" value="Administrator" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Email Address</label>
-                  <input type="email" id="profile-email" value="admin@royalties.gov.sz" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Phone Number</label>
-                  <input type="tel" id="profile-phone" value="+268 2404 2000" readonly>
-                </div>
-              </div>
-            </div>
-
-            <div class="profile-section">
-              <h4><i class="fas fa-briefcase"></i> Work Information</h4>
-              <div class="grid-4">
-                <div class="form-group">
-                  <label>Department</label>
-                  <input type="text" id="profile-department" value="Information Technology" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Position</label>
-                  <input type="text" id="profile-position" value="System Administrator" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Employee ID</label>
-                  <input type="text" id="profile-employee-id" value="EMP001" readonly>
-                </div>
-                <div class="form-group">
-                  <label>Start Date</label>
-                  <input type="date" id="profile-start-date" value="2020-01-15" readonly>
-                </div>
-              </div>
-            </div>
-
-            <div class="profile-section">
-              <h4><i class="fas fa-lock"></i> Security Settings</h4>
-              <div class="security-options">
-                <div class="security-item">
-                  <div class="security-info">
-                    <h5>Password</h5>
-                    <p>Last changed 45 days ago</p>
-                  </div>
-                  <button class="btn btn-secondary">
-                    <i class="fas fa-key"></i> Change Password
-                  </button>
-                </div>
-                
-                <div class="security-item">
-                  <div class="security-info">
-                    <h5>Two-Factor Authentication</h5>
-                    <p>Not enabled</p>
-                  </div>
-                  <button class="btn btn-primary">
-                    <i class="fas fa-shield-alt"></i> Enable 2FA
-                  </button>
-                </div>
-                
-                <div class="security-item">
-                  <div class="security-info">
-                    <h5>Active Sessions</h5>
-                    <p>2 active sessions</p>
-                  </div>
-                  <button class="btn btn-secondary">
-                    <i class="fas fa-sign-out-alt"></i> Manage Sessions
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="profile-section">
-              <h4><i class="fas fa-cog"></i> Preferences</h4>
-              <div class="preference-options">
-                <label class="checkbox-label">
-                  <input type="checkbox" checked>
-                  <span>Email notifications for new payments</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" checked>
-                  <span>SMS alerts for security events</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox">
-                  <span>Weekly summary reports</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" checked>
-                  <span>System maintenance notifications</span>
-                </label>
-              </div>
-            </div>
-          </div>
+        <div class="user-form-container">
+          <p>Click the button above to log out of the Mining Royalties Manager. Ensure all changes are saved before logging out.</p>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    // Enhanced sidebar structure with modern navigation
-    let currentUser = null;
-    let currentSection = 'dashboard';
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarClose = document.querySelector('.sidebar-close');
+      const loginSection = document.getElementById('login-section');
+      const appContainer = document.getElementById('app-container');
+      const loadingScreen = document.getElementById('loading-screen');
+      const tabButtons = document.querySelectorAll('.report-tabs .tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
 
-    // Initialize application
-    function initApp() {
-      hideLoadingScreen();
-      showLoginSection();
-      setupEventListeners();
-    }
-
-    function hideLoadingScreen() {
+      // Simulate loading
       setTimeout(() => {
-        document.getElementById('loadingScreen').style.display = 'none';
-      }, 1500);
-    }
+        loadingScreen.style.display = 'none';
+        loginSection.style.display = 'flex';
+      }, 2000);
 
-    function showLoginSection() {
-      document.getElementById('loginSection').style.display = 'flex';
-      document.getElementById('appContainer').style.display = 'none';
-    }
+      // Sidebar toggle
+      sidebarClose.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('active');
+      });
 
-    function setupEventListeners() {
-      // Sidebar navigation
-      const sidebarLinks = document.querySelectorAll('.sidebar nav a');
-      sidebarLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const section = link.getAttribute('href').substring(1);
-          if (section) {
-            navigateToSection(section);
-          }
+      // Simulate login (replace with actual authentication)
+      document.querySelector('.login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginSection.style.display = 'none';
+        appContainer.style.display = 'flex';
+        sidebar.classList.add('active');
+      });
+
+      // Tab switching for Reporting & Analytics
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab');
+          
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+
+          // Add active class to clicked button and corresponding content
+          button.classList.add('active');
+          document.querySelector(tabId).classList.add('active');
         });
       });
 
-      // Mobile responsive
-      window.addEventListener('resize', handleResize);
-    }
-
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      // Simple demo authentication
-      if ((username === 'admin' && password === 'admin123') || 
-          (username === 'editor' && password === 'editor123')) {
-        currentUser = { username, role: username };
-        showMainApp();
-      } else {
-        showError('Invalid credentials. Try admin/admin123 or editor/editor123');
-      }
-    }
-
-    function showMainApp() {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'flex';
-      navigateToSection('dashboard');
-      initializeData();
-    }
-
-    function navigateToSection(sectionId) {
-      // Hide all sections
-      const sections = document.querySelectorAll('main section');
-      sections.forEach(section => section.style.display = 'none');
-
-      // Show target section
-      const targetSection = document.getElementById(sectionId);
-      if (targetSection) {
-        targetSection.style.display = 'block';
-        currentSection = sectionId;
-      }
-
-      // Update sidebar navigation
-      updateSidebarNavigation(sectionId);
-    }
-
-    function updateSidebarNavigation(activeSection) {
-      const sidebarLinks = document.querySelectorAll('.sidebar nav a');
-      sidebarLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${activeSection}`) {
-          link.classList.add('active');
+      // Initialize Revenue Trends chart
+      const revenueChartCtx = document.getElementById('revenue-trends-chart').getContext('2d');
+      new Chart(revenueChartCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Revenue (E)',
+            data: [500000, 600000, 750000, 700000, 800000, 900000],
+            borderColor: '#1a365d',
+            backgroundColor: 'rgba(26, 54, 93, 0.2)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
       });
-    }
-
-    function logout() {
-      currentUser = null;
-      showLoginSection();
-      clearData();
-    }
-
-    function togglePassword() {
-      const passwordInput = document.getElementById('password');
-      const icon = document.querySelector('.password-toggle i');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-      }
-    }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-    }
-
-    function handleResize() {
-      const sidebar = document.getElementById('sidebar');
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-      } else {
-        sidebar.classList.remove('hidden');
-      }
-    }
-
-    function showError(message) {
-      // Simple error display - can be enhanced with proper modal
-      alert(message);
-    }
-
-    function initializeData() {
-      // Initialize with sample data for demo
-      console.log('Initializing application data...');
-    }
-
-    function clearData() {
-      // Clear any stored data on logout
-      console.log('Clearing application data...');
-    }
-
-    // Communication functions
-    function showStakeholderModal() {
-      console.log('Show stakeholder management modal');
-    }
-
-    function showNotificationTemplates() {
-      console.log('Show notification templates');
-    }
-
-    function composeMessage() {
-      console.log('Open compose message dialog');
-    }
-
-    function saveNotificationSettings() {
-      console.log('Save notification settings');
-    }
-
-    function testNotifications() {
-      console.log('Test notification system');
-    }
-
-    function showTab(tabName) {
-      // Hide all tab contents
-      const tabContents = document.querySelectorAll('.tab-content');
-      tabContents.forEach(content => content.classList.remove('active'));
-
-      // Show selected tab
-      document.getElementById(`${tabName}-tab`).classList.add('active');
-
-      // Update tab buttons
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-    }
-
-    // Notification functions
-    function markAllRead() {
-      const notifications = document.querySelectorAll('.notification-item.unread');
-      notifications.forEach(notification => {
-        notification.classList.remove('unread');
-      });
-    }
-
-    function notificationSettings() {
-      console.log('Open notification settings');
-    }
-
-    function clearNotifications() {
-      if (confirm('Are you sure you want to clear all notifications?')) {
-        document.querySelector('.notifications-container').innerHTML = 
-          '<p class="no-notifications">No notifications to display</p>';
-      }
-    }
-
-    // Profile functions
-    function editProfile() {
-      const inputs = document.querySelectorAll('#profile input');
-      inputs.forEach(input => {
-        if (input.id !== 'profile-employee-id' && input.id !== 'profile-start-date') {
-          input.removeAttribute('readonly');
-        }
-      });
-    }
-
-    // Reporting & Analytics Functions
-    function generateQuickReport(reportType) {
-      console.log(`Generating quick report: ${reportType}`);
-      // Show loading state
-      showReportGenerationModal(reportType);
-    }
-
-    function updateReportOptions() {
-      const reportType = document.getElementById('custom-report-type').value;
-      // Update available options based on report type
-      console.log(`Updated options for report type: ${reportType}`);
-    }
-
-    function generateCustomReport() {
-      console.log('Generating custom report with selected criteria');
-      // Collect form data and generate report
-      const reportData = collectCustomReportData();
-      showReportGenerationModal('custom', reportData);
-    }
-
-    function collectCustomReportData() {
-      return {
-        type: document.getElementById('custom-report-type').value,
-        dateRange: document.getElementById('custom-date-range').value,
-        entities: Array.from(document.getElementById('custom-entities').selectedOptions).map(o => o.value),
-        minerals: Array.from(document.getElementById('custom-minerals').selectedOptions).map(o => o.value),
-        metrics: Array.from(document.querySelectorAll('input[name="metrics"]:checked')).map(cb => cb.value),
-        format: document.getElementById('custom-output-format').value,
-        template: document.getElementById('custom-template').value
-      };
-    }
-
-    function saveReportTemplate() {
-      console.log('Saving custom report as template');
-      // Implement template saving logic
-    }
-
-    function showReportTab(tabName) {
-      // Hide all tab contents
-      const tabContents = document.querySelectorAll('#reporting-analytics .tab-content');
-      tabContents.forEach(content => content.classList.remove('active'));
-
-      // Show selected tab
-      document.getElementById(`${tabName}-tab`).classList.add('active');
-
-      // Update tab buttons
-      const tabButtons = document.querySelectorAll('#reporting-analytics .tab-btn');
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-    }
-
-    function createSchedule() {
-      console.log('Opening schedule creation dialog');
-      // Implement schedule creation modal
-    }
-
-    function generateAuditReport() {
-      console.log('Generating audit trail report');
-      const auditData = {
-        period: document.getElementById('audit-period').value,
-        activityType: document.getElementById('audit-activity-type').value,
-        user: document.getElementById('audit-user').value
-      };
-      showReportGenerationModal('audit', auditData);
-    }
-
-    function refreshAnalytics() {
-      console.log('Refreshing analytics dashboard');
-      // Implement real-time data refresh
-    }
-
-    function exportDashboard() {
-      console.log('Exporting analytics dashboard');
-      // Implement dashboard export functionality
-    }
-
-    function scheduleReport() {
-      console.log('Opening report scheduling dialog');
-      // Implement report scheduling modal
-    }
-
-    function showReportGenerationModal(reportType, data = null) {
-      // Create and show modal for report generation progress
-      console.log(`Showing report generation modal for ${reportType}`, data);
-      // Implement modal with progress bar and download link when complete
-    }
-
-    // Chart interaction handlers
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('chart-btn')) {
-        // Handle chart type switching
-        const chartContainer = e.target.closest('.analytics-chart');
-        const chartBtns = chartContainer.querySelectorAll('.chart-btn');
-        chartBtns.forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-        
-        const chartType = e.target.dataset.chart;
-        console.log(`Switching chart to ${chartType} type`);
-      }
     });
-
-    // Initialize app when page loads
-    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
