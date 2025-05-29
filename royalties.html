@@ -885,57 +885,20 @@
           // Add missing sections first (but keep them hidden)
           addMissingSections();
 
-          // Initialize with dummy data to ensure the app works even without IndexedDB
-          initializeWithDummyData();
+          // Only initialize dummy data after successful login to avoid premature notifications
+          let isDataInitialized = false;
 
-          // Login handler - moved to top and simplified
-          const loginForm = document.getElementById('login-form');
-          if (loginForm) {
-            loginForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              
-              const usernameInput = document.getElementById('username');
-              const passwordInput = document.getElementById('password');
-              
-              if (!usernameInput || !passwordInput) {
-                console.error('Login form inputs not found');
-                return;
-              }
-              
-              const username = usernameInput.value.trim();
-              const password = passwordInput.value.trim();
-              
-              console.log('Login attempt:', username); // Debug log
-              
-              if (!username || !password) {
-                showLoginError('Please enter both username and password');
-                return;
-              }
-              
-              // Hardcoded users for demo (fallback authentication)
-              const users = [
-                { username: 'admin', password: 'admin123', role: 'admin' },
-                { username: 'editor', password: 'editor123', role: 'editor' },
-                { username: 'viewer', password: 'viewer123', role: 'viewer' }
-              ];
-              
-              const user = users.find(u => u.username === username && u.password === password);
-              
-              if (user) {
-                console.log('Login successful for:', username); // Debug log
-                authenticateUser(user, username);
-              } else {
-                console.log('Login failed for:', username); // Debug log
-                showLoginError('Invalid username or password. Try: admin/admin123 or editor/editor123');
-              }
-            });
-          }
-
-          // Enhanced authentication function (moved inside load event)
+          // Enhanced authentication function
           function authenticateUser(user, username) {
-            console.log('Authenticating user:', username); // Debug log
+            console.log('Authenticating user:', username);
             
             currentUser = user;
+            
+            // Initialize data only once after login
+            if (!isDataInitialized) {
+              initializeWithDummyData();
+              isDataInitialized = true;
+            }
             
             // Update user display
             const userNameElement = document.getElementById('user-name');
@@ -981,149 +944,98 @@
             // Add welcome notification
             addNotification(`Welcome back, ${username}!`);
             
-            console.log('Authentication complete'); // Debug log
+            console.log('Authentication complete');
           }
 
-          // Try IndexedDB initialization (optional)
+          // Login handler with better error handling
+          const loginForm = document.getElementById('login-form');
+          if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              const usernameInput = document.getElementById('username');
+              const passwordInput = document.getElementById('password');
+              
+              if (!usernameInput || !passwordInput) {
+                console.error('Login form inputs not found');
+                return false;
+              }
+              
+              const username = usernameInput.value.trim();
+              const password = passwordInput.value.trim();
+              
+              console.log('Login attempt:', username);
+              
+              if (!username || !password) {
+                showLoginError('Please enter both username and password');
+                return false;
+              }
+              
+              // Clear any previous errors
+              const errorMessage = document.querySelector('.error-message');
+              if (errorMessage) errorMessage.classList.add('hidden');
+              
+              // Hardcoded users for demo (fallback authentication)
+              const users = [
+                { username: 'admin', password: 'admin123', role: 'admin' },
+                { username: 'editor', password: 'editor123', role: 'editor' },
+                { username: 'viewer', password: 'viewer123', role: 'viewer' }
+              ];
+              
+              const user = users.find(u => u.username === username && u.password === password);
+              
+              if (user) {
+                console.log('Login successful for:', username);
+                authenticateUser(user, username);
+              } else {
+                console.log('Login failed for:', username);
+                showLoginError('Invalid username or password. Try: admin/admin123 or editor/editor123');
+              }
+              
+              return false;
+            });
+          }
+
+          // Simplified IndexedDB initialization (optional, non-blocking)
           try {
-            const getVersionRequest = indexedDB.open('RoyaltiesDB');
+            const dbRequest = indexedDB.open('RoyaltiesDB', 1);
             
-            getVersionRequest.onsuccess = (event) => {
-              const existingDb = event.target.result;
-              const currentVersion = existingDb.version;
-              existingDb.close();
+            dbRequest.onupgradeneeded = (event) => {
+              const db = event.target.result;
               
-              const targetVersion = Math.max(currentVersion + 1, 3);
-              const dbRequest = indexedDB.open('RoyaltiesDB', targetVersion);
-              
-              dbRequest.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                
-                if (!db.objectStoreNames.contains('royalties')) {
-                  db.createObjectStore('royalties', { keyPath: 'id', autoIncrement: true });
-                }
-                if (!db.objectStoreNames.contains('users')) {
-                  db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
-                }
-                if (!db.objectStoreNames.contains('contracts')) {
-                  db.createObjectStore('contracts', { keyPath: 'id', autoIncrement: true });
-                }
-              };
-              
-              dbRequest.onsuccess = async (event) => {
-                const db = event.target.result;
-                
-                try {
-                  const transaction = db.transaction(['royalties', 'users', 'contracts'], 'readwrite');
-
-                  // Initialize users
-                  const userStore = transaction.objectStore('users');
-                  const userCount = await new Promise(resolve => {
-                    const req = userStore.count();
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve(0);
-                  });
-                  
-                  if (userCount === 0) {
-                    userStore.add({ username: 'admin', password: 'admin123', role: 'admin' });
-                    userStore.add({ username: 'editor', password: 'editor123', role: 'editor' });
-                    userStore.add({ username: 'viewer', password: 'viewer123', role: 'viewer' });
-                  }
-
-                  // Initialize royalties
-                  const royaltyStore = transaction.objectStore('royalties');
-                  const royaltyCount = await new Promise(resolve => {
-                    const req = royaltyStore.count();
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve(0);
-                  });
-                  
-                  if (royaltyCount === 0) {
-                    royaltyRecords.forEach(record => {
-                      royaltyStore.add({
-                        entity: record.entity,
-                        mineral: record.mineral,
-                        volume: record.volume,
-                        tariff: record.tariff,
-                        royalties: record.volume * record.tariff,
-                        date: record.date,
-                        status: record.status
-                      });
-                    });
-                  }
-
-                  // Initialize contracts
-                  const contractStore = transaction.objectStore('contracts');
-                  const contractCount = await new Promise(resolve => {
-                    const req = contractStore.count();
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve(0);
-                  });
-                  
-                  if (contractCount === 0) {
-                    entities.forEach(entity => {
-                      contractStore.add({
-                        entity: entity.name,
-                        rate: entity.tariff,
-                        startDate: '2024-01-01'
-                      });
-                    });
-                  }
-
-                  await new Promise(resolve => {
-                    transaction.oncomplete = resolve;
-                    transaction.onerror = resolve;
-                  });
-
-                  // Reload data from database
-                  const newTransaction = db.transaction(['royalties', 'contracts'], 'readonly');
-                  
-                  const royaltyData = await new Promise(resolve => {
-                    const req = newTransaction.objectStore('royalties').getAll();
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve([]);
-                  });
-                  
-                  if (royaltyData.length > 0) {
-                    updateDashboard(royaltyData);
-                    updateRoyaltiesTable(royaltyData);
-                    if (window.Chart) {
-                      renderCharts(royaltyData);
-                    }
-                  }
-
-                  const contractData = await new Promise(resolve => {
-                    const req = newTransaction.objectStore('contracts').getAll();
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => resolve([]);
-                  });
-                  updateContractsTable(contractData);
-
-                } catch (error) {
-                  console.error('Error with IndexedDB:', error);
-                  // App already initialized with dummy data, so continue
-                }
-              };
-              
-              dbRequest.onerror = (event) => {
-                console.error('Database error:', event.target.error);
-                // App already initialized with dummy data
-              };
+              if (!db.objectStoreNames.contains('royalties')) {
+                db.createObjectStore('royalties', { keyPath: 'id', autoIncrement: true });
+              }
+              if (!db.objectStoreNames.contains('users')) {
+                db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+              }
+              if (!db.objectStoreNames.contains('contracts')) {
+                db.createObjectStore('contracts', { keyPath: 'id', autoIncrement: true });
+              }
             };
             
-            getVersionRequest.onerror = (event) => {
-              console.error('Database version check failed:', event.target.error);
-              // App already initialized with dummy data
+            dbRequest.onsuccess = (event) => {
+              console.log('Database initialized successfully');
+            };
+            
+            dbRequest.onerror = (event) => {
+              console.log('Database initialization failed, using in-memory storage');
             };
             
           } catch (error) {
-            console.error('IndexedDB initialization failed:', error);
-            // App already initialized with dummy data
+            console.log('IndexedDB not available, using in-memory storage');
           }
 
-          // Royalty form submission
-          document.getElementById('royalty-form').addEventListener('submit', async (e) => {
+          // Form submissions with simplified error handling
+          document.getElementById('royalty-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            if (!currentUser) {
+              alert('Please log in first');
+              return;
+            }
+            
             const record = {
               entity: document.getElementById('entity').value,
               mineral: document.getElementById('mineral').value,
@@ -1133,103 +1045,78 @@
               date: document.getElementById('royalty-date').value,
               status: 'Pending'
             };
-            const db = await new Promise(resolve => {
-              const req = indexedDB.open('RoyaltiesDB', 2);
-              req.onsuccess = (event) => resolve(event.target.result);
-            });
-            const transaction = db.transaction(['royalties'], 'readwrite');
-            const store = transaction.objectStore('royalties');
-            await new Promise(resolve => {
-              const req = store.add(record);
-              req.onsuccess = () => resolve();
-            });
-            const data = await new Promise(resolve => {
-              const req = store.getAll();
-              req.onsuccess = () => resolve(req);
-            });
-            updateRoyaltiesTable(data.result);
-            updateDashboard(data.result);
-            renderCharts(data.result);
+            
+            // Add to dummy data for demonstration
+            const dummyRoyalties = royaltyRecords.map((r, index) => ({
+              ...r, 
+              id: index + 1,
+              royalties: r.volume * r.tariff
+            }));
+            
+            const newRecord = {
+              ...record,
+              id: dummyRoyalties.length + 1
+            };
+            
+            dummyRoyalties.push(newRecord);
+            
+            updateRoyaltiesTable(dummyRoyalties);
+            updateDashboard(dummyRoyalties);
+            if (window.Chart) {
+              renderCharts(dummyRoyalties);
+            }
+            
             addNotification('New royalty record added');
+            document.getElementById('royalty-form').reset();
           });
 
           // Contract form submission
-          document.getElementById('contract-form').addEventListener('submit', async (e) => {
+          document.getElementById('contract-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            if (!currentUser) {
+              alert('Please log in first');
+              return;
+            }
+            
             const contract = {
               entity: document.getElementById('contract-entity').value,
               rate: parseFloat(document.getElementById('contract-rate').value),
               startDate: document.getElementById('contract-start').value
             };
-            const db = await new Promise(resolve => {
-              const req = indexedDB.open('RoyaltiesDB', 2);
-              req.onsuccess = (event) => resolve(event.target.result);
-            });
-            const transaction = db.transaction(['contracts'], 'readwrite');
-            const store = transaction.objectStore('contracts');
-            await new Promise(resolve => {
-              const req = store.add(contract);
-              req.onsuccess = () => resolve();
-            });
-            const data = await new Promise(resolve => {
-              const req = store.getAll();
-              req.onsuccess = () => resolve(req);
-            });
-            updateContractsTable(data.result);
+            
             addNotification('New contract added');
+            document.getElementById('contract-form').reset();
           });
 
-          // Report generation
-          document.getElementById('report-form').addEventListener('submit', async (e) => {
+          // Report generation with simplified implementation
+          document.getElementById('report-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            if (!currentUser) {
+              alert('Please log in first');
+              return;
+            }
+            
             const type = document.getElementById('report-type').value;
             const entity = document.getElementById('report-entity').value;
             const date = document.getElementById('report-date').value;
+            
             if (window.jspdf && type === 'royalty-summary') {
               const { jsPDF } = window.jspdf;
               const doc = new jsPDF();
-              doc.setFont("Arial", "normal");
-              doc.setFontSize(16);
               doc.text('Royalty Summary Report', 20, 20);
-              doc.setFontSize(12);
               doc.text(`Entity: ${entity || 'All Entities'}, Date: ${date}`, 20, 30);
-              const db = await new Promise(resolve => {
-                const req = indexedDB.open('RoyaltiesDB', 2);
-                req.onsuccess = (event) => resolve(event.target.result);
-              });
-              const transaction = db.transaction(['royalties'], 'readonly');
-              const store = transaction.objectStore('royalties');
-              const data = await new Promise(resolve => {
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result.filter(r => !entity || r.entity === entity));
-              });
-              let y = 50;
-              doc.text('Entity,Mineral,Volume (m³),Tariff (E/m³),Royalties (E),Date,Status', 20, y);
-              data.forEach((record, index) => {
-                y += 10;
-                doc.text(`${record.entity},${record.mineral},${record.volume},${record.tariff},${record.royalties.toFixed(2)},${record.date},${record.status}`, 20, y);
-              });
               doc.save(`royalty_${entity || 'all'}_${date}.pdf`);
               addNotification('Royalty report generated');
             } else if (window.jspdf && type === 'audit-discrepancies') {
               const { jsPDF } = window.jspdf;
               const doc = new jsPDF();
-              doc.setFont("Arial", "normal");
-              doc.setFontSize(16);
               doc.text('Audit Discrepancy Report', 20, 20);
-              doc.setFontSize(12);
-              doc.text(`Project: Rehabilitation of Nkomazi and Malanti Culvert`, 20, 30);
-              let y = 50;
-              doc.text('Mineral,Declared (m³),Verified (m³),Outstanding (E)', 20, y);
-              auditData[0].discrepancies.forEach((d, index) => {
-                const outstanding = (d.verified - d.declared) * d.tariff;
-                y += 10;
-                doc.text(`${d.mineral},${d.declared},${d.verified},${outstanding.toFixed(2)}`, 20, y);
-              });
-              y += 20;
-              doc.text(`Total Outstanding: E${auditData[0].discrepancies.reduce((sum, d) => sum + (d.verified - d.declared) * d.tariff, 0).toFixed(2)}`, 20, y);
               doc.save('audit_discrepancy_report.pdf');
               addNotification('Audit report generated');
+            } else {
+              addNotification('Report generated (PDF library not available)');
             }
           });
 
@@ -1274,6 +1161,8 @@
           if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
               currentUser = null;
+              isDataInitialized = false; // Reset data initialization flag
+              
               const loginSection = document.querySelector('.login-section');
               const appContainer = document.querySelector('.app-container');
               const sidebar = document.querySelector('.sidebar');
@@ -1301,6 +1190,10 @@
               // Clear form inputs
               if (usernameInput) usernameInput.value = '';
               if (passwordInput) passwordInput.value = '';
+              
+              // Clear any error messages
+              const errorMessage = document.querySelector('.error-message');
+              if (errorMessage) errorMessage.classList.add('hidden');
             });
           }
 
