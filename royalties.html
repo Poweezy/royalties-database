@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1726,1170 +1687,733 @@
     </main>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const sidebar = document.getElementById('sidebar');
-      const loginSection = document.getElementById('login-section');
-      const appContainer = document.getElementById('app-container');
-      const loadingScreen = document.getElementById('loading-screen');
+  <script type="text/javascript">
+  // Modernized file handling with ES6+
+  class FileManager {
+    constructor() {
+      this.isXlsx = false;
+      this.xlsxFileLookup = new Map();
+      this.fileData = new Map();
+    }
 
-      // Simulate loading
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        loginSection.style.display = 'flex';
-      }, 2000);
+    isFilledCell = (cell) => cell !== '' && cell != null;
 
-      // Simulate login (replace with actual authentication)
-      document.querySelector('.login-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        loginSection.style.display = 'none';
-        appContainer.style.display = 'flex';
-        sidebar.classList.add('active');
-        
-        // Initialize chart after app container is visible
-        setTimeout(initializeCharts, 100);
-      });
-
-      // Enhanced navigation system
-      function showSection(sectionId) {
-        // Hide all sections
-        document.querySelectorAll('main > section').forEach(section => {
-          section.style.display = 'none';
-        });
-        
-        // Show target section
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-          targetSection.style.display = 'block';
-          // Scroll to top of main content
-          document.querySelector('.main-content').scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
-        }
-
-        // Update active nav item
-        document.querySelectorAll('.sidebar nav a').forEach(link => {
-          link.classList.remove('active');
-        });
-        const activeLink = document.querySelector(`.sidebar nav a[href="#${sectionId}"]`);
-        if (activeLink) {
-          activeLink.classList.add('active');
-        }
-      }
-
-      // Navigation event listeners
-      document.querySelectorAll('.sidebar nav a').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const href = link.getAttribute('href');
-          if (href && href.startsWith('#')) {
-            const sectionId = href.substring(1);
-            showSection(sectionId);
-            
-            // Close sidebar on mobile after navigation
-            if (window.innerWidth <= 768) {
-              sidebar.classList.remove('active');
-            }
-          }
-        });
-      });
-
-      // Show dashboard by default
-      showSection('dashboard');
-
-      // Initialize charts function
-      function initializeCharts() {
+    async loadFileData(filename) {
+      if (this.isXlsx && this.xlsxFileLookup.has(filename)) {
         try {
-          const revenueChartCanvas = document.getElementById('revenue-trends-chart');
-          if (revenueChartCanvas && typeof Chart !== 'undefined') {
-            const ctx = revenueChartCanvas.getContext('2d');
-            
-            // Destroy existing chart if it exists
-            if (window.revenueChart) {
-              window.revenueChart.destroy();
-                       }
-            
-            window.revenueChart = new Chart(ctx, {
-              type: 'line',
-              data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                  label: 'Revenue (E)',
-                  data: [500000, 600000, 750000, 700000, 800000, 900000],
-                  borderColor: '#1a365d',
-                  backgroundColor: 'rgba(26, 54, 93, 0.2)',
-                  fill: true,
-                  tension: 0.4
-                }]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'top'
-                  }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: function(value) {
-                        return 'E ' + value.toLocaleString();
-                      }
-                    }
-                  },
-                  x: {
-                    grid: {
-                      display: false
-                    }
-                  }
-                },
-                interaction: {
-                  intersect: false,
-                  mode: 'index'
-                }
-              }
-            });
-          }
+          const workbook = XLSX.read(this.fileData.get(filename), { type: 'base64' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
 
-          // Initialize Production by Entity pie chart
-          const productionChartCanvas = document.getElementById('production-by-entity-chart');
-          if (productionChartCanvas && typeof Chart !== 'undefined') {
-            const ctxPie = productionChartCanvas.getContext('2d');
-            
-            // Destroy existing chart if it exists
-            if (window.productionChart) {
-              window.productionChart.destroy();
-            }
-            
-            window.productionChart = new Chart(ctxPie, {
-              type: 'pie',
-              data: {
-                labels: [
-                  'Kwalini Quarry',
-                  'Mbabane Quarry', 
-                  'Sidvokodvo Quarry',
-                  'Maloma Colliery',
-                  'Ngwenya Mine',
-                  'Malolotja Mine'
-                ],
-                datasets: [{
-                  label: 'Production Volume (m³)',
-                  data: [45000, 38000, 42000, 55000, 28000, 32000],
-                  backgroundColor: [
-                    '#1a365d',
-                    '#2563eb',
-                    '#059669',
-                    '#dc2626',
-                    '#d97706',
-                    '#7c3aed'
-                  ],
-                  borderColor: [
-                    '#1a365d',
-                    '#2563eb',
-                    '#059669',
-                    '#dc2626',
-                    '#d97706',
-                    '#7c3aed'
-                  ],
-                  borderWidth: 2
-                }]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'bottom',
-                    labels: {
-                      padding: 20,
-                      usePointStyle: true,
-                      font: {
-                        size: 12
-                      }
-                    }
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        const label = context.label || '';
-                        const value = context.parsed;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = ((value / total) * 100).toFixed(1);
-                        return `${label}: ${value.toLocaleString()} m³ (${percentage}%)`;
-                      }
-                    }
-                  }
-                },
-                interaction: {
-                  intersect: false
-                }
-              }
-            });
-          }
+          // Convert sheet to JSON to filter blank rows
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+          
+          // Filter out blank rows using modern array methods
+          const filteredData = jsonData.filter(row => row.some(this.isFilledCell));
+
+          // Find header row with improved logic
+          const headerRowIndex = this.findHeaderRow(filteredData);
+
+          // Convert filtered JSON back to CSV
+          const csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+          return XLSX.utils.sheet_to_csv(csv, { header: 1 });
         } catch (error) {
-          console.warn('Chart initialization failed:', error);
-          // Fallback: Show a message in the chart containers
-          const chartContainer = document.querySelector('#revenue-trends-chart')?.parentNode;
-          if (chartContainer) {
-            chartContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
-          }
-          
-          const productionContainer = document.querySelector('#production-by-entity-chart')?.parentNode;
-          if (productionContainer) {
-            productionContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Production chart will be loaded shortly...</p>';
-          }
+          console.error('File processing error:', error);
+          return "";
         }
       }
+      return this.fileData.get(filename) || "";
+    }
 
-      // Enhanced tab switching for all sections
-      const allTabButtons = document.querySelectorAll('.tab-btn, .regulatory-tabs .tab-btn');
+    findHeaderRow(filteredData) {
+      const headerRowIndex = filteredData.findIndex((row, index) =>
+        row.filter(this.isFilledCell).length >= (filteredData[index + 1]?.filter(this.isFilledCell).length || 0)
+      );
+      return (headerRowIndex === -1 || headerRowIndex > 25) ? 0 : headerRowIndex;
+    }
+  }
 
-      allTabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const tabId = button.getAttribute('data-tab');
-          const parentContainer = button.closest('.user-form-container, .regulatory-section');
-          
-          if (parentContainer) {
-            // Remove active class from buttons in this container
-            parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding content
-            button.classList.add('active');
-            const targetContent = parentContainer.querySelector(tabId);
-            if (targetContent) {
-              targetContent.classList.add('active');
-            }
-          }
-        });
-      });
-
-      // Enhanced button functionality for User Management section
-      function initUserManagementButtons() {
-        // View Audit Log button functionality
-        const viewAuditLogBtn = document.querySelector('#user-management .page-actions .btn-primary');
-        if (viewAuditLogBtn && viewAuditLogBtn.textContent.includes('View Audit Log')) {
-          viewAuditLogBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Find the Security Audit Log section within user management
-            const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
-            if (auditLogSection) {
-              // Ensure we're on the user management section first
-              showSection('user-management');
-              
-              // Wait a moment for section to load, then scroll
-              setTimeout(() => {
-                // Smooth scroll to the audit log section
-                auditLogSection.scrollIntoView({ 
-                  behavior: 'smooth', 
-                  block: 'start' 
-                });
-                
-                // Add visual highlight effect
-                auditLogSection.style.transition = 'background-color 0.3s ease, border 0.3s ease';
-                auditLogSection.style.backgroundColor = 'rgba(26, 54, 93, 0.05)';
-                auditLogSection.style.border = '2px solid #1a365d';
-                
-                // Remove highlight after 3 seconds
-                setTimeout(() => {
-                  auditLogSection.style.backgroundColor = '';
-                  auditLogSection.style.border = '';
-                }, 3000);
-                
-                // Show success notification
-                if (typeof showNotification === 'function') {
-                  showNotification('Scrolled to Security Audit Log section', 'info');
-                }
-              }, 300);
-            } else {
-              // Fallback if section not found
-              if (typeof showNotification === 'function') {
-                showNotification('Security Audit Log section not found', 'error');
-              }
-            }
-          });
-        }
-
-        // Export Report button functionality
-        const exportReportBtn = document.querySelector('#user-management .page-actions .btn-primary:nth-child(2)');
-        if (exportReportBtn && exportReportBtn.textContent.includes('Export Report')) {
-          exportReportBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Simulate export functionality
-            showNotification('Generating user management report...', 'info');
-            
-            setTimeout(() => {
-              showNotification('User management report exported successfully!', 'success');
-              
-              // Simulate file download
-              const link = document.createElement('a');
-              link.href = 'data:text/csv;charset=utf-8,User Management Report\nGenerated on: ' + new Date().toLocaleString();
-              link.download = 'user_management_report_' + new Date().toISOString().split('T')[0] + '.csv';
-              link.click();
-            }, 1500);
-          });
-        }
-
-        // Add User button functionality
-        const addUserBtn = document.querySelector('#user-management .page-actions .btn-success');
-        if (addUserBtn && addUserBtn.textContent.includes('Add User')) {
-          addUserBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Scroll to the Add New User form
-            const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
-            if (addUserForm) {
-              addUserForm.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-              });
-              
-              // Focus on the first input field
-              const firstInput = addUserForm.querySelector('input');
-              if (firstInput) {
-                setTimeout(() => {
-                  firstInput.focus();
-                }, 500);
-              }
-              
-              // Add visual highlight
-              addUserForm.style.transition = 'background-color 0.3s ease, border-color 0.3s ease';
-              addUserForm.style.backgroundColor = 'rgba(56, 161, 105, 0.05)';
-              addUserForm.style.borderColor = 'var(--success-color)';
-              
-              setTimeout(() => {
-                addUserForm.style.backgroundColor = '';
-                addUserForm.style.borderColor = '';
-              }, 2000);
-            }
-          });
-        }
-      }
-
-      // Initialize user management buttons
-      setTimeout(initUserManagementButtons, 100);
-
-      // Enhanced notification system
-      function showNotification(message, type = 'info') {
-        // Remove existing notifications
-        const existingNotifications = document.querySelectorAll('.notification-toast');
-        existingNotifications.forEach(notification => notification.remove());
-        
-        const notification = document.createElement('div');
-        notification.className = 'notification-toast';
-        
-        let backgroundColor, borderColor, textColor, icon;
-        
-        switch(type) {
-          case 'success':
-            backgroundColor = '#dcfce7';
-            borderColor = '#bbf7d0';
-            textColor = '#166534';
-            icon = '✅';
-            break;
-          case 'error':
-            backgroundColor = '#fef2f2';
-            borderColor = '#fecaca';
-            textColor = '#dc2626';
-            icon = '❌';
-            break;
-          case 'warning':
-            backgroundColor = '#fef3c7';
-            borderColor = '#fde68a';
-            textColor = '#92400e';
-            icon = '⚠️';
-            break;
-          default: // info
-            backgroundColor = '#dbeafe';
-            borderColor = '#93c5fd';
-            textColor = '#1e40af';
-            icon = 'ℹ️';
-        }
-        
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          z-index: 10000;
-          background: ${backgroundColor};
-          color: ${textColor};
-          padding: 1rem 1.5rem;
-          border-radius: 8px;
-          border: 1px solid ${borderColor};
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          max-width: 400px;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          font-weight: 500;
-          transform: translateX(100%);
-          transition: transform 0.3s ease;
-        `;
-        
-        notification.innerHTML = `
-          <span style="font-size: 1.2rem;">${icon}</span>
-          <span>${message}</span>
-          <button onclick="this.parentElement.remove()" style="
-            background: none;
-            border: none;
-            color: ${textColor};
-            cursor: pointer;
-            font-size: 1.2rem;
-            margin-left: auto;
-            opacity: 0.7;
-          ">×</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Animate in
-        setTimeout(() => {
-          notification.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-          if (notification.parentElement) {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-              notification.remove();
-            }, 300);
-          }
-        }, 5000);
-      }
-    });
+  // Initialize global file manager
+  const fileManager = new FileManager();
+  
+  // Expose legacy global variables for compatibility
+  const gk_isXlsx = fileManager.isXlsx;
+  const gk_xlsxFileLookup = fileManager.xlsxFileLookup;
+  const gk_fileData = fileManager.fileData;
+  const filledCell = fileManager.isFilledCell;
+  const loadFileData = (filename) => fileManager.loadFileData(filename);
   </script>
 
-  <!-- Enhanced icon fix script -->
   <script>
-    (function() {
-      'use strict';
+  // Modern ES6+ Application Class
+  class RoyaltiesManager {
+    constructor() {
+      this.sidebar = null;
+      this.loginSection = null;
+      this.appContainer = null;
+      this.loadingScreen = null;
+      this.charts = new Map();
+      this.notifications = new Set();
       
-      // Extended icon mapping with all FontAwesome icons used in the app
-      const iconMap = {
-        'fa-home': '🏠',
-        'fa-user': '👤', 
-        'fa-users': '👥',
-        'fa-file-invoice': '📄',
-        'fa-file-contract': '📋',
-        'fa-shield-alt': '🛡️',
-        'fa-chart-bar': '📊',
-        'fa-chart-pie': '🥧',
-        'fa-envelope': '✉️',
-        'fa-bell': '🔔',
-        'fa-check-circle': '✅',
-        'fa-sign-out-alt': '🚪',
-        'fa-times': '❌',
-        'fa-lock': '🔒',
-        'fa-eye': '👁️',
-        'fa-clock': '🕐',
-        'fa-file-pdf': '📄',
-        'fa-file-excel': '📊',
-        'fa-file-csv': '📄',
-        'fa-filter': '🔽',
-        'fa-gavel': '⚖️'
+      this.init();
+    }
+
+    // Modern initialization with async/await
+    async init() {
+      try {
+        await this.waitForDOM();
+        this.initializeElements();
+        this.setupEventListeners();
+        await this.simulateLoading();
+        this.showLoginSection();
+      } catch (error) {
+        console.error('Application initialization failed:', error);
+      }
+    }
+
+    waitForDOM() {
+      return new Promise(resolve => {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', resolve);
+        } else {
+          resolve();
+        }
+      });
+    }
+
+    initializeElements() {
+      this.sidebar = document.getElementById('sidebar');
+      this.loginSection = document.getElementById('login-section');
+      this.appContainer = document.getElementById('app-container');
+      this.loadingScreen = document.getElementById('loading-screen');
+    }
+
+    async simulateLoading() {
+      return new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    showLoginSection() {
+      this.loadingScreen.style.display = 'none';
+      this.loginSection.style.display = 'flex';
+    }
+
+    setupEventListeners() {
+      // Modern event delegation
+      document.addEventListener('click', this.handleGlobalClick.bind(this));
+      document.addEventListener('submit', this.handleGlobalSubmit.bind(this));
+      
+      // Setup navigation
+      this.setupNavigation();
+      this.setupUserManagement();
+    }
+
+    handleGlobalClick(event) {
+      const { target } = event;
+      
+      // Handle navigation clicks
+      if (target.closest('.sidebar nav a')) {
+        this.handleNavigationClick(event);
+      }
+      
+      // Handle button clicks with data attributes
+      if (target.dataset.action) {
+        this.handleActionButton(event);
+      }
+    }
+
+    handleGlobalSubmit(event) {
+      if (event.target.matches('.login-form')) {
+        this.handleLogin(event);
+      }
+    }
+
+    handleNavigationClick(event) {
+      event.preventDefault();
+      const link = event.target.closest('a');
+      const href = link.getAttribute('href');
+      
+      if (href?.startsWith('#')) {
+        const sectionId = href.substring(1);
+        this.showSection(sectionId);
+        this.closeMobileSidebar();
+      }
+    }
+
+    async handleLogin(event) {
+      event.preventDefault();
+      
+      try {
+        // Simulate authentication
+        await this.authenticate();
+        
+        this.loginSection.style.display = 'none';
+        this.appContainer.style.display = 'flex';
+        this.sidebar.classList.add('active');
+        
+        // Initialize charts after app is visible
+        setTimeout(() => this.initializeCharts(), 100);
+      } catch (error) {
+        this.showNotification('Login failed. Please try again.', 'error');
+      }
+    }
+
+    async authenticate() {
+      // Simulate API call
+      return new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('main > section').forEach(section => {
+        section.style.display = 'none';
+      });
+      
+      // Show target section
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.style.display = 'block';
+        this.scrollToTop();
+      }
+
+      this.updateActiveNavigation(sectionId);
+    }
+
+    updateActiveNavigation(sectionId) {
+      document.querySelectorAll('.sidebar nav a').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      const activeLink = document.querySelector(`.sidebar nav a[href="#${sectionId}"]`);
+      activeLink?.classList.add('active');
+    }
+
+    scrollToTop() {
+      document.querySelector('.main-content')?.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    closeMobileSidebar() {
+      if (window.innerWidth <= 768) {
+        this.sidebar.classList.remove('active');
+      }
+    }
+
+    setupNavigation() {
+      // Show dashboard by default
+      this.showSection('dashboard');
+    }
+
+    async initializeCharts() {
+      try {
+        await Promise.all([
+          this.createRevenueChart(),
+          this.createProductionChart()
+        ]);
+      } catch (error) {
+        console.warn('Chart initialization failed:', error);
+        this.showFallbackCharts();
+      }
+    }
+
+    async createRevenueChart() {
+      const canvas = document.getElementById('revenue-trends-chart');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      const ctx = canvas.getContext('2d');
+      
+      // Destroy existing chart
+      this.charts.get('revenue')?.destroy();
+      
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Revenue (E)',
+            data: [500000, 600000, 750000, 700000, 800000, 900000],
+            borderColor: '#1a365d',
+            backgroundColor: 'rgba(26, 54, 93, 0.2)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'top' }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => `E ${value.toLocaleString()}`
+              }
+            },
+            x: { grid: { display: false } }
+          },
+          interaction: { intersect: false, mode: 'index' }
+        }
+      });
+      
+      this.charts.set('revenue', chart);
+    }
+
+    async createProductionChart() {
+      const canvas = document.getElementById('production-by-entity-chart');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      const ctx = canvas.getContext('2d');
+      
+      // Destroy existing chart
+      this.charts.get('production')?.destroy();
+      
+      const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [
+            'Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry',
+            'Maloma Colliery', 'Ngwenya Mine', 'Malolotja Mine'
+          ],
+          datasets: [{
+            label: 'Production Volume (m³)',
+            data: [45000, 38000, 42000, 55000, 28000, 32000],
+            backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
+            borderColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: { padding: 20, usePointStyle: true, font: { size: 12 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const { label, parsed } = context;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = ((parsed / total) * 100).toFixed(1);
+                  return `${label}: ${parsed.toLocaleString()} m³ (${percentage}%)`;
+                }
+              }
+            }
+          },
+          interaction: { intersect: false }
+        }
+      });
+      
+      this.charts.set('production', chart);
+    }
+
+    showFallbackCharts() {
+      const containers = ['#revenue-trends-chart', '#production-by-entity-chart'];
+      containers.forEach(selector => {
+        const container = document.querySelector(selector)?.parentNode;
+        if (container) {
+          container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
+        }
+      });
+    }
+
+    setupUserManagement() {
+      // Enhanced button functionality using modern event delegation
+      this.setupUserManagementButtons();
+      this.setupTabSwitching();
+    }
+
+    setupUserManagementButtons() {
+      const buttons = {
+        'View Audit Log': this.handleViewAuditLog.bind(this),
+        'Export Report': this.handleExportReport.bind(this),
+        'Add User': this.handleAddUser.bind(this)
       };
 
-      // Enhanced error suppression for browser extensions and runtime errors
+      Object.entries(buttons).forEach(([text, handler]) => {
+        const button = Array.from(document.querySelectorAll('#user-management .page-actions .btn'))
+          .find(btn => btn.textContent.includes(text));
+        
+        if (button) {
+          button.addEventListener('click', handler);
+        }
+      });
+    }
+
+    async handleViewAuditLog(event) {
+      event.preventDefault();
+      
+      const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
+      if (!auditLogSection) {
+        this.showNotification('Security Audit Log section not found', 'error');
+        return;
+      }
+
+      this.showSection('user-management');
+      
+      await this.sleep(300);
+      
+      this.scrollToElement(auditLogSection);
+      this.highlightElement(auditLogSection);
+      this.showNotification('Scrolled to Security Audit Log section', 'info');
+    }
+
+    async handleExportReport(event) {
+      event.preventDefault();
+      
+      this.showNotification('Generating user management report...', 'info');
+      
+      await this.sleep(1500);
+      
+      this.showNotification('User management report exported successfully!', 'success');
+      this.downloadFile('user_management_report.csv', 'User Management Report\nGenerated on: ' + new Date().toLocaleString());
+    }
+
+    handleAddUser(event) {
+      event.preventDefault();
+      
+      const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
+      if (!addUserForm) return;
+
+      this.scrollToElement(addUserForm);
+      this.highlightElement(addUserForm, 'success');
+      
+      // Focus first input
+      setTimeout(() => {
+        addUserForm.querySelector('input')?.focus();
+      }, 500);
+    }
+
+    scrollToElement(element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    highlightElement(element, type = 'primary') {
+      const colors = {
+        primary: { bg: 'rgba(26, 54, 93, 0.05)', border: '#1a365d' },
+        success: { bg: 'rgba(56, 161, 105, 0.05)', border: 'var(--success-color)' }
+      };
+      
+      const color = colors[type];
+      element.style.transition = 'background-color 0.3s ease, border-color 0.3s ease';
+      element.style.backgroundColor = color.bg;
+      element.style.borderColor = color.border;
+      
+      setTimeout(() => {
+        element.style.backgroundColor = '';
+        element.style.borderColor = '';
+      }, 3000);
+    }
+
+    setupTabSwitching() {
+      document.addEventListener('click', (event) => {
+        if (event.target.matches('.tab-btn, .regulatory-tabs .tab-btn')) {
+          this.handleTabSwitch(event);
+        }
+      });
+    }
+
+    handleTabSwitch(event) {
+      const button = event.target;
+      const tabId = button.getAttribute('data-tab');
+      const parentContainer = button.closest('.user-form-container, .regulatory-section');
+      
+      if (!parentContainer || !tabId) return;
+
+      // Remove active classes
+      parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // Add active classes
+      button.classList.add('active');
+      parentContainer.querySelector(tabId)?.classList.add('active');
+    }
+
+    // Modern notification system with better UX
+    showNotification(message, type = 'info') {
+      // Remove existing notifications
+      document.querySelectorAll('.notification-toast').forEach(n => n.remove());
+      
+      const notification = this.createNotificationElement(message, type);
+      document.body.appendChild(notification);
+      
+      this.animateNotification(notification);
+    }
+
+    createNotificationElement(message, type) {
+      const types = {
+        success: { bg: '#dcfce7', border: '#bbf7d0', color: '#166534', icon: '✅' },
+        error: { bg: '#fef2f2', border: '#fecaca', color: '#dc2626', icon: '❌' },
+        warning: { bg: '#fef3c7', border: '#fde68a', color: '#92400e', icon: '⚠️' },
+        info: { bg: '#dbeafe', border: '#93c5fd', color: '#1e40af', icon: 'ℹ️' }
+      };
+      
+      const config = types[type];
+      const notification = document.createElement('div');
+      notification.className = 'notification-toast';
+      
+      notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        background: ${config.bg}; color: ${config.color};
+        padding: 1rem 1.5rem; border-radius: 8px;
+        border: 1px solid ${config.border};
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        max-width: 400px; display: flex; align-items: center;
+        gap: 0.75rem; font-weight: 500;
+        transform: translateX(100%); transition: transform 0.3s ease;
+      `;
+      
+      notification.innerHTML = `
+        <span style="font-size: 1.2rem;">${config.icon}</span>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="
+          background: none; border: none; color: ${config.color};
+          cursor: pointer; font-size: 1.2rem; margin-left: auto; opacity: 0.7;
+        ">×</button>
+      `;
+      
+      return notification;
+    }
+
+    animateNotification(notification) {
+      setTimeout(() => notification.style.transform = 'translateX(0)', 100);
+      
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => notification.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    downloadFile(filename, content) {
+      const link = document.createElement('a');
+      link.href = `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
+      link.download = `${filename.split('.')[0]}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    }
+
+    sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+  }
+
+  // Initialize the modern application
+  const app = new RoyaltiesManager();
+</script>
+
+<!-- Modern Icon Management System -->
+<script type="module">
+  class IconManager {
+    constructor() {
+      this.iconMap = new Map([
+        ['fa-home', '🏠'], ['fa-user', '👤'], ['fa-users', '👥'],
+        ['fa-file-invoice', '📄'], ['fa-file-contract', '📋'],
+        ['fa-shield-alt', '🛡️'], ['fa-chart-bar', '📊'],
+        ['fa-envelope', '✉️'], ['fa-bell', '🔔'],
+        ['fa-check-circle', '✅'], ['fa-sign-out-alt', '🚪'],
+        ['fa-lock', '🔒'], ['fa-eye', '👁️'], ['fa-clock', '🕐'],
+        ['fa-filter', '🔽'], ['fa-gavel', '⚖️']
+      ]);
+      
+      this.init();
+    }
+
+    async init() {
+      try {
+        this.suppressExtensionErrors();
+        this.addStyles();
+        this.replaceIcons();
+        this.addMobileMenuToggle();
+        this.observeChanges();
+        
+        // Delayed replacements for dynamic content
+        [500, 1000, 2000].forEach(delay => {
+          setTimeout(() => this.replaceIcons(), delay);
+        });
+      } catch (error) {
+        console.warn('Icon manager initialization failed:', error);
+      }
+    }
+
+    suppressExtensionErrors() {
       const originalError = console.error;
       const originalWarn = console.warn;
       
-      console.error = function(...args) {
+      console.error = (...args) => {
         const message = args.join(' ').toLowerCase();
-        if (message.includes('fontawesome') || 
-            message.includes('cors') || 
-            message.includes('favicon') ||
-            message.includes('unexpected token') ||
-            message.includes('listener indicated') ||
-            message.includes('message channel closed') ||
-            message.includes('runtime.lasterror') ||
-            message.includes('extension') ||
-            message.includes('chrome-extension') ||
-            message.includes('intervention') ||
-            message.includes('slow network') ||
-            message.includes('fallback font')) {
-          return; // Suppress these errors
+        if (!this.shouldSuppressMessage(message)) {
+          originalError.apply(console, args);
         }
-        originalError.apply(console, args);
       };
 
-      console.warn = function(...args) {
+      console.warn = (...args) => {
         const message = args.join(' ').toLowerCase();
-        if (message.includes('extension') ||
-            message.includes('listener') ||
-            message.includes('runtime') ||
-            message.includes('intervention') ||
-            message.includes('chrome-extension') ||
-            message.includes('font')) {
-          return; // Suppress extension warnings
+        if (!this.shouldSuppressMessage(message)) {
+          originalWarn.apply(console, args);
         }
-        originalWarn.apply(console, args);
       };
 
-      // Enhanced promise rejection handling
-      window.addEventListener('unhandledrejection', function(event) {
-        const errorMessage = event.reason?.message || event.reason?.toString() || '';
-        if (errorMessage.includes('listener indicated') ||
-            errorMessage.includes('message channel closed') ||
-            errorMessage.includes('extension') ||
-            errorMessage.includes('chrome-extension') ||
-            errorMessage.includes('runtime') ||
-            errorMessage.includes('asynchronous response')) {
-          event.preventDefault();
-          console.log('Suppressed extension-related promise rejection'); // Silent logging
-          return false;
+      ['unhandledrejection', 'error'].forEach(event => {
+        window.addEventListener(event, this.handleError.bind(this));
+      });
+    }
+
+    shouldSuppressMessage(message) {
+      const suppressPatterns = [
+        'fontawesome', 'extension', 'chrome-extension', 'intervention',
+        'listener indicated', 'message channel', 'runtime'
+      ];
+      return suppressPatterns.some(pattern => message.includes(pattern));
+    }
+
+    handleError(event) {
+      const errorMessage = event.reason?.message || event.message || '';
+      if (this.shouldSuppressMessage(errorMessage.toLowerCase())) {
+        event.preventDefault();
+        return false;
+      }
+    }
+
+    replaceIcons() {
+      document.querySelectorAll('[class*="fa-"]').forEach(element => {
+        this.replaceElementIcon(element);
+      });
+    }
+
+    replaceElementIcon(element) {
+      const classList = Array.from(element.classList);
+      let iconReplaced = false;
+      
+      for (const className of classList) {
+        if (this.iconMap.has(className)) {
+          this.applyIcon(element, this.iconMap.get(className));
+          iconReplaced = true;
+          break;
+        }
+      }
+      
+      if (!iconReplaced && classList.some(c => c.startsWith('fa-'))) {
+        this.applyIcon(element, '📋');
+      }
+    }
+
+    applyIcon(element, icon) {
+      // Remove FontAwesome classes
+      element.classList.forEach(cls => {
+        if (cls.startsWith('fa')) {
+          element.classList.remove(cls);
         }
       });
+      
+      // Add emoji icon if element is empty or minimal content
+      if (!element.textContent.trim() || element.textContent.trim().length <= 2) {
+        element.textContent = icon;
+        element.classList.add('emoji-icon');
+      }
+    }
 
-      // Enhanced general error handling
-      window.addEventListener('error', function(event) {
-        const errorMessage = event.message || '';
-        if (errorMessage.includes('extension') ||
-            errorMessage.includes('listener') ||
-            errorMessage.includes('runtime') ||
-            errorMessage.includes('chrome-extension') ||
-            errorMessage.includes('message channel') ||
-            event.filename?.includes('chrome-extension')) {
-          event.preventDefault();
-          console.log('Suppressed extension-related error'); // Silent logging
-          return false;
-        }
+    addMobileMenuToggle() {
+      if (document.querySelector('.mobile-menu-toggle')) return;
+      
+      const toggle = document.createElement('button');
+      Object.assign(toggle, {
+        className: 'mobile-menu-toggle',
+        innerHTML: '☰',
+        setAttribute: toggle.setAttribute.bind(toggle, 'aria-label', 'Toggle Menu')
       });
-
-      // Suppress specific Chrome extension errors
-      const originalConsoleLog = console.log;
-      console.log = function(...args) {
-        const message = args.join(' ').toLowerCase();
-        if (message.includes('icon replacement system initialized') && 
-            !message.includes('error')) {
-          // Allow this specific log but suppress similar extension logs
-          originalConsoleLog.apply(console, args);
-        } else if (!message.includes('extension') && 
-                  !message.includes('chrome-extension') &&
-                  !message.includes('suppressed')) {
-          originalConsoleLog.apply(console, args);
-        }
+      
+      toggle.onclick = () => {
+        document.querySelector('.sidebar')?.classList.toggle('active');
       };
+      
+      document.body.appendChild(toggle);
+    }
 
-      function replaceIcons() {
-        try {
-          // Find all elements with FontAwesome classes
-          document.querySelectorAll('[class*="fa-"]').forEach(el => {
-            const classList = Array.from(el.classList);
-            let iconReplaced = false;
-            
-            classList.forEach(className => {
-              if (iconMap[className]) {
-                // Remove FontAwesome classes
-                el.classList.remove(className, 'fas', 'far', 'fab', 'fa');
-                
-                // Add emoji icon if element is empty or has minimal content
-                if (!el.textContent.trim() || el.textContent.trim().length <= 2) {
-                  el.textContent = iconMap[className];
-                  el.classList.add('emoji-icon');
-                  iconReplaced = true;
-                }
+    addStyles() {
+      if (document.querySelector('#modern-icon-styles')) return;
+      
+      const style = document.createElement('style');
+      style.id = 'modern-icon-styles';
+      style.textContent = this.getModernStyles();
+      document.head.appendChild(style);
+    }
+
+    getModernStyles() {
+      return `
+        .emoji-icon {
+          font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+          font-style: normal !important;
+          font-weight: normal !important;
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          text-align: center;
+          vertical-align: middle;
+        }
+
+        .mobile-menu-toggle {
+          display: none;
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
+          z-index: 1001;
+          background: #1a365d;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 0.75rem;
+          cursor: pointer;
+          font-size: 1.2rem;
+          width: 48px;
+          height: 48px;
+        }
+
+        @media (max-width: 768px) {
+          .mobile-menu-toggle { display: flex !important; }
+          .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+          .sidebar.active { transform: translateX(0); }
+        }
+      `;
+    }
+
+    observeChanges() {
+      if (!window.MutationObserver) return;
+      
+      const observer = new MutationObserver(mutations => {
+        let shouldReplace = false;
+        
+        mutations.forEach(mutation => {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType === 1 && this.hasFontAwesomeClasses(node)) {
+                shouldReplace = true;
               }
             });
-            
-            // Default icon for unmatched FontAwesome classes
-            if (!iconReplaced && classList.some(c => c.startsWith('fa-'))) {
-              el.textContent = '📋';
-              el.classList.add('emoji-icon');
-              // Remove all FontAwesome classes
-              classList.forEach(c => {
-                if (c.startsWith('fa')) {
-                  el.classList.remove(c);
-                }
-              });
-            }
-          });
-        } catch (error) {
-          // Silently handle any errors in icon replacement
-        }
-      }
-
-      function addMobileMenuToggle() {
-        try {
-          if (!document.querySelector('.mobile-menu-toggle')) {
-            const toggle = document.createElement('button');
-            toggle.className = 'mobile-menu-toggle';
-            toggle.innerHTML = '☰';
-            toggle.setAttribute('aria-label', 'Toggle Menu');
-            
-            toggle.onclick = function() {
-              const sidebar = document.querySelector('.sidebar');
-              if (sidebar) {
-                sidebar.classList.toggle('active');
-              }
-            };
-            
-            document.body.appendChild(toggle);
           }
-        } catch (error) {
-          // Silently handle any errors
+        });
+        
+        if (shouldReplace) {
+          setTimeout(() => this.replaceIcons(), 50);
         }
-      }
+      });
 
-      function addEmojiIconStyles() {
-        try {
-          if (!document.querySelector('#emoji-icon-styles')) {
-            const style = document.createElement('style');
-            style.id = 'emoji-icon-styles';
-            style.textContent = `
-              /* Enhanced scrollbar styles */
-              * {
-                scrollbar-width: thin;
-                scrollbar-color: #cbd5e0 #f7fafc;
-              }
-              
-              *::-webkit-scrollbar {
-                width: 8px;
-                height: 8px;
-              }
-              
-              *::-webkit-scrollbar-track {
-                background: #f7fafc;
-                border-radius: 4px;
-              }
-              
-              *::-webkit-scrollbar-thumb {
-                background: #cbd5e0;
-                border-radius: 4px;
-                transition: background 0.3s ease;
-              }
-              
-              *::-webkit-scrollbar-thumb:hover {
-                background: #a0aec0;
-              }
-              
-              *::-webkit-scrollbar-corner {
-                background: #f7fafc;
-              }
-              
-              /* Main content area scrolling */
-              .main-content {
-                height: 100vh;
-                overflow-y: auto;
-                overflow-x: hidden;
-                scroll-behavior: smooth;
-                padding: 2rem;
-                box-sizing: border-box;
-              }
-              
-              /* Sidebar scrolling */
-              .sidebar {
-                overflow-y: auto;
-                overflow-x: hidden;
-                height: 100vh;
-                box-sizing: border-box;
-              }
-              
-              .sidebar nav {
-                padding-bottom: 2rem;
-              }
-              
-              /* Table container scrolling */
-              .table-container {
-                max-height: 400px;
-                overflow: auto;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                background: white;
-              }
-              
-              .data-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 0;
-              }
-              
-              .data-table thead {
-                position: sticky;
-                top: 0;
-                background: #f8fafc;
-                z-index: 10;
-              }
-              
-              .data-table th,
-              .data-table td {
-                padding: 0.75rem;
-                text-align: left;
-                border-bottom: 1px solid #e2e8f0;
-                white-space: nowrap;
-              }
-              
-              /* Navigation active states */
-              .sidebar nav a {
-                display: flex;
-                align-items: center;
-                padding: 0.75rem 1.25rem;
-                color: #64748b;
-                text-decoration: none;
-                transition: all 0.3s ease;
-                border-radius: 6px;
-                margin: 0.25rem 0.5rem;
-              }
-              
-              .sidebar nav a:hover,
-              .sidebar nav a.active {
-                background: #1a365d;
-                color: white;
-                transform: translateX(4px);
-              }
-              
-              .sidebar nav a i,
-              .sidebar nav a .emoji-icon {
-                margin-right: 0.75rem;
-                width: 20px;
-                text-align: center;
-              }
-              
-              /* Section display management */
-              main > section {
-                display: none;
-                min-height: calc(100vh - 4rem);
-              }
-              
-              main > section:first-child {
-                display: block;
-              }
-              
-              /* Form and content spacing */
-              .user-form-container {
-                margin-bottom: 2rem;
-                background: white;
-                border-radius: 8px;
-                padding: 1.5rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-              }
-              
-              .charts-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.5rem;
-                margin-bottom: 2rem;
-              }
-              
-              /* Enhanced responsive design */
-              @media (max-width: 768px) {
-                .main-content {
-                  padding: 1rem;
-                  padding-top: 4rem;
-                }
-                
-                .charts-grid {
-                  grid-template-columns: 1fr;
-                  gap: 1rem;
-                }
-                
-                .grid-4 {
-                  grid-template-columns: 1fr !important;
-                }
-                
-                .table-container {
-                  font-size: 0.875rem;
-                }
-                
-                .data-table th,
-                .data-table td {
-                  padding: 0.5rem;
-                }
-              }
-              
-              .emoji-icon {
-                font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif !important;
-                font-style: normal !important;
-                font-weight: normal !important;
-                font-variant: normal !important;
-                text-transform: none !important;
-                line-height: 1 !important;
-                display: inline-block;
-                width: 1em;
-                height: 1em;
-                text-align: center;
-                vertical-align: middle;
-              }
-              
-              /* Enhanced Compliance & Regulatory Styles */
-              .regulatory-tabs {
-                display: flex;
-                gap: 0.5rem;
-                margin-bottom: 1.5rem;
-                border-bottom: 2px solid #e2e8f0;
-                overflow-x: auto;
-                padding-bottom: 0;
-              }
-              
-              .regulatory-tabs .tab-btn {
-                padding: 0.75rem 1.5rem;
-                border: none;
-                background: transparent;
-                color: #64748b;
-                cursor: pointer;
-                border-bottom: 2px solid transparent;
-                transition: all 0.3s ease;
-                white-space: nowrap;
-                flex-shrink: 0;
-              }
-              
-              .regulatory-tabs .tab-btn.active {
-                color: #1a365d;
-                border-bottom-color: #1a365d;
-                background: rgba(26, 54, 93, 0.05);
-              }
-              
-              .regulation-card {
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 1rem;
-                background: white;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-              }
-              
-              .regulation-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 0.75rem;
-              }
-              
-              .status-badge {
-                padding: 0.25rem 0.75rem;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                font-weight: 600;
-              }
-              
-              .status-badge.compliant {
-                background: #dcfce7;
-                color: #166534;
-              }
-              
-              .status-badge.warning {
-                background: #fef3c7;
-                color: #92400e;
-              }
-              
-              .status-badge.pending {
-                background: #dbeafe;
-                color: #1e40af;
-              }
-              
-              .regulation-meta {
-                display: flex;
-                gap: 1rem;
-                margin-top: 0.5rem;
-                font-size: 0.75rem;
-                color: #64748b;
-              }
-              
-              .alert-dashboard {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-              }
-              
-              .alert-item {
-                display: flex;
-                gap: 1rem;
-                padding: 1rem;
-                border-radius: 8px;
-                border-left: 4px solid;
-              }
-              
-              .alert-item.urgent {
-                background: #fef2f2;
-                border-left-color: #dc2626;
-              }
-              
-              .alert-item.warning {
-                background: #fffbeb;
-                border-left-color: #d97706;
-              }
-              
-              .alert-item.info {
-                background: #eff6ff;
-                border-left-color: #2563eb;
-              }
-              
-              .alert-icon {
-                font-size: 1.25rem;
-                min-width: 24px;
-              }
-              
-              .alert-content {
-                flex: 1;
-              }
-              
-              .alert-actions {
-                display: flex;
-                gap: 0.5rem;
-                margin-top: 0.5rem;
-              }
-              
-              .jurisdiction-matrix {
-                margin-bottom: 2rem;
-              }
-              
-              .jurisdiction-card {
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 1rem;
-                background: white;
-              }
-              
-              .jurisdiction-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid #e2e8f0;
-              }
-              
-              .compliance-score {
-                font-size: 1.25rem;
-                font-weight: 700;
-                color: #059669;
-              }
-              
-              .requirement-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.5rem 0;
-                border-bottom: 1px solid #f1f5f9;
-              }
-              
-              .requirement-status {
-                font-size: 1.25rem;
-              }
-              
-              .tax-structure-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2rem;
-                margin-bottom: 2rem;
-              }
-              
-              .tax-category {
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 1.5rem;
-                background: white;
-              }
-              
-              .tax-rates {
-                margin-top: 1rem;
-              }
-              
-              .rate-item {
-                display: grid;
-                grid-template-columns: 2fr 1fr 2fr;
-                gap: 1rem;
-                padding: 0.75rem 0;
-                border-bottom: 1px solid #f1f5f9;
-                align-items: center;
-              }
-              
-              .rate {
-                font-weight: 600;
-                color: #1a365d;
-                text-align: center;
-              }
-              
-              .basis {
-                font-size: 0.875rem;
-                color: #64748b;
-              }
-              
-              .calendar-view {
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 1rem;
-                background: white;
-              }
-              
-              .calendar-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-                padding-bottom: 1rem;
-                border-bottom: 1px solid #e2e8f0;
-              }
-              
-              .calendar-day {
-                border: 1px solid #e2e8f0;
-                border-radius: 4px;
-                padding: 0.5rem;
-                min-height: 80px;
-                position: relative;
-              }
-              
-              .day-number {
-                font-weight: 600;
-                color: #1a365d;
-              }
-              
-              .day-events {
-                margin-top: 0.5rem;
-              }
-              
-              .event {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-                border-radius: 4px;
-                margin-bottom: 0.25rem;
-              }
-              
-              .event.royalty {
-                background: #dbeafe;
-                color: #1e40af;
-              }
-              
-              .event.environmental {
-                background: #dcfce7;
-                color: #166534;
-              }
-              
-              .mobile-menu-toggle {
-                display: none;
-                position: fixed;
-                top: 1rem;
-                left: 1rem;
-                z-index: 1001;
-                background: #1a365d;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 0.75rem;
-                box-shadow: 0 3px 5px -1px rgba(0,0,0,0.08);
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-size: 1.2rem;
-                width: 48px;
-                height: 48px;
-                align-items: center;
-                justify-content: center;
-              }
-              
-              .mobile-menu-toggle:hover {
-                background: #153450;
-                transform: translateY(-1px);
-              }
-              
-              @media (max-width: 768px) {
-                .mobile-menu-toggle {
-                  display: flex !important;
-                }
-                
-                .sidebar {
-                  transform: translateX(-100%);
-                  transition: transform 0.3s ease;
-                }
-                
-                .sidebar.active {
-                  transform: translateX(0);
-                }
-              }
-            `;
-            document.head.appendChild(style);
-          }
-        } catch (error) {
-          // Silently handle any errors
-        }
-      }
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
 
-      function init() {
-        try {
-          addEmojiIconStyles();
-          replaceIcons();
-          addMobileMenuToggle();
-          
-          // Enhanced delayed initialization with error handling
-          const delays = [500, 1000, 2000];
-          delays.forEach(delay => {
-            setTimeout(() => {
-              try {
-                replaceIcons();
-              } catch (error) {
-                // Silently handle errors without logging
-              }
-            }, delay);
-          });
-        } catch (error) {
-          // Silently handle initialization errors
-        }
-      }
+    hasFontAwesomeClasses(node) {
+      return node.classList && 
+             Array.from(node.classList).some(c => c.startsWith('fa-'));
+    }
+  }
 
-      // Initialize immediately and on DOM ready with enhanced error handling
-      try {
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', init);
-        } else {
-          init();
-        }
-
-        // Enhanced MutationObserver with better error handling
-        if (window.MutationObserver) {
-          const observer = new MutationObserver(function(mutations) {
-            try {
-              let shouldReplace = false;
-              mutations.forEach(function(mutation) {
-                try {
-                  if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach(function(node) {
-                      if (node.nodeType === 1 && 
-                          node.classList && 
-                          Array.from(node.classList).some(c => c.startsWith('fa-'))) {
-                        shouldReplace = true;
-                      }
-                    });
-                  }
-                } catch (mutationError) {
-                  // Silently handle individual mutation errors
-                }
-              });
-              if (shouldReplace) {
-                setTimeout(() => {
-                  try {
-                    replaceIcons();
-                  } catch (error) {
-                    // Silently handle errors
-                  }
-                }, 50);
-              }
-            } catch (error) {
-              // Silently handle observer errors
-            }
-          });
-
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-        }
-
-        // Only log success message once without triggering extension conflicts
-        setTimeout(() => {
-          if (!window.iconSystemLogged) {
-            window.iconSystemLogged = true;
-            originalConsoleLog('Mining Royalties Manager: Icon system ready');
-          }
-        }, 1000);
-      } catch (error) {
-        // Silently handle any initialization errors
-      }
-    })();
-  </script>
+  // Initialize modern icon manager
+  new IconManager();
+</script>
 </body>
 </html>
