@@ -107,7 +107,8 @@
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope"></i> Communication</a></li>
           <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span>3</span></a></li>
-          <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance</a></li>
+          <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
+          <li><a href="#regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
           <li><a href="#profile"><i class="fas fa-user"></i> My Profile</a></li>
           <li><a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -1119,82 +1120,548 @@
       <section id="compliance">
         <div class="page-header">
           <div class="page-title">
-            <h1>Compliance</h1>
-            <p>Monitor and manage compliance with regulatory requirements</p>
+            <h1>Compliance & Regulatory Management</h1>
+            <p>Ensure compliance with Eswatini mining laws, regional SADC regulations, and national fiscal requirements</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Export Compliance Report</button>
-            <button class="btn btn-success">Submit Compliance Report</button>
+            <button class="btn btn-primary">Generate Compliance Report</button>
+            <button class="btn btn-success">Submit to Eswatini Revenue Authority</button>
+            <button class="btn btn-secondary">View Regulatory Calendar</button>
           </div>
         </div>
+        
+        <!-- Compliance Dashboard -->
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Compliance Rate</h3>
+              <h3>Eswatini Compliance Rate</h3>
               <select class="metric-period">
-                <option>This Quarter</option>
-                <option>Last Quarter</option>
-                <option>YTD</option>
+                <option>Current Quarter</option>
+                <option>Previous Quarter</option>
+                <option>YTD 2024</option>
               </select>
             </div>
             <div class="card-body">
               <p>98.5%</p>
               <small class="trend-positive">+1.5% from last quarter</small>
+              <div class="compliance-breakdown">
+                <small>Mining Licenses: 100% | Tax Filings: 97% | Environmental: 99%</small>
+              </div>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Pending Audits</h3>
+              <h3>Pending Submissions</h3>
             </div>
             <div class="card-body">
               <p>2</p>
-              <small>Scheduled for next week</small>
+              <small>Due within 7 days</small>
+              <div class="urgent-items">
+                <small>🟡 Monthly Royalty Return | 🔴 Environmental Impact Report</small>
+              </div>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Compliance Issues</h3>
-              </div>
-              <div class="card-body">
-                <p>0</p>
-                <small>No active issues</small>
+              <h3>Regulatory Alerts</h3>
+            </div>
+            <div class="card-body">
+              <p>1</p>
+              <small>New regulation updates</small>
+              <div class="alert-summary">
+                <small>Mining Act Amendment 2024</small>
               </div>
             </div>
           </div>
-          <div class="user-form-container">
-            <h4>Compliance Status</h4>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3>Next Audit</h3>
+            </div>
+            <div class="card-body">
+              <p>45 days</p>
+              <small>Eswatini Revenue Authority</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Framework Management -->
+        <div class="user-form-container">
+          <h4>🇸🇿 Eswatini Regulatory Framework</h4>
+          <div class="regulatory-tabs">
+            <button class="tab-btn active" data-tab="#eswatini-local">Local Laws</button>
+            <button class="tab-btn" data-tab="#sadc-regional">SADC Regional</button>
+            <button class="tab-btn" data-tab="#fiscal-tax">Fiscal & Tax</button>
+            <button class="tab-btn" data-tab="#environmental">Environmental</button>
+          </div>
+          
+          <div class="tab-content active" id="eswatini-local">
+            <div class="regulatory-section">
+              <h5>Eswatini Mining Laws & Regulations</h5>
+              <div class="grid-4">
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Mining Act 2007</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Primary mining legislation governing mineral rights and royalties</p>
+                    <div class="regulation-meta">
+                      <span>Last Updated: Jan 2024</span>
+                      <span>Next Review: Jun 2024</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Mines & Minerals Regulations 2011</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Detailed operational requirements and royalty calculation methods</p>
+                    <div class="regulation-meta">
+                      <span>Last Updated: Dec 2023</span>
+                      <span>Next Review: Mar 2024</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Mineral Royalty Regulations</h6>
+                    <span class="status-badge warning">Review Required</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Specific royalty rates and payment procedures</p>
+                    <div class="regulation-meta">
+                      <span>Amendment Due: Feb 2024</span>
+                      <span>Action Required: Rate Review</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Mining License Conditions</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>License-specific terms and compliance requirements</p>
+                    <div class="regulation-meta">
+                      <span>All Licenses Current</span>
+                      <span>Renewals: Q3 2024</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="sadc-regional">
+            <div class="regulatory-section">
+              <h5>SADC Regional Compliance</h5>
+              <div class="grid-4">
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>SADC Mining Protocol</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Regional harmonization of mining policies and standards</p>
+                    <div class="regulation-meta">
+                      <span>Cross-border compliance maintained</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Regional Tax Treaties</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Double taxation agreements with neighboring countries</p>
+                    <div class="regulation-meta">
+                      <span>SA, Mozambique, Botswana treaties active</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="fiscal-tax">
+            <div class="regulatory-section">
+              <h5>Fiscal & Tax Structure Compliance</h5>
+              <div class="grid-4">
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Eswatini Revenue Authority</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Monthly royalty returns and tax submissions</p>
+                    <div class="regulation-meta">
+                      <span>Next Filing: 15th Feb 2024</span>
+                      <span>Rate: 3-10% depending on mineral</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Corporate Income Tax</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>27.5% corporate tax rate for mining companies</p>
+                    <div class="regulation-meta">
+                      <span>Annual Return: 30th Jun 2024</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Withholding Tax</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>15% on dividends, 10% on interest and royalties</p>
+                    <div class="regulation-meta">
+                      <span>Monthly submissions current</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>VAT Registration</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>15% VAT on applicable transactions</p>
+                    <div class="regulation-meta">
+                      <span>Monthly returns up to date</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="environmental">
+            <div class="regulatory-section">
+              <h5>Environmental Compliance</h5>
+              <div class="grid-4">
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Environmental Impact Assessment</h6>
+                    <span class="status-badge warning">Update Due</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Annual environmental compliance reporting</p>
+                    <div class="regulation-meta">
+                      <span>Due: 28th Feb 2024</span>
+                      <span>Status: In Progress</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="regulation-card">
+                  <div class="regulation-header">
+                    <h6>Water Use License</h6>
+                    <span class="status-badge compliant">Compliant</span>
+                  </div>
+                  <div class="regulation-details">
+                    <p>Water usage reporting and permit compliance</p>
+                    <div class="regulation-meta">
+                      <span>Permit valid until Dec 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Reporting & Submissions -->
+        <div class="user-form-container">
+          <h4>📋 Regulatory Reporting & Submissions</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="reporting-jurisdiction">Jurisdiction</label>
+              <select id="reporting-jurisdiction">
+                <option>Eswatini Revenue Authority</option>
+                <option>Ministry of Natural Resources</option>
+                <option>Environmental Authority</option>
+                <option>SADC Secretariat</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="report-type">Report Type</label>
+              <select id="report-type">
+                <option>Monthly Royalty Return</option>
+                <option>Quarterly Production Report</option>
+                <option>Annual Compliance Certificate</option>
+                <option>Environmental Impact Assessment</option>
+                <option>Tax Return</option>
+                <option>SADC Regional Report</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reporting-period">Reporting Period</label>
+              <select id="reporting-period">
+                <option>January 2024</option>
+                <option>Q4 2023</option>
+                <option>Annual 2023</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary">Generate Report</button>
+              <button class="btn btn-success">Submit to Authority</button>
+            </div>
+          </div>
+          
+          <!-- Submission Tracking -->
+          <h5>Recent Submissions & Deadlines</h5>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Report Type</th>
+                  <th>Jurisdiction</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Submission Date</th>
+                  <th>Reference Number</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Monthly Royalty Return</td>
+                  <td>Eswatini Revenue Authority</td>
+                  <td>15 Feb 2024</td>
+                  <td><span class="status-badge pending">Pending</span></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Prepare</button>
+                    <button class="btn btn-success btn-sm">Submit</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Environmental Report</td>
+                  <td>Environmental Authority</td>
+                  <td>28 Feb 2024</td>
+                  <td><span class="status-badge warning">In Progress</span></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Continue</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Quarterly Production</td>
+                  <td>Ministry of Natural Resources</td>
+                  <td>31 Jan 2024</td>
+                  <td><span class="status-badge compliant">Submitted</span></td>
+                  <td>29 Jan 2024</td>
+                  <td>MNR-Q4-2023-001</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">View</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Compliance Alerts & Notifications -->
+        <div class="user-form-container">
+          <h4>🚨 Compliance Alerts & Deadlines</h4>
+          <div class="alert-dashboard">
+            <div class="alert-item urgent">
+              <div class="alert-icon">🔴</div>
+              <div class="alert-content">
+                <h6>Environmental Impact Report Overdue</h6>
+                <p>Due: 28 Feb 2024 | Days Overdue: 2</p>
+                <div class="alert-actions">
+                  <button class="btn btn-danger btn-sm">Submit Now</button>
+                  <button class="btn btn-secondary btn-sm">Request Extension</button>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item warning">
+              <div class="alert-icon">🟡</div>
+              <div class="alert-content">
+                <h6>Monthly Royalty Return Due Soon</h6>
+                <p>Due: 15 Feb 2024 | Days Remaining: 5</p>
+                <div class="alert-actions">
+                  <button class="btn btn-primary btn-sm">Prepare Report</button>
+                </div>
+              </div>
+            </div>
+            <div class="alert-item info">
+              <div class="alert-icon">🔵</div>
+              <div class="alert-content">
+                <h6>New Mining Act Amendment</h6>
+                <p>Effective: 1 Apr 2024 | Review required for compliance impact</p>
+                <div class="alert-actions">
+                  <button class="btn btn-secondary btn-sm">Review Changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Calendar -->
+        <div class="user-form-container">
+          <h4>📅 Regulatory Calendar</h4>
+          <div class="calendar-view">
+            <div class="calendar-header">
+              <button class="btn btn-secondary">&lt; Previous</button>
+              <h5>February 2024</h5>
+              <button class="btn btn-secondary">Next &gt;</button>
+            </div>
+            <div class="calendar-grid">
+              <!-- Simplified calendar representation -->
+              <div class="calendar-week">
+                <div class="calendar-day">
+                  <span class="day-number">15</span>
+                  <div class="day-events">
+                    <div class="event royalty">Royalty Return Due</div>
+                  </div>
+                </div>
+                <div class="calendar-day">
+                  <span class="day-number">28</span>
+                  <div class="day-events">
+                    <div class="event environmental">Environmental Report</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- New Regulatory Management Section -->
+      <section id="regulatory-management">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Regulatory Management</h1>
+            <p>Comprehensive management of jurisdictional requirements and regulatory frameworks</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary">Regulatory Assessment</button>
+            <button class="btn btn-success">Update Compliance Matrix</button>
+          </div>
+        </div>
+
+        <!-- Jurisdictional Requirements Matrix -->
+        <div class="user-form-container">
+          <h4>🏛️ Multi-Jurisdictional Compliance Matrix</h4>
+          <div class="jurisdiction-matrix">
             <div class="grid-4">
-              <div class="form-group">
-                <label for="compliance-filter-entity">Entity</label>
-                <select id="compliance-filter-entity">
-                  <option>All Entities</option>
-                  <option>Kwalini Quarry</option>
-                  <option>Mbabane Quarry</option>
-                  <option>Sidvokodvo Quarry</option>
-                  <option>Maloma Colliery</option>
-                  <option>Ngwenya Mine</option>
-                  <option>Malolotja Mine</option>
-                </select>
+              <div class="jurisdiction-card">
+                <div class="jurisdiction-header">
+                  <h6>🇸🇿 Eswatini (Local)</h6>
+                  <span class="compliance-score">94%</span>
+                </div>
+                <div class="jurisdiction-requirements">
+                  <div class="requirement-item">
+                    <span class="requirement-name">Mining Licenses</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                  <div class="requirement-item">
+                    <span class="requirement-name">Royalty Payments</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                  <div class="requirement-item">
+                    <span class="requirement-name">Environmental Permits</span>
+                    <span class="requirement-status warning">⚠️</span>
+                  </div>
+                  <div class="requirement-item">
+                    <span class="requirement-name">Tax Filings</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                </div>
               </div>
-              <div class="form-group">
-                <button class="btn btn-primary">Apply Filters</button>
+              
+              <div class="jurisdiction-card">
+                <div class="jurisdiction-header">
+                  <h6>🏛️ SADC Regional</h6>
+                  <span class="compliance-score">100%</span>
+                </div>
+                <div class="jurisdiction-requirements">
+                  <div class="requirement-item">
+                    <span class="requirement-name">Regional Protocols</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                  <div class="requirement-item">
+                    <span class="requirement-name">Cross-border Trade</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                  <div class="requirement-item">
+                    <span class="requirement-name">Environmental Standards</span>
+                    <span class="requirement-status compliant">✅</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Entity</th>
-                    <th>Compliance Rate</th>
-                    <th>Last Audit</th>
-                    <th>Issues</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
             </div>
           </div>
+        </div>
+
+        <!-- Tax Structure Management -->
+        <div class="user-form-container">
+          <h4>💰 Tax Structure & Rates Management</h4>
+          <div class="tax-structure-grid">
+            <div class="tax-category">
+              <h6>Mineral Royalties</h6>
+              <div class="tax-rates">
+                <div class="rate-item">
+                  <span>Coal</span>
+                  <span class="rate">3%</span>
+                  <span class="basis">of gross value</span>
+                </div>
+                <div class="rate-item">
+                  <span>Iron Ore</span>
+                  <span class="rate">5%</span>
+                  <span class="basis">of gross value</span>
+                </div>
+                <div class="rate-item">
+                  <span>Quarry Products</span>
+                  <span class="rate">E15/m³</span>
+                  <span class="basis">flat rate</span>
+                </div>
+                <div class="rate-item">
+                  <span>Precious Minerals</span>
+                  <span class="rate">10%</span>
+                  <span class="basis">of gross value</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tax-category">
+              <h6>Corporate Taxes</h6>
+              <div class="tax-rates">
+                <div class="rate-item">
+                  <span>Corporate Income Tax</span>
+                  <span class="rate">27.5%</span>
+                  <span class="basis">on net profit</span>
+                </div>
+                <div class="rate-item">
+                  <span>Withholding Tax (Dividends)</span>
+                  <span class="rate">15%</span>
+                  <span class="basis">on distributions</span>
+                </div>
+                <div class="rate-item">
+                  <span>VAT</span>
+                  <span class="rate">15%</span>
+                  <span class="basis">on applicable sales</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn btn-primary">Update Tax Rates</button>
+            <button class="btn btn-secondary">Export Tax Schedule</button>
+          </div>
+        </div>
       </section>
 
       <!-- My Profile -->
@@ -1449,63 +1916,245 @@
           const style = document.createElement('style');
           style.id = 'emoji-icon-styles';
           style.textContent = `
-            .emoji-icon {
-              font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif !important;
-              font-style: normal !important;
-              font-weight: normal !important;
-              font-variant: normal !important;
-              text-transform: none !important;
-              line-height: 1 !important;
-              display: inline-block;
-              width: 1em;
-              height: 1em;
-              text-align: center;
-              vertical-align: middle;
+            /* ...existing styles... */
+            
+            /* Enhanced Compliance & Regulatory Styles */
+            .regulatory-tabs {
+              display: flex;
+              gap: 0.5rem;
+              margin-bottom: 1.5rem;
+              border-bottom: 2px solid #e2e8f0;
             }
             
-            .mobile-menu-toggle {
-              display: none;
-              position: fixed;
-              top: 1rem;
-              left: 1rem;
-              z-index: 1001;
-              background: #1a365d;
-              color: white;
+            .regulatory-tabs .tab-btn {
+              padding: 0.75rem 1.5rem;
               border: none;
-              border-radius: 6px;
-              padding: 0.75rem;
-              box-shadow: 0 3px 5px -1px rgba(0,0,0,0.08);
+              background: transparent;
+              color: #64748b;
               cursor: pointer;
+              border-bottom: 2px solid transparent;
               transition: all 0.3s ease;
-              font-size: 1.2rem;
-              width: 48px;
-              height: 48px;
+            }
+            
+            .regulatory-tabs .tab-btn.active {
+              color: #1a365d;
+              border-bottom-color: #1a365d;
+              background: rgba(26, 54, 93, 0.05);
+            }
+            
+            .regulation-card {
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 1rem;
+              background: white;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .regulation-header {
+              display: flex;
+              justify-content: space-between;
               align-items: center;
-              justify-content: center;
+              margin-bottom: 0.75rem;
             }
             
-            .mobile-menu-toggle:hover {
-              background: #153450;
-              transform: translateY(-1px);
+            .status-badge {
+              padding: 0.25rem 0.75rem;
+              border-radius: 12px;
+              font-size: 0.75rem;
+              font-weight: 600;
             }
             
-            @media (max-width: 768px) {
-              .mobile-menu-toggle {
-                display: flex !important;
-              }
-              
-              .main-content {
-                padding-top: 4rem !important;
-              }
-              
-              .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-              }
-              
-              .sidebar.active {
-                transform: translateX(0);
-              }
+            .status-badge.compliant {
+              background: #dcfce7;
+              color: #166534;
+            }
+            
+            .status-badge.warning {
+              background: #fef3c7;
+              color: #92400e;
+            }
+            
+            .status-badge.pending {
+              background: #dbeafe;
+              color: #1e40af;
+            }
+            
+            .regulation-meta {
+              display: flex;
+              gap: 1rem;
+              margin-top: 0.5rem;
+              font-size: 0.75rem;
+              color: #64748b;
+            }
+            
+            .alert-dashboard {
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            }
+            
+            .alert-item {
+              display: flex;
+              gap: 1rem;
+              padding: 1rem;
+              border-radius: 8px;
+              border-left: 4px solid;
+            }
+            
+            .alert-item.urgent {
+              background: #fef2f2;
+              border-left-color: #dc2626;
+            }
+            
+            .alert-item.warning {
+              background: #fffbeb;
+              border-left-color: #d97706;
+            }
+            
+            .alert-item.info {
+              background: #eff6ff;
+              border-left-color: #2563eb;
+            }
+            
+            .alert-icon {
+              font-size: 1.25rem;
+              min-width: 24px;
+            }
+            
+            .alert-content {
+              flex: 1;
+            }
+            
+            .alert-actions {
+              display: flex;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+            }
+            
+            .jurisdiction-matrix {
+              margin-bottom: 2rem;
+            }
+            
+            .jurisdiction-card {
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 1rem;
+              background: white;
+            }
+            
+            .jurisdiction-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1rem;
+              padding-bottom: 0.5rem;
+              border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .compliance-score {
+              font-size: 1.25rem;
+              font-weight: 700;
+              color: #059669;
+            }
+            
+            .requirement-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            
+            .requirement-status {
+              font-size: 1.25rem;
+            }
+            
+            .tax-structure-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 2rem;
+              margin-bottom: 2rem;
+            }
+            
+            .tax-category {
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 1.5rem;
+              background: white;
+            }
+            
+            .tax-rates {
+              margin-top: 1rem;
+            }
+            
+            .rate-item {
+              display: grid;
+              grid-template-columns: 2fr 1fr 2fr;
+              gap: 1rem;
+              padding: 0.75rem 0;
+              border-bottom: 1px solid #f1f5f9;
+              align-items: center;
+            }
+            
+            .rate {
+              font-weight: 600;
+              color: #1a365d;
+              text-align: center;
+            }
+            
+            .basis {
+              font-size: 0.875rem;
+              color: #64748b;
+            }
+            
+            .calendar-view {
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 1rem;
+              background: white;
+            }
+            
+            .calendar-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1rem;
+              padding-bottom: 1rem;
+              border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .calendar-day {
+              border: 1px solid #e2e8f0;
+              border-radius: 4px;
+              padding: 0.5rem;
+              min-height: 80px;
+              position: relative;
+            }
+            
+            .day-number {
+              font-weight: 600;
+              color: #1a365d;
+            }
+            
+            .day-events {
+              margin-top: 0.5rem;
+            }
+            
+            .event {
+              font-size: 0.75rem;
+              padding: 0.25rem 0.5rem;
+              border-radius: 4px;
+              margin-bottom: 0.25rem;
+            }
+            
+            .event.royalty {
+              background: #dbeafe;
+              color: #1e40af;
+            }
+            
+            .event.environmental {
+              background: #dcfce7;
+              color: #166534;
             }
           `;
           document.head.appendChild(style);
