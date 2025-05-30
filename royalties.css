@@ -116,7 +116,7 @@ body {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: center;
+ 
   color: var(--text-inverse);
   font-size: 1.5rem;
   box-shadow: var(--shadow-md);
@@ -1215,17 +1215,19 @@ nav ul li a span {
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  min-height: 300px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .analytics-chart.large {
   grid-column: span 2;
+  min-height: 500px;
 }
 
 .chart-header {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -1233,13 +1235,14 @@ nav ul li a span {
   background: var(--background-light);
   flex-wrap: wrap;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .chart-header h5 {
   margin: 0;
   color: var(--text-primary);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .chart-controls {
@@ -1248,12 +1251,12 @@ nav ul li a span {
 }
 
 .chart-btn {
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.75rem;
   border: 1px solid var(--border-color);
   background: var(--background-white);
   color: var(--text-secondary);
   border-radius: var(--border-radius-sm);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1271,281 +1274,170 @@ nav ul li a span {
 
 .chart-container {
   flex: 1;
-  padding: 1rem;
-  min-height: 200px;
+  padding: 1.5rem;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.chart-container canvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: auto !important;
 }
 
 .chart-placeholder {
   text-align: center;
   color: var(--text-muted);
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.chart-placeholder i {
-  font-size: 2rem;
+.chart-placeholder i,
+.chart-placeholder .emoji-icon {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
   color: var(--border-color);
 }
 
-.report-history-controls {
-  margin-bottom: 1rem;
+/* Enhanced Dashboard Chart Grid */
+.charts-grid .analytics-chart {
+  min-height: 350px;
 }
 
-.report-history-controls .grid-4 {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.data-table-wrapper {
-  min-width: 0;
-}
-
-.report-type {
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.report-type.financial {
-  background: rgb(16 185 129 / 0.1);
-  color: var(--success-color);
-}
-
-.report-type.production {
-  background: rgb(59 130 246 / 0.1);
-  color: var(--info-color);
-}
-
-.report-type.compliance {
-  background: rgb(245 158 11 / 0.1);
-  color: var(--warning-color);
-}
-
-.report-type.audit {
-  background: rgb(139 92 246 / 0.1);
-  color: #8b5cf6;
-}
-
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.template-card {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+.charts-grid .analytics-chart .chart-container {
+  min-height: 250px;
   padding: 1rem;
-  transition: all 0.3s ease;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
 }
 
-.template-card:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+/* Production Chart Specific Styles */
+#production-by-entity-chart {
+  max-width: 100%;
+  height: 250px;
 }
 
-.template-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
+#revenue-trends-chart {
+  max-width: 100%;
+  height: 250px;
 }
 
-.template-header h5 {
-  margin: 0;
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.template-type {
-  padding: 0.25rem 0.5rem;
-  background: var(--primary-light);
-  color: var(--primary-color);
-  border-radius: var(--border-radius-sm);
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-.template-card p {
-  flex: 1;
-  margin: 0 0 1rem 0;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  line-height: 1.4;
-}
-
-.template-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
+/* Chart Responsive Styles */
 @media (max-width: 1200px) {
   .analytics-chart.large {
     grid-column: span 1;
-  }
-  
-  .metrics-selector {
-    grid-template-columns: 1fr;
-  }
-  
-  .quick-reports-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    min-height: 400px;
   }
 }
 
 @media (max-width: 768px) {
-  #reporting-analytics {
-    padding: 0.5rem;
+  .analytics-chart {
+    min-height: 300px;
   }
   
-  #reporting-analytics .charts-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .quick-reports-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .report-card {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
-  
-  .analytics-filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .analytics-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .schedule-item {
-    gap: 0.75rem;
-  }
-  
-  .schedule-details {
-    flex-direction: column;
-    gap: 0.25rem;
+  .chart-container {
+    padding: 1rem;
+    min-height: 200px;
   }
   
   .chart-header {
+    padding: 0.75rem 1rem;
     flex-direction: column;
     gap: 0.75rem;
     align-items: stretch;
   }
   
-  .report-tabs {
-    flex-direction: column;
-    border-bottom: none;
+  .chart-controls {
+    justify-content: center;
   }
   
-  .report-tabs .tab-btn {
-    text-align: left;
-    border-bottom: none;
-    border-left: 3px solid transparent;
-    padding: 0.75rem;
-  }
-  
-  .report-tabs .tab-btn.active {
-    border-left-color: var(--primary-color);
-    border-bottom-color: transparent;
-  }
-  
-  .grid-4 {
-    grid-template-columns: 1fr;
-  }
-  
-  .metrics-selector {
-    grid-template-columns: 1fr;
-  }
-  
-  .template-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .audit-summary-cards {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-  
-  .form-actions {
-    justify-content: stretch;
-  }
-  
-  .form-actions .btn {
-    flex: 1;
-  }
-  
-  .analytics-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .data-table {
-    font-size: 0.8rem;
-  }
-  
-  .data-table th,
-  .data-table td {
-    padding: 0.5rem 0.25rem;
+  #production-by-entity-chart,
+  #revenue-trends-chart {
+    height: 200px;
   }
 }
 
 @media (max-width: 480px) {
-  .metric-card .card-header {
-    flex-direction: column;
-    align-items: stretch;
+  .analytics-chart {
+    min-height: 250px;
   }
   
-  .metric-period {
-    align-self: flex-start;
+  .chart-container {
+    padding: 0.75rem;
+    min-height: 150px;
   }
   
-  .report-meta {
-    flex-direction: column;
-    gap: 0.25rem;
+  #production-by-entity-chart,
+  #revenue-trends-chart {
+    height: 150px;
   }
-  
-  .schedule-actions {
-    justify-content: stretch;
-  }
-  
-  .schedule-actions .btn {
-    flex: 1;
-  }
-  
-  .template-actions {
-    justify-content: stretch;
-  }
-  
-  .template-actions .btn {
-    flex: 1;
-  }
-  
-  .audit-summary-cards {
-    grid-template-columns: 1fr;
-  }
+}
+
+/* Chart Loading State */
+.chart-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-muted);
+}
+
+.chart-loading .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+/* Chart Error State */
+.chart-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--danger-color);
+  text-align: center;
+  padding: 1rem;
+}
+
+.chart-error .error-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Enhanced Chart Legend Styles */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--background-light);
+  font-size: 0.875rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 /* Icon Fallbacks - Add these after the existing CSS */
