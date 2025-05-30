@@ -78,6 +78,11 @@ class RoyaltiesManager {
         this.populateUserAccounts();
         this.populateAuditLog();
       }
+      
+      // Add audit dashboard support
+      if (sectionId === 'audit' || sectionId === 'audit-dashboard') {
+        this.populateAuditDashboard();
+      }
     });
   }
 
@@ -579,6 +584,11 @@ class RoyaltiesManager {
         this.populateUserAccounts();
         this.populateAuditLog();
       }
+      
+      // Add audit dashboard support
+      if (sectionId === 'audit' || sectionId === 'audit-dashboard') {
+        this.populateAuditDashboard();
+      }
     });
   }
 
@@ -982,59 +992,282 @@ class RoyaltiesManager {
     console.log('Created new audit log table');
   }
 
+  populateAuditDashboard() {
+    console.log('Populating audit dashboard...');
+    
+    // Populate audit metrics
+    this.updateAuditMetrics();
+    
+    // Populate recent audit activities
+    this.populateRecentAuditActivities();
+    
+    // Populate audit summary table
+    this.populateAuditSummaryTable();
+  }
+
+  updateAuditMetrics() {
+    // Update total logins
+    const totalLoginsElement = document.querySelector('#total-logins, .metric-card:nth-child(1) .metric-value');
+    if (totalLoginsElement) {
+      totalLoginsElement.textContent = '1,247';
+    }
+    
+    // Update failed attempts
+    const failedAttemptsElement = document.querySelector('#failed-attempts, .metric-card:nth-child(2) .metric-value');
+    if (failedAttemptsElement) {
+      failedAttemptsElement.textContent = '23';
+    }
+    
+    // Update active sessions
+    const activeSessionsElement = document.querySelector('#active-sessions, .metric-card:nth-child(3) .metric-value');
+    if (activeSessionsElement) {
+      activeSessionsElement.textContent = '8';
+    }
+    
+    // Update security alerts
+    const securityAlertsElement = document.querySelector('#security-alerts, .metric-card:nth-child(4) .metric-value');
+    if (securityAlertsElement) {
+      securityAlertsElement.textContent = '2';
+    }
+    
+    console.log('Updated audit metrics');
+  }
+
+  populateRecentAuditActivities() {
+    const activitiesContainer = document.querySelector('#recent-activities, .recent-activities');
+    if (!activitiesContainer) {
+      console.warn('Recent activities container not found');
+      return;
+    }
+    
+    const recentActivities = [
+      {
+        time: '2 minutes ago',
+        user: 'john.doe',
+        action: 'Logged in',
+        status: 'success'
+      },
+      {
+        time: '15 minutes ago',
+        user: 'admin',
+        action: 'Created new user',
+        status: 'success'
+      },
+      {
+        time: '1 hour ago',
+        user: 'unknown',
+        action: 'Failed login attempt',
+        status: 'warning'
+      },
+      {
+        time: '2 hours ago',
+        user: 'mary.smith',
+        action: 'Exported report',
+        status: 'success'
+      }
+    ];
+    
+    // Clear existing content
+    activitiesContainer.innerHTML = '';
+    
+    recentActivities.forEach(activity => {
+      const activityElement = document.createElement('div');
+      activityElement.className = 'activity-item';
+      activityElement.innerHTML = `
+        <div class="activity-time">${activity.time}</div>
+        <div class="activity-details">
+          <span class="activity-user">${activity.user}</span>
+          <span class="activity-action">${activity.action}</span>
+          <span class="activity-status status-${activity.status}"></span>
+        </div>
+      `;
+      activitiesContainer.appendChild(activityElement);
+    });
+    
+    console.log('Populated recent audit activities');
+  }
+
+  populateAuditSummaryTable() {
+    const auditTableBody = document.querySelector('#audit-summary-table tbody, .audit-summary tbody');
+    if (!auditTableBody) {
+      console.warn('Audit summary table not found');
+      return;
+    }
+    
+    // Clear existing rows
+    auditTableBody.innerHTML = '';
+    
+    const auditSummaryData = [
+      {
+        date: '2024-02-10',
+        totalLogins: '156',
+        failedAttempts: '3',
+        newUsers: '2',
+        dataExports: '8',
+        alerts: '0'
+      },
+      {
+        date: '2024-02-09',
+        totalLogins: '142',
+        failedAttempts: '5',
+        newUsers: '1',
+        dataExports: '12',
+        alerts: '1'
+      },
+      {
+        date: '2024-02-08',
+        totalLogins: '134',
+        failedAttempts: '2',
+        newUsers: '0',
+        dataExports: '6',
+        alerts: '0'
+      },
+      {
+        date: '2024-02-07',
+        totalLogins: '128',
+        failedAttempts: '8',
+        newUsers: '1',
+        dataExports: '15',
+        alerts: '2'
+      }
+    ];
+    
+    auditSummaryData.forEach(data => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.totalLogins}</td>
+        <td class="${data.failedAttempts > 5 ? 'warning' : ''}">${data.failedAttempts}</td>
+        <td>${data.newUsers}</td>
+        <td>${data.dataExports}</td>
+        <td class="${data.alerts > 0 ? 'alert' : ''}">${data.alerts}</td>
+      `;
+      auditTableBody.appendChild(row);
+    });
+    
+    console.log('Populated audit summary table');
+  }
+
   handleViewAuditLog(event) {
     event.preventDefault();
     event.stopPropagation();
     
     console.log('View Audit Log button clicked - handler executed');
     
-    // Force populate audit log first
-    this.populateAuditLog();
+    // Check if we're in audit dashboard or user management
+    const currentSection = document.querySelector('main > section[style*="block"]');
+    const isAuditDashboard = currentSection && currentSection.id === 'audit';
     
-    // Wait a moment for table to be populated, then scroll
-    setTimeout(() => {
-      let auditSection = null;
+    if (isAuditDashboard) {
+      // In audit dashboard, scroll to detailed log section
+      const detailedLogSection = document.querySelector('#detailed-audit-log, .detailed-audit-log');
+      if (detailedLogSection) {
+        detailedLogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        this.populateDetailedAuditLog();
+      }
+    } else {
+      // In user management, use existing logic
+      this.populateAuditLog();
       
-      // Try various selectors
-      const selectors = [
-        '#audit-log-table',
-        '#user-management .user-form-container:last-child',
-        '#security-audit',
-        '.audit-log-section',
-        '[id*="audit"]',
-        '#user-management .tab-content:last-child',
-        '#user-management .data-table:last-of-type'
-      ];
-      
-      for (const selector of selectors) {
-        auditSection = document.querySelector(selector);
+      setTimeout(() => {
+        let auditSection = null;
+        
+        const selectors = [
+          '#audit-log-table',
+          '#user-management .user-form-container:last-child',
+          '#security-audit',
+          '.audit-log-section',
+          '[id*="audit"]',
+          '#user-management .tab-content:last-of-type',
+          '#user-management .data-table:last-of-type'
+        ];
+        
+        for (const selector of selectors) {
+          auditSection = document.querySelector(selector);
+          if (auditSection) {
+            console.log(`Found audit section with selector: ${selector}`);
+            break;
+          }
+        }
+        
         if (auditSection) {
-          console.log(`Found audit section with selector: ${selector}`);
-          break;
+          auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          auditSection.style.backgroundColor = '#f0f8ff';
+          setTimeout(() => {
+            auditSection.style.backgroundColor = '';
+          }, 2000);
         }
+      }, 100);
+    }
+    
+    this.modules.notificationManager.info('Displaying security audit log');
+  }
+
+  populateDetailedAuditLog() {
+    const detailedLogBody = document.querySelector('#detailed-audit-log tbody, .detailed-audit-log tbody');
+    if (!detailedLogBody) {
+      console.warn('Detailed audit log table not found');
+      return;
+    }
+    
+    // Clear existing rows
+    detailedLogBody.innerHTML = '';
+    
+    // Extended audit log data for dashboard
+    const detailedAuditData = [
+      {
+        timestamp: '2024-02-10 15:30:25',
+        user: 'john.doe',
+        action: 'Login',
+        target: 'System',
+        ipAddress: '192.168.1.105',
+        userAgent: 'Chrome 121.0',
+        status: 'Success'
+      },
+      {
+        timestamp: '2024-02-10 14:30:25',
+        user: 'admin',
+        action: 'Login',
+        target: 'System',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Firefox 122.0',
+        status: 'Success'
+      },
+      {
+        timestamp: '2024-02-10 14:25:10',
+        user: 'admin',
+        action: 'Create User',
+        target: 'jane.smith',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Firefox 122.0',
+        status: 'Success'
+      },
+      {
+        timestamp: '2024-02-10 09:15:45',
+        user: 'unknown',
+        action: 'Failed Login',
+        target: 'System',
+        ipAddress: '10.0.0.50',
+        userAgent: 'Bot/1.0',
+        status: 'Failed'
       }
-      
-      if (auditSection) {
-        auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        console.log('Scrolled to audit section');
-        
-        // Highlight the section briefly
-        auditSection.style.backgroundColor = '#f0f8ff';
-        setTimeout(() => {
-          auditSection.style.backgroundColor = '';
-        }, 2000);
-      } else {
-        console.warn('Audit section not found with any selector');
-        
-        // Fallback: scroll to bottom of user management section
-        const userMgmtSection = document.getElementById('user-management');
-        if (userMgmtSection) {
-          userMgmtSection.scrollTo({ top: userMgmtSection.scrollHeight, behavior: 'smooth' });
-        }
-      }
-      
-      this.modules.notificationManager.info('Displaying security audit log');
-    }, 100);
+    ];
+    
+    detailedAuditData.forEach(entry => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${entry.timestamp}</td>
+        <td>${entry.user}</td>
+        <td>${entry.action}</td>
+        <td>${entry.target}</td>
+        <td>${entry.ipAddress}</td>
+        <td>${entry.userAgent}</td>
+        <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
+      `;
+      detailedLogBody.appendChild(row);
+    });
+    
+    console.log('Populated detailed audit log');
   }
 
   handleSaveUser(event) {
