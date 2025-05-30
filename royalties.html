@@ -43,11 +43,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mining Royalties Manager</title>
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="royalties.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <!-- Remove the problematic FontAwesome script -->
+  <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
 </head>
 <body>
   <!-- Loading Screen -->
@@ -1347,6 +1347,53 @@
         }
       });
     });
+  </script>
+
+  <!-- Include the icon fix script to handle FontAwesome fallbacks -->
+  <script>
+    // Load the icon fix functionality
+    const iconFixScript = document.createElement('script');
+    iconFixScript.src = 'icon-fix.html';
+    iconFixScript.onload = function() {
+      console.log('Icon fix script loaded successfully');
+    };
+    iconFixScript.onerror = function() {
+      console.log('Loading icon fix inline...');
+      // Inline fallback if icon-fix.html fails to load
+      const inlineScript = document.createElement('script');
+      inlineScript.textContent = `
+        (function() {
+          const iconMap = {
+            'fa-home': '🏠', 'fa-users': '👥', 'fa-file-invoice': '📄',
+            'fa-file-contract': '📋', 'fa-shield-alt': '🛡️', 'fa-chart-bar': '📊',
+            'fa-envelope': '✉️', 'fa-bell': '🔔', 'fa-check-circle': '✅',
+            'fa-user': '👤', 'fa-sign-out-alt': '🚪', 'fa-times': '❌',
+            'fa-lock': '🔒', 'fa-eye': '👁️'
+          };
+          
+          function replaceIcons() {
+            document.querySelectorAll('[class*="fa-"]').forEach(el => {
+              const classList = Array.from(el.classList);
+              classList.forEach(className => {
+                if (iconMap[className]) {
+                  el.classList.remove(className, 'fas', 'far', 'fab', 'fa');
+                  el.textContent = iconMap[className];
+                  el.classList.add('emoji-icon');
+                }
+              });
+            });
+          }
+          
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', replaceIcons);
+          } else {
+            replaceIcons();
+          }
+        })();
+      `;
+      document.head.appendChild(inlineScript);
+    };
+    document.head.appendChild(iconFixScript);
   </script>
 </body>
 </html>
