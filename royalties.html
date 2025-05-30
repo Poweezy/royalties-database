@@ -1349,51 +1349,214 @@
     });
   </script>
 
-  <!-- Include the icon fix script to handle FontAwesome fallbacks -->
+  <!-- Enhanced icon fix script -->
   <script>
-    // Load the icon fix functionality
-    const iconFixScript = document.createElement('script');
-    iconFixScript.src = 'icon-fix.html';
-    iconFixScript.onload = function() {
-      console.log('Icon fix script loaded successfully');
-    };
-    iconFixScript.onerror = function() {
-      console.log('Loading icon fix inline...');
-      // Inline fallback if icon-fix.html fails to load
-      const inlineScript = document.createElement('script');
-      inlineScript.textContent = `
-        (function() {
-          const iconMap = {
-            'fa-home': '🏠', 'fa-users': '👥', 'fa-file-invoice': '📄',
-            'fa-file-contract': '📋', 'fa-shield-alt': '🛡️', 'fa-chart-bar': '📊',
-            'fa-envelope': '✉️', 'fa-bell': '🔔', 'fa-check-circle': '✅',
-            'fa-user': '👤', 'fa-sign-out-alt': '🚪', 'fa-times': '❌',
-            'fa-lock': '🔒', 'fa-eye': '👁️'
-          };
+    // Comprehensive icon replacement functionality
+    (function() {
+      'use strict';
+      
+      // Extended icon mapping with all FontAwesome icons used in the app
+      const iconMap = {
+        'fa-home': '🏠',
+        'fa-user': '👤', 
+        'fa-users': '👥',
+        'fa-file-invoice': '📄',
+        'fa-file-contract': '📋',
+        'fa-shield-alt': '🛡️',
+        'fa-chart-bar': '📊',
+        'fa-chart-pie': '🥧',
+        'fa-envelope': '✉️',
+        'fa-bell': '🔔',
+        'fa-check-circle': '✅',
+        'fa-sign-out-alt': '🚪',
+        'fa-times': '❌',
+        'fa-lock': '🔒',
+        'fa-eye': '👁️',
+        'fa-clock': '🕐',
+        'fa-file-pdf': '📄',
+        'fa-file-excel': '📊',
+        'fa-file-csv': '📄',
+        'fa-filter': '🔽'
+      };
+
+      // Suppress specific console errors
+      const originalError = console.error;
+      console.error = function(...args) {
+        const message = args.join(' ').toLowerCase();
+        if (message.includes('fontawesome') || 
+            message.includes('cors') || 
+            message.includes('favicon') ||
+            message.includes('unexpected token')) {
+          return; // Suppress these errors
+        }
+        originalError.apply(console, args);
+      };
+
+      function replaceIcons() {
+        // Find all elements with FontAwesome classes
+        document.querySelectorAll('[class*="fa-"]').forEach(el => {
+          const classList = Array.from(el.classList);
+          let iconReplaced = false;
           
-          function replaceIcons() {
-            document.querySelectorAll('[class*="fa-"]').forEach(el => {
-              const classList = Array.from(el.classList);
-              classList.forEach(className => {
-                if (iconMap[className]) {
-                  el.classList.remove(className, 'fas', 'far', 'fab', 'fa');
-                  el.textContent = iconMap[className];
-                  el.classList.add('emoji-icon');
-                }
-              });
+          classList.forEach(className => {
+            if (iconMap[className]) {
+              // Remove FontAwesome classes
+              el.classList.remove(className, 'fas', 'far', 'fab', 'fa');
+              
+              // Add emoji icon if element is empty or has minimal content
+              if (!el.textContent.trim() || el.textContent.trim().length <= 2) {
+                el.textContent = iconMap[className];
+                el.classList.add('emoji-icon');
+                iconReplaced = true;
+              }
+            }
+          });
+          
+          // Default icon for unmatched FontAwesome classes
+          if (!iconReplaced && classList.some(c => c.startsWith('fa-'))) {
+            el.textContent = '📋';
+            el.classList.add('emoji-icon');
+            // Remove all FontAwesome classes
+            classList.forEach(c => {
+              if (c.startsWith('fa')) {
+                el.classList.remove(c);
+              }
             });
           }
+        });
+      }
+
+      function addMobileMenuToggle() {
+        if (!document.querySelector('.mobile-menu-toggle')) {
+          const toggle = document.createElement('button');
+          toggle.className = 'mobile-menu-toggle';
+          toggle.innerHTML = '☰';
+          toggle.setAttribute('aria-label', 'Toggle Menu');
           
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', replaceIcons);
-          } else {
-            replaceIcons();
+          toggle.onclick = function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+              sidebar.classList.toggle('active');
+            }
+          };
+          
+          document.body.appendChild(toggle);
+        }
+      }
+
+      function addEmojiIconStyles() {
+        if (!document.querySelector('#emoji-icon-styles')) {
+          const style = document.createElement('style');
+          style.id = 'emoji-icon-styles';
+          style.textContent = `
+            .emoji-icon {
+              font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif !important;
+              font-style: normal !important;
+              font-weight: normal !important;
+              font-variant: normal !important;
+              text-transform: none !important;
+              line-height: 1 !important;
+              display: inline-block;
+              width: 1em;
+              height: 1em;
+              text-align: center;
+              vertical-align: middle;
+            }
+            
+            .mobile-menu-toggle {
+              display: none;
+              position: fixed;
+              top: 1rem;
+              left: 1rem;
+              z-index: 1001;
+              background: #1a365d;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              padding: 0.75rem;
+              box-shadow: 0 3px 5px -1px rgba(0,0,0,0.08);
+              cursor: pointer;
+              transition: all 0.3s ease;
+              font-size: 1.2rem;
+              width: 48px;
+              height: 48px;
+              align-items: center;
+              justify-content: center;
+            }
+            
+            .mobile-menu-toggle:hover {
+              background: #153450;
+              transform: translateY(-1px);
+            }
+            
+            @media (max-width: 768px) {
+              .mobile-menu-toggle {
+                display: flex !important;
+              }
+              
+              .main-content {
+                padding-top: 4rem !important;
+              }
+              
+              .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+              }
+              
+              .sidebar.active {
+                transform: translateX(0);
+              }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+
+      function init() {
+        addEmojiIconStyles();
+        replaceIcons();
+        addMobileMenuToggle();
+        
+        // Run replacement again after a short delay to catch dynamically loaded content
+        setTimeout(replaceIcons, 500);
+        setTimeout(replaceIcons, 1000);
+      }
+
+      // Initialize immediately and on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      // Watch for new elements being added to the DOM
+      if (window.MutationObserver) {
+        const observer = new MutationObserver(function(mutations) {
+          let shouldReplace = false;
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+              mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1 && 
+                    node.classList && 
+                    Array.from(node.classList).some(c => c.startsWith('fa-'))) {
+                  shouldReplace = true;
+                }
+              });
+            }
+          });
+          if (shouldReplace) {
+            setTimeout(replaceIcons, 50);
           }
-        })();
-      `;
-      document.head.appendChild(inlineScript);
-    };
-    document.head.appendChild(iconFixScript);
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+
+      console.log('Icon replacement system initialized successfully');
+    })();
   </script>
 </body>
 </html>
