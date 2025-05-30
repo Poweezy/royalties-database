@@ -1745,12 +1745,9 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const sidebar = document.getElementById('sidebar');
-      const sidebarClose = document.querySelector('.sidebar-close');
       const loginSection = document.getElementById('login-section');
       const appContainer = document.getElementById('app-container');
       const loadingScreen = document.getElementById('loading-screen');
-      const tabButtons = document.querySelectorAll('.report-tabs .tab-btn');
-      const tabContents = document.querySelectorAll('.tab-content');
 
       // Simulate loading
       setTimeout(() => {
@@ -1758,23 +1755,19 @@
         loginSection.style.display = 'flex';
       }, 2000);
 
-      // Sidebar toggle
-      sidebarClose.addEventListener('click', () => {
-        sidebar.classList.toggle('hidden');
-        sidebar.classList.toggle('active');
-      });
-
       // Simulate login (replace with actual authentication)
       document.querySelector('.login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         loginSection.style.display = 'none';
         appContainer.style.display = 'flex';
         sidebar.classList.add('active');
+        
+        // Initialize chart after app container is visible
+        setTimeout(initializeCharts, 100);
       });
 
       // Enhanced tab switching for all sections
       const allTabButtons = document.querySelectorAll('.tab-btn, .regulatory-tabs .tab-btn');
-      const allTabContents = document.querySelectorAll('.tab-content');
 
       allTabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -1799,7 +1792,6 @@
       // Enhanced navigation system
       function showSection(sectionId) {
         // Hide all sections
-       
         document.querySelectorAll('main > section').forEach(section => {
           section.style.display = 'none';
         });
@@ -1845,30 +1837,71 @@
       // Show dashboard by default
       showSection('dashboard');
 
-      // Initialize Revenue Trends chart
-      const revenueChartCtx = document.getElementById('revenue-trends-chart').getContext('2d');
-      new Chart(revenueChartCtx, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Revenue (E)',
-            data: [500000, 600000, 750000, 700000, 800000, 900000],
-            borderColor: '#1a365d',
-            backgroundColor: 'rgba(26, 54, 93, 0.2)',
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true
+      // Initialize charts function
+      function initializeCharts() {
+        try {
+          const revenueChartCanvas = document.getElementById('revenue-trends-chart');
+          if (revenueChartCanvas && typeof Chart !== 'undefined') {
+            const ctx = revenueChartCanvas.getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.revenueChart) {
+              window.revenueChart.destroy();
             }
+            
+            window.revenueChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                  label: 'Revenue (E)',
+                  data: [500000, 600000, 750000, 700000, 800000, 900000],
+                  borderColor: '#1a365d',
+                  backgroundColor: 'rgba(26, 54, 93, 0.2)',
+                  fill: true,
+                  tension: 0.4
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top'
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      callback: function(value) {
+                        return 'E ' + value.toLocaleString();
+                      }
+                    }
+                  },
+                  x: {
+                    grid: {
+                      display: false
+                    }
+                  }
+                },
+                interaction: {
+                  intersect: false,
+                  mode: 'index'
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.warn('Chart initialization failed:', error);
+          // Fallback: Show a message in the chart container
+          const chartContainer = document.querySelector('#revenue-trends-chart').parentNode;
+          if (chartContainer) {
+            chartContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
           }
         }
-      });
+      }
 
       // Enhanced smooth scrolling for any internal links
       document.addEventListener('click', (e) => {
