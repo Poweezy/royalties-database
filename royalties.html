@@ -1708,11 +1708,19 @@
             <p>Securely end your session</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-danger">Confirm Logout</button>
+            <button class="btn btn-danger" id="confirm-logout-btn">Confirm Logout</button>
           </div>
         </div>
         <div class="user-form-container">
           <p>Click the button above to log out of the Mining Royalties Manager. Ensure all changes are saved before logging out.</p>
+          <div class="logout-warning">
+            <h5>⚠️ Before you logout:</h5>
+            <ul>
+              <li>Save any unsaved changes</li>
+              <li>Complete any pending operations</li>
+              <li>Close any open reports or forms</li>
+            </ul>
+          </div>
         </div>
       </section>
     </main>
@@ -1740,6 +1748,58 @@
         
         // Initialize chart after app container is visible
         setTimeout(initializeCharts, 100);
+      });
+
+      // Logout functionality
+      function handleLogout() {
+        // Show confirmation dialog
+        if (confirm('Are you sure you want to logout? Any unsaved changes will be lost.')) {
+          // Clear any stored data (if using localStorage/sessionStorage)
+          localStorage.removeItem('userSession');
+          sessionStorage.clear();
+          
+          // Hide app container and show login
+          appContainer.style.display = 'none';
+          loginSection.style.display = 'flex';
+          sidebar.classList.remove('active');
+          
+          // Reset form data
+          document.querySelectorAll('form').forEach(form => form.reset());
+          
+          // Show success message briefly
+          const loginContainer = document.querySelector('.login-container');
+          const successMsg = document.createElement('div');
+          successMsg.style.cssText = `
+            background: #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+          `;
+          successMsg.textContent = 'You have been successfully logged out.';
+          loginContainer.insertBefore(successMsg, loginContainer.firstChild);
+          
+          // Remove success message after 3 seconds
+          setTimeout(() => {
+            if (successMsg.parentNode) {
+              successMsg.remove();
+            }
+          }, 3000);
+          
+          // Reset to dashboard section for next login
+          showSection('dashboard');
+        }
+      }
+
+      // Add logout event listeners
+      document.getElementById('confirm-logout-btn').addEventListener('click', handleLogout);
+      
+      // Handle logout from sidebar navigation
+      document.querySelector('.sidebar nav a[href="#logout"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('logout');
       });
 
       // Enhanced tab switching for all sections
