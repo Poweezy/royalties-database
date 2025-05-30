@@ -1774,20 +1774,78 @@
         sidebar.classList.add('active');
       });
 
-      // Tab switching for Reporting & Analytics
-      tabButtons.forEach(button => {
+      // Enhanced tab switching for all sections
+      const allTabButtons = document.querySelectorAll('.tab-btn, .regulatory-tabs .tab-btn');
+      const allTabContents = document.querySelectorAll('.tab-content');
+
+      allTabButtons.forEach(button => {
         button.addEventListener('click', () => {
           const tabId = button.getAttribute('data-tab');
+          const parentContainer = button.closest('.user-form-container, .regulatory-section');
           
-          // Remove active class from all buttons and contents
-          tabButtons.forEach(btn => btn.classList.remove('active'));
-          tabContents.forEach(content => content.classList.remove('active'));
+          if (parentContainer) {
+            // Remove active class from buttons in this container
+            parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-          // Add active class to clicked button and corresponding content
-          button.classList.add('active');
-          document.querySelector(tabId).classList.add('active');
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const targetContent = parentContainer.querySelector(tabId);
+            if (targetContent) {
+              targetContent.classList.add('active');
+            }
+          }
         });
       });
+
+      // Enhanced navigation system
+      function showSection(sectionId) {
+        // Hide all sections
+       
+        document.querySelectorAll('main > section').forEach(section => {
+          section.style.display = 'none';
+        });
+        
+        // Show target section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.style.display = 'block';
+          // Scroll to top of main content
+          document.querySelector('.main-content').scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+
+        // Update active nav item
+        document.querySelectorAll('.sidebar nav a').forEach(link => {
+          link.classList.remove('active');
+        });
+        const activeLink = document.querySelector(`.sidebar nav a[href="#${sectionId}"]`);
+        if (activeLink) {
+          activeLink.classList.add('active');
+        }
+      }
+
+      // Navigation event listeners
+      document.querySelectorAll('.sidebar nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            const sectionId = href.substring(1);
+            showSection(sectionId);
+            
+            // Close sidebar on mobile after navigation
+            if (window.innerWidth <= 768) {
+              sidebar.classList.remove('active');
+            }
+          }
+        });
+      });
+
+      // Show dashboard by default
+      showSection('dashboard');
 
       // Initialize Revenue Trends chart
       const revenueChartCtx = document.getElementById('revenue-trends-chart').getContext('2d');
@@ -1813,12 +1871,24 @@
           }
         }
       });
+
+      // Enhanced smooth scrolling for any internal links
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('a[href^="#"]') || e.target.closest('a[href^="#"]')) {
+          const link = e.target.matches('a[href^="#"]') ? e.target : e.target.closest('a[href^="#"]');
+          const href = link.getAttribute('href');
+          if (href && href !== '#' && href.length > 1) {
+            e.preventDefault();
+            const sectionId = href.substring(1);
+            showSection(sectionId);
+          }
+        }
+      });
     });
   </script>
 
   <!-- Enhanced icon fix script -->
   <script>
-    // Comprehensive icon replacement functionality
     (function() {
       'use strict';
       
@@ -1966,6 +2036,166 @@
             const style = document.createElement('style');
             style.id = 'emoji-icon-styles';
             style.textContent = `
+              /* Enhanced scrollbar styles */
+              * {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e0 #f7fafc;
+              }
+              
+              *::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+              }
+              
+              *::-webkit-scrollbar-track {
+                background: #f7fafc;
+                border-radius: 4px;
+              }
+              
+              *::-webkit-scrollbar-thumb {
+                background: #cbd5e0;
+                border-radius: 4px;
+                transition: background 0.3s ease;
+              }
+              
+              *::-webkit-scrollbar-thumb:hover {
+                background: #a0aec0;
+              }
+              
+              *::-webkit-scrollbar-corner {
+                background: #f7fafc;
+              }
+              
+              /* Main content area scrolling */
+              .main-content {
+                height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+                scroll-behavior: smooth;
+                padding: 2rem;
+                box-sizing: border-box;
+              }
+              
+              /* Sidebar scrolling */
+              .sidebar {
+                overflow-y: auto;
+                overflow-x: hidden;
+                height: 100vh;
+                box-sizing: border-box;
+              }
+              
+              .sidebar nav {
+                padding-bottom: 2rem;
+              }
+              
+              /* Table container scrolling */
+              .table-container {
+                max-height: 400px;
+                overflow: auto;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                background: white;
+              }
+              
+              .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0;
+              }
+              
+              .data-table thead {
+                position: sticky;
+                top: 0;
+                background: #f8fafc;
+                z-index: 10;
+              }
+              
+              .data-table th,
+              .data-table td {
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+                white-space: nowrap;
+              }
+              
+              /* Navigation active states */
+              .sidebar nav a {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1.25rem;
+                color: #64748b;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border-radius: 6px;
+                margin: 0.25rem 0.5rem;
+              }
+              
+              .sidebar nav a:hover,
+              .sidebar nav a.active {
+                background: #1a365d;
+                color: white;
+                transform: translateX(4px);
+              }
+              
+              .sidebar nav a i,
+              .sidebar nav a .emoji-icon {
+                margin-right: 0.75rem;
+                width: 20px;
+                text-align: center;
+              }
+              
+              /* Section display management */
+              main > section {
+                display: none;
+                min-height: calc(100vh - 4rem);
+              }
+              
+              main > section:first-child {
+                display: block;
+              }
+              
+              /* Form and content spacing */
+              .user-form-container {
+                margin-bottom: 2rem;
+                background: white;
+                border-radius: 8px;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+              }
+              
+              .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+              }
+              
+              /* Enhanced responsive design */
+              @media (max-width: 768px) {
+                .main-content {
+                  padding: 1rem;
+                  padding-top: 4rem;
+                }
+                
+                .charts-grid {
+                  grid-template-columns: 1fr;
+                  gap: 1rem;
+                }
+                
+                .grid-4 {
+                  grid-template-columns: 1fr !important;
+                }
+                
+                .table-container {
+                  font-size: 0.875rem;
+                }
+                
+                .data-table th,
+                .data-table td {
+                  padding: 0.5rem;
+                }
+              }
+              
               .emoji-icon {
                 font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif !important;
                 font-style: normal !important;
@@ -1986,6 +2216,8 @@
                 gap: 0.5rem;
                 margin-bottom: 1.5rem;
                 border-bottom: 2px solid #e2e8f0;
+                overflow-x: auto;
+                padding-bottom: 0;
               }
               
               .regulatory-tabs .tab-btn {
@@ -1996,6 +2228,8 @@
                 cursor: pointer;
                 border-bottom: 2px solid transparent;
                 transition: all 0.3s ease;
+                white-space: nowrap;
+                flex-shrink: 0;
               }
               
               .regulatory-tabs .tab-btn.active {
@@ -2248,10 +2482,6 @@
               @media (max-width: 768px) {
                 .mobile-menu-toggle {
                   display: flex !important;
-                }
-                
-                .main-content {
-                  padding-top: 4rem !important;
                 }
                 
                 .sidebar {
