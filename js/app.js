@@ -113,6 +113,23 @@ class RoyaltiesManager {
       this.handleSaveRoyalty(event);
     }
     
+    // Handle Apply Filters button
+    if (target.matches('.btn') && (
+        target.textContent.trim() === 'Apply Filters' ||
+        target.id === 'apply-filters-btn' ||
+        target.classList.contains('filter-btn')
+    )) {
+      this.handleApplyFilters(event);
+    }
+    
+    // Handle Clear Filters button
+    if (target.matches('.btn') && (
+        target.textContent.trim() === 'Clear Filters' ||
+        target.id === 'clear-filters-btn'
+    )) {
+      this.handleClearFilters(event);
+    }
+    
     // Handle logout confirmation
     if (target.matches('#confirm-logout-btn')) {
       this.handleLogout(event);
@@ -825,23 +842,43 @@ class RoyaltiesManager {
   }
 
   populateAuditLog() {
-    // Try multiple selectors to find the audit log table
-    let auditTableBody = document.querySelector('#user-management .data-table:last-of-type tbody');
+    console.log('Starting populateAuditLog function...');
     
-    if (!auditTableBody) {
-      // Alternative selectors
-      auditTableBody = document.querySelector('#security-audit tbody');
-      if (!auditTableBody) {
-        auditTableBody = document.querySelector('.audit-log tbody');
-      }
-      if (!auditTableBody) {
-        auditTableBody = document.querySelector('[id*="audit"] tbody');
+    // Debug: List all tables in user-management section
+    const allTables = document.querySelectorAll('#user-management table');
+    console.log(`Found ${allTables.length} tables in user-management:`, allTables);
+    
+    // Try multiple selectors to find the audit log table
+    let auditTableBody = null;
+    
+    const selectors = [
+      '#user-management .data-table:last-of-type tbody',
+      '#user-management table:last-of-type tbody',
+      '#security-audit tbody',
+      '.audit-log tbody',
+      '[id*="audit"] tbody',
+      '#user-management tbody:last-of-type'
+    ];
+    
+    for (const selector of selectors) {
+      auditTableBody = document.querySelector(selector);
+      if (auditTableBody) {
+        console.log(`Found audit table body with selector: ${selector}`, auditTableBody);
+        break;
+      } else {
+        console.log(`Selector failed: ${selector}`);
       }
     }
     
+    // If still not found, create audit log table
     if (!auditTableBody) {
-      console.warn('Audit log table body not found. Available tables:', 
-        document.querySelectorAll('#user-management table').length);
+      console.warn('Creating new audit log table...');
+      this.createAuditLogTable();
+      auditTableBody = document.querySelector('#audit-log-table tbody');
+    }
+    
+    if (!auditTableBody) {
+      console.error('Could not find or create audit log table body');
       return;
     }
     
@@ -894,7 +931,7 @@ class RoyaltiesManager {
       }
     ];
     
-    auditData.forEach(entry => {
+    auditData.forEach((entry, index) => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${entry.timestamp}</td>
@@ -905,9 +942,44 @@ class RoyaltiesManager {
         <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
       `;
       auditTableBody.appendChild(row);
+      console.log(`Added audit row ${index + 1}:`, entry);
     });
     
-    console.log(`Added ${auditData.length} audit log entries`);
+    console.log(`Successfully added ${auditData.length} audit log entries to table`);
+  }
+
+  createAuditLogTable() {
+    const userMgmtSection = document.getElementById('user-management');
+    if (!userMgmtSection) {
+      console.error('User management section not found');
+      return;
+    }
+    
+    // Create audit log section
+    const auditSection = document.createElement('div');
+    auditSection.className = 'user-form-container';
+    auditSection.innerHTML = `
+      <h3>Security Audit Log</h3>
+      <div class="data-table">
+        <table id="audit-log-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Target</th>
+              <th>IP Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    userMgmtSection.appendChild(auditSection);
+    console.log('Created new audit log table');
   }
 
   handleViewAuditLog(event) {
@@ -919,47 +991,50 @@ class RoyaltiesManager {
     // Force populate audit log first
     this.populateAuditLog();
     
-    // Try to find and scroll to audit section with multiple approaches
-    let auditSection = null;
-    
-    // Try various selectors
-    const selectors = [
-      '#user-management .user-form-container:last-child',
-      '#security-audit',
-      '.audit-log-section',
-      '[id*="audit"]',
-      '#user-management .tab-content:last-child',
-      '#user-management .data-table:last-of-type'
-    ];
-    
-    for (const selector of selectors) {
-      auditSection = document.querySelector(selector);
+    // Wait a moment for table to be populated, then scroll
+    setTimeout(() => {
+      let auditSection = null;
+      
+      // Try various selectors
+      const selectors = [
+        '#audit-log-table',
+        '#user-management .user-form-container:last-child',
+        '#security-audit',
+        '.audit-log-section',
+        '[id*="audit"]',
+        '#user-management .tab-content:last-child',
+        '#user-management .data-table:last-of-type'
+      ];
+      
+      for (const selector of selectors) {
+        auditSection = document.querySelector(selector);
+        if (auditSection) {
+          console.log(`Found audit section with selector: ${selector}`);
+          break;
+        }
+      }
+      
       if (auditSection) {
-        console.log(`Found audit section with selector: ${selector}`);
-        break;
+        auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        console.log('Scrolled to audit section');
+        
+        // Highlight the section briefly
+        auditSection.style.backgroundColor = '#f0f8ff';
+        setTimeout(() => {
+          auditSection.style.backgroundColor = '';
+        }, 2000);
+      } else {
+        console.warn('Audit section not found with any selector');
+        
+        // Fallback: scroll to bottom of user management section
+        const userMgmtSection = document.getElementById('user-management');
+        if (userMgmtSection) {
+          userMgmtSection.scrollTo({ top: userMgmtSection.scrollHeight, behavior: 'smooth' });
+        }
       }
-    }
-    
-    if (auditSection) {
-      auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      console.log('Scrolled to audit section');
       
-      // Highlight the section briefly
-      auditSection.style.backgroundColor = '#f0f8ff';
-      setTimeout(() => {
-        auditSection.style.backgroundColor = '';
-      }, 2000);
-    } else {
-      console.warn('Audit section not found with any selector');
-      
-      // Fallback: scroll to bottom of user management section
-      const userMgmtSection = document.getElementById('user-management');
-      if (userMgmtSection) {
-        userMgmtSection.scrollTo({ top: userMgmtSection.scrollHeight, behavior: 'smooth' });
-      }
-    }
-    
-    this.modules.notificationManager.info('Displaying security audit log');
+      this.modules.notificationManager.info('Displaying security audit log');
+    }, 100);
   }
 
   handleSaveUser(event) {
@@ -1026,6 +1101,178 @@ class RoyaltiesManager {
         row.remove();
         this.modules.notificationManager.success('Record deleted');
       }
+    }
+  }
+
+  handleApplyFilters(event) {
+    event.preventDefault();
+    
+    console.log('Apply Filters button clicked');
+    
+    // Get filter values with better error handling
+    const entityFilter = this.getFilterValue('filter-entity') || this.getFilterValue('entity-filter');
+    const mineralFilter = this.getFilterValue('filter-mineral') || this.getFilterValue('mineral-filter');
+    const statusFilter = this.getFilterValue('filter-status') || this.getFilterValue('status-filter');
+    const dateFromFilter = this.getFilterValue('filter-date-from') || this.getFilterValue('date-from-filter');
+    const dateToFilter = this.getFilterValue('filter-date-to') || this.getFilterValue('date-to-filter');
+    
+    console.log('Filter values:', {
+      entity: entityFilter,
+      mineral: mineralFilter,
+      status: statusFilter,
+      dateFrom: dateFromFilter,
+      dateTo: dateToFilter
+    });
+    
+    // Get all rows in the royalty records table
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (!tbody) {
+      this.modules.notificationManager.error('Royalty records table not found');
+      return;
+    }
+    
+    const rows = tbody.querySelectorAll('tr');
+    let visibleCount = 0;
+    let totalCount = 0;
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 6) return; // Skip rows without enough cells
+      
+      totalCount++;
+      
+      const rowEntity = this.cleanText(cells[0]?.textContent);
+      const rowMineral = this.cleanText(cells[1]?.textContent);
+      const rowDate = this.cleanText(cells[5]?.textContent);
+      const rowStatusElement = cells[6]?.querySelector('.status-badge');
+      const rowStatus = this.cleanText(rowStatusElement?.textContent || cells[6]?.textContent);
+      
+      console.log('Row data:', {
+        entity: rowEntity,
+        mineral: rowMineral,
+        date: rowDate,
+        status: rowStatus
+      });
+      
+      let showRow = true;
+      
+      // Apply entity filter (partial match)
+      if (entityFilter && !this.matchesFilter(rowEntity, entityFilter)) {
+        showRow = false;
+        console.log(`Entity filter failed: "${rowEntity}" does not contain "${entityFilter}"`);
+      }
+      
+      // Apply mineral filter (partial match)
+      if (mineralFilter && !this.matchesFilter(rowMineral, mineralFilter)) {
+        showRow = false;
+        console.log(`Mineral filter failed: "${rowMineral}" does not contain "${mineralFilter}"`);
+      }
+      
+      // Apply status filter (exact or partial match)
+      if (statusFilter && !this.matchesFilter(rowStatus, statusFilter)) {
+        showRow = false;
+        console.log(`Status filter failed: "${rowStatus}" does not contain "${statusFilter}"`);
+      }
+      
+      // Apply date range filter
+      if (dateFromFilter || dateToFilter) {
+        const rowDateObj = this.parseDate(rowDate);
+        if (rowDateObj) {
+          if (dateFromFilter) {
+            const fromDate = new Date(dateFromFilter);
+            if (rowDateObj < fromDate) {
+              showRow = false;
+              console.log(`Date from filter failed: ${rowDate} is before ${dateFromFilter}`);
+            }
+          }
+          if (dateToFilter) {
+            const toDate = new Date(dateToFilter);
+            toDate.setHours(23, 59, 59, 999); // Include the entire end date
+            if (rowDateObj > toDate) {
+              showRow = false;
+              console.log(`Date to filter failed: ${rowDate} is after ${dateToFilter}`);
+            }
+          }
+        }
+      }
+      
+      // Show/hide row
+      row.style.display = showRow ? '' : 'none';
+      if (showRow) visibleCount++;
+    });
+    
+    console.log(`Filter results: ${visibleCount} visible out of ${totalCount} total records`);
+    this.modules.notificationManager.success(`Applied filters. Showing ${visibleCount} of ${totalCount} records.`);
+  }
+
+  getFilterValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : '';
+  }
+
+  cleanText(text) {
+    return text ? text.trim().replace(/\s+/g, ' ') : '';
+  }
+
+  matchesFilter(text, filter) {
+    if (!text || !filter) return !filter; // If no filter, show all
+    return text.toLowerCase().includes(filter.toLowerCase());
+  }
+
+  parseDate(dateString) {
+    if (!dateString) return null;
+    
+    // Try different date formats
+    const formats = [
+      dateString, // Original format
+      dateString.replace(/\//g, '-'), // Replace / with -
+      dateString.replace(/\./g, '-'), // Replace . with -
+    ];
+    
+    for (const format of formats) {
+      const date = new Date(format);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+    
+    return null;
+  }
+
+  handleClearFilters(event) {
+    event.preventDefault();
+    
+    console.log('Clear Filters button clicked');
+    
+    // Clear all possible filter input variations
+    const filterInputIds = [
+      'filter-entity', 'entity-filter',
+      'filter-mineral', 'mineral-filter',
+      'filter-status', 'status-filter',
+      'filter-date-from', 'date-from-filter',
+      'filter-date-to', 'date-to-filter'
+    ];
+    
+    filterInputIds.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.value = '';
+        console.log(`Cleared filter: ${id}`);
+      }
+    });
+    
+    // Show all rows
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (tbody) {
+      const rows = tbody.querySelectorAll('tr');
+      rows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      console.log(`Showing all ${rows.length} records`);
+      this.modules.notificationManager.info(`Filters cleared. Showing all ${rows.length} records.`);
+    } else {
+      this.modules.notificationManager.error('Royalty records table not found');
     }
   }
 }
