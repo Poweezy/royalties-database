@@ -469,7 +469,7 @@
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-success">Save Royalty</button>
+            <button class="btn btn-success" id="save-royalty-btn">Save Royalty</button>
           </div>
         </div>
         <div class="user-form-container">
@@ -506,7 +506,7 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="royalty-records-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -1750,81 +1750,6 @@
         setTimeout(initializeCharts, 100);
       });
 
-      // Logout functionality
-      function handleLogout() {
-        // Show confirmation dialog
-        if (confirm('Are you sure you want to logout? Any unsaved changes will be lost.')) {
-          // Clear any stored data (if using localStorage/sessionStorage)
-          localStorage.removeItem('userSession');
-          sessionStorage.clear();
-          
-          // Hide app container and show login
-          appContainer.style.display = 'none';
-          loginSection.style.display = 'flex';
-          sidebar.classList.remove('active');
-          
-          // Reset form data
-          document.querySelectorAll('form').forEach(form => form.reset());
-          
-          // Show success message briefly
-          const loginContainer = document.querySelector('.login-container');
-          const successMsg = document.createElement('div');
-          successMsg.style.cssText = `
-            background: #dcfce7;
-            color: #166534;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            text-align: center;
-            border: 1px solid #bbf7d0;
-          `;
-          successMsg.textContent = 'You have been successfully logged out.';
-          loginContainer.insertBefore(successMsg, loginContainer.firstChild);
-          
-          // Remove success message after 3 seconds
-          setTimeout(() => {
-            if (successMsg.parentNode) {
-              successMsg.remove();
-            }
-          }, 3000);
-          
-          // Reset to dashboard section for next login
-          showSection('dashboard');
-        }
-      }
-
-      // Add logout event listeners
-      document.getElementById('confirm-logout-btn').addEventListener('click', handleLogout);
-      
-      // Handle logout from sidebar navigation
-      document.querySelector('.sidebar nav a[href="#logout"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        showSection('logout');
-      });
-
-      // Enhanced tab switching for all sections
-      const allTabButtons = document.querySelectorAll('.tab-btn, .regulatory-tabs .tab-btn');
-
-      allTabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const tabId = button.getAttribute('data-tab');
-          const parentContainer = button.closest('.user-form-container, .regulatory-section');
-          
-          if (parentContainer) {
-            // Remove active class from buttons in this container
-            parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-            // Add active class to clicked button and corresponding content
-            button.classList.add('active');
-            const targetContent = parentContainer.querySelector(tabId);
-            if (targetContent) {
-              targetContent.classList.add('active');
-            }
-          }
-        });
-      });
-
       // Enhanced navigation system
       function showSection(sectionId) {
         // Hide all sections
@@ -1932,25 +1857,404 @@
         } catch (error) {
           console.warn('Chart initialization failed:', error);
           // Fallback: Show a message in the chart container
-          const chartContainer = document.querySelector('#revenue-trends-chart').parentNode;
+          const chartContainer = document.querySelector('#revenue-trends-chart')?.parentNode;
           if (chartContainer) {
             chartContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
           }
         }
       }
 
-      // Enhanced smooth scrolling for any internal links
-      document.addEventListener('click', (e) => {
-        if (e.target.matches('a[href^="#"]') || e.target.closest('a[href^="#"]')) {
-          const link = e.target.matches('a[href^="#"]') ? e.target : e.target.closest('a[href^="#"]');
-          const href = link.getAttribute('href');
-          if (href && href !== '#' && href.length > 1) {
-            e.preventDefault();
-            const sectionId = href.substring(1);
-            showSection(sectionId);
+      // Enhanced tab switching for all sections
+      const allTabButtons = document.querySelectorAll('.tab-btn, .regulatory-tabs .tab-btn');
+
+      allTabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab');
+          const parentContainer = button.closest('.user-form-container, .regulatory-section');
+          
+          if (parentContainer) {
+            // Remove active class from buttons in this container
+            parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const targetContent = parentContainer.querySelector(tabId);
+            if (targetContent) {
+              targetContent.classList.add('active');
+            }
           }
-        }
+        });
       });
+
+      // Password toggle functionality
+      function initPasswordToggle() {
+        const passwordToggle = document.querySelector('.password-toggle');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = passwordToggle.querySelector('i, .emoji-icon');
+        
+        if (passwordToggle && passwordInput) {
+          passwordToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle password visibility
+            if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+              if (toggleIcon) {
+                toggleIcon.textContent = '🙈'; // Hide icon
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+              }
+            } else {
+              passwordInput.type = 'password';
+              if (toggleIcon) {
+                toggleIcon.textContent = '👁️'; // Show icon
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+              }
+            }
+          });
+        }
+      }
+
+      // Logout functionality
+      function handleLogout() {
+        // Show confirmation dialog
+        if (confirm('Are you sure you want to logout? Any unsaved changes will be lost.')) {
+          // Clear any stored data (if using localStorage/sessionStorage)
+          localStorage.removeItem('userSession');
+          sessionStorage.clear();
+          
+          // Hide app container and show login
+          appContainer.style.display = 'none';
+          loginSection.style.display = 'flex';
+          sidebar.classList.remove('active');
+          
+          // Reset form data
+          document.querySelectorAll('form').forEach(form => form.reset());
+          
+          // Show success message briefly
+          const loginContainer = document.querySelector('.login-container');
+                   const successMsg = document.createElement('div');
+          successMsg.style.cssText = `
+            background: #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+          `;
+          successMsg.textContent = 'You have been successfully logged out.';
+          loginContainer.insertBefore(successMsg, loginContainer.firstChild);
+          
+          // Remove success message after 3 seconds
+          setTimeout(() => {
+            if (successMsg.parentNode) {
+              successMsg.remove();
+            }
+          }, 3000);
+          
+          // Reset to dashboard section for next login
+          showSection('dashboard');
+        }
+      }
+
+      // Add logout event listeners
+      document.getElementById('confirm-logout-btn').addEventListener('click', handleLogout);
+      
+      // Handle logout from sidebar navigation
+      document.querySelector('.sidebar nav a[href="#logout"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('logout');
+      });
+
+      // Royalty Payment functionality
+      function initRoyaltyPayment() {
+        const saveRoyaltyBtn = document.getElementById('save-royalty-btn');
+        const entitySelect = document.getElementById('entity');
+        const mineralSelect = document.getElementById('mineral');
+        const volumeInput = document.getElementById('volume');
+        const tariffInput = document.getElementById('tariff');
+        const dateInput = document.getElementById('payment-date');
+        const royaltyRecordsBody = document.getElementById('royalty-records-tbody');
+        
+        // Store royalty records (in a real app, this would be saved to a database)
+        let royaltyRecords = JSON.parse(localStorage.getItem('royaltyRecords') || '[]');
+        
+        // Auto-calculate royalty amount when volume or tariff changes
+        function calculateRoyalty() {
+          const volume = parseFloat(volumeInput.value) || 0;
+          const tariff = parseFloat(tariffInput.value) || 0;
+          return (volume * tariff).toFixed(2);
+        }
+        
+        // Update calculation display
+        function updateCalculation() {
+          const calculation = calculateRoyalty();
+          // You could add a display element to show the calculated amount
+          console.log(`Calculated royalty: E${calculation}`);
+        }
+        
+        volumeInput.addEventListener('input', updateCalculation);
+        tariffInput.addEventListener('input', updateCalculation);
+        
+        // Validate form
+        function validateRoyaltyForm() {
+          const entity = entitySelect.value;
+          const mineral = mineralSelect.value;
+          const volume = volumeInput.value;
+          const tariff = tariffInput.value;
+          const date = dateInput.value;
+          
+          let isValid = true;
+          
+          // Reset validation states
+          document.querySelectorAll('#royalty-records .validation-error').forEach(error => {
+            error.style.display = 'none';
+          });
+          
+          // Validate entity
+          if (!entity || entity === 'Select Entity') {
+            document.getElementById('entity-validation').style.display = 'block';
+            isValid = false;
+          }
+          
+          // Validate mineral
+          if (!mineral || mineral === 'Select Mineral') {
+            document.getElementById('mineral-validation').style.display = 'block';
+            isValid = false;
+          }
+          
+          // Validate volume
+          if (!volume || parseFloat(volume) <= 0) {
+            document.getElementById('volume-validation').style.display = 'block';
+            isValid = false;
+          }
+          
+          // Validate tariff
+          if (!tariff || parseFloat(tariff) <= 0) {
+            document.getElementById('tariff-validation').style.display = 'block';
+            isValid = false;
+          }
+          
+          // Validate date
+          if (!date) {
+            document.getElementById('date-validation').style.display = 'block';
+            isValid = false;
+          }
+          
+          return isValid;
+        }
+        
+        // Save royalty record
+        function saveRoyaltyRecord() {
+          if (!validateRoyaltyForm()) {
+            return;
+          }
+          
+          const newRecord = {
+            id: Date.now(),
+            entity: entitySelect.value,
+            mineral: mineralSelect.value,
+            volume: parseFloat(volumeInput.value),
+            tariff: parseFloat(tariffInput.value),
+            royalties: parseFloat(calculateRoyalty()),
+            date: dateInput.value,
+            status: 'Recorded',
+            timestamp: new Date().toISOString()
+          };
+          
+          royaltyRecords.push(newRecord);
+          localStorage.setItem('royaltyRecords', JSON.stringify(royaltyRecords));
+          
+          // Show success message
+          showSuccessMessage('Royalty record saved successfully!');
+          
+          // Clear form
+          clearRoyaltyForm();
+          
+          // Refresh table
+          renderRoyaltyRecords();
+        }
+        
+        // Clear form
+        function clearRoyaltyForm() {
+          entitySelect.value = 'Select Entity';
+          mineralSelect.value = 'Select Mineral';
+          volumeInput.value = '';
+          tariffInput.value = '';
+          dateInput.value = '';
+          
+          // Hide validation errors
+          document.querySelectorAll('#royalty-records .validation-error').forEach(error => {
+            error.style.display = 'none';
+          });
+        }
+        
+        // Show success message
+        function showSuccessMessage(message) {
+          const existingMessage = document.querySelector('.royalty-success-message');
+          if (existingMessage) {
+            existingMessage.remove();
+          }
+          
+          const successDiv = document.createElement('div');
+          successDiv.className = 'royalty-success-message';
+          successDiv.style.cssText = `
+            background: #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          `;
+          successDiv.textContent = message;
+          
+          document.body.appendChild(successDiv);
+          
+          setTimeout(() => {
+            if (successDiv.parentNode) {
+              successDiv.remove();
+            }
+          }, 3000);
+        }
+        
+        // Render royalty records in table
+        function renderRoyaltyRecords() {
+          if (!royaltyRecordsBody) return;
+          
+          royaltyRecordsBody.innerHTML = '';
+          
+          // Check if records exist and are valid
+          if (!royaltyRecords || royaltyRecords.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = `
+              <td colspan="8" style="text-align: center; padding: 2rem; color: #64748b;">
+                No royalty records found. Add your first record using the form above.
+              </td>
+            `;
+            royaltyRecordsBody.appendChild(emptyRow);
+            return;
+          }
+          
+          royaltyRecords.slice(-10).reverse().forEach(record => {
+            // Validate record data before processing
+            if (!record || typeof record !== 'object') return;
+            
+            // Ensure all required fields exist with default values
+            const safeRecord = {
+              id: record.id || Date.now(),
+              entity: record.entity || 'Unknown Entity',
+              mineral: record.mineral || 'Unknown Mineral',
+              volume: Number(record.volume) || 0,
+              tariff: Number(record.tariff) || 0,
+              royalties: Number(record.royalties) || 0,
+              date: record.date || new Date().toISOString().split('T')[0],
+              status: record.status || 'Recorded'
+            };
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${safeRecord.entity}</td>
+              <td>${safeRecord.mineral}</td>
+              <td>${safeRecord.volume.toLocaleString()}</td>
+              <td>E${safeRecord.tariff.toFixed(2)}</td>
+              <td>E${safeRecord.royalties.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+              <td>${new Date(safeRecord.date).toLocaleDateString()}</td>
+              <td><span class="status-badge compliant">${safeRecord.status}</span></td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="viewRecord(${safeRecord.id})">View</button>
+                <button class="btn btn-secondary btn-sm" onclick="editRecord(${safeRecord.id})">Edit</button>
+              </td>
+            `;
+            royaltyRecordsBody.appendChild(row);
+          });
+          
+          // Update dashboard metrics
+          updateDashboardMetrics();
+        }
+        
+          // Add function to update dashboard metrics
+          function updateDashboardMetrics() {
+            try {
+              const totalRoyaltiesElement = document.getElementById('total-royalties');
+              const activeEntitiesElement = document.getElementById('active-entities');
+              const complianceRateElement = document.getElementById('compliance-rate');
+              const pendingApprovalsElement = document.getElementById('pending-approvals');
+              
+              if (royaltyRecords && royaltyRecords.length > 0) {
+                // Calculate total royalties
+                const totalRoyalties = royaltyRecords.reduce((sum, record) => {
+                  return sum + (Number(record.royalties) || 0);
+                }, 0);
+                
+                // Get unique entities count
+                const uniqueEntities = new Set(royaltyRecords.map(r => r.entity)).size;
+                
+                // Update dashboard elements
+                if (totalRoyaltiesElement) {
+                  totalRoyaltiesElement.textContent = `E${totalRoyalties.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                }
+                if (activeEntitiesElement) {
+                  activeEntitiesElement.textContent = uniqueEntities.toString();
+                }
+                if (complianceRateElement) {
+                  complianceRateElement.textContent = '100%';
+                }
+                if (pendingApprovalsElement) {
+                  pendingApprovalsElement.textContent = '0';
+                }
+              }
+            } catch (error) {
+              console.warn('Dashboard metrics update failed:', error);
+            }
+          }
+          
+          // Event listener for save royalty button
+          if (saveRoyaltyBtn) {
+            saveRoyaltyBtn.addEventListener('click', saveRoyaltyRecord);
+          }
+          
+          // Initialize royalty records display
+          renderRoyaltyRecords();
+        }
+        
+        // Initialize royalty payment functionality
+        setTimeout(initRoyaltyPayment, 100);
+
+        // Global functions for record actions
+        window.viewRecord = function(id) {
+          const records = JSON.parse(localStorage.getItem('royaltyRecords') || '[]');
+          const record = records.find(r => r.id === id);
+          if (record) {
+            alert(`Record Details:\nEntity: ${record.entity}\nMineral: ${record.mineral}\nVolume: ${record.volume} m³\nRoyalties: E${record.royalties}`);
+          }
+        };
+        
+        window.editRecord = function(id) {
+          const records = JSON.parse(localStorage.getItem('royaltyRecords') || '[]');
+          const record = records.find(r => r.id === id);
+          if (record) {
+            // Fill form with record data
+            document.getElementById('entity').value = record.entity;
+            document.getElementById('mineral').value = record.mineral;
+            document.getElementById('volume').value = record.volume;
+            document.getElementById('tariff').value = record.tariff;
+            document.getElementById('payment-date').value = record.date;
+            
+            // Scroll to form
+            document.getElementById('royalty-records').scrollIntoView({ behavior: 'smooth' });
+          }
+        };
     });
   </script>
 
