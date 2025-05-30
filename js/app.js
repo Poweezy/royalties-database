@@ -5,6 +5,7 @@ import { IconManager } from './modules/IconManager.js';
 class RoyaltiesManager {
   constructor() {
     this.modules = {};
+    this.charts = new Map(); // Add chart tracking
     this.isInitialized = false;
     this.init();
   }
@@ -168,9 +169,16 @@ class RoyaltiesManager {
     const canvas = document.getElementById('revenue-trends-chart');
     if (!canvas || typeof Chart === 'undefined') return;
 
+    // Destroy existing chart if it exists
+    const existingChart = this.charts.get('revenue-trends-chart');
+    if (existingChart) {
+      existingChart.destroy();
+      this.charts.delete('revenue-trends-chart');
+    }
+
     const ctx = canvas.getContext('2d');
     
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -196,15 +204,25 @@ class RoyaltiesManager {
         }
       }
     });
+
+    // Store the chart reference
+    this.charts.set('revenue-trends-chart', chart);
   }
 
   async createProductionChart() {
     const canvas = document.getElementById('production-by-entity-chart');
     if (!canvas || typeof Chart === 'undefined') return;
 
+    // Destroy existing chart if it exists
+    const existingChart = this.charts.get('production-by-entity-chart');
+    if (existingChart) {
+      existingChart.destroy();
+      this.charts.delete('production-by-entity-chart');
+    }
+
     const ctx = canvas.getContext('2d');
     
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
       type: 'pie',
       data: {
         labels: ['Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Malolotja Mine'],
@@ -223,6 +241,9 @@ class RoyaltiesManager {
         }
       }
     });
+
+    // Store the chart reference
+    this.charts.set('production-by-entity-chart', chart);
   }
 
   async simulateLoading() {
@@ -244,6 +265,12 @@ class RoyaltiesManager {
   }
 
   destroy() {
+    // Destroy all charts before cleaning up modules
+    this.charts.forEach(chart => {
+      chart.destroy();
+    });
+    this.charts.clear();
+
     Object.values(this.modules).forEach(module => {
       if (typeof module.destroy === 'function') {
         module.destroy();
