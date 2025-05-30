@@ -2301,7 +2301,11 @@
             message.includes('listener indicated') ||
             message.includes('message channel closed') ||
             message.includes('runtime.lasterror') ||
-            message.includes('extension')) {
+            message.includes('extension') ||
+            message.includes('chrome-extension') ||
+            message.includes('intervention') ||
+            message.includes('slow network') ||
+            message.includes('fallback font')) {
           return; // Suppress these errors
         }
         originalError.apply(console, args);
@@ -2311,35 +2315,59 @@
         const message = args.join(' ').toLowerCase();
         if (message.includes('extension') ||
             message.includes('listener') ||
-            message.includes('runtime')) {
+            message.includes('runtime') ||
+            message.includes('intervention') ||
+            message.includes('chrome-extension') ||
+            message.includes('font')) {
           return; // Suppress extension warnings
         }
         originalWarn.apply(console, args);
       };
 
-      // Suppress unhandled promise rejections related to extensions
+      // Enhanced promise rejection handling
       window.addEventListener('unhandledrejection', function(event) {
         const errorMessage = event.reason?.message || event.reason?.toString() || '';
         if (errorMessage.includes('listener indicated') ||
             errorMessage.includes('message channel closed') ||
             errorMessage.includes('extension') ||
-            errorMessage.includes('chrome-extension')) {
+            errorMessage.includes('chrome-extension') ||
+            errorMessage.includes('runtime') ||
+            errorMessage.includes('asynchronous response')) {
           event.preventDefault();
+          console.log('Suppressed extension-related promise rejection'); // Silent logging
           return false;
         }
       });
 
-      // Suppress general errors related to browser extensions
+      // Enhanced general error handling
       window.addEventListener('error', function(event) {
         const errorMessage = event.message || '';
         if (errorMessage.includes('extension') ||
             errorMessage.includes('listener') ||
             errorMessage.includes('runtime') ||
+            errorMessage.includes('chrome-extension') ||
+            errorMessage.includes('message channel') ||
             event.filename?.includes('chrome-extension')) {
           event.preventDefault();
+          console.log('Suppressed extension-related error'); // Silent logging
           return false;
         }
       });
+
+      // Suppress specific Chrome extension errors
+      const originalConsoleLog = console.log;
+      console.log = function(...args) {
+        const message = args.join(' ').toLowerCase();
+        if (message.includes('icon replacement system initialized') && 
+            !message.includes('error')) {
+          // Allow this specific log but suppress similar extension logs
+          originalConsoleLog.apply(console, args);
+        } else if (!message.includes('extension') && 
+                  !message.includes('chrome-extension') &&
+                  !message.includes('suppressed')) {
+          originalConsoleLog.apply(console, args);
+        }
+      };
 
       function replaceIcons() {
         try {
@@ -2878,28 +2906,23 @@
           replaceIcons();
           addMobileMenuToggle();
           
-          // Run replacement again after a short delay to catch dynamically loaded content
-          setTimeout(() => {
-            try {
-              replaceIcons();
-            } catch (error) {
-              // Silently handle errors
-            }
-          }, 500);
-          
-          setTimeout(() => {
-            try {
-              replaceIcons();
-            } catch (error) {
-              // Silently handle errors
-            }
-          }, 1000);
+          // Enhanced delayed initialization with error handling
+          const delays = [500, 1000, 2000];
+          delays.forEach(delay => {
+            setTimeout(() => {
+              try {
+                replaceIcons();
+              } catch (error) {
+                // Silently handle errors without logging
+              }
+            }, delay);
+          });
         } catch (error) {
           // Silently handle initialization errors
         }
       }
 
-      // Initialize immediately and on DOM ready
+      // Initialize immediately and on DOM ready with enhanced error handling
       try {
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', init);
@@ -2907,20 +2930,24 @@
           init();
         }
 
-        // Watch for new elements being added to the DOM
+        // Enhanced MutationObserver with better error handling
         if (window.MutationObserver) {
           const observer = new MutationObserver(function(mutations) {
             try {
               let shouldReplace = false;
               mutations.forEach(function(mutation) {
-                if (mutation.type === 'childList') {
-                  mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1 && 
-                        node.classList && 
-                        Array.from(node.classList).some(c => c.startsWith('fa-'))) {
-                      shouldReplace = true;
-                    }
-                  });
+                try {
+                  if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                      if (node.nodeType === 1 && 
+                          node.classList && 
+                          Array.from(node.classList).some(c => c.startsWith('fa-'))) {
+                        shouldReplace = true;
+                      }
+                    });
+                  }
+                } catch (mutationError) {
+                  // Silently handle individual mutation errors
                 }
               });
               if (shouldReplace) {
@@ -2943,7 +2970,13 @@
           });
         }
 
-        console.log('Icon replacement system initialized successfully');
+        // Only log success message once without triggering extension conflicts
+        setTimeout(() => {
+          if (!window.iconSystemLogged) {
+            window.iconSystemLogged = true;
+            originalConsoleLog('Mining Royalties Manager: Icon system ready');
+          }
+        }, 1000);
       } catch (error) {
         // Silently handle any initialization errors
       }
