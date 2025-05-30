@@ -1891,7 +1891,6 @@
       function initPasswordToggle() {
         const passwordToggle = document.querySelector('.password-toggle');
         const passwordInput = document.getElementById('password');
-        const toggleIcon = passwordToggle.querySelector('i, .emoji-icon');
         
         if (passwordToggle && passwordInput) {
           passwordToggle.addEventListener('click', function(e) {
@@ -1901,22 +1900,17 @@
             // Toggle password visibility
             if (passwordInput.type === 'password') {
               passwordInput.type = 'text';
-              if (toggleIcon) {
-                toggleIcon.textContent = '🙈'; // Hide icon
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-              }
+              passwordToggle.innerHTML = '<i class="fas fa-eye-slash emoji-icon">🙈</i>';
             } else {
               passwordInput.type = 'password';
-              if (toggleIcon) {
-                toggleIcon.textContent = '👁️'; // Show icon
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-              }
+              passwordToggle.innerHTML = '<i class="fas fa-eye emoji-icon">👁️</i>';
             }
           });
         }
       }
+
+      // Initialize password toggle after DOM is ready
+      initPasswordToggle();
 
       // Logout functionality
       function handleLogout() {
