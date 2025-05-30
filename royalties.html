@@ -1808,7 +1808,7 @@
             // Destroy existing chart if it exists
             if (window.revenueChart) {
               window.revenueChart.destroy();
-                                             }
+                       }
             
             window.revenueChart = new Chart(ctx, {
               type: 'line',
@@ -1980,23 +1980,38 @@
             // Find the Security Audit Log section within user management
             const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
             if (auditLogSection) {
-              // Smooth scroll to the audit log section
-              auditLogSection.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-              });
+              // Ensure we're on the user management section first
+              showSection('user-management');
               
-              // Add visual highlight effect
-              auditLogSection.style.transition = 'background-color 0.3s ease';
-              auditLogSection.style.backgroundColor = 'rgba(26, 54, 93, 0.05)';
-              
-              // Remove highlight after 2 seconds
+              // Wait a moment for section to load, then scroll
               setTimeout(() => {
-                auditLogSection.style.backgroundColor = '';
-              }, 2000);
-              
-              // Show success message
-              showNotification('Scrolled to Security Audit Log section', 'info');
+                // Smooth scroll to the audit log section
+                auditLogSection.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'start' 
+                });
+                
+                // Add visual highlight effect
+                auditLogSection.style.transition = 'background-color 0.3s ease, border 0.3s ease';
+                auditLogSection.style.backgroundColor = 'rgba(26, 54, 93, 0.05)';
+                auditLogSection.style.border = '2px solid #1a365d';
+                
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                  auditLogSection.style.backgroundColor = '';
+                  auditLogSection.style.border = '';
+                }, 3000);
+                
+                // Show success notification
+                if (typeof showNotification === 'function') {
+                  showNotification('Scrolled to Security Audit Log section', 'info');
+                }
+              }, 300);
+            } else {
+              // Fallback if section not found
+              if (typeof showNotification === 'function') {
+                showNotification('Security Audit Log section not found', 'error');
+              }
             }
           });
         }
