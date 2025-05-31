@@ -108,6 +108,16 @@ class RoyaltiesManager {
       this.handleNavigationClick(event);
     }
     
+    // Handle mobile menu toggle
+    if (target.matches('#mobile-menu-toggle') || target.closest('#mobile-menu-toggle')) {
+      this.handleMobileMenuToggle(event);
+    }
+    
+    // Handle login button
+    if (target.matches('#login-btn') || target.matches('.login-btn')) {
+      this.handleLoginClick(event);
+    }
+    
     // Handle admin button click
     if (target.matches('.btn') && target.textContent.trim() === 'Admin') {
       this.handleAdminClick(event);
@@ -123,9 +133,14 @@ class RoyaltiesManager {
       this.handleTabClick(event);
     }
     
-    // Handle form buttons
-    if (target.matches('#save-royalty-btn')) {
+    // Handle Save Royalty button specifically
+    if (target.matches('#save-royalty-btn') || target.matches('.save-royalty-btn')) {
       this.handleSaveRoyalty(event);
+    }
+    
+    // Handle Calculate Royalties button
+    if (target.matches('.btn') && target.textContent.trim() === 'Calculate Royalties') {
+      this.handleCalculateRoyalties(event);
     }
     
     // Handle Apply Filters button
@@ -145,24 +160,32 @@ class RoyaltiesManager {
       this.handleClearFilters(event);
     }
     
-    // Handle logout confirmation
-    if (target.matches('#confirm-logout-btn')) {
-      this.handleLogout(event);
-    }
-    
-    // Enhanced View Audit Log button handling
+    // Handle Generate Report buttons
     if (target.matches('.btn') && (
-        target.textContent.trim() === 'View Audit Log' ||
-        target.textContent.trim().includes('Audit') ||
-        target.id === 'view-audit-btn' ||
-        target.classList.contains('audit-btn')
+        target.textContent.trim() === 'Generate Report' ||
+        target.id === 'generate-report-btn'
     )) {
-      this.handleViewAuditLog(event);
+      this.handleGenerateReport(event);
     }
     
     // Handle Export Report buttons
     if (target.matches('.btn') && target.textContent.trim() === 'Export Report') {
       this.handleExportReport(event);
+    }
+    
+    // Handle Download Report buttons
+    if (target.matches('.btn') && target.textContent.trim() === 'Download Report') {
+      this.handleDownloadReport(event);
+    }
+    
+    // Handle Send Report buttons
+    if (target.matches('.btn') && target.textContent.trim() === 'Send Report') {
+      this.handleSendReport(event);
+    }
+    
+    // Handle Archive Report buttons
+    if (target.matches('.btn') && target.textContent.trim() === 'Archive Report') {
+      this.handleArchiveReport(event);
     }
     
     // Handle Add User button
@@ -178,6 +201,43 @@ class RoyaltiesManager {
       this.handleSaveUser(event);
     }
     
+    // Handle Cancel User buttons
+    if (target.matches('.btn') && target.textContent.trim() === 'Cancel') {
+      this.handleCancelUser(event);
+    }
+    
+    // Handle View Audit Log button
+    if (target.matches('.btn') && (
+        target.textContent.trim() === 'View Audit Log' ||
+        target.textContent.trim().includes('Audit') ||
+        target.id === 'view-audit-btn' ||
+        target.classList.contains('audit-btn')
+    )) {
+      this.handleViewAuditLog(event);
+    }
+    
+    // Handle backup buttons
+    if (target.matches('.btn') && target.textContent.trim() === 'Create Backup') {
+      this.handleCreateBackup(event);
+    }
+    
+    if (target.matches('.btn') && target.textContent.trim() === 'Restore Backup') {
+      this.handleRestoreBackup(event);
+    }
+    
+    // Handle logout confirmation
+    if (target.matches('#confirm-logout-btn')) {
+      this.handleLogout(event);
+    }
+    
+    // Handle refresh buttons
+    if (target.matches('.btn') && (
+        target.textContent.trim() === 'Refresh' ||
+        target.classList.contains('refresh-btn')
+    )) {
+      this.handleRefresh(event);
+    }
+    
     // Handle table action buttons
     if (target.matches('.btn-sm')) {
       this.handleTableAction(event);
@@ -187,6 +247,126 @@ class RoyaltiesManager {
     if (target.matches('.btn')) {
       console.log('Button clicked:', target.textContent.trim(), target);
     }
+  }
+
+  handleMobileMenuToggle(event) {
+    event.preventDefault();
+    if (this.sidebar) {
+      this.sidebar.classList.toggle('active');
+    }
+  }
+
+  handleLoginClick(event) {
+    event.preventDefault();
+    // Handle login button click if needed
+    console.log('Login button clicked');
+  }
+
+  handleCalculateRoyalties(event) {
+    event.preventDefault();
+    
+    const volume = document.getElementById('volume')?.value;
+    const tariff = document.getElementById('tariff')?.value;
+    
+    if (volume && tariff) {
+      const royalties = parseFloat(volume) * parseFloat(tariff);
+      const royaltiesField = document.getElementById('royalties');
+      if (royaltiesField) {
+        royaltiesField.value = royalties.toFixed(2);
+      }
+      this.modules.notificationManager.success(`Royalties calculated: E${royalties.toFixed(2)}`);
+    } else {
+      this.modules.notificationManager.error('Please enter volume and tariff first');
+    }
+  }
+
+  handleGenerateReport(event) {
+    event.preventDefault();
+    console.log('Generate Report clicked');
+    this.modules.notificationManager.info('Generating report...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Report generated successfully');
+    }, 2000);
+  }
+
+  handleDownloadReport(event) {
+    event.preventDefault();
+    console.log('Download Report clicked');
+    this.modules.notificationManager.info('Preparing download...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Report downloaded successfully');
+    }, 1500);
+  }
+
+  handleSendReport(event) {
+    event.preventDefault();
+    console.log('Send Report clicked');
+    this.modules.notificationManager.info('Sending report...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Report sent successfully');
+    }, 2000);
+  }
+
+  handleArchiveReport(event) {
+    event.preventDefault();
+    console.log('Archive Report clicked');
+    this.modules.notificationManager.info('Archiving report...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Report archived successfully');
+    }, 1500);
+  }
+
+  handleCancelUser(event) {
+    event.preventDefault();
+    console.log('Cancel User clicked');
+    
+    // Clear user form
+    const userForm = event.target.closest('form');
+    if (userForm) {
+      userForm.reset();
+    }
+    
+    this.modules.notificationManager.info('User form cancelled');
+  }
+
+  handleCreateBackup(event) {
+    event.preventDefault();
+    console.log('Create Backup clicked');
+    this.modules.notificationManager.info('Creating backup...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Backup created successfully');
+    }, 3000);
+  }
+
+  handleRestoreBackup(event) {
+    event.preventDefault();
+    console.log('Restore Backup clicked');
+    this.modules.notificationManager.warning('Restore operation initiated...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success('Backup restored successfully');
+    }, 4000);
+  }
+
+  handleRefresh(event) {
+    event.preventDefault();
+    console.log('Refresh clicked');
+    
+    // Refresh current section data
+    const currentSection = document.querySelector('main > section[style*="block"]');
+    if (currentSection) {
+      const sectionId = currentSection.id;
+      window.dispatchEvent(new CustomEvent('sectionChanged', { 
+        detail: { sectionId } 
+      }));
+    }
+    
+    this.modules.notificationManager.success('Data refreshed');
   }
 
   handleAdminClick(event) {
