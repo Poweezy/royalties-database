@@ -249,13 +249,6 @@ class RoyaltiesManager {
     }
   }
 
-  handleMobileMenuToggle(event) {
-    event.preventDefault();
-    if (this.sidebar) {
-      this.sidebar.classList.toggle('active');
-    }
-  }
-
   handleLoginClick(event) {
     event.preventDefault();
     // Handle login button click if needed
@@ -499,8 +492,9 @@ class RoyaltiesManager {
   }
 
   closeMobileSidebar() {
-    if (window.innerWidth <= 768) {
-      this.sidebar.classList.remove('active');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+      sidebar.classList.remove('active');
     }
   }
 
@@ -1118,274 +1112,229 @@ class RoyaltiesManager {
 
   handleApplyFilters(event) {
     event.preventDefault();
-    
     console.log('Apply Filters button clicked');
     
-    // Get filter values
-    const entityFilter = this.getFilterValue('filter-entity');
-    const mineralFilter = this.getFilterValue('filter-mineral');
-    const statusFilter = this.getFilterValue('filter-status');
-    const dateFromFilter = this.getFilterValue('filter-date-from');
-    const dateToFilter = this.getFilterValue('filter-date-to');
+    // Get all filter values
+    const entityFilter = document.getElementById('filter-entity')?.value || '';
+    const mineralFilter = document.getElementById('filter-mineral')?.value || '';
+    const statusFilter = document.getElementById('filter-status')?.value || '';
+    const dateFromFilter = document.getElementById('filter-date-from')?.value || '';
+    const dateToFilter = document.getElementById('filter-date-to')?.value || '';
     
-    // Debug: Log filter values
-    console.log('Filter values:', { entityFilter, mineralFilter, statusFilter, dateFromFilter, dateToFilter });
+    const filterValues = {
+      entityFilter,
+      mineralFilter,
+      statusFilter,
+      dateFromFilter,
+      dateToFilter
+    };
     
-    // Filter logic
-    const tbody = document.getElementById('royalty-records-tbody');
-    if (!tbody) {
-      this.modules.notificationManager.error('Royalty records table not found');
+    console.log('Filter values:', filterValues);
+    
+    // Get the table body
+    const tableBody = document.querySelector('#royalty-records-table tbody');
+    if (!tableBody) {
+      console.error('Table body not found');
       return;
     }
     
-    const rows = tbody.querySelectorAll('tr');
+    const rows = tableBody.querySelectorAll('tr');
     let visibleCount = 0;
-    const totalCount = rows.length;
     
     rows.forEach(row => {
-      let showRow = true;
+      const cells = row.querySelectorAll('td');
+      if (cells.length === 0) return;
       
-      // Get row data
+      // Extract data from cells
       const rowData = {
-        entity: row.children[0]?.textContent,
-        mineral: row.children[1]?.textContent,
-        volume: row.children[2]?.textContent,
-        tariff: row.children[3]?.textContent,
-        royalties: row.children[4]?.textContent,
-        date: row.children[5]?.textContent,
-        status: row.children[6]?.textContent
+        entity: cells[0]?.textContent?.trim() || '',
+        mineral: cells[1]?.textContent?.trim() || '',
+        volume: cells[2]?.textContent?.trim() || '',
+        tariff: cells[3]?.textContent?.trim() || '',
+        royalties: cells[4]?.textContent?.trim() || '',
+        date: cells[5]?.textContent?.trim() || '',
+        status: this.extractStatusFromBadge(cells[6]) || ''
       };
       
-      // Debug: Log row data
       console.log('Row data:', rowData);
       
       // Apply filters
-      if (this.matchesFilter(rowData.entity, entityFilter) && 
-          this.matchesFilter(rowData.mineral, mineralFilter) && 
-          this.matchesFilter(rowData.status, statusFilter)) {
-        
-        // Date filtering
-        if (dateFromFilter || dateToFilter) {
-          const rowDate = rowData.date;
-          const rowDateObj = this.parseDate(rowDate);
-          
-          if (dateFromFilter) {
-            const fromDate = new Date(dateFromFilter);
-            if (rowDateObj < fromDate) {
-              showRow = false;
-              console.log(`Date from filter failed: ${rowDate} is before ${dateFromFilter}`);
-            }
-          }
-          if (dateToFilter) {
-            const toDate = new Date(dateToFilter);
-            toDate.setHours(23, 59, 59, 999); // Include the entire end date
-            if (rowDateObj > toDate) {
-              showRow = false;
-              console.log(`Date to filter failed: ${rowDate} is after ${dateToFilter}`);
-            }
-          }
+      let shouldShow = true;
+      
+      // Entity filter - handle "All Entities" and empty values
+      if (entityFilter && entityFilter !== 'All Entities' && entityFilter !== '') {
+        if (!rowData.entity.toLowerCase().includes(entityFilter.toLowerCase())) {
+          shouldShow = false;
         }
-      } else {
-        showRow = false;
       }
       
-      // Show/hide row
-      row.style.display = showRow ? '' : 'none';
-      if (showRow) visibleCount++;
+      // Mineral filter
+      if (mineralFilter && mineralFilter !== 'All Minerals' && mineralFilter !== '') {
+        if (!rowData.mineral.toLowerCase().includes(mineralFilter.toLowerCase())) {
+          shouldShow = false;
+        }
+      }
+      
+      // Status filter
+      if (statusFilter && statusFilter !== 'All Status' && statusFilter !== '') {
+        if (!rowData.status.toLowerCase().includes(statusFilter.toLowerCase())) {
+          shouldShow = false;
+        }
+      }
+      
+      // Date filters
+      if (dateFromFilter) {
+        const rowDate = new Date(rowData.date);
+        const fromDate = new Date(dateFromFilter);
+        if (rowDate < fromDate) {
+          shouldShow = false;
+        }
+      }
+      
+      if (dateToFilter) {
+        const rowDate = new Date(rowData.date);
+        const toDate = new Date(dateToFilter);
+        if (rowDate > toDate) {
+          shouldShow = false;
+        }
+      }
+      
+      // Show/hide row with animation
+      if (shouldShow) {
+        row.style.display = 'table-row';
+        row.classList.remove('filter-hidden');
+        row.classList.add('filter-visible');
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+        row.classList.remove('filter-visible');
+        row.classList.add('filter-hidden');
+      }
     });
     
-    console.log(`Filter results: ${visibleCount} visible out of ${totalCount} total records`);
-    this.modules.notificationManager.success(`Applied filters. Showing ${visibleCount} of ${totalCount} records.`);
-  }
-
-  getFilterValue(id) {
-    const element = document.getElementById(id);
-    return element ? element.value.trim() : '';
-  }
-
-  cleanText(text) {
-    return text ? text.trim().replace(/\s+/g, ' ') : '';
-  }
-
-  matchesFilter(text, filter) {
-    if (!text || !filter) return !filter; // If no filter, show all
-    return text.toLowerCase().includes(filter.toLowerCase());
-  }
-
-  parseDate(dateString) {
-    if (!dateString) return null;
+    console.log(`Filter results: ${visibleCount} visible out of ${rows.length} total records`);
     
-    // Try different date formats
-    const formats = [
-      dateString, // Original format
-      dateString.replace(/\//g, '-'), // Replace / with -
-      dateString.replace(/\./g, '-'), // Replace . with -
-    ];
+    // Update filter summary
+    this.updateFilterSummary(visibleCount, rows.length, filterValues);
     
-    for (const format of formats) {
-      const date = new Date(format);
-      if (!isNaN(date.getTime())) {
-        return date;
+    // Show/hide no results message
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (noResultsMessage) {
+      if (visibleCount === 0) {
+        noResultsMessage.classList.add('show');
+      } else {
+        noResultsMessage.classList.remove('show');
       }
     }
     
-    return null;
+    this.modules.notificationManager.success(`Filter applied: ${visibleCount} records found`);
+  }
+
+  extractStatusFromBadge(statusCell) {
+    if (!statusCell) return '';
+    
+    // Look for status badge
+    const badge = statusCell.querySelector('.status-badge');
+    if (badge) {
+      return badge.textContent.trim();
+    }
+    
+    // Fallback to cell text content
+    return statusCell.textContent.trim();
+  }
+
+  updateFilterSummary(visibleCount, totalCount, filterValues) {
+    const summaryElement = document.getElementById('filter-results-summary');
+    const summaryText = document.getElementById('filter-summary-text');
+    
+    if (!summaryElement || !summaryText) return;
+    
+    // Check if any filters are active
+    const hasActiveFilters = Object.values(filterValues).some(value => 
+      value && value !== '' && value !== 'All Entities' && value !== 'All Minerals' && value !== 'All Status'
+    );
+    
+    if (hasActiveFilters) {
+      summaryText.textContent = `Showing ${visibleCount} of ${totalCount} records`;
+      summaryElement.classList.add('active');
+    } else {
+      summaryText.textContent = 'Showing all records';
+      summaryElement.classList.remove('active');
+    }
   }
 
   handleClearFilters(event) {
     event.preventDefault();
-    
     console.log('Clear Filters button clicked');
     
-    // Clear all possible filter input variations
-    const filterInputIds = [
-      'filter-entity', 'entity-filter',
-      'filter-mineral', 'mineral-filter',
-      'filter-status', 'status-filter',
-      'filter-date-from', 'date-from-filter',
-      'filter-date-to', 'date-to-filter'
+    // Clear all filter inputs
+    const filterInputs = [
+      'filter-entity',
+      'filter-mineral', 
+      'filter-status',
+      'filter-date-from',
+      'filter-date-to'
     ];
     
-    filterInputIds.forEach(id => {
-      const input = document.getElementById(id);
-      if (input) {
-        input.value = '';
-        console.log(`Cleared filter: ${id}`);
+    filterInputs.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.value = '';
+        element.classList.add('clearing');
+        setTimeout(() => {
+          element.classList.remove('clearing');
+        }, 300);
       }
     });
     
     // Show all rows
-    const tbody = document.getElementById('royalty-records-tbody');
-    if (tbody) {
-      const rows = tbody.querySelectorAll('tr');
+    const tableBody = document.querySelector('#royalty-records-table tbody');
+    if (tableBody) {
+      const rows = tableBody.querySelectorAll('tr');
       rows.forEach(row => {
-        row.style.display = '';
+        row.style.display = 'table-row';
+        row.classList.remove('filter-hidden');
+        row.classList.add('filter-visible');
       });
       
-      console.log(`Showing all ${rows.length} records`);
-      this.modules.notificationManager.info(`Filters cleared. Showing all ${rows.length} records.`);
-    } else {
-      this.modules.notificationManager.error('Royalty records table not found');
+      // Update summary
+      this.updateFilterSummary(rows.length, rows.length, {});
+    }
+    
+    // Hide no results message
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (noResultsMessage) {
+      noResultsMessage.classList.remove('show');
+    }
+    
+    this.modules.notificationManager.success('All filters cleared');
+  }
+
+  // Add this helper function for clearing all filters globally
+  clearAllFilters() {
+    const clearButton = document.getElementById('clear-filters-btn');
+    if (clearButton) {
+      clearButton.click();
     }
   }
 
-  handleExportReport(event) {
+  // Fix mobile menu toggle
+  handleMobileMenuToggle(event) {
     event.preventDefault();
-    
-    const section = event.target.closest('section');
-    const sectionId = section ? section.id : 'report';
-    
-    // Enhanced export functionality
-    this.showExportModal(sectionId);
-  }
-
-  showExportModal(sectionId) {
-    // Create export modal if it doesn't exist
-    if (!document.getElementById('export-modal')) {
-      this.createExportModal();
-    }
-    
-    const modal = document.getElementById('export-modal');
-    modal.style.display = 'block';
-    
-    // Populate export options based on section
-    this.populateExportOptions(sectionId);
-  }
-
-  createExportModal() {
-    const modal = document.createElement('div');
-    modal.id = 'export-modal';
-    modal.className = 'modal';
-    modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Export Report</h3>
-          <span class="modal-close">&times;</span>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="export-format">Format</label>
-            <select id="export-format">
-              <option value="pdf">PDF</option>
-              <option value="excel">Excel</option>
-              <option value="csv">CSV</option>
-              <option value="json">JSON</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="export-date-range">Date Range</label>
-            <select id="export-date-range">
-              <option value="current-month">Current Month</option>
-              <option value="last-month">Last Month</option>
-              <option value="quarter">Current Quarter</option>
-              <option value="year">Current Year</option>
-              <option value="custom">Custom Range</option>
-            </select>
-          </div>
-          <div class="form-group" id="custom-date-range" style="display:none;">
-            <label for="export-start-date">Start Date</label>
-            <input type="date" id="export-start-date">
-            <label for="export-end-date">End Date</label>
-            <input type="date" id="export-end-date">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary modal-cancel">Cancel</button>
-          <button class="btn btn-primary modal-export">Export</button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    this.setupModalEventListeners();
-  }
-
-  setupModalEventListeners() {
-    const modal = document.getElementById('export-modal');
-    
-    // Close modal handlers
-    modal.querySelector('.modal-close').addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-    
-    modal.querySelector('.modal-cancel').addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-    
-    // Date range change handler
-    modal.querySelector('#export-date-range').addEventListener('change', (e) => {
-      const customRange = modal.querySelector('#custom-date-range');
-      customRange.style.display = e.target.value === 'custom' ? 'block' : 'none';
-    });
-    
-    // Export handler
-    modal.querySelector('.modal-export').addEventListener('click', () => {
-      this.performExport();
-    });
-  }
-
-  performExport() {
-    const format = document.getElementById('export-format').value;
-    const dateRange = document.getElementById('export-date-range').value;
-    
-    // Simulate export process
-    this.modules.notificationManager.info('Preparing export...');
-    
-    setTimeout(() => {
-      this.modules.notificationManager.success(`Report exported successfully as ${format.toUpperCase()}`);
-      document.getElementById('export-modal').style.display = 'none';
-    }, 2000);
-  }
-
-  populateExportOptions(sectionId) {
-    // Update modal title based on section
-    const modalTitle = document.querySelector('#export-modal .modal-header h3');
-    if (modalTitle) {
-      modalTitle.textContent = `Export ${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Report`;
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('active');
     }
   }
 
-  // Add missing methods for complete functionality
+  // Add method to close mobile sidebar
+  closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+      sidebar.classList.remove('active');
+    }
+  }
+
   async simulateLoading() {
     console.log('Starting loading simulation...');
     return new Promise(resolve => {
