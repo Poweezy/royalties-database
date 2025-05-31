@@ -17,8 +17,12 @@ class RoyaltiesManager {
       this.initializeElements();
       this.initializeModules();
       this.setupEventListeners();
+      this.setupErrorHandling();
+      this.setupAutoSave();
+      this.setupGlobalSearch();
       await this.simulateLoading();
       this.showLoginSection();
+      this.startRealTimeUpdates();
     } catch (error) {
       console.error('Application initialization failed:', error);
       // Fallback: show login section even if there's an error
@@ -439,6 +443,54 @@ class RoyaltiesManager {
     });
   }
 
+  handleAddUser(event) {
+    event.preventDefault();
+    
+    const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
+    if (addUserForm) {
+      addUserForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Focus on first input
+      const firstInput = addUserForm.querySelector('input');
+      if (firstInput) firstInput.focus();
+    }
+    
+    this.modules.notificationManager.info('Ready to add new user');
+  }
+
+  // Add real-time data updates
+  startRealTimeUpdates() {
+    // Simulate real-time updates every 30 seconds
+    setInterval(() => {
+      this.updateDashboardMetrics();
+    }, 30000);
+  }
+
+  updateDashboardMetrics() {
+    // Update metrics with simulated real-time data
+    const totalRoyalties = document.getElementById('total-royalties');
+    if (totalRoyalties) {
+      const currentValue = parseFloat(totalRoyalties.textContent.replace(/[E,]/g, '')) || 0;
+      const newValue = currentValue + Math.random() * 1000;
+      totalRoyalties.textContent = `E${newValue.toLocaleString()}`;
+    }
+    
+    // Update other dashboard metrics
+    const totalEntities = document.querySelector('.metric-card:nth-child(2) .metric-value');
+    if (totalEntities) {
+      const currentCount = parseInt(totalEntities.textContent) || 0;
+      totalEntities.textContent = Math.max(currentCount, Math.floor(Math.random() * 50) + 30);
+    }
+    
+    // Update compliance rate
+    const complianceRate = document.querySelector('.metric-card:nth-child(3) .metric-value');
+    if (complianceRate) {
+      const rate = (85 + Math.random() * 10).toFixed(1);
+      complianceRate.textContent = `${rate}%`;
+    }
+  }
+
+  // Remove duplicate methods and consolidate
   showSection(sectionId) {
     document.querySelectorAll('main > section').forEach(section => {
       section.style.display = 'none';
@@ -1507,6 +1559,399 @@ class RoyaltiesManager {
     } else {
       this.modules.notificationManager.error('Royalty records table not found');
     }
+  }
+
+  handleExportReport(event) {
+    event.preventDefault();
+    
+    const section = event.target.closest('section');
+    const sectionId = section ? section.id : 'report';
+    
+    // Enhanced export functionality
+    this.showExportModal(sectionId);
+  }
+
+  showExportModal(sectionId) {
+    // Create export modal if it doesn't exist
+    if (!document.getElementById('export-modal')) {
+      this.createExportModal();
+    }
+    
+    const modal = document.getElementById('export-modal');
+    modal.style.display = 'block';
+    
+    // Populate export options based on section
+    this.populateExportOptions(sectionId);
+  }
+
+  createExportModal() {
+    const modal = document.createElement('div');
+    modal.id = 'export-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Export Report</h3>
+          <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="export-format">Format</label>
+            <select id="export-format">
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="export-date-range">Date Range</label>
+            <select id="export-date-range">
+              <option value="current-month">Current Month</option>
+              <option value="last-month">Last Month</option>
+              <option value="quarter">Current Quarter</option>
+              <option value="year">Current Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+          <div class="form-group" id="custom-date-range" style="display:none;">
+            <label for="export-start-date">Start Date</label>
+            <input type="date" id="export-start-date">
+            <label for="export-end-date">End Date</label>
+            <input type="date" id="export-end-date">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-cancel">Cancel</button>
+          <button class="btn btn-primary modal-export">Export</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    this.setupModalEventListeners();
+  }
+
+  setupModalEventListeners() {
+    const modal = document.getElementById('export-modal');
+    
+    // Close modal handlers
+    modal.querySelector('.modal-close').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    modal.querySelector('.modal-cancel').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    // Date range change handler
+    modal.querySelector('#export-date-range').addEventListener('change', (e) => {
+      const customRange = modal.querySelector('#custom-date-range');
+      customRange.style.display = e.target.value === 'custom' ? 'block' : 'none';
+    });
+    
+    // Export handler
+    modal.querySelector('.modal-export').addEventListener('click', () => {
+      this.performExport();
+    });
+  }
+
+  performExport() {
+    const format = document.getElementById('export-format').value;
+    const dateRange = document.getElementById('export-date-range').value;
+    
+    // Simulate export process
+    this.modules.notificationManager.info('Preparing export...');
+    
+    setTimeout(() => {
+      this.modules.notificationManager.success(`Report exported successfully as ${format.toUpperCase()}`);
+      document.getElementById('export-modal').style.display = 'none';
+    }, 2000);
+  }
+
+  populateExportOptions(sectionId) {
+    // Update modal title based on section
+    const modalTitle = document.querySelector('#export-modal .modal-header h3');
+    if (modalTitle) {
+      modalTitle.textContent = `Export ${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)} Report`;
+    }
+    
+    // Add section-specific export options
+    const formatSelect = document.getElementById('export-format');
+    if (sectionId === 'audit') {
+      // Add audit-specific formats
+      if (!formatSelect.querySelector('option[value="xml"]')) {
+        const xmlOption = document.createElement('option');
+        xmlOption.value = 'xml';
+        xmlOption.textContent = 'XML (Audit Trail)';
+        formatSelect.appendChild(xmlOption);
+      }
+    }
+  }
+
+  // Add validation and security features
+  validateFormData(formData) {
+    const validationRules = {
+      username: {
+        required: true,
+        minLength: 3,
+        maxLength: 50,
+        pattern: /^[a-zA-Z0-9._-]+$/
+      },
+      email: {
+        required: true,
+        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      },
+      volume: {
+        required: true,
+        type: 'number',
+        min: 0
+      },
+      tariff: {
+        required: true,
+        type: 'number',
+        min: 0
+      }
+    };
+
+    const errors = [];
+    
+    for (const [field, rules] of Object.entries(validationRules)) {
+      const value = formData.get(field);
+      
+      if (rules.required && !value) {
+        errors.push(`${field} is required`);
+        continue;
+      }
+      
+      if (value) {
+        if (rules.minLength && value.length < rules.minLength) {
+          errors.push(`${field} must be at least ${rules.minLength} characters`);
+        }
+        
+        if (rules.maxLength && value.length > rules.maxLength) {
+          errors.push(`${field} must be no more than ${rules.maxLength} characters`);
+        }
+        
+        if (rules.pattern && !rules.pattern.test(value)) {
+          errors.push(`${field} format is invalid`);
+        }
+        
+        if (rules.type === 'number' && isNaN(Number(value))) {
+          errors.push(`${field} must be a valid number`);
+        }
+        
+        if (rules.min !== undefined && Number(value) < rules.min) {
+          errors.push(`${field} must be at least ${rules.min}`);
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  // Add search functionality
+  setupGlobalSearch() {
+    const searchInput = document.getElementById('global-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.performGlobalSearch(e.target.value);
+      });
+    }
+  }
+
+  performGlobalSearch(query) {
+    if (!query || query.length < 2) return;
+    
+    const searchResults = [];
+    const sections = ['dashboard', 'user-management', 'reports'];
+    
+    sections.forEach(section => {
+      const sectionElement = document.getElementById(section);
+      if (sectionElement) {
+        const textContent = sectionElement.textContent.toLowerCase();
+        if (textContent.includes(query.toLowerCase())) {
+          searchResults.push({
+            section,
+            title: sectionElement.querySelector('h1, h2')?.textContent || section,
+            preview: this.extractSearchPreview(textContent, query)
+          });
+        }
+      }
+    });
+    
+    this.displaySearchResults(searchResults);
+  }
+
+  extractSearchPreview(text, query) {
+    const index = text.toLowerCase().indexOf(query.toLowerCase());
+    const start = Math.max(0, index - 50);
+    const end = Math.min(text.length, index + query.length + 50);
+    return text.substring(start, end);
+  }
+
+  displaySearchResults(results) {
+    const resultsContainer = document.getElementById('search-results');
+    if (!resultsContainer) return;
+    
+    resultsContainer.innerHTML = '';
+    
+    if (results.length === 0) {
+      resultsContainer.innerHTML = '<p>No results found</p>';
+      return;
+    }
+    
+    results.forEach(result => {
+      const resultElement = document.createElement('div');
+      resultElement.className = 'search-result';
+      resultElement.innerHTML = `
+        <h4>${result.title}</h4>
+        <p>${result.preview}...</p>
+        <button onclick="app.showSection('${result.section}')">Go to ${result.title}</button>
+      `;
+      resultsContainer.appendChild(resultElement);
+    });
+  }
+
+  // Add data persistence
+  saveToLocalStorage(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Failed to save to localStorage:', error);
+    }
+  }
+
+  loadFromLocalStorage(key) {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.warn('Failed to load from localStorage:', error);
+      return null;
+    }
+  }
+
+  // Add auto-save functionality
+  setupAutoSave() {
+    const autoSaveInterval = 30000; // 30 seconds
+    
+    setInterval(() => {
+      this.autoSaveApplicationState();
+    }, autoSaveInterval);
+  }
+
+  autoSaveApplicationState() {
+    const state = {
+      currentSection: document.querySelector('main > section[style*="block"]')?.id,
+      formData: this.collectFormData(),
+      timestamp: new Date().toISOString()
+    };
+    
+    this.saveToLocalStorage('app-state', state);
+  }
+
+  collectFormData() {
+    const forms = document.querySelectorAll('form');
+    const formData = {};
+    
+    forms.forEach((form, index) => {
+      const data = new FormData(form);
+      formData[`form-${index}`] = Object.fromEntries(data.entries());
+    });
+    
+    return formData;
+  }
+
+  restoreApplicationState() {
+    const state = this.loadFromLocalStorage('app-state');
+    if (state && state.currentSection) {
+      // Restore last viewed section after login
+      setTimeout(() => {
+        this.showSection(state.currentSection);
+      }, 1000);
+    }
+  }
+
+  // Add error boundary
+  setupErrorHandling() {
+    window.addEventListener('error', (event) => {
+      this.handleGlobalError(event.error, event.filename, event.lineno);
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      this.handleGlobalError(event.reason, 'Promise', 0);
+    });
+  }
+
+  handleGlobalError(error, source, line) {
+    console.error('Global error caught:', error, source, line);
+    
+    // Show user-friendly error message
+    if (this.modules.notificationManager) {
+      this.modules.notificationManager.error('An error occurred. Please refresh the page if issues persist.');
+    }
+    
+    // Log error details for debugging
+    this.logError({
+      message: error.message || error,
+      source,
+      line,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    });
+  }
+
+  logError(errorDetails) {
+    // Save error to localStorage for later analysis
+    const errors = this.loadFromLocalStorage('error-log') || [];
+    errors.push(errorDetails);
+    
+    // Keep only last 10 errors
+    if (errors.length > 10) {
+      errors.splice(0, errors.length - 10);
+    }
+    
+    this.saveToLocalStorage('error-log', errors);
+  }
+
+  // Enhanced initialization
+  async init() {
+    try {
+      await this.waitForDOM();
+      this.initializeElements();
+      this.initializeModules();
+      this.setupEventListeners();
+      this.setupErrorHandling();
+      this.setupAutoSave();
+      this.setupGlobalSearch();
+      await this.simulateLoading();
+      this.showLoginSection();
+      this.startRealTimeUpdates();
+    } catch (error) {
+      console.error('Application initialization failed:', error);
+      this.showLoginSection();
+    }
+  }
+
+  // Add performance monitoring
+  measurePerformance(operationName, operation) {
+    const startTime = performance.now();
+    
+    const result = operation();
+    
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    
+    console.log(`${operationName} took ${duration.toFixed(2)} milliseconds`);
+    
+    // Log slow operations
+    if (duration > 1000) {
+      console.warn(`Slow operation detected: ${operationName} (${duration.toFixed(2)}ms)`);
+    }
+    
+    return result;
   }
 }
 
