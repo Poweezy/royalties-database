@@ -232,6 +232,161 @@
   white-space: nowrap;
 }
 
+/* Filter Section Styling */
+.filter-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.filter-section h3 {
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-section h3::before {
+  content: "🔍";
+  font-size: 1rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-grid .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-grid .form-group label {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.filter-grid .form-group input,
+.filter-grid .form-group select {
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.filter-grid .form-group input:focus,
+.filter-grid .form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.filter-actions .btn {
+  min-width: 120px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-actions .btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: 2px solid var(--color-primary);
+}
+
+.filter-actions .btn-primary:hover {
+  background-color: #1e40af;
+  border-color: #1e40af;
+  transform: translateY(-1px);
+}
+
+.filter-actions .btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  border: 2px solid #6b7280;
+}
+
+.filter-actions .btn-secondary:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
+  transform: translateY(-1px);
+}
+
+/* Filter Results Indicator */
+.filter-results {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #0c4a6e;
+}
+
+.filter-results.active {
+  display: flex;
+}
+
+.filter-results::before {
+  content: "ℹ️";
+}
+
+/* Table Row Hide/Show Animation */
+.data-table tbody tr {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.data-table tbody tr[style*="none"] {
+  opacity: 0;
+  transform: scale(0.95);
+  height: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* Active Filter Indicators */
+.filter-grid .form-group.has-value input,
+.filter-grid .form-group.has-value select {
+  border-color: var(--color-primary);
+  background-color: #f0f9ff;
+}
+
+.filter-grid .form-group.has-value label::after {
+  content: " ✓";
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
 /* User Management Responsive Design */
 @media (max-width: 768px) {
   #user-management {
@@ -268,6 +423,26 @@
     display: block;
     width: 100%;
     margin: 0.25rem 0;
+  }
+  
+  .filter-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+  
+  .filter-section {
+    padding: 1rem;
   }
 }
 
@@ -426,4 +601,399 @@
   #user-management .btn-sm {
     display: none !important;
   }
+}
+
+/* Responsive Filter Design */
+@media (max-width: 768px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+  
+  .filter-section {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-section h3 {
+    font-size: 1.1rem;
+  }
+  
+  .filter-grid .form-group input,
+  .filter-grid .form-group select {
+    padding: 0.625rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Filter Clear All Button Enhancement */
+.filter-actions .btn-secondary::before {
+  content: "🗑️";
+  margin-right: 0.25rem;
+}
+
+.filter-actions .btn-primary::before {
+  content: "🔍";
+  margin-right: 0.25rem;
+}
+
+/* No Results State */
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.no-results::before {
+  content: "🔍";
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+/* Filter Loading State */
+.filter-section.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.filter-section.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-primary);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* Enhanced Filter Results Display */
+.filter-summary {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #0c4a6e;
+  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.1);
+}
+
+.filter-summary.active {
+  display: flex;
+}
+
+.filter-summary .summary-text {
+  font-weight: 600;
+}
+
+.filter-summary .clear-filters {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.filter-summary .clear-filters:hover {
+  background: #0284c7;
+}
+
+/* Status Badge Text Extraction Helper */
+.status-badge .status-text {
+  display: none;
+}
+
+/* Table Filtering Visual States */
+.data-table tbody tr.filtered-out {
+  display: none !important;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.data-table tbody tr.filtered-in {
+  display: table-row !important;
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeInRow 0.3s ease-out;
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Filter Input States */
+.filter-grid .form-group input[value]:not([value=""]),
+.filter-grid .form-group select:not([value=""]):not([value="All Entities"]):not([value="All"]) {
+  border-color: var(--color-primary);
+  background-color: #f0f9ff;
+  box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
+}
+
+/* Filter Reset Animation */
+.filter-grid .form-group input.clearing,
+.filter-grid .form-group select.clearing {
+  animation: clearField 0.3s ease-out;
+}
+
+@keyframes clearField {
+  0% {
+    background-color: #fef3c7;
+    border-color: #f59e0b;
+  }
+  100% {
+    background-color: white;
+    border-color: var(--color-border);
+  }
+}
+
+/* Filter Accessibility Improvements */
+.filter-grid .form-group input:focus-visible,
+.filter-grid .form-group select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.filter-actions .btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Filter Dropdown Styling */
+.filter-grid select option {
+  padding: 0.5rem;
+  background: white;
+  color: var(--color-text);
+}
+
+.filter-grid select option:disabled {
+  color: #9ca3af;
+  background: #f9fafb;
+}
+
+/* Fix for Filter Logic - Add data attributes for better filtering */
+.data-table tbody tr {
+  position: relative;
+}
+
+.data-table tbody tr[data-entity],
+.data-table tbody tr[data-mineral],
+.data-table tbody tr[data-status],
+.data-table tbody tr[data-date] {
+  /* Ensure rows with data attributes are properly styled */
+}
+
+/* Status badge text extraction helper */
+.status-badge {
+  position: relative;
+}
+
+.status-badge::after {
+  content: attr(data-status);
+  position: absolute;
+  left: -9999px;
+  visibility: hidden;
+}
+
+/* Filter active state indicators */
+.filter-grid .form-group input:not(:placeholder-shown),
+.filter-grid .form-group select:not([value=""]):not([value="All Entities"]):not([value="All"]) {
+  border-color: var(--color-primary) !important;
+  background-color: #f0f9ff !important;
+  box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1) !important;
+}
+
+/* Table row filtering states */
+.data-table tbody tr.filter-match {
+  display: table-row !important;
+  opacity: 1;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.data-table tbody tr.filter-no-match {
+  display: none !important;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-5px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Filter results summary styling */
+.filter-summary-bar {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #1e40af;
+}
+
+.filter-summary-bar.show {
+  display: flex;
+}
+
+.filter-summary-bar .summary-text {
+  font-weight: 600;
+}
+
+.filter-summary-bar .clear-all-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.filter-summary-bar .clear-all-btn:hover {
+  background: #2563eb;
+}
+
+/* Enhanced dropdown for filter selects */
+.filter-grid select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  appearance: none;
+}
+
+/* Filter validation states */
+.filter-grid .form-group.error input,
+.filter-grid .form-group.error select {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.filter-grid .form-group.success input,
+.filter-grid .form-group.success select {
+  border-color: #10b981 !important;
+  background-color: #f0fdf4 !important;
+}
+
+/* Filter tooltip for better UX */
+.filter-grid .form-group {
+  position: relative;
+}
+
+.filter-grid .form-group[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -2rem;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.filter-grid .form-group:hover[data-tooltip]::after {
+  opacity: 1;
+}
+
+/* Quick filter buttons */
+.quick-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.quick-filter-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-filter-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.quick-filter-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* No results message */
+.no-results-message {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 1rem 0;
+  display: none;
+}
+
+.no-results-message.show {
+  display: block;
+}
+
+.no-results-message::before {
+  content: "🔍";
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
 }
