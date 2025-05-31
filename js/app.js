@@ -6,7 +6,7 @@ import { IconManager } from './modules/IconManager.js';
 class RoyaltiesManager {
   constructor() {
     this.modules = {};
-    this.charts = new Map(); // Add chart tracking
+    this.charts = new Map();
     this.isInitialized = false;
     this.init();
   }
@@ -25,7 +25,6 @@ class RoyaltiesManager {
       this.startRealTimeUpdates();
     } catch (error) {
       console.error('Application initialization failed:', error);
-      // Fallback: show login section even if there's an error
       this.showLoginSection();
     }
   }
@@ -97,6 +96,13 @@ class RoyaltiesManager {
 
   handleGlobalClick(event) {
     const { target } = event;
+    
+    // Handle chart type buttons FIRST - this is critical
+    if (target.matches('.chart-btn')) {
+      console.log('Chart button detected, calling handler');
+      this.handleChartTypeChange(event);
+      return;
+    }
     
     if (target.closest('.sidebar nav a')) {
       this.handleNavigationClick(event);
@@ -327,250 +333,92 @@ class RoyaltiesManager {
     }
   }
 
-  async createRevenueChart() {
-    const canvas = document.getElementById('revenue-trends-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    // Destroy existing chart if it exists
-    const existingChart = this.charts.get('revenue-trends-chart');
-    if (existingChart) {
-      existingChart.destroy();
-      this.charts.delete('revenue-trends-chart');
-    }
-
-    const ctx = canvas.getContext('2d');
-    
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Revenue (E)',
-          data: [500000, 600000, 750000, 700000, 800000, 900000],
-          borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.2)',
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { callback: function(value) { return `E ${value.toLocaleString()}`; } }
-          },
-          x: { grid: { display: false } }
-        }
-      }
-    });
-
-    // Store the chart reference
-    this.charts.set('revenue-trends-chart', chart);
-  }
-
-  async createProductionChart() {
-    const canvas = document.getElementById('production-by-entity-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    // Destroy existing chart if it exists
-    const existingChart = this.charts.get('production-by-entity-chart');
-    if (existingChart) {
-      existingChart.destroy();
-      this.charts.delete('production-by-entity-chart');
-    }
-
-    const ctx = canvas.getContext('2d');
-    
-    const chart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Malolotja Mine'],
-        datasets: [{
-          label: 'Production Volume (m³)',
-          data: [45000, 38000, 42000, 55000, 28000, 32000],
-          backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true, position: 'bottom' }
-        }
-      }
-    });
-
-    // Store the chart reference
-    this.charts.set('production-by-entity-chart', chart);
-  }
-
-  showLoginSection() {
-    console.log('Showing login section...');
-    
-    // Hide loading screen
-    if (this.loadingScreen) {
-      this.loadingScreen.style.display = 'none';
-    }
-    
-    // Show login section
-    if (this.loginSection) {
-      this.loginSection.style.display = 'flex';
-      console.log('Login section displayed');
-    } else {
-      console.error('Cannot show login section - element not found');
-    }
-    
-    // Hide app container
-    if (this.appContainer) {
-      this.appContainer.style.display = 'none';
-    }
-    
-    // Initialize dashboard section for when user logs in
-    this.showSection('dashboard');
-  }
-
-  async simulateLoading() {
-    console.log('Starting loading simulation...');
-    return new Promise(resolve => {
-      setTimeout(() => {
-        console.log('Loading simulation complete');
-        resolve();
-      }, 2000);
-    });
-  }
-
-  handleAddUser(event) {
+  handleChartTypeChange(event) {
     event.preventDefault();
+    event.stopPropagation();
     
-    const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
-    if (addUserForm) {
-      addUserForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
-      // Focus on first input
-      const firstInput = addUserForm.querySelector('input');
-      if (firstInput) firstInput.focus();
-    }
+    const button = event.target;
+    const chartType = button.getAttribute('data-chart-type');
+    const chartId = button.getAttribute('data-chart-id');
     
-    this.modules.notificationManager.info('Ready to add new user');
-  }
-
-  // Add real-time data updates
-  startRealTimeUpdates() {
-    // Simulate real-time updates every 30 seconds
-    setInterval(() => {
-      this.updateDashboardMetrics();
-    }, 30000);
-  }
-
-  updateDashboardMetrics() {
-    // Update metrics with simulated real-time data
-    const totalRoyalties = document.getElementById('total-royalties');
-    if (totalRoyalties) {
-      const currentValue = parseFloat(totalRoyalties.textContent.replace(/[E,]/g, '')) || 0;
-      const newValue = currentValue + Math.random() * 1000;
-      totalRoyalties.textContent = `E${newValue.toLocaleString()}`;
+    console.log('Chart button clicked:', { chartType, chartId, button });
+    
+    if (!chartType || !chartId) {
+      console.warn('Chart type or chart ID not specified');
+      return;
     }
     
-    // Update other dashboard metrics
-    const totalEntities = document.querySelector('.metric-card:nth-child(2) .metric-value');
-    if (totalEntities) {
-      const currentCount = parseInt(totalEntities.textContent) || 0;
-      totalEntities.textContent = Math.max(currentCount, Math.floor(Math.random() * 50) + 30);
+    // Update active button state
+    const chartControls = button.closest('.chart-controls');
+    if (chartControls) {
+      chartControls.querySelectorAll('.chart-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+      console.log('Updated active button state');
     }
     
-    // Update compliance rate
-    const complianceRate = document.querySelector('.metric-card:nth-child(3) .metric-value');
-    if (complianceRate) {
-      const rate = (85 + Math.random() * 10).toFixed(1);
-      complianceRate.textContent = `${rate}%`;
-    }
-  }
-
-  // Remove duplicate methods and consolidate
-  showSection(sectionId) {
-    document.querySelectorAll('main > section').forEach(section => {
-      section.style.display = 'none';
-    });
+    // Update chart
+    this.updateChartType(chartId, chartType);
     
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-      targetSection.style.display = 'block';
-      this.scrollToTop();
-      this.updateActiveNavigation(sectionId);
-      
-      window.dispatchEvent(new CustomEvent('sectionChanged', { 
-        detail: { sectionId } 
-      }));
+    if (this.modules.notificationManager) {
+      this.modules.notificationManager.success(`Chart updated to ${chartType} view`);
     }
   }
 
-  updateActiveNavigation(sectionId) {
-    document.querySelectorAll('.sidebar nav a').forEach(link => {
-      link.classList.remove('active');
-    });
+  updateChartType(chartId, newType) {
+    console.log(`Updating chart ${chartId} to ${newType} type`);
     
-    const activeLink = document.querySelector(`.sidebar nav a[href="#${sectionId}"]`);
-    if (activeLink) {
-      activeLink.classList.add('active');
+    const existingChart = this.charts.get(chartId);
+    if (!existingChart) {
+      console.warn(`Chart with ID ${chartId} not found in charts map`);
+      console.log('Available charts:', Array.from(this.charts.keys()));
+      return;
     }
+    
+    // Store current data before destroying
+    const currentData = {
+      labels: [...existingChart.data.labels],
+      datasets: existingChart.data.datasets.map(dataset => ({
+        label: dataset.label,
+        data: [...dataset.data]
+      }))
+    };
+    
+    console.log('Stored chart data:', currentData);
+    
+    // Destroy existing chart
+    existingChart.destroy();
+    this.charts.delete(chartId);
+    console.log('Destroyed existing chart');
+    
+    // Create new chart with different type
+    setTimeout(() => {
+      console.log('Creating new chart...');
+      this.createChartWithType(chartId, newType, currentData);
+    }, 100);
   }
 
-  scrollToTop() {
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+  createChartWithType(chartId, chartType, data) {
+    console.log(`Creating ${chartType} chart for ${chartId}`);
+    
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+      console.error(`Canvas element with ID ${chartId} not found`);
+      return;
     }
-  }
-
-  closeMobileSidebar() {
-    if (window.innerWidth <= 768) {
-      this.sidebar.classList.remove('active');
-    }
-  }
-
-  async initializeCharts() {
-    try {
-      await this.createRevenueChart();
-      await this.createProductionChart();
-    } catch (error) {
-      console.warn('Chart initialization failed:', error);
-    }
-  }
-
-  async createRevenueChart() {
-    const canvas = document.getElementById('revenue-trends-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    // Destroy existing chart if it exists
-    const existingChart = this.charts.get('revenue-trends-chart');
-    if (existingChart) {
-      existingChart.destroy();
-      this.charts.delete('revenue-trends-chart');
-    }
-
+    
     const ctx = canvas.getContext('2d');
     
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Revenue (E)',
-          data: [500000, 600000, 750000, 700000, 800000, 900000],
-          borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.2)',
-          fill: true,
-          tension: 0.4
-        }]
-      },
+    let chartConfig = {
+      type: chartType === 'area' ? 'line' : chartType,
+      data: { ...data },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
+        plugins: { 
+          legend: { display: true, position: 'top' } 
+        },
         scales: {
           y: {
             beginAtZero: true,
@@ -579,10 +427,78 @@ class RoyaltiesManager {
           x: { grid: { display: false } }
         }
       }
+    };
+    
+    // Configure dataset based on chart type
+    chartConfig.data.datasets = chartConfig.data.datasets.map(dataset => {
+      let config = { ...dataset };
+      
+      switch(chartType) {
+        case 'area':
+          config.fill = true;
+          config.backgroundColor = 'rgba(26, 54, 93, 0.3)';
+          config.borderColor = '#1a365d';
+          config.tension = 0.4;
+          console.log('Configured for area chart');
+          break;
+        case 'bar':
+          config.fill = false;
+          config.backgroundColor = '#1a365d';
+          config.borderColor = '#1a365d';
+          config.borderWidth = 1;
+          console.log('Configured for bar chart');
+          break;
+        case 'line':
+        default:
+          config.fill = false;
+          config.backgroundColor = 'transparent';
+          config.borderColor = '#1a365d';
+          config.tension = 0.4;
+          console.log('Configured for line chart');
+          break;
+      }
+      
+      return config;
     });
+    
+    try {
+      // Create new chart
+      const newChart = new Chart(ctx, chartConfig);
+      
+      // Store the new chart reference
+      this.charts.set(chartId, newChart);
+      
+      console.log(`Successfully created ${chartType} chart for ${chartId}`);
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
+  }
 
-    // Store the chart reference
-    this.charts.set('revenue-trends-chart', chart);
+  async createRevenueChart() {
+    const canvas = document.getElementById('revenue-trends-chart');
+    if (!canvas || typeof Chart === 'undefined') {
+      console.warn('Canvas or Chart.js not available');
+      return;
+    }
+
+    // Destroy existing chart if it exists
+    const existingChart = this.charts.get('revenue-trends-chart');
+    if (existingChart) {
+      existingChart.destroy();
+      this.charts.delete('revenue-trends-chart');
+    }
+
+    const chartData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Revenue (E)',
+        data: [500000, 600000, 750000, 700000, 800000, 900000]
+      }]
+    };
+
+    // Use the new chart creation method
+    this.createChartWithType('revenue-trends-chart', 'line', chartData);
+    console.log('Initial revenue chart created');
   }
 
   async createProductionChart() {
@@ -620,38 +536,6 @@ class RoyaltiesManager {
 
     // Store the chart reference
     this.charts.set('production-by-entity-chart', chart);
-  }
-
-  // Remove duplicate setupModuleCommunication
-  setupModuleCommunication() {
-    window.addEventListener('sectionChanged', (event) => {
-      const { sectionId } = event.detail;
-      
-      if (sectionId === 'dashboard') {
-        this.initializeCharts();
-        this.populateRoyaltyRecords();
-      }
-      
-      if (sectionId === 'user-management') {
-        this.populateUserAccounts();
-        this.populateAuditLog();
-      }
-      
-      // Add audit dashboard support
-      if (sectionId === 'audit' || sectionId === 'audit-dashboard') {
-        this.populateAuditDashboard();
-      }
-    });
-  }
-
-  async simulateLoading() {
-    console.log('Starting loading simulation...');
-    return new Promise(resolve => {
-      setTimeout(() => {
-        console.log('Loading simulation complete');
-        resolve();
-      }, 2000);
-    });
   }
 
   showLoginSection() {
@@ -962,431 +846,60 @@ class RoyaltiesManager {
       {
         timestamp: '2024-02-10 14:25:10',
         user: 'admin',
-        action: 'Create User',
-        target: 'john.doe',
+        action: 'View',
+        target: 'Royalty Records',
         ipAddress: '192.168.1.100',
         status: 'Success'
       },
       {
-        timestamp: '2024-02-10 09:15:45',
-        user: 'unknown',
-        action: 'Failed Login',
-        target: 'System',
-        ipAddress: '10.0.0.50',
-        status: 'Failed'
-      },
-      {
-        timestamp: '2024-02-09 16:20:30',
+        timestamp: '2024-02-10 14:20:05',
         user: 'john.doe',
-        action: 'View Report',
-        target: 'Royalty Records',
-        ipAddress: '192.168.1.105',
+        action: 'Edit',
+        target: 'User Account (mary.smith)',
+        ipAddress: '192.168.1.101',
         status: 'Success'
       },
       {
-        timestamp: '2024-02-09 11:45:15',
+        timestamp: '2024-02-10 14:15:30',
         user: 'mary.smith',
-        action: 'Export Data',
-        target: 'User Management',
-        ipAddress: '192.168.1.110',
+        action: 'Login',
+        target: 'System',
+        ipAddress: '192.168.1.102',
+        status: 'Failed'
+      },
+      {
+        timestamp: '2024-02-10 14:10:45',
+        user: 'admin',
+        action: 'Logout',
+        target: 'System',
+        ipAddress: '192.168.1.100',
         status: 'Success'
       }
     ];
     
-    auditData.forEach((entry, index) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${entry.timestamp}</td>
-        <td>${entry.user}</td>
-        <td>${entry.action}</td>
-        <td>${entry.target}</td>
-        <td>${entry.ipAddress}</td>
-        <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
-      `;
-      auditTableBody.appendChild(row);
-      console.log(`Added audit row ${index + 1}:`, entry);
+    auditData.forEach(entry => {
+      this.addAuditLogEntry(entry);
     });
-    
-    console.log(`Successfully added ${auditData.length} audit log entries to table`);
   }
 
-  createAuditLogTable() {
-    const userMgmtSection = document.getElementById('user-management');
-    if (!userMgmtSection) {
-      console.error('User management section not found');
+  addAuditLogEntry(entry) {
+    const tbody = document.querySelector('#audit-log-table tbody');
+    if (!tbody) {
+      console.warn('Audit log table body not found');
       return;
     }
     
-    // Create audit log section
-    const auditSection = document.createElement('div');
-    auditSection.className = 'user-form-container';
-    auditSection.innerHTML = `
-      <h3>Security Audit Log</h3>
-      <div class="data-table">
-        <table id="audit-log-table">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Target</th>
-              <th>IP Address</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${entry.timestamp}</td>
+      <td>${entry.user}</td>
+      <td>${entry.action}</td>
+      <td>${entry.target}</td>
+      <td>${entry.ipAddress}</td>
+      <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
     `;
     
-    userMgmtSection.appendChild(auditSection);
-    console.log('Created new audit log table');
-  }
-
-  populateAuditDashboard() {
-    console.log('Populating audit dashboard...');
-    
-    // Populate audit metrics
-    this.updateAuditMetrics();
-    
-    // Populate recent audit activities
-    this.populateRecentAuditActivities();
-    
-    // Populate audit summary table
-    this.populateAuditSummaryTable();
-  }
-
-  updateAuditMetrics() {
-    // Update total logins
-    const totalLoginsElement = document.querySelector('#total-logins, .metric-card:nth-child(1) .metric-value');
-    if (totalLoginsElement) {
-      totalLoginsElement.textContent = '1,247';
-    }
-    
-    // Update failed attempts
-    const failedAttemptsElement = document.querySelector('#failed-attempts, .metric-card:nth-child(2) .metric-value');
-    if (failedAttemptsElement) {
-      failedAttemptsElement.textContent = '23';
-    }
-    
-    // Update active sessions
-    const activeSessionsElement = document.querySelector('#active-sessions, .metric-card:nth-child(3) .metric-value');
-    if (activeSessionsElement) {
-      activeSessionsElement.textContent = '8';
-    }
-    
-    // Update security alerts
-    const securityAlertsElement = document.querySelector('#security-alerts, .metric-card:nth-child(4) .metric-value');
-    if (securityAlertsElement) {
-      securityAlertsElement.textContent = '2';
-    }
-    
-    console.log('Updated audit metrics');
-  }
-
-  populateRecentAuditActivities() {
-    const activitiesContainer = document.querySelector('#recent-activities, .recent-activities');
-    if (!activitiesContainer) {
-      console.warn('Recent activities container not found');
-      return;
-    }
-    
-    const recentActivities = [
-      {
-        time: '2 minutes ago',
-        user: 'john.doe',
-        action: 'Logged in',
-        status: 'success'
-      },
-      {
-        time: '15 minutes ago',
-        user: 'admin',
-        action: 'Created new user',
-        status: 'success'
-      },
-      {
-        time: '1 hour ago',
-        user: 'unknown',
-        action: 'Failed login attempt',
-        status: 'warning'
-      },
-      {
-        time: '2 hours ago',
-        user: 'mary.smith',
-        action: 'Exported report',
-        status: 'success'
-      }
-    ];
-    
-    // Clear existing content
-    activitiesContainer.innerHTML = '';
-    
-    recentActivities.forEach(activity => {
-      const activityElement = document.createElement('div');
-      activityElement.className = 'activity-item';
-      activityElement.innerHTML = `
-        <div class="activity-time">${activity.time}</div>
-        <div class="activity-details">
-          <span class="activity-user">${activity.user}</span>
-          <span class="activity-action">${activity.action}</span>
-          <span class="activity-status status-${activity.status}"></span>
-        </div>
-      `;
-      activitiesContainer.appendChild(activityElement);
-    });
-    
-    console.log('Populated recent audit activities');
-  }
-
-  populateAuditSummaryTable() {
-    const auditTableBody = document.querySelector('#audit-summary-table tbody, .audit-summary tbody');
-    if (!auditTableBody) {
-      console.warn('Audit summary table not found');
-      return;
-    }
-    
-    // Clear existing rows
-    auditTableBody.innerHTML = '';
-    
-    const auditSummaryData = [
-      {
-        date: '2024-02-10',
-        totalLogins: '156',
-        failedAttempts: '3',
-        newUsers: '2',
-        dataExports: '8',
-        alerts: '0'
-      },
-      {
-        date: '2024-02-09',
-        totalLogins: '142',
-        failedAttempts: '5',
-        newUsers: '1',
-        dataExports: '12',
-        alerts: '1'
-      },
-      {
-        date: '2024-02-08',
-        totalLogins: '134',
-        failedAttempts: '2',
-        newUsers: '0',
-        dataExports: '6',
-        alerts: '0'
-      },
-      {
-        date: '2024-02-07',
-        totalLogins: '128',
-        failedAttempts: '8',
-        newUsers: '1',
-        dataExports: '15',
-        alerts: '2'
-      }
-    ];
-    
-    auditSummaryData.forEach(data => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${data.date}</td>
-        <td>${data.totalLogins}</td>
-        <td class="${data.failedAttempts > 5 ? 'warning' : ''}">${data.failedAttempts}</td>
-        <td>${data.newUsers}</td>
-        <td>${data.dataExports}</td>
-        <td class="${data.alerts > 0 ? 'alert' : ''}">${data.alerts}</td>
-      `;
-      auditTableBody.appendChild(row);
-    });
-    
-    console.log('Populated audit summary table');
-  }
-
-  handleViewAuditLog(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    console.log('View Audit Log button clicked - handler executed');
-    
-    // Check if we're in audit dashboard or user management
-    const currentSection = document.querySelector('main > section[style*="block"]');
-    const isAuditDashboard = currentSection && currentSection.id === 'audit';
-    
-    if (isAuditDashboard) {
-      // In audit dashboard, scroll to detailed log section
-      const detailedLogSection = document.querySelector('#detailed-audit-log, .detailed-audit-log');
-      if (detailedLogSection) {
-        detailedLogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        this.populateDetailedAuditLog();
-      }
-    } else {
-      // In user management, use existing logic
-      this.populateAuditLog();
-      
-      setTimeout(() => {
-        let auditSection = null;
-        
-        const selectors = [
-          '#audit-log-table',
-          '#user-management .user-form-container:last-child',
-          '#security-audit',
-          '.audit-log-section',
-          '[id*="audit"]',
-          '#user-management .tab-content:last-of-type',
-          '#user-management .data-table:last-of-type'
-        ];
-        
-        for (const selector of selectors) {
-          auditSection = document.querySelector(selector);
-          if (auditSection) {
-            console.log(`Found audit section with selector: ${selector}`);
-            break;
-          }
-        }
-        
-        if (auditSection) {
-          auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          auditSection.style.backgroundColor = '#f0f8ff';
-          setTimeout(() => {
-            auditSection.style.backgroundColor = '';
-          }, 2000);
-        }
-      }, 100);
-    }
-    
-    this.modules.notificationManager.info('Displaying security audit log');
-  }
-
-  populateDetailedAuditLog() {
-    const detailedLogBody = document.querySelector('#detailed-audit-log tbody, .detailed-audit-log tbody');
-    if (!detailedLogBody) {
-      console.warn('Detailed audit log table not found');
-      return;
-    }
-    
-    // Clear existing rows
-    detailedLogBody.innerHTML = '';
-    
-    // Extended audit log data for dashboard
-    const detailedAuditData = [
-      {
-        timestamp: '2024-02-10 15:30:25',
-        user: 'john.doe',
-        action: 'Login',
-        target: 'System',
-        ipAddress: '192.168.1.105',
-        userAgent: 'Chrome 121.0',
-        status: 'Success'
-      },
-      {
-        timestamp: '2024-02-10 14:30:25',
-        user: 'admin',
-        action: 'Login',
-        target: 'System',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Firefox 122.0',
-        status: 'Success'
-      },
-      {
-        timestamp: '2024-02-10 14:25:10',
-        user: 'admin',
-        action: 'Create User',
-        target: 'jane.smith',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Firefox 122.0',
-        status: 'Success'
-      },
-      {
-        timestamp: '2024-02-10 09:15:45',
-        user: 'unknown',
-        action: 'Failed Login',
-        target: 'System',
-        ipAddress: '10.0.0.50',
-        userAgent: 'Bot/1.0',
-        status: 'Failed'
-      }
-    ];
-    
-    detailedAuditData.forEach(entry => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${entry.timestamp}</td>
-        <td>${entry.user}</td>
-        <td>${entry.action}</td>
-        <td>${entry.target}</td>
-        <td>${entry.ipAddress}</td>
-        <td>${entry.userAgent}</td>
-        <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
-      `;
-      detailedLogBody.appendChild(row);
-    });
-    
-    console.log('Populated detailed audit log');
-  }
-
-  handleSaveUser(event) {
-    event.preventDefault();
-    
-    const form = event.target.closest('form');
-    if (!form) {
-      this.modules.notificationManager.error('Form not found');
-      return;
-    }
-    
-    const formData = new FormData(form);
-    const username = formData.get('username');
-    const email = formData.get('email');
-    const role = formData.get('role');
-    
-    if (!username || !email || !role) {
-      this.modules.notificationManager.error('Please fill in all required fields');
-      return;
-    }
-    
-    // Add user to the users table
-    this.addUserToTable({
-      username,
-      email,
-      role,
-      status: 'Active',
-      lastLogin: 'Never'
-    });
-    
-    // Clear form
-    form.reset();
-    
-    this.modules.notificationManager.success('User saved successfully');
-  }
-
-  handleLogout(event) {
-    event.preventDefault();
-    
-    this.isInitialized = false;
-    this.appContainer.style.display = 'none';
-    this.loginSection.style.display = 'flex';
-    
-    document.querySelectorAll('form').forEach(form => form.reset());
-    this.modules.notificationManager.success('Logged out successfully');
-    this.showSection('dashboard');
-  }
-
-  handleTableAction(event) {
-    event.preventDefault();
-    
-    const button = event.target;
-    const action = button.textContent.trim();
-    const row = button.closest('tr');
-    
-    if (action === 'Edit') {
-      this.modules.notificationManager.info('Editing record');
-      row.style.backgroundColor = '#f0f8ff';
-      setTimeout(() => {
-        row.style.backgroundColor = '';
-      }, 2000);
-    } else if (action === 'Delete') {
-      if (confirm('Are you sure you want to delete this record?')) {
-        row.remove();
-        this.modules.notificationManager.success('Record deleted');
-      }
-    }
+    tbody.appendChild(row);
   }
 
   handleApplyFilters(event) {
@@ -1394,22 +907,17 @@ class RoyaltiesManager {
     
     console.log('Apply Filters button clicked');
     
-    // Get filter values with better error handling
-    const entityFilter = this.getFilterValue('filter-entity') || this.getFilterValue('entity-filter');
-    const mineralFilter = this.getFilterValue('filter-mineral') || this.getFilterValue('mineral-filter');
-    const statusFilter = this.getFilterValue('filter-status') || this.getFilterValue('status-filter');
-    const dateFromFilter = this.getFilterValue('filter-date-from') || this.getFilterValue('date-from-filter');
-    const dateToFilter = this.getFilterValue('filter-date-to') || this.getFilterValue('date-to-filter');
+    // Get filter values
+    const entityFilter = this.getFilterValue('filter-entity');
+    const mineralFilter = this.getFilterValue('filter-mineral');
+    const statusFilter = this.getFilterValue('filter-status');
+    const dateFromFilter = this.getFilterValue('filter-date-from');
+    const dateToFilter = this.getFilterValue('filter-date-to');
     
-    console.log('Filter values:', {
-      entity: entityFilter,
-      mineral: mineralFilter,
-      status: statusFilter,
-      dateFrom: dateFromFilter,
-      dateTo: dateToFilter
-    });
+    // Debug: Log filter values
+    console.log('Filter values:', { entityFilter, mineralFilter, statusFilter, dateFromFilter, dateToFilter });
     
-    // Get all rows in the royalty records table
+    // Filter logic
     const tbody = document.getElementById('royalty-records-tbody');
     if (!tbody) {
       this.modules.notificationManager.error('Royalty records table not found');
@@ -1418,51 +926,35 @@ class RoyaltiesManager {
     
     const rows = tbody.querySelectorAll('tr');
     let visibleCount = 0;
-    let totalCount = 0;
+    const totalCount = rows.length;
     
     rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 6) return; // Skip rows without enough cells
-      
-      totalCount++;
-      
-      const rowEntity = this.cleanText(cells[0]?.textContent);
-      const rowMineral = this.cleanText(cells[1]?.textContent);
-      const rowDate = this.cleanText(cells[5]?.textContent);
-      const rowStatusElement = cells[6]?.querySelector('.status-badge');
-      const rowStatus = this.cleanText(rowStatusElement?.textContent || cells[6]?.textContent);
-      
-      console.log('Row data:', {
-        entity: rowEntity,
-        mineral: rowMineral,
-        date: rowDate,
-        status: rowStatus
-      });
-      
       let showRow = true;
       
-      // Apply entity filter (partial match)
-      if (entityFilter && !this.matchesFilter(rowEntity, entityFilter)) {
-        showRow = false;
-        console.log(`Entity filter failed: "${rowEntity}" does not contain "${entityFilter}"`);
-      }
+      // Get row data
+      const rowData = {
+        entity: row.children[0]?.textContent,
+        mineral: row.children[1]?.textContent,
+        volume: row.children[2]?.textContent,
+        tariff: row.children[3]?.textContent,
+        royalties: row.children[4]?.textContent,
+        date: row.children[5]?.textContent,
+        status: row.children[6]?.textContent
+      };
       
-      // Apply mineral filter (partial match)
-      if (mineralFilter && !this.matchesFilter(rowMineral, mineralFilter)) {
-        showRow = false;
-        console.log(`Mineral filter failed: "${rowMineral}" does not contain "${mineralFilter}"`);
-      }
+      // Debug: Log row data
+      console.log('Row data:', rowData);
       
-      // Apply status filter (exact or partial match)
-      if (statusFilter && !this.matchesFilter(rowStatus, statusFilter)) {
-        showRow = false;
-        console.log(`Status filter failed: "${rowStatus}" does not contain "${statusFilter}"`);
-      }
-      
-      // Apply date range filter
-      if (dateFromFilter || dateToFilter) {
-        const rowDateObj = this.parseDate(rowDate);
-        if (rowDateObj) {
+      // Apply filters
+      if (this.matchesFilter(rowData.entity, entityFilter) && 
+          this.matchesFilter(rowData.mineral, mineralFilter) && 
+          this.matchesFilter(rowData.status, statusFilter)) {
+        
+        // Date filtering
+        if (dateFromFilter || dateToFilter) {
+          const rowDate = rowData.date;
+          const rowDateObj = this.parseDate(rowDate);
+          
           if (dateFromFilter) {
             const fromDate = new Date(dateFromFilter);
             if (rowDateObj < fromDate) {
@@ -1479,6 +971,8 @@ class RoyaltiesManager {
             }
           }
         }
+      } else {
+        showRow = false;
       }
       
       // Show/hide row
@@ -1952,6 +1446,152 @@ class RoyaltiesManager {
     }
     
     return result;
+  }
+
+  handleChartTypeChange(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const button = event.target;
+    const chartType = button.getAttribute('data-chart-type');
+    const chartId = button.getAttribute('data-chart-id');
+    
+    console.log('Chart button clicked:', { chartType, chartId, button });
+    
+    if (!chartType || !chartId) {
+      console.warn('Chart type or chart ID not specified');
+      return;
+    }
+    
+    // Update active button state
+    const chartControls = button.closest('.chart-controls');
+    if (chartControls) {
+      chartControls.querySelectorAll('.chart-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+      console.log('Updated active button state');
+    }
+    
+    // Update chart
+    this.updateChartType(chartId, chartType);
+    
+    this.modules.notificationManager?.success(`Chart updated to ${chartType} view`);
+  }
+
+  updateChartType(chartId, newType) {
+    console.log(`Updating chart ${chartId} to ${newType} type`);
+    
+    const existingChart = this.charts.get(chartId);
+    if (!existingChart) {
+      console.warn(`Chart with ID ${chartId} not found in charts map`);
+      console.log('Available charts:', Array.from(this.charts.keys()));
+      return;
+    }
+    
+    // Get current chart data and canvas
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+      console.warn(`Canvas element with ID ${chartId} not found`);
+      return;
+    }
+    
+    // Store current data before destroying
+    const currentData = {
+      labels: [...existingChart.data.labels],
+      datasets: existingChart.data.datasets.map(dataset => ({
+        label: dataset.label,
+        data: [...dataset.data]
+      }))
+    };
+    
+    console.log('Stored chart data:', currentData);
+    
+    // Destroy existing chart
+    existingChart.destroy();
+    this.charts.delete(chartId);
+    console.log('Destroyed existing chart');
+    
+    // Create new chart with different type
+    setTimeout(() => {
+      console.log('Creating new chart...');
+      this.createChartWithType(chartId, newType, currentData);
+    }, 100);
+  }
+
+  createChartWithType(chartId, chartType, data) {
+    console.log(`Creating ${chartType} chart for ${chartId}`);
+    
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+      console.error(`Canvas element with ID ${chartId} not found`);
+      return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    let chartConfig = {
+      type: chartType === 'area' ? 'line' : chartType,
+      data: { ...data },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { display: true, position: 'top' } 
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: function(value) { return `E ${value.toLocaleString()}`; } }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    };
+    
+    // Configure dataset based on chart type
+    chartConfig.data.datasets = chartConfig.data.datasets.map(dataset => {
+      let config = { ...dataset };
+      
+      switch(chartType) {
+        case 'area':
+          config.fill = true;
+          config.backgroundColor = 'rgba(26, 54, 93, 0.3)';
+          config.borderColor = '#1a365d';
+          config.tension = 0.4;
+          console.log('Configured for area chart');
+          break;
+        case 'bar':
+          config.fill = false;
+          config.backgroundColor = '#1a365d';
+          config.borderColor = '#1a365d';
+          config.borderWidth = 1;
+          console.log('Configured for bar chart');
+          break;
+        case 'line':
+        default:
+          config.fill = false;
+          config.backgroundColor = 'transparent';
+          config.borderColor = '#1a365d';
+          config.tension = 0.4;
+          console.log('Configured for line chart');
+          break;
+      }
+      
+      return config;
+    });
+    
+    try {
+      // Create new chart
+      const newChart = new Chart(ctx, chartConfig);
+      
+      // Store the new chart reference
+      this.charts.set(chartId, newChart);
+      
+      console.log(`Successfully created ${chartType} chart for ${chartId}`);
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
   }
 }
 
