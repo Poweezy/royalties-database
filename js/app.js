@@ -890,9 +890,35 @@ class RoyaltiesManager {
   }
 
   addAuditLogEntry(entry) {
-    const tbody = document.querySelector('#audit-log-table tbody');
+    // Try multiple selectors to find the audit table body
+    let tbody = document.querySelector('#audit-log-table tbody');
+    
+    // If not found, try the selector that populateAuditLog found
     if (!tbody) {
-      console.warn('Audit log table body not found');
+      tbody = document.querySelector('#user-management .data-table:last-of-type tbody');
+    }
+    
+    // Still not found? Try other selectors
+    if (!tbody) {
+      const selectors = [
+        '#user-management table:last-of-type tbody',
+        '#security-audit tbody',
+        '.audit-log tbody',
+        '[id*="audit"] tbody',
+        '#user-management tbody:last-of-type'
+      ];
+      
+      for (const selector of selectors) {
+        tbody = document.querySelector(selector);
+        if (tbody) {
+          console.log(`Found audit table body with selector: ${selector}`);
+          break;
+        }
+      }
+    }
+    
+    if (!tbody) {
+      console.warn('Audit log table body not found in addAuditLogEntry');
       return;
     }
     
@@ -907,6 +933,7 @@ class RoyaltiesManager {
     `;
     
     tbody.appendChild(row);
+    console.log('Successfully added audit log entry');
   }
 
   handleApplyFilters(event) {
@@ -1204,6 +1231,20 @@ class RoyaltiesManager {
       const newValue = currentValue + Math.random() * 1000;
       totalRoyalties.textContent = `E${newValue.toLocaleString()}`;
     }
+    
+    // Update other dashboard metrics
+    const totalEntities = document.querySelector('.metric-card:nth-child(2) .metric-value');
+    if (totalEntities) {
+      const currentCount = parseInt(totalEntities.textContent) || 0;
+      totalEntities.textContent = Math.max(currentCount, Math.floor(Math.random() * 50) + 30);
+    }
+    
+    // Update compliance rate
+    const complianceRate = document.querySelector('.metric-card:nth-child(3) .metric-value');
+    if (complianceRate) {
+      const rate = (85 + Math.random() * 10).toFixed(1);
+      complianceRate.textContent = `${rate}%`;
+    }
   }
 
   handleAddUser(event) {
@@ -1399,7 +1440,7 @@ class RoyaltiesManager {
     }
   }
 
-  // Add error boundary
+  // Add error boundary - THIS WAS MISSING
   setupErrorHandling() {
     window.addEventListener('error', (event) => {
       this.handleGlobalError(event.error, event.filename, event.lineno);
@@ -1501,6 +1542,7 @@ class RoyaltiesManager {
     
     return errors;
   }
+
 }
 
 // Global instance for debugging and chart functionality
