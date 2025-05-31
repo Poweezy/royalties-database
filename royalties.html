@@ -6,7 +6,6 @@
   <title>Mining Royalties Manager</title>
   <link rel="stylesheet" href="royalties.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -143,9 +142,9 @@
             <div class="chart-header">
               <h5>Revenue Trends</h5>
               <div class="chart-controls">
-                <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">Line</button>
-                <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">Bar</button>
-                <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">Area</button>
+                <button class="chart-btn active">Line</button>
+                <button class="chart-btn">Bar</button>
+                <button class="chart-btn">Area</button>
               </div>
             </div>
             <div class="chart-container">
@@ -335,7 +334,8 @@
               <label for="audit-from-date">From Date</label>
               <input type="date" id="audit-from-date">
             </div>
-           
+            <div class="form-group">
+              <label for="audit-to-date">To Date</label>
               <input type="date" id="audit-to-date">
             </div>
             <div class="form-group">
@@ -436,72 +436,26 @@
         </div>
         <div class="user-form-container">
           <h4>Royalty Records Table</h4>
-          
-          <!-- Add proper filter section -->
-          <div class="filter-section">
-            <h3>Filter Records</h3>
-            <div class="filter-grid">
-              <div class="form-group">
-                <label for="filter-entity">Entity</label>
-                <select id="filter-entity">
-                  <option value="">All Entities</option>
-                  <option value="Kwalini Quarry">Kwalini Quarry</option>
-                  <option value="Mbabane Quarry">Mbabane Quarry</option>
-                  <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
-                  <option value="Maloma Colliery">Maloma Colliery</option>
-                  <option value="Ngwenya Mine">Ngwenya Mine</option>
-                  <option value="Malolotja Mine">Malolotja Mine</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="filter-mineral">Mineral</label>
-                <select id="filter-mineral">
-                  <option value="">All Minerals</option>
-                  <option value="Coal">Coal</option>
-                  <option value="Iron Ore">Iron Ore</option>
-                  <option value="Granite">Granite</option>
-                  <option value="Sand">Sand</option>
-                  <option value="Gravel">Gravel</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="filter-status">Status</label>
-                <select id="filter-status">
-                  <option value="">All Status</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Overdue">Overdue</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="filter-date-from">From Date</label>
-                <input type="date" id="filter-date-from">
-              </div>
-              <div class="form-group">
-                <label for="filter-date-to">To Date</label>
-                <input type="date" id="filter-date-to">
-              </div>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="filter-entity">Entity</label>
+              <select id="filter-entity">
+                <option>All Entities</option>
+                <option>Kwalini Quarry</option>
+                <option>Mbabane Quarry</option>
+                <option>Sidvokodvo Quarry</option>
+                <option>Maloma Colliery</option>
+                <option>Ngwenya Mine</option>
+                <option>Malolotja Mine</option>
+              </select>
             </div>
-            <div class="filter-actions">
-              <button class="btn btn-primary" id="apply-filters-btn">Apply Filters</button>
-              <button class="btn btn-secondary" id="clear-filters-btn">Clear Filters</button>
+            <div class="form-group">
+              <button class="btn btn-primary">Apply Filters</button>
+              <button class="btn btn-primary">Export Report</button>
             </div>
           </div>
-          
-          <!-- Filter results summary -->
-          <div class="filter-results-summary" id="filter-results-summary">
-            <span class="summary-text" id="filter-summary-text">Showing all records</span>
-            <button class="clear-all" onclick="clearAllFilters()">Clear All</button>
-          </div>
-          
-          <!-- No results message -->
-          <div class="no-results-message" id="no-results-message">
-            <h4>No records found</h4>
-            <p>Try adjusting your filter criteria or clear all filters to see all records.</p>
-          </div>
-
           <div class="table-container">
-            <table class="data-table" id="royalty-records-table">
+            <table class="data-table">
               <thead>
                 <tr>
                   <th>Entity</th>
@@ -1735,7 +1689,7 @@
   </div>
 
   <!-- Modern Modular JavaScript -->
-  <script src="app.js"></script>
+  <script type="module" src="js/app.js"></script>
   
   <!-- Legacy support for non-module browsers -->
   <script nomodule>
