@@ -70,18 +70,29 @@ class RoyaltiesManager {
       const { sectionId } = event.detail;
       
       if (sectionId === 'dashboard') {
-        this.initializeCharts();
-        this.populateRoyaltyRecords();
+        // Use setTimeout to ensure DOM is ready and prevent double initialization
+        setTimeout(() => {
+          // Only initialize if not already initialized for this session
+          if (!this.charts.has('revenue-trends-chart')) {
+            this.initializeCharts();
+          }
+          this.populateRoyaltyRecords();
+          this.updateDashboardMetrics();
+        }, 100);
       }
       
       if (sectionId === 'user-management') {
-        this.populateUserAccounts();
-        this.populateAuditLog();
+        setTimeout(() => {
+          this.populateUserAccounts();
+          this.populateAuditLog();
+        }, 100);
       }
       
       // Add audit dashboard support
       if (sectionId === 'audit' || sectionId === 'audit-dashboard') {
-        this.populateAuditDashboard();
+        setTimeout(() => {
+          this.populateAuditDashboard();
+        }, 100);
       }
     });
   }
@@ -195,10 +206,7 @@ class RoyaltiesManager {
     
     // Navigate to notifications section
     this.showSection('notifications');
-    this.closeMobileSidebar();
-    
-    // Show notification
-    this.modules.notificationManager.info('Viewing system notifications');
+    this.close
   }
 
   handleTabClick(event) {
@@ -260,7 +268,12 @@ class RoyaltiesManager {
       this.appContainer.style.display = 'flex';
       this.sidebar.classList.add('active');
       
+      // Initialize dashboard properly
+      this.showSection('dashboard');
       this.initializeCharts();
+      this.populateRoyaltyRecords();
+      this.updateDashboardMetrics();
+      
       this.modules.notificationManager.success('Welcome to Royalties Manager');
       this.isInitialized = true;
       
@@ -323,47 +336,54 @@ class RoyaltiesManager {
     }
   }
 
-  async createRevenueChart() {
+  async createRevenueChart(chartType = 'line') {
     const canvas = document.getElementById('revenue-trends-chart');
     if (!canvas || typeof Chart === 'undefined') return;
 
-    // Destroy existing chart if it exists
-    const existingChart = this.charts.get('revenue-trends-chart');
-    if (existingChart) {
-      existingChart.destroy();
-      this.charts.delete('revenue-trends-chart');
-    }
-
     const ctx = canvas.getContext('2d');
     
-    const chart = new Chart(ctx, {
-      type: 'line',
+    const config = {
+      type: chartType === 'area' ? 'line' : chartType,
       data: {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
           label: 'Revenue (E)',
           data: [500000, 600000, 750000, 700000, 800000, 900000],
           borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.2)',
-          fill: true,
+          backgroundColor: chartType === 'area' ? 'rgba(26, 54, 93, 0.3)' : 
+                          chartType === 'bar' ? '#1a365d' : 'rgba(26, 54, 93, 0.1)',
+          fill: chartType === 'area',
           tension: 0.4
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
+        plugins: { 
+          legend: { display: true, position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Revenue: E${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          }
+        },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { callback: function(value) { return `E ${value.toLocaleString()}`; } }
+            ticks: { 
+              callback: function(value) { 
+                return `E ${value.toLocaleString()}`; 
+              } 
+            }
           },
           x: { grid: { display: false } }
         }
       }
-    });
+    };
 
-    // Store the chart reference
+    const chart = new Chart(ctx, config);
     this.charts.set('revenue-trends-chart', chart);
   }
 
@@ -439,6 +459,152 @@ class RoyaltiesManager {
     });
   }
 
+  updateDashboardMetrics() {
+    // Calculate total royalties from sample data
+    const sampleRecords = [
+      { entity: 'Kwalini Quarry', mineral: 'Granite', volume: 1500, tariff: 25.50, date: '2024-02-01', status: 'Paid' },
+      { entity: 'Mbabane Quarry', mineral: 'Sand', volume: 2000, tariff: 15.75, date: '2024-01-28', status: 'Pending' },
+      { entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 800, tariff: 45.00, date: '2024-01-25', status: 'Paid' }
+    ];
+    
+    const totalRoyalties = sampleRecords.reduce((sum, record) => sum + (record.volume * record.tariff), 0);
+    const activeEntities = new Set(sampleRecords.map(r => r.entity)).size;
+    const paidRecords = sampleRecords.filter(r => r.status === 'Paid').length;
+    const complianceRate = Math.round((paidRecords / sampleRecords.length) * 100);
+    const pendingRecords = sampleRecords.filter(r => r.status === 'Pending').length;
+    
+    // Update dashboard elements
+    const totalRoyaltiesElement = document.getElementById('total-royalties');
+    if (totalRoyaltiesElement) {
+      totalRoyaltiesElement.textContent = `E${totalRoyalties.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    }
+    
+    const activeEntitiesElement = document.getElementById('active-entities');
+    if (activeEntitiesElement) {
+      activeEntitiesElement.textContent = activeEntities.toString();
+    }
+    
+    const complianceRateElement = document.getElementById('compliance-rate');
+    if (complianceRateElement) {
+      complianceRateElement.textContent = `${complianceRate}%`;
+    }
+    
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+      progressBar.style.width = `${complianceRate}%`;
+    }
+    
+    const pendingApprovalsElement = document.getElementById('pending-approvals');
+    if (pendingApprovalsElement) {
+      pendingApprovalsElement.textContent = pendingRecords.toString();
+    }
+    
+    // Update user name
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+      userNameElement.textContent = 'Admin User';
+    }
+    
+    // Update notifications count
+    const notificationsCount = document.getElementById('notifications-count');
+    if (notificationsCount) {
+      notificationsCount.textContent = '3';
+    }
+    
+    console.log('Dashboard metrics updated successfully');
+  }
+
+  populateRoyaltyRecords() {
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (!tbody) return;
+    
+    // Clear existing rows
+    tbody.innerHTML = '';
+    
+    // Sample royalty records with proper calculations
+    const sampleRecords = [
+      {
+        entity: 'Kwalini Quarry',
+        mineral: 'Granite',
+        volume: '1,500',
+        tariff: '25.50',
+        royalties: (1500 * 25.50).toFixed(2),
+        date: '2024-02-01',
+        status: 'Paid'
+      },
+      {
+        entity: 'Mbabane Quarry',
+        mineral: 'Sand',
+        volume: '2,000',
+        tariff: '15.75',
+        royalties: (2000 * 15.75).toFixed(2),
+        date: '2024-01-28',
+        status: 'Pending'
+      },
+      {
+        entity: 'Ngwenya Mine',
+        mineral: 'Iron Ore',
+        volume: '800',
+        tariff: '45.00',
+        royalties: (800 * 45.00).toFixed(2),
+        date: '2024-01-25',
+        status: 'Paid'
+      },
+      {
+        entity: 'Sidvokodvo Quarry',
+        mineral: 'Quarried Stone',
+        volume: '1,200',
+        tariff: '18.25',
+        royalties: (1200 * 18.25).toFixed(2),
+        date: '2024-01-20',
+        status: 'Paid'
+      },
+      {
+        entity: 'Maloma Colliery',
+        mineral: 'Coal',
+        volume: '3,500',
+        tariff: '35.00',
+        royalties: (3500 * 35.00).toFixed(2),
+        date: '2024-01-15',
+        status: 'Pending'
+      }
+    ];
+    
+    sampleRecords.forEach(record => {
+      this.addRoyaltyRecord(record);
+    });
+    
+    console.log(`Added ${sampleRecords.length} sample royalty records`);
+  }
+
+  addRoyaltyRecord(record) {
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (!tbody) {
+      console.warn('Royalty records table body not found');
+      return;
+    }
+    
+    const row = document.createElement('tr');
+    const statusClass = record.status.toLowerCase() === 'paid' ? 'compliant' : 
+                       record.status.toLowerCase() === 'pending' ? 'warning' : 'error';
+    
+    row.innerHTML = `
+      <td>${record.entity}</td>
+      <td>${record.mineral}</td>
+      <td>${record.volume}</td>
+      <td>E${record.tariff}</td>
+      <td>E${record.royalties}</td>
+      <td>${record.date}</td>
+      <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+      <td>
+        <button class="btn btn-primary btn-sm">Edit</button>
+        <button class="btn btn-danger btn-sm">Delete</button>
+      </td>
+    `;
+    
+    tbody.appendChild(row);
+  }
+
   showSection(sectionId) {
     document.querySelectorAll('main > section').forEach(section => {
       section.style.display = 'none';
@@ -489,47 +655,54 @@ class RoyaltiesManager {
     }
   }
 
-  async createRevenueChart() {
+  async createRevenueChart(chartType = 'line') {
     const canvas = document.getElementById('revenue-trends-chart');
     if (!canvas || typeof Chart === 'undefined') return;
 
-    // Destroy existing chart if it exists
-    const existingChart = this.charts.get('revenue-trends-chart');
-    if (existingChart) {
-      existingChart.destroy();
-      this.charts.delete('revenue-trends-chart');
-    }
-
     const ctx = canvas.getContext('2d');
     
-    const chart = new Chart(ctx, {
-      type: 'line',
+    const config = {
+      type: chartType === 'area' ? 'line' : chartType,
       data: {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
           label: 'Revenue (E)',
           data: [500000, 600000, 750000, 700000, 800000, 900000],
           borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.2)',
-          fill: true,
+          backgroundColor: chartType === 'area' ? 'rgba(26, 54, 93, 0.3)' : 
+                          chartType === 'bar' ? '#1a365d' : 'rgba(26, 54, 93, 0.1)',
+          fill: chartType === 'area',
           tension: 0.4
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
+        plugins: { 
+          legend: { display: true, position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Revenue: E${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          }
+        },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { callback: function(value) { return `E ${value.toLocaleString()}`; } }
+            ticks: { 
+              callback: function(value) { 
+                return `E ${value.toLocaleString()}`; 
+              } 
+            }
           },
           x: { grid: { display: false } }
         }
       }
-    });
+    };
 
-    // Store the chart reference
+    const chart = new Chart(ctx, config);
     this.charts.set('revenue-trends-chart', chart);
   }
 
@@ -570,24 +743,213 @@ class RoyaltiesManager {
     this.charts.set('production-by-entity-chart', chart);
   }
 
+  showLoginSection() {
+    console.log('Showing login section...');
+    
+    // Hide loading screen
+    if (this.loadingScreen) {
+      this.loadingScreen.style.display = 'none';
+    }
+    
+    // Show login section
+    if (this.loginSection) {
+      this.loginSection.style.display = 'flex';
+      console.log('Login section displayed');
+    } else {
+      console.error('Cannot show login section - element not found');
+    }
+    
+    // Hide app container
+    if (this.appContainer) {
+      this.appContainer.style.display = 'none';
+    }
+    
+    // Initialize dashboard section for when user logs in
+    this.showSection('dashboard');
+  }
+
+  async simulateLoading() {
+    console.log('Starting loading simulation...');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        console.log('Loading simulation complete');
+        resolve();
+      }, 2000);
+    });
+  }
+
+  updateDashboardMetrics() {
+    // Calculate total royalties from sample data
+    const sampleRecords = [
+      { entity: 'Kwalini Quarry', mineral: 'Granite', volume: 1500, tariff: 25.50, date: '2024-02-01', status: 'Paid' },
+      { entity: 'Mbabane Quarry', mineral: 'Sand', volume: 2000, tariff: 15.75, date: '2024-01-28', status: 'Pending' },
+      { entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 800, tariff: 45.00, date: '2024-01-25', status: 'Paid' }
+    ];
+    
+    const totalRoyalties = sampleRecords.reduce((sum, record) => sum + (record.volume * record.tariff), 0);
+    const activeEntities = new Set(sampleRecords.map(r => r.entity)).size;
+    const paidRecords = sampleRecords.filter(r => r.status === 'Paid').length;
+    const complianceRate = Math.round((paidRecords / sampleRecords.length) * 100);
+    const pendingRecords = sampleRecords.filter(r => r.status === 'Pending').length;
+    
+    // Update dashboard elements
+    const totalRoyaltiesElement = document.getElementById('total-royalties');
+    if (totalRoyaltiesElement) {
+      totalRoyaltiesElement.textContent = `E${totalRoyalties.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    }
+    
+    const activeEntitiesElement = document.getElementById('active-entities');
+    if (activeEntitiesElement) {
+      activeEntitiesElement.textContent = activeEntities.toString();
+    }
+    
+    const complianceRateElement = document.getElementById('compliance-rate');
+    if (complianceRateElement) {
+      complianceRateElement.textContent = `${complianceRate}%`;
+    }
+    
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+      progressBar.style.width = `${complianceRate}%`;
+    }
+    
+    const pendingApprovalsElement = document.getElementById('pending-approvals');
+    if (pendingApprovalsElement) {
+      pendingApprovalsElement.textContent = pendingRecords.toString();
+    }
+    
+    // Update user name
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+      userNameElement.textContent = 'Admin User';
+    }
+    
+    // Update notifications count
+    const notificationsCount = document.getElementById('notifications-count');
+    if (notificationsCount) {
+      notificationsCount.textContent = '3';
+    }
+    
+    console.log('Dashboard metrics updated successfully');
+  }
+
+  populateRoyaltyRecords() {
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (!tbody) return;
+    
+    // Clear existing rows
+    tbody.innerHTML = '';
+    
+    // Sample royalty records with proper calculations
+    const sampleRecords = [
+      {
+        entity: 'Kwalini Quarry',
+        mineral: 'Granite',
+        volume: '1,500',
+        tariff: '25.50',
+        royalties: (1500 * 25.50).toFixed(2),
+        date: '2024-02-01',
+        status: 'Paid'
+      },
+      {
+        entity: 'Mbabane Quarry',
+        mineral: 'Sand',
+        volume: '2,000',
+        tariff: '15.75',
+        royalties: (2000 * 15.75).toFixed(2),
+        date: '2024-01-28',
+        status: 'Pending'
+      },
+      {
+        entity: 'Ngwenya Mine',
+        mineral: 'Iron Ore',
+        volume: '800',
+        tariff: '45.00',
+        royalties: (800 * 45.00).toFixed(2),
+        date: '2024-01-25',
+        status: 'Paid'
+      },
+      {
+        entity: 'Sidvokodvo Quarry',
+        mineral: 'Quarried Stone',
+        volume: '1,200',
+        tariff: '18.25',
+        royalties: (1200 * 18.25).toFixed(2),
+        date: '2024-01-20',
+        status: 'Paid'
+      },
+      {
+        entity: 'Maloma Colliery',
+        mineral: 'Coal',
+        volume: '3,500',
+        tariff: '35.00',
+        royalties: (3500 * 35.00).toFixed(2),
+        date: '2024-01-15',
+        status: 'Pending'
+      }
+    ];
+    
+    sampleRecords.forEach(record => {
+      this.addRoyaltyRecord(record);
+    });
+    
+    console.log(`Added ${sampleRecords.length} sample royalty records`);
+  }
+
+  addRoyaltyRecord(record) {
+    const tbody = document.getElementById('royalty-records-tbody');
+    if (!tbody) {
+      console.warn('Royalty records table body not found');
+      return;
+    }
+    
+    const row = document.createElement('tr');
+    const statusClass = record.status.toLowerCase() === 'paid' ? 'compliant' : 
+                       record.status.toLowerCase() === 'pending' ? 'warning' : 'error';
+    
+    row.innerHTML = `
+      <td>${record.entity}</td>
+      <td>${record.mineral}</td>
+      <td>${record.volume}</td>
+      <td>E${record.tariff}</td>
+      <td>E${record.royalties}</td>
+      <td>${record.date}</td>
+      <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+      <td>
+        <button class="btn btn-primary btn-sm">Edit</button>
+        <button class="btn btn-danger btn-sm">Delete</button>
+      </td>
+    `;
+    
+    tbody.appendChild(row);
+  }
+
   // Remove duplicate setupModuleCommunication
   setupModuleCommunication() {
     window.addEventListener('sectionChanged', (event) => {
       const { sectionId } = event.detail;
       
       if (sectionId === 'dashboard') {
-        this.initializeCharts();
-        this.populateRoyaltyRecords();
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          this.initializeCharts();
+          this.populateRoyaltyRecords();
+          this.updateDashboardMetrics();
+        }, 100);
       }
       
       if (sectionId === 'user-management') {
-        this.populateUserAccounts();
-        this.populateAuditLog();
+        setTimeout(() => {
+          this.populateUserAccounts();
+          this.populateAuditLog();
+        }, 100);
       }
       
       // Add audit dashboard support
       if (sectionId === 'audit' || sectionId === 'audit-dashboard') {
-        this.populateAuditDashboard();
+        setTimeout(() => {
+          this.populateAuditDashboard();
+        }, 100);
       }
     });
   }
@@ -701,6 +1063,9 @@ class RoyaltiesManager {
     }
     
     const row = document.createElement('tr');
+    const statusClass = record.status.toLowerCase() === 'paid' ? 'compliant' : 
+                       record.status.toLowerCase() === 'pending' ? 'warning' : 'error';
+    
     row.innerHTML = `
       <td>${record.entity}</td>
       <td>${record.mineral}</td>
@@ -708,7 +1073,7 @@ class RoyaltiesManager {
       <td>E${record.tariff}</td>
       <td>E${record.royalties}</td>
       <td>${record.date}</td>
-      <td><span class="status-badge compliant">${record.status}</span></td>
+      <td><span class="status-badge ${statusClass}">${record.status}</span></td>
       <td>
         <button class="btn btn-primary btn-sm">Edit</button>
         <button class="btn btn-danger btn-sm">Delete</button>
