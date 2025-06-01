@@ -78,7 +78,7 @@ class RoyaltiesManager {
           }
           this.populateRoyaltyRecords();
           this.updateDashboardMetrics();
-          this.setupChartControls(); // Add chart controls
+          // Remove setupChartControls from here as it's called in initializeCharts
         }, 100);
       }
       
@@ -130,62 +130,81 @@ class RoyaltiesManager {
       this.handleSaveRoyalty(event);
     }
     
-    // Handle Apply Filters button
+    // Handle Apply Filters button - Enhanced for User Management
     if (target.matches('.btn') && (
         target.textContent.trim() === 'Apply Filters' ||
         target.id === 'apply-filters-btn' ||
+        target.id === 'apply-user-filters' ||
+        target.id === 'apply-audit-filters' ||
         target.classList.contains('filter-btn')
     )) {
       this.handleApplyFilters(event);
     }
     
-    // Handle Clear Filters button
+    // Handle Clear Filters button - Enhanced for User Management
     if (target.matches('.btn') && (
         target.textContent.trim() === 'Clear Filters' ||
-        target.id === 'clear-filters-btn'
+        target.id === 'clear-filters-btn' ||
+        target.id === 'clear-user-filters' ||
+        target.id === 'clear-audit-filters'
     )) {
       this.handleClearFilters(event);
     }
     
-    // Handle logout confirmation
-    if (target.matches('#confirm-logout-btn')) {
-      this.handleLogout(event);
+    // Handle User Management specific buttons
+    if (target.matches('#add-user-btn')) {
+      this.handleShowAddUserForm(event);
     }
     
-    // Enhanced View Audit Log button handling
-    if (target.matches('.btn') && (
-        target.textContent.trim() === 'View Audit Log' ||
-        target.textContent.trim().includes('Audit') ||
-        target.id === 'view-audit-btn' ||
-        target.classList.contains('audit-btn')
-    )) {
-      this.handleViewAuditLog(event);
+    if (target.matches('#close-add-user-form') || target.matches('#cancel-add-user')) {
+      this.handleHideAddUserForm(event);
     }
     
-    // Handle Export Report buttons
-    if (target.matches('.btn') && target.textContent.trim() === 'Export Report') {
-      this.handleExportReport(event);
+    if (target.matches('#create-user-btn')) {
+      this.handleCreateUser(event);
     }
     
-    // Handle Add User button
-    if (target.matches('.btn') && target.textContent.trim() === 'Add User') {
-      this.handleAddUser(event);
+    if (target.matches('#refresh-users')) {
+      this.handleRefreshUsers(event);
     }
     
-    // Handle Create User and Save User buttons
-    if (target.matches('.btn') && (
-        target.textContent.trim() === 'Create User' ||
-        target.textContent.trim() === 'Save User'
-    )) {
-      this.handleSaveUser(event);
+    if (target.matches('#export-users')) {
+      this.handleExportUsers(event);
     }
     
-    // Handle table action buttons
-    if (target.matches('.btn-sm')) {
+    if (target.matches('#bulk-delete-users')) {
+      this.handleBulkDeleteUsers(event);
+    }
+    
+    if (target.matches('#select-all-users')) {
+      this.handleSelectAllUsers(event);
+    }
+    
+    // Handle individual user checkboxes
+    if (target.matches('#users-table-tbody input[type="checkbox"]')) {
+      this.handleUserCheckboxChange(event);
+    }
+    
+    // Handle audit log buttons
+    if (target.matches('#refresh-audit-log')) {
+      this.handleRefreshAuditLog(event);
+    }
+    
+    if (target.matches('#export-audit-log')) {
+      this.handleExportAuditLog(event);
+    }
+    
+    // Handle User Management table actions (Edit, Reset, Delete buttons)
+    if (target.matches('.btn-sm') && target.closest('#users-table-tbody')) {
+      this.handleUserTableAction(event);
+    }
+    
+    // Handle table action buttons (for other sections)
+    if (target.matches('.btn-sm') && !target.closest('#users-table-tbody')) {
       this.handleTableAction(event);
     }
     
-    // Debug logging for unhandled clicks
+    // Debug logging for unhandled clicks (remove in production)
     if (target.matches('.btn')) {
       console.log('Button clicked:', target.textContent.trim(), target);
     }
@@ -281,7 +300,10 @@ class RoyaltiesManager {
       
       // Initialize dashboard properly
       this.showSection('dashboard');
-      this.initializeCharts();
+      // Remove duplicate chart initialization calls
+      if (!this.charts.has('revenue-trends-chart')) {
+        this.initializeCharts();
+      }
       this.populateRoyaltyRecords();
       this.updateDashboardMetrics();
       
@@ -342,6 +364,7 @@ class RoyaltiesManager {
     try {
       await this.createRevenueChart();
       await this.createProductionChart();
+      this.setupChartControls(); // Move this here since it needs to run after charts are created
     } catch (error) {
       console.warn('Chart initialization failed:', error);
     }
@@ -787,19 +810,233 @@ class RoyaltiesManager {
   handleApplyFilters(event) {
     event.preventDefault();
     
-    console.log('Apply Filters button clicked');
+    const section = event.target.closest('section');
+    const sectionId = section?.id;
     
-    // Get filter values
-    const entityFilter = document.getElementById('filter-entity')?.value;
-    const mineralFilter = document.getElementById('filter-mineral')?.value;
-    const statusFilter = document.getElementById('filter-status')?.value;
+    if (sectionId === 'user-management') {
+      this.handleApplyUserFilters(event);
+    } else {
+      // Original royalty records filtering
+      console.log('Apply Filters button clicked');
+      
+      const entityFilter = document.getElementById('filter-entity')?.value;
+      const mineralFilter = document.getElementById('filter-mineral')?.value;
+      const statusFilter = document.getElementById('filter-status')?.value;
+      
+      console.log('Filter values:', { entityFilter, mineralFilter, statusFilter });
+      
+      const tbody = document.getElementById('royalty-records-tbody');
+      if (!tbody) {
+        this.modules.notificationManager.error('Royalty records table not found');
+        return;
+      }
+      
+      const rows = tbody.querySelectorAll('tr');
+      let visibleCount = 0;
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 6) return;
+        
+        const rowEntity = cells[0]?.textContent.trim();
+        const rowMineral = cells[1]?.textContent.trim();
+        const rowStatus = cells[6]?.textContent.trim();
+        
+        let showRow = true;
+        
+        if (entityFilter && entityFilter !== 'All Entities' && !rowEntity.includes(entityFilter)) {
+          showRow = false;
+        }
+        if (mineralFilter && mineralFilter !== 'All Minerals' && !rowMineral.includes(mineralFilter)) {
+          showRow = false;
+        }
+        if (statusFilter && statusFilter !== 'All Statuses' && !rowStatus.includes(statusFilter)) {
+          showRow = false;
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+        if (showRow) visibleCount++;
+      });
+      
+      this.modules.notificationManager.success(`Applied filters. Showing ${visibleCount} of ${rows.length} records.`);
+    }
+  }
+
+  handleClearFilters(event) {
+    event.preventDefault();
     
-    console.log('Filter values:', { entityFilter, mineralFilter, statusFilter });
+    const section = event.target.closest('section');
+    const sectionId = section?.id;
     
-    // Get all rows in the royalty records table
-    const tbody = document.getElementById('royalty-records-tbody');
+    if (sectionId === 'user-management') {
+      this.handleClearUserFilters(event);
+    } else {
+      // Original clear filters logic
+      console.log('Clear Filters button clicked');
+      
+      const filterInputs = document.querySelectorAll('[id*="filter"]');
+      filterInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+          input.selectedIndex = 0;
+        } else {
+          input.value = '';
+        }
+      });
+      
+      const tbody = document.getElementById('royalty-records-tbody');
+      if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          row.style.display = '';
+        });
+        
+        this.modules.notificationManager.info(`Filters cleared. Showing all ${rows.length} records.`);
+      }
+    }
+  }
+
+  // New User Management specific methods
+  handleShowAddUserForm(event) {
+    event.preventDefault();
+    
+    const formContainer = document.getElementById('add-user-form-container');
+    if (formContainer) {
+      formContainer.style.display = 'block';
+      formContainer.scrollIntoView({ behavior: 'smooth' });
+      
+      // Focus on first input
+      const firstInput = formContainer.querySelector('input');
+      if (firstInput) {
+        setTimeout(() => firstInput.focus(), 300);
+      }
+    }
+    
+    this.modules.notificationManager.info('Add user form opened');
+  }
+
+  handleHideAddUserForm(event) {
+    event.preventDefault();
+    
+    const formContainer = document.getElementById('add-user-form-container');
+    if (formContainer) {
+      formContainer.style.display = 'none';
+      
+      // Reset form
+      const form = document.getElementById('add-user-form');
+      if (form) {
+        form.reset();
+        
+        // Clear validation messages
+        form.querySelectorAll('.validation-error, .validation-success').forEach(el => {
+          el.style.display = 'none';
+        });
+        
+        // Clear field validation classes
+        form.querySelectorAll('.field-valid, .field-invalid').forEach(el => {
+          el.classList.remove('field-valid', 'field-invalid');
+        });
+        
+        // Reset password strength
+        const strengthBar = form.querySelector('.strength-bar-fill');
+        const strengthText = form.querySelector('.strength-text');
+        if (strengthBar) strengthBar.style.width = '0%';
+        if (strengthText) strengthText.textContent = 'Password Strength: Enter password';
+        
+        // Reset submit button
+        const submitBtn = document.getElementById('create-user-btn');
+        if (submitBtn) submitBtn.disabled = true;
+      }
+    }
+    
+    this.modules.notificationManager.info('Add user form closed');
+  }
+
+  handleCreateUser(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('add-user-form');
+    if (!form) {
+      this.modules.notificationManager.error('Form not found');
+      return;
+    }
+    
+    // Get form values
+    const formData = {
+      username: document.getElementById('new-username')?.value.trim(),
+      email: document.getElementById('new-email')?.value.trim(),
+      role: document.getElementById('new-role')?.value,
+      department: document.getElementById('new-department')?.value,
+      password: document.getElementById('new-password')?.value,
+      confirmPassword: document.getElementById('confirm-password')?.value,
+      expires: document.getElementById('account-expires')?.value,
+      forcePasswordChange: document.getElementById('force-password-change')?.checked,
+      sendWelcomeEmail: document.getElementById('send-welcome-email')?.checked
+    };
+    
+    // Validate required fields
+    const requiredFields = ['username', 'email', 'role', 'department', 'password'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      this.modules.notificationManager.error(`Please fill in: ${missingFields.join(', ')}`);
+      return;
+    }
+    
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      this.modules.notificationManager.error('Passwords do not match');
+      return;
+    }
+    
+    // Check if username already exists
+    if (this.checkUsernameExists(formData.username)) {
+      this.modules.notificationManager.error('Username already exists');
+      return;
+    }
+    
+    // Add user to table
+    this.addUserToUsersTable({
+      username: formData.username,
+      email: formData.email,
+      role: formData.role.replace(/[^\w\s]/gi, ''), // Remove emojis
+      department: formData.department.replace(/[^\w\s]/gi, ''),
+      status: 'Active',
+      lastLogin: 'Never',
+      failedAttempts: '0',
+      expires: formData.expires || 'Never'
+    });
+    
+    // Add audit log entry
+    this.addAuditLogEntry({
+      timestamp: new Date().toLocaleString(),
+      user: 'admin',
+      action: 'Create User',
+      target: formData.username,
+      ipAddress: '192.168.1.100',
+      status: 'Success',
+      details: `Created user ${formData.username} with role ${formData.role}`
+    });
+    
+    // Hide form and show success
+    this.handleHideAddUserForm(event);
+    this.modules.notificationManager.success(`User ${formData.username} created successfully!`);
+    
+    // Update metrics
+    this.updateUserManagementMetrics();
+  }
+
+  handleApplyUserFilters(event) {
+    event.preventDefault();
+    
+    const roleFilter = document.getElementById('filter-user-role')?.value;
+    const statusFilter = document.getElementById('filter-user-status')?.value;
+    const departmentFilter = document.getElementById('filter-user-department')?.value;
+    
+    console.log('User filter values:', { roleFilter, statusFilter, departmentFilter });
+    
+    const tbody = document.getElementById('users-table-tbody');
     if (!tbody) {
-      this.modules.notificationManager.error('Royalty records table not found');
+      this.modules.notificationManager.error('Users table not found');
       return;
     }
     
@@ -810,20 +1047,20 @@ class RoyaltiesManager {
       const cells = row.querySelectorAll('td');
       if (cells.length < 6) return;
       
-      const rowEntity = cells[0]?.textContent.trim();
-      const rowMineral = cells[1]?.textContent.trim();
-      const rowStatus = cells[6]?.textContent.trim();
+      // Correct column indexes (accounting for checkbox column)
+      const rowRole = cells[3]?.textContent.trim(); // Role is 4th column (index 3)
+      const rowDepartment = cells[4]?.textContent.trim(); // Department is 5th column (index 4)  
+      const rowStatus = cells[5]?.querySelector('.status-badge')?.textContent.trim(); // Status is 6th column (index 5)
       
       let showRow = true;
       
-      // Apply filters
-      if (entityFilter && entityFilter !== 'All Entities' && !rowEntity.includes(entityFilter)) {
+      if (roleFilter && roleFilter !== '' && !rowRole.includes(roleFilter)) {
         showRow = false;
       }
-      if (mineralFilter && mineralFilter !== 'All Minerals' && !rowMineral.includes(mineralFilter)) {
+      if (statusFilter && statusFilter !== '' && !rowStatus?.includes(statusFilter)) {
         showRow = false;
       }
-      if (statusFilter && statusFilter !== 'All Statuses' && !rowStatus.includes(statusFilter)) {
+      if (departmentFilter && departmentFilter !== '' && !rowDepartment.includes(departmentFilter)) {
         showRow = false;
       }
       
@@ -831,119 +1068,229 @@ class RoyaltiesManager {
       if (showRow) visibleCount++;
     });
     
-    this.modules.notificationManager.success(`Applied filters. Showing ${visibleCount} of ${rows.length} records.`);
+    this.modules.notificationManager.success(`User filters applied. Showing ${visibleCount} of ${rows.length} users.`);
   }
 
-  handleClearFilters(event) {
+  handleClearUserFilters(event) {
     event.preventDefault();
     
-    console.log('Clear Filters button clicked');
+    // Clear user filter inputs
+    const userFilterInputs = [
+      'filter-user-role',
+      'filter-user-status', 
+      'filter-user-department',
+      'audit-from-date',
+      'audit-to-date',
+      'audit-action-type'
+    ];
     
-    // Clear filter inputs
-    const filterInputs = document.querySelectorAll('[id*="filter"]');
-    filterInputs.forEach(input => {
-      if (input.tagName === 'SELECT') {
-        input.selectedIndex = 0;
-      } else {
-        input.value = '';
+    userFilterInputs.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        if (input.tagName === 'SELECT') {
+          input.selectedIndex = 0;
+        } else {
+          input.value = '';
+        }
       }
     });
     
-    // Show all rows
-    const tbody = document.getElementById('royalty-records-tbody');
+    // Show all user rows
+    const tbody = document.getElementById('users-table-tbody');
     if (tbody) {
       const rows = tbody.querySelectorAll('tr');
       rows.forEach(row => {
         row.style.display = '';
       });
       
-      this.modules.notificationManager.info(`Filters cleared. Showing all ${rows.length} records.`);
+      this.modules.notificationManager.info(`User filters cleared. Showing all ${rows.length} users.`);
+    }
+    
+    // Show all audit log rows
+    const auditTbody = document.getElementById('audit-log-tbody');
+    if (auditTbody) {
+      const auditRows = auditTbody.querySelectorAll('tr');
+      auditRows.forEach(row => {
+        row.style.display = '';
+      });
     }
   }
 
-  addUserToTable(userData) {
-    const tbody = document.querySelector('#user-management .data-table:first-of-type tbody');
+  handleRefreshUsers(event) {
+    event.preventDefault();
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+    button.disabled = true;
+    
+    setTimeout(() => {
+      this.populateUserAccounts();
+      this.updateUserManagementMetrics();
+      
+      button.innerHTML = originalText;
+      button.disabled = false;
+      
+      this.modules.notificationManager.success('User list refreshed');
+    }, 1000);
+  }
+
+  handleExportUsers(event) {
+    event.preventDefault();
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-download"></i> Exporting...';
+    button.disabled = true;
+    
+    // Simulate export
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.disabled = false;
+      
+      this.modules.notificationManager.success('User list exported successfully');
+    }, 2000);
+  }
+
+  handleSelectAllUsers(event) {
+    const isChecked = event.target.checked;
+    const userCheckboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]');
+    
+    userCheckboxes.forEach(checkbox => {
+      checkbox.checked = isChecked;
+    });
+    
+    this.updateBulkActionsVisibility();
+  }
+
+  handleUserCheckboxChange(event) {
+    this.updateBulkActionsVisibility();
+    
+    // Update select all checkbox state
+    const selectAllCheckbox = document.getElementById('select-all-users');
+    const userCheckboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]');
+    const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
+    
+    if (selectAllCheckbox) {
+      selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < userCheckboxes.length;
+      selectAllCheckbox.checked = checkedBoxes.length === userCheckboxes.length && userCheckboxes.length > 0;
+    }
+  }
+
+  handleBulkDeleteUsers(event) {
+    event.preventDefault();
+    
+    const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
+    
+    if (checkedBoxes.length === 0) {
+      this.modules.notificationManager.warning('No users selected for deletion');
+      return;
+    }
+    
+    const usernames = Array.from(checkedBoxes).map(checkbox => {
+      const row = checkbox.closest('tr');
+      return row.querySelector('td:nth-child(2)')?.textContent.trim();
+    }).filter(Boolean);
+    
+    if (confirm(`Are you sure you want to delete ${usernames.length} user(s)?\n\nUsers: ${usernames.join(', ')}`)) {
+      checkedBoxes.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        if (row) {
+          // Add audit log entry
+          const username = row.querySelector('td:nth-child(2)')?.textContent.trim();
+          this.addAuditLogEntry({
+            timestamp: new Date().toLocaleString(),
+            user: 'admin',
+            action: 'Delete User',
+            target: username,
+            ipAddress: '192.168.1.100',
+            status: 'Success',
+            details: `Deleted user ${username}`
+          });
+          
+          row.remove();
+        }
+      });
+      
+      this.updateBulkActionsVisibility();
+      this.updateUserManagementMetrics();
+      this.modules.notificationManager.success(`${usernames.length} user(s) deleted successfully`);
+    }
+  }
+
+  updateBulkActionsVisibility() {
+    const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-users');
+    
+    if (bulkDeleteBtn) {
+      if (checkedBoxes.length > 0) {
+        bulkDeleteBtn.style.display = 'inline-block';
+        bulkDeleteBtn.disabled = false;
+      } else {
+        bulkDeleteBtn.style.display = 'none';
+        bulkDeleteBtn.disabled = true;
+      }
+    }
+  }
+
+  checkUsernameExists(username) {
+    const tbody = document.getElementById('users-table-tbody');
+    if (!tbody) return false;
+    
+    const existingUsernames = Array.from(tbody.querySelectorAll('tr td:nth-child(2)'))
+      .map(cell => cell.textContent.trim().toLowerCase());
+    
+    return existingUsernames.includes(username.toLowerCase());
+  }
+
+  addUserToUsersTable(userData) {
+    const tbody = document.getElementById('users-table-tbody');
     if (!tbody) {
-      console.warn('User table body not found');
+      console.warn('Users table body not found');
       return;
     }
     
     const row = document.createElement('tr');
     row.innerHTML = `
+      <td>
+        <input type="checkbox" title="Select user">
+      </td>
       <td>${userData.username}</td>
       <td>${userData.email}</td>
       <td>${userData.role}</td>
-      <td>${userData.department || 'N/A'}</td>
-      <td><span class="status-badge ${userData.status === 'Active' ? 'compliant' : 'warning'}">${userData.status}</span></td>
+      <td>${userData.department}</td>
+      <td><span class="status-badge ${userData.status === 'Active' ? 'active' : 'inactive'}">${userData.status}</span></td>
       <td>${userData.lastLogin}</td>
-      <td>${userData.failedAttempts || '0'}</td>
-      <td>${userData.expires || 'Never'}</td>
+      <td>${userData.failedAttempts}</td>
+      <td>${userData.expires}</td>
       <td>
-        <button class="btn btn-primary btn-sm">Edit</button>
-        <button class="btn btn-danger btn-sm">Delete</button>
+        <div class="btn-group">
+          <button class="btn btn-primary btn-sm" title="Edit user">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-warning btn-sm" title="Reset password">
+            <i class="fas fa-key"></i> Reset
+          </button>
+          <button class="btn btn-danger btn-sm" title="Delete user">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
       </td>
     `;
+    
+    // Add event listener for the new checkbox
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.addEventListener('change', (e) => this.handleUserCheckboxChange(e));
+    }
     
     tbody.appendChild(row);
   }
 
-  getModule(name) {
-    return this.modules[name];
-  }
-
-  isReady() {
-    return this.isInitialized;
-  }
-
-  destroy() {
-    // Destroy all charts before cleaning up modules
-    this.charts.forEach(chart => {
-      chart.destroy();
-    });
-    this.charts.clear();
-
-    Object.values(this.modules).forEach(module => {
-      if (typeof module.destroy === 'function') {
-        module.destroy();
-      }
-    });
-    this.modules = {};
-    this.isInitialized = false;
-  }
-
-  // Add chart controls functionality
-  setupChartControls() {
-    const chartButtons = document.querySelectorAll('.chart-btn');
-    
-    chartButtons.forEach(button => {
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        
-        // Remove active class from siblings
-        const container = button.parentElement;
-        container.querySelectorAll('.chart-btn').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        
-        // Add active class to clicked button
-        button.classList.add('active');
-        
-        // Get chart type and update chart
-        const chartType = button.dataset.chartType || button.textContent.toLowerCase();
-        this.updateChartType(chartType);
-      });
-    });
-  }
-
-  updateChartType(chartType) {
-    console.log(`Updating chart to ${chartType} type`);
-    this.createRevenueChart(chartType);
-    this.modules.notificationManager.success(`Chart updated to ${chartType} view`);
-  }
-
-  // Complete user management methods
   populateUserAccounts() {
-    const tbody = document.querySelector('#user-management .data-table:first-of-type tbody');
+    const tbody = document.getElementById('users-table-tbody');
     if (!tbody) {
       console.warn('User accounts table body not found');
       return;
@@ -952,7 +1299,7 @@ class RoyaltiesManager {
     // Clear existing rows
     tbody.innerHTML = '';
     
-    // Sample user accounts
+    // Sample user accounts with more realistic data
     const sampleUsers = [
       {
         username: 'admin',
@@ -967,7 +1314,7 @@ class RoyaltiesManager {
       {
         username: 'john.doe',
         email: 'john.doe@eswacaa.sz',
-        role: 'Analyst',
+        role: 'Editor',
         department: 'Finance',
         status: 'Active',
         lastLogin: '2024-02-09 09:15',
@@ -987,25 +1334,19 @@ class RoyaltiesManager {
     ];
     
     sampleUsers.forEach(user => {
-      this.addUserToTable(user);
+      this.addUserToUsersTable(user);
     });
     
     console.log(`Added ${sampleUsers.length} user accounts`);
+    this.updateUserManagementMetrics();
   }
 
   populateAuditLog() {
     console.log('Populating audit log...');
     
-    // Find or create audit log table
-    let auditTableBody = document.querySelector('#user-management .data-table:last-of-type tbody');
-    
+    const auditTableBody = document.getElementById('audit-log-tbody');
     if (!auditTableBody) {
-      this.createAuditLogTable();
-      auditTableBody = document.querySelector('#audit-log-table tbody');
-    }
-    
-    if (!auditTableBody) {
-      console.error('Could not find or create audit log table body');
+      console.error('Audit log table body not found');
       return;
     }
     
@@ -1020,7 +1361,8 @@ class RoyaltiesManager {
         action: 'Login',
         target: 'System',
         ipAddress: '192.168.1.100',
-        status: 'Success'
+        status: 'Success',
+        details: 'Successful login from admin panel'
       },
       {
         timestamp: '2024-02-10 14:25:10',
@@ -1028,7 +1370,8 @@ class RoyaltiesManager {
         action: 'Create User',
         target: 'john.doe',
         ipAddress: '192.168.1.100',
-        status: 'Success'
+        status: 'Success',
+        details: 'Created new user account'
       },
       {
         timestamp: '2024-02-10 09:15:45',
@@ -1036,199 +1379,223 @@ class RoyaltiesManager {
         action: 'Failed Login',
         target: 'System',
         ipAddress: '10.0.0.50',
-        status: 'Failed'
+        status: 'Failed',
+        details: 'Invalid credentials provided'
       }
     ];
     
-    auditData.forEach((entry) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${entry.timestamp}</td>
-        <td>${entry.user}</td>
-        <td>${entry.action}</td>
-        <td>${entry.target}</td>
-        <td>${entry.ipAddress}</td>
-        <td><span class="status-badge ${entry.status === 'Success' ? 'compliant' : 'warning'}">${entry.status}</span></td>
-      `;
-      auditTableBody.appendChild(row);
+    auditData.forEach(entry => {
+      this.addAuditLogEntry(entry);
     });
     
     console.log(`Added ${auditData.length} audit log entries`);
   }
 
-  createAuditLogTable() {
-    const userMgmtSection = document.getElementById('user-management');
-    if (!userMgmtSection) {
-      console.error('User management section not found');
-      return;
-    }
+  addAuditLogEntry(entryData) {
+    const auditTableBody = document.getElementById('audit-log-tbody');
+    if (!auditTableBody) return;
     
-    // Create audit log section
-    const auditSection = document.createElement('div');
-    auditSection.className = 'user-form-container';
-    auditSection.innerHTML = `
-      <h4>Security Audit Log</h4>
-      <div class="table-container">
-        <table class="data-table" id="audit-log-table">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Target</th>
-              <th>IP Address</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${entryData.timestamp}</td>
+      <td>${entryData.user}</td>
+      <td>${entryData.action}</td>
+      <td>${entryData.target}</td>
+      <td>${entryData.ipAddress}</td>
+      <td><span class="status-badge ${entryData.status === 'Success' ? 'compliant' : 'warning'}">${entryData.status}</span></td>
+      <td>${entryData.details || '-'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" title="View details">
+          <i class="fas fa-eye"></i>
+        </button>
+      </td>
     `;
     
-    userMgmtSection.appendChild(auditSection);
-    console.log('Created new audit log table');
+    // Insert at the beginning (newest first)
+    auditTableBody.insertBefore(row, auditTableBody.firstChild);
   }
 
-  populateAuditDashboard() {
-    console.log('Populating audit dashboard...');
-    
-    // Update audit metrics
-    this.updateAuditMetrics();
-    
-    // Populate audit summary table if it exists
-    this.populateAuditSummaryTable();
-  }
-
-  updateAuditMetrics() {
-    const auditSection = document.getElementById('audit-dashboard');
-    if (!auditSection) return;
-    
-    // Sample audit metrics
-    const metrics = [
-      { selector: '.metric-card:nth-child(1) p', value: '247' },
-      { selector: '.metric-card:nth-child(2) p', value: '3' },
-      { selector: '.metric-card:nth-child(3) p', value: '8' },
-      { selector: '.metric-card:nth-child(4) p', value: '1' }
-    ];
-    
-    metrics.forEach((metric) => {
-      const element = auditSection.querySelector(metric.selector);
-      if (element) {
-        element.textContent = metric.value;
-      }
-    });
-    
-    console.log('Updated audit metrics');
-  }
-
-  populateAuditSummaryTable() {
-    const auditTableBody = document.querySelector('#audit-dashboard tbody');
-    if (!auditTableBody) {
-      console.warn('Audit summary table not found');
-      return;
-    }
-    
-    // Clear existing rows
-    auditTableBody.innerHTML = '';
-    
-    const auditSummaryData = [
-      {
-        project: 'Kwalini Quarry',
-        mineral: 'Granite',
-        declared: '1,500',
-        verified: '1,480',
-        outstanding: '510.00',
-        status: 'Under Review'
-      },
-      {
-        project: 'Mbabane Quarry',
-        mineral: 'Sand',
-        declared: '2,000',
-        verified: '2,000',
-        outstanding: '0.00',
-        status: 'Compliant'
-      }
-    ];
-    
-    auditSummaryData.forEach(data => {
-      const row = document.createElement('tr');
-      const statusClass = data.status === 'Compliant' ? 'compliant' : 
-                         data.status === 'Under Review' ? 'warning' : 'error';
-      
-      row.innerHTML = `
-        <td>${data.project}</td>
-        <td>${data.mineral}</td>
-        <td>${data.declared}</td>
-        <td>${data.verified}</td>
-        <td>E${data.outstanding}</td>
-        <td><span class="status-badge ${statusClass}">${data.status}</span></td>
-      `;
-      auditTableBody.appendChild(row);
-    });
-    
-    console.log('Populated audit summary table');
-  }
-
-  handleViewAuditLog(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    console.log('View Audit Log button clicked');
-    
-    // Navigate to user management section and scroll to audit log
-    this.showSection('user-management');
-    
-    setTimeout(() => {
-      const auditSection = document.querySelector('#audit-log-table') || 
-                          document.querySelector('#user-management .user-form-container:last-child');
-      
-      if (auditSection) {
-        auditSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Highlight the section briefly
-        auditSection.style.backgroundColor = '#f0f8ff';
-        setTimeout(() => {
-          auditSection.style.backgroundColor = '';
-        }, 2000);
-      }
-    }, 100);
-    
-    this.modules.notificationManager.info('Displaying security audit log');
-  }
-
-  handleExportReport(event) {
+  handleRefreshAuditLog(event) {
     event.preventDefault();
     
     const button = event.target;
-    const originalText = button.textContent;
+    const originalText = button.innerHTML;
     
-    button.textContent = 'Exporting...';
+    button.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
     button.disabled = true;
     
-    // Simulate export process
     setTimeout(() => {
-      button.textContent = originalText;
+      this.populateAuditLog();
+      
+      button.innerHTML = originalText;
       button.disabled = false;
-      this.modules.notificationManager.success('Report exported successfully!');
+      
+      this.modules.notificationManager.success('Audit log refreshed');
+    }, 1000);
+  }
+
+  handleExportAuditLog(event) {
+    event.preventDefault();
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-download"></i> Exporting...';
+    button.disabled = true;
+    
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.disabled = false;
+      
+      this.modules.notificationManager.success('Audit log exported successfully');
     }, 2000);
   }
 
-  handleAddUser(event) {
-    event.preventDefault();
+  updateUserManagementMetrics() {
+    const userRows = document.querySelectorAll('#users-table-tbody tr');
+    const activeUsers = document.querySelectorAll('#users-table-tbody .status-badge.active').length;
+    const auditRows = document.querySelectorAll('#audit-log-tbody tr');
+    const failedLogins = document.querySelectorAll('#audit-log-tbody tr').length ? 
+      Array.from(document.querySelectorAll('#audit-log-tbody tr')).filter(row => 
+        row.textContent.includes('Failed Login')).length : 0;
     
-    // Scroll to the add user form
-    const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
-    if (addUserForm) {
-      addUserForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
-      // Focus on first input
-      const firstInput = addUserForm.querySelector('input');
-      if (firstInput) {
-        setTimeout(() => firstInput.focus(), 300);
-      }
+    // Update metrics
+    const activeUsersElement = document.getElementById('active-users-count');
+    if (activeUsersElement) {
+      activeUsersElement.textContent = activeUsers.toString();
     }
     
-    this.modules.notificationManager.info('Add user form ready');
+    const failedLoginsElement = document.getElementById('failed-logins-count');
+    if (failedLoginsElement) {
+      failedLoginsElement.textContent = failedLogins.toString();
+    }
+    
+    const securityAlertsElement = document.getElementById('security-alerts-count');
+    if (securityAlertsElement) {
+      securityAlertsElement.textContent = failedLogins > 3 ? 'High' : 'None';
+    }
+    
+    const passwordComplianceElement = document.getElementById('password-compliance-rate');
+    if (passwordComplianceElement) {
+      const complianceRate = activeUsers > 0 ? Math.round((activeUsers / userRows.length) * 100) : 100;
+      passwordComplianceElement.textContent = `${complianceRate}%`;
+    }
+  }
+
+  // ...existing code...
+
+  // Add the missing setupChartControls method
+  setupChartControls() {
+    const chartButtons = document.querySelectorAll('.chart-btn');
+    
+    chartButtons.forEach(button => {
+      // Remove existing event listeners to prevent duplicates
+      button.replaceWith(button.cloneNode(true));
+    });
+    
+    // Re-select buttons after cloning
+    const newChartButtons = document.querySelectorAll('.chart-btn');
+    
+    newChartButtons.forEach(button => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        
+        // Remove active class from siblings
+        const container = button.parentElement;
+        container.querySelectorAll('.chart-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Add active class to clicked button
+        button.classList.add('active');
+        
+        // Get chart type and update chart
+        const chartType = button.dataset.chartType || button.textContent.toLowerCase();
+        this.updateChartType(chartType);
+      });
+    });
+    
+    console.log(`Set up ${newChartButtons.length} chart control buttons`);
+  }
+
+  updateChartType(chartType) {
+    console.log(`Updating chart to ${chartType} type`);
+    this.createRevenueChart(chartType);
+    this.modules.notificationManager.success(`Chart updated to ${chartType} view`);
+  }
+
+  // Add specific handler for User Management table actions
+  handleUserTableAction(event) {
+    event.preventDefault();
+    
+    const button = event.target.closest('.btn');
+    const buttonText = button.textContent.trim();
+    const row = button.closest('tr');
+    const username = row.querySelector('td:nth-child(2)')?.textContent.trim();
+    
+    if (buttonText.includes('Edit')) {
+      this.handleEditUser(row, username);
+    } else if (buttonText.includes('Reset')) {
+      this.handleResetUserPassword(row, username);
+    } else if (buttonText.includes('Delete')) {
+      this.handleDeleteUser(row, username);
+    }
+  }
+
+  handleEditUser(row, username) {
+    this.modules.notificationManager.info(`Editing user: ${username}`);
+    
+    // Highlight the row temporarily
+    row.style.backgroundColor = '#e3f2fd';
+    setTimeout(() => {
+      row.style.backgroundColor = '';
+    }, 2000);
+    
+    // In a real application, this would open an edit modal or form
+    console.log(`Edit user action for: ${username}`);
+  }
+
+  handleResetUserPassword(row, username) {
+    if (confirm(`Are you sure you want to reset the password for user "${username}"?`)) {
+      // Add audit log entry
+      this.addAuditLogEntry({
+        timestamp: new Date().toLocaleString(),
+        user: 'admin',
+        action: 'Password Reset',
+        target: username,
+        ipAddress: '192.168.1.100',
+        status: 'Success',
+        details: `Password reset for user ${username}`
+      });
+      
+      this.modules.notificationManager.success(`Password reset for user: ${username}`);
+      console.log(`Password reset for: ${username}`);
+    }
+  }
+
+  handleDeleteUser(row, username) {
+    if (confirm(`Are you sure you want to delete user "${username}"?\n\nThis action cannot be undone.`)) {
+      // Add audit log entry before removing
+      this.addAuditLogEntry({
+        timestamp: new Date().toLocaleString(),
+        user: 'admin',
+        action: 'Delete User',
+        target: username,
+        ipAddress: '192.168.1.100',
+        status: 'Success',
+        details: `Deleted user ${username}`
+      });
+      
+      // Remove the row
+      row.remove();
+      
+      // Update metrics and UI
+      this.updateUserManagementMetrics();
+      this.updateBulkActionsVisibility();
+      
+      this.modules.notificationManager.success(`User "${username}" deleted successfully`);
+      console.log(`Deleted user: ${username}`);
+    }
   }
 }
 
