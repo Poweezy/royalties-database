@@ -166,52 +166,71 @@
       <section id="user-management">
         <div class="page-header">
           <div class="page-title">
-            <h1>User Management</h1>
-            <p>Manage users with role-based access control and security monitoring</p>
+            <h1>👥 User Management</h1>
+            <p>Comprehensive user administration with role-based access control, security monitoring, and audit trails</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary" id="view-audit-btn">View Audit Log</button>
-            <button class="btn btn-primary" id="export-report-btn">Export Report</button>
-            <button class="btn btn-success" id="add-user-btn">Add User</button>
+            <button class="btn btn-info" id="view-audit-btn" title="View detailed audit logs">
+              <i class="fas fa-shield-alt"></i> View Audit Log
+            </button>
+            <button class="btn btn-primary" id="export-report-btn" title="Export user management report">
+              <i class="fas fa-file-export"></i> Export Report
+            </button>
+            <button class="btn btn-success" id="add-user-btn" title="Add new user account">
+              <i class="fas fa-user-plus"></i> Add User
+            </button>
           </div>
         </div>
         
-        <!-- User Management Metrics -->
+        <!-- User Management Metrics Dashboard -->
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Active Users</h3>
+              <h3><i class="fas fa-users"></i> Active Users</h3>
+              <select class="metric-period">
+                <option>Current</option>
+                <option>Last 30 days</option>
+                <option>All time</option>
+              </select>
             </div>
             <div class="card-body">
               <p id="active-users-count">3</p>
-              <small>Currently online</small>
+              <small><i class="fas fa-circle text-success"></i> Currently active and logged in</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Failed Logins</h3>
+              <h3><i class="fas fa-exclamation-triangle"></i> Failed Logins</h3>
+              <select class="metric-period">
+                <option>Last 24 hours</option>
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+              </select>
             </div>
             <div class="card-body">
               <p id="failed-logins-count">0</p>
-              <small>Last 24 hours</small>
+              <small><i class="fas fa-shield-alt text-success"></i> Security status: Normal</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Security Alerts</h3>
+              <h3><i class="fas fa-bell"></i> Security Alerts</h3>
             </div>
             <div class="card-body">
               <p id="security-alerts-count">None</p>
-              <small>All systems secure</small>
+              <small><i class="fas fa-check-circle text-success"></i> All systems secure</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Password Compliance</h3>
+              <h3><i class="fas fa-key"></i> Password Compliance</h3>
             </div>
             <div class="card-body">
               <p id="password-compliance-rate">100%</p>
-              <small>Meeting security standards</small>
+              <small><i class="fas fa-certificate text-success"></i> Meeting security standards</small>
+              <div class="mini-progress">
+                <div class="progress-bar" style="width: 100%; background: var(--success-color);"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -219,56 +238,120 @@
         <!-- Add New User Form -->
         <div class="user-form-container" id="add-user-form-container" style="display: none;">
           <div class="section-header">
-            <h4>Add New User</h4>
-            <button class="btn btn-secondary btn-sm" id="close-add-user-form">
-              <i class="fas fa-times"></i> Close
-            </button>
+            <h4><i class="fas fa-user-plus"></i> Add New User Account</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="close-add-user-form" title="Close form">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
           </div>
-          <form id="add-user-form">
+          
+          <form id="add-user-form" novalidate>
             <div class="grid-4">
+              <!-- Username Field -->
               <div class="form-group">
-                <label for="new-username">Username *</label>
-                <input type="text" id="new-username" name="username" placeholder="Enter username" required aria-describedby="new-username-error">
-                <div class="validation-success" id="new-username-success" style="display: none;">✓ Username available</div>
-                <div class="validation-error" id="new-username-error" style="display: none;">Username is required and must be unique</div>
+                <label for="new-username">
+                  <i class="fas fa-user"></i> Username *
+                </label>
+                <input 
+                  type="text" 
+                  id="new-username" 
+                  name="username" 
+                  placeholder="Enter unique username" 
+                  required 
+                  aria-describedby="new-username-error new-username-success"
+                  autocomplete="off"
+                  minlength="3"
+                  maxlength="50"
+                  pattern="^[a-zA-Z0-9._-]+$"
+                >
+                <div class="validation-success" id="new-username-success" style="display: none;">
+                  <i class="fas fa-check-circle"></i> Username is available
+                </div>
+                <div class="validation-error" id="new-username-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Username is required and must be unique
+                </div>
+                <small class="form-help">3-50 characters, letters, numbers, dots, dashes, underscores only</small>
               </div>
               
+              <!-- Email Field -->
               <div class="form-group">
-                <label for="new-email">Email Address *</label>
-                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required aria-describedby="new-email-error">
-                <div class="validation-success" id="new-email-success" style="display: none;">✓ Email address is valid</div>
-                <div class="validation-error" id="new-email-error" style="display: none;">Valid email address is required</div>
+                <label for="new-email">
+                  <i class="fas fa-envelope"></i> Email Address *
+                </label>
+                <input 
+                  type="email" 
+                  id="new-email" 
+                  name="email" 
+                  placeholder="user@eswacaa.sz" 
+                  required 
+                  aria-describedby="new-email-error new-email-success"
+                  autocomplete="email"
+                >
+                <div class="validation-success" id="new-email-success" style="display: none;">
+                  <i class="fas fa-check-circle"></i> Email address is valid
+                </div>
+                <div class="validation-error" id="new-email-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Valid email address is required
+                </div>
+                <small class="form-help">Must be a valid email address, preferably @eswacaa.sz domain</small>
               </div>
               
+              <!-- Role Field -->
               <div class="form-group">
-                <label for="new-role">Role *</label>
+                <label for="new-role">
+                  <i class="fas fa-user-tag"></i> User Role *
+                </label>
                 <select id="new-role" name="role" required aria-describedby="new-role-error">
-                  <option value="">Select Role</option>
-                  <option value="Administrator">👑 Administrator (Full Access)</option>
-                  <option value="Editor">✏️ Editor (Read/Write)</option>
-                  <option value="Viewer">👁️ Viewer (Read Only)</option>
-                  <option value="Auditor">🔍 Auditor (Audit Access)</option>
+                  <option value="">Select User Role</option>
+                  <option value="Administrator">👑 Administrator (Full System Access)</option>
+                  <option value="Editor">✏️ Editor (Read/Write Access)</option>
+                  <option value="Viewer">👁️ Viewer (Read-Only Access)</option>
+                  <option value="Auditor">🔍 Auditor (Audit & Compliance Access)</option>
+                  <option value="Finance">💰 Finance (Financial Data Access)</option>
                 </select>
-                <div class="validation-error" id="new-role-error" style="display: none;">Please select a role</div>
+                <div class="validation-error" id="new-role-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select a user role
+                </div>
+                <small class="form-help">Role determines system permissions and access levels</small>
               </div>
               
+              <!-- Department Field -->
               <div class="form-group">
-                <label for="new-department">Department *</label>
+                <label for="new-department">
+                  <i class="fas fa-building"></i> Department *
+                </label>
                 <select id="new-department" name="department" required aria-describedby="new-department-error">
                   <option value="">Select Department</option>
-                  <option value="Finance">💰 Finance</option>
-                  <option value="Operations">⚙️ Operations</option>
-                  <option value="Compliance">📋 Compliance</option>
-                  <option value="Audit">🔍 Audit</option>
-                  <option value="Management">👔 Management</option>
+                  <option value="Finance">💰 Finance Department</option>
+                  <option value="Operations">⚙️ Operations Department</option>
+                  <option value="Compliance">📋 Compliance & Legal</option>
+                  <option value="Audit">🔍 Internal Audit</option>
+                  <option value="Management">👔 Executive Management</option>
+                  <option value="IT">💻 Information Technology</option>
                 </select>
-                <div class="validation-error" id="new-department-error" style="display: none;">Please select a department</div>
+                <div class="validation-error" id="new-department-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select a department
+                </div>
+                <small class="form-help">User's organizational department for reporting purposes</small>
               </div>
               
+              <!-- Password Field -->
               <div class="form-group">
-                <label for="new-password">Password *</label>
+                <label for="new-password">
+                  <i class="fas fa-lock"></i> Password *
+                </label>
                 <div class="password-input-container">
-                  <input type="password" id="new-password" name="password" placeholder="Enter password" required aria-describedby="new-password-error">
+                  <input 
+                    type="password" 
+                    id="new-password" 
+                    name="password" 
+                    placeholder="Enter secure password" 
+                    required 
+                    aria-describedby="new-password-error"
+                    minlength="8"
+                    autocomplete="new-password"
+                  >
                   <button type="button" class="password-toggle-btn" onclick="togglePassword('new-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
@@ -279,83 +362,141 @@
                   </div>
                   <p class="strength-text">Password Strength: Enter password</p>
                 </div>
-                <div class="validation-error" id="new-password-error" style="display: none;">Password must be at least 8 characters with uppercase, lowercase, and number</div>
+                <div class="validation-error" id="new-password-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Password must be at least 8 characters with uppercase, lowercase, and number
+                </div>
+                <small class="form-help">Minimum 8 characters with uppercase, lowercase, number, and special character</small>
               </div>
               
+              <!-- Confirm Password Field -->
               <div class="form-group">
-                <label for="confirm-password">Confirm Password *</label>
+                <label for="confirm-password">
+                  <i class="fas fa-lock"></i> Confirm Password *
+                </label>
                 <div class="password-input-container">
-                  <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm password" required aria-describedby="confirm-password-error">
+                  <input 
+                    type="password" 
+                    id="confirm-password" 
+                    name="confirmPassword" 
+                    placeholder="Confirm password" 
+                    required 
+                    aria-describedby="confirm-password-error confirm-password-success"
+                    autocomplete="new-password"
+                  >
                   <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
-                <div class="validation-success" id="confirm-password-success" style="display: none;">✓ Passwords match</div>
-                <div class="validation-error" id="confirm-password-error" style="display: none;">Passwords must match</div>
+                <div class="validation-success" id="confirm-password-success" style="display: none;">
+                  <i class="fas fa-check-circle"></i> Passwords match perfectly
+                </div>
+                <div class="validation-error" id="confirm-password-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Passwords must match exactly
+                </div>
               </div>
               
+              <!-- Account Expiry Field -->
               <div class="form-group">
-                <label for="account-expires">Account Expires (Optional)</label>
-                <input type="date" id="account-expires" name="expires" aria-describedby="account-expires-help">
-                <small class="form-help" id="account-expires-help">Leave blank for no expiration</small>
-                <div class="validation-error" id="account-expires-error" style="display: none;">Invalid date format</div>
+                <label for="account-expires">
+                  <i class="fas fa-calendar-alt"></i> Account Expires (Optional)
+                </label>
+                <input 
+                  type="date" 
+                  id="account-expires" 
+                  name="expires" 
+                  aria-describedby="account-expires-help"
+                  min=""
+                >
+                <small class="form-help" id="account-expires-help">
+                  <i class="fas fa-info-circle"></i> Leave blank for permanent account, or set expiration date
+                </small>
               </div>
               
-              <div class="form-group checkbox-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="force-password-change" name="forcePasswordChange">
-                  <span class="checkmark"></span>
-                  Force password change on first login
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" id="send-welcome-email" name="sendWelcomeEmail" checked>
-                  <span class="checkmark"></span>
-                  Send welcome email with credentials
-                </label>
+              <!-- Additional Options -->
+              <div class="form-group">
+                <label><i class="fas fa-cog"></i> Account Options</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="force-password-change" name="forcePasswordChange">
+                    <span class="checkmark"></span>
+                    <span>
+                      <strong>Force password change on first login</strong>
+                      <small>User must change password when they first log in</small>
+                    </span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="send-welcome-email" name="sendWelcomeEmail" checked>
+                    <span class="checkmark"></span>
+                    <span>
+                      <strong>Send welcome email with credentials</strong>
+                      <small>Email login details to the user's email address</small>
+                    </span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="enable-2fa" name="enable2FA">
+                    <span class="checkmark"></span>
+                    <span>
+                      <strong>Enable two-factor authentication</strong>
+                      <small>Enhanced security with 2FA requirement</small>
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
             
             <div class="form-actions">
-              <button type="button" class="btn btn-secondary" id="cancel-add-user">Cancel</button>
+              <button type="button" class="btn btn-secondary" id="cancel-add-user">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+              <button type="button" class="btn btn-warning" id="reset-form">
+                <i class="fas fa-undo"></i> Reset Form
+              </button>
               <button type="submit" class="btn btn-success" id="create-user-btn" disabled>
-                <i class="fas fa-user-plus"></i> Create User
+                <i class="fas fa-user-plus"></i> Create User Account
               </button>
             </div>
           </form>
         </div>
 
-        <!-- User Accounts Table -->
+        <!-- User Accounts Management Table -->
         <div class="user-form-container">
           <div class="section-header">
-            <h4>User Accounts</h4>
+            <h4><i class="fas fa-users-cog"></i> User Accounts Management</h4>
             <div class="table-actions">
-              <button class="btn btn-secondary btn-sm" id="refresh-users">
+              <button class="btn btn-secondary btn-sm" id="refresh-users" title="Refresh user list">
                 <i class="fas fa-sync-alt"></i> Refresh
               </button>
-              <button class="btn btn-primary btn-sm" id="export-users">
+              <button class="btn btn-info btn-sm" id="export-users" title="Export user list">
                 <i class="fas fa-download"></i> Export
               </button>
-              <button class="btn btn-danger btn-sm" id="bulk-delete-users" style="display: none;" disabled>
-                <i class="fas fa-trash"></i> Delete Selected
+              <button class="btn btn-danger btn-sm" id="bulk-delete-users" style="display: none;" disabled title="Delete selected users">
+                <i class="fas fa-trash-alt"></i> Delete Selected (<span id="selected-count">0</span>)
               </button>
             </div>
           </div>
           
+          <!-- Advanced Filtering -->
           <div class="table-filters">
+            <h6><i class="fas fa-filter"></i> Filter & Search Options</h6>
             <div class="grid-4">
               <div class="form-group">
-                <label for="filter-user-role">Filter by Role</label>
+                <label for="filter-user-role">
+                  <i class="fas fa-user-tag"></i> Filter by Role
+                </label>
                 <select id="filter-user-role">
                   <option value="">All Roles</option>
                   <option value="Administrator">Administrator</option>
                   <option value="Editor">Editor</option>
                   <option value="Viewer">Viewer</option>
                   <option value="Auditor">Auditor</option>
+                  <option value="Finance">Finance</option>
                 </select>
               </div>
               
               <div class="form-group">
-                <label for="filter-user-status">Filter by Status</label>
+                <label for="filter-user-status">
+                  <i class="fas fa-toggle-on"></i> Filter by Status
+                </label>
                 <select id="filter-user-status">
                   <option value="">All Statuses</option>
                   <option value="Active">Active</option>
@@ -366,7 +507,9 @@
               </div>
               
               <div class="form-group">
-                <label for="filter-user-department">Filter by Department</label>
+                <label for="filter-user-department">
+                  <i class="fas fa-building"></i> Filter by Department
+                </label>
                 <select id="filter-user-department">
                   <option value="">All Departments</option>
                   <option value="Finance">Finance</option>
@@ -374,52 +517,82 @@
                   <option value="Compliance">Compliance</option>
                   <option value="Audit">Audit</option>
                   <option value="Management">Management</option>
+                  <option value="IT">Information Technology</option>
                 </select>
               </div>
               
               <div class="form-group filter-actions">
-                <button class="btn btn-primary" id="apply-user-filters">
-                  <i class="fas fa-filter"></i> Apply Filters
+                <button class="btn btn-primary" id="apply-user-filters" title="Apply selected filters">
+                  <i class="fas fa-search"></i> Apply Filters
                 </button>
-                <button class="btn btn-secondary" id="clear-user-filters">
-                  <i class="fas fa-times"></i> Clear
+                <button class="btn btn-secondary" id="clear-user-filters" title="Clear all filters">
+                  <i class="fas fa-times"></i> Clear All
                 </button>
               </div>
             </div>
           </div>
           
+          <!-- Users Data Table -->
           <div class="table-container">
             <table class="data-table" id="users-table">
               <thead>
                 <tr>
-                  <th>
-                    <input type="checkbox" id="select-all-users" title="Select all users">
+                  <th style="width: 40px;">
+                    <input type="checkbox" id="select-all-users" title="Select all visible users">
                   </th>
-                  <th sortable data-sort="username">Username <i class="fas fa-sort"></i></th>
-                  <th sortable data-sort="email">Email <i class="fas fa-sort"></i></th>
-                  <th sortable data-sort="role">Role <i class="fas fa-sort"></i></th>
-                  <th sortable data-sort="department">Department <i class="fas fa-sort"></i></th>
-                  <th sortable data-sort="status">Status <i class="fas fa-sort"></i></th>
-                  <th sortable data-sort="lastLogin">Last Login <i class="fas fa-sort"></i></th>
-                  <th>Failed Attempts</th>
-                  <th>Expires</th>
-                  <th>Actions</th>
+                  <th sortable data-sort="username" style="min-width: 120px;">
+                    <i class="fas fa-user"></i> Username <i class="fas fa-sort"></i>
+                  </th>
+                  <th sortable data-sort="email" style="min-width: 200px;">
+                    <i class="fas fa-envelope"></i> Email <i class="fas fa-sort"></i>
+                  </th>
+                  <th sortable data-sort="role" style="min-width: 100px;">
+                    <i class="fas fa-user-tag"></i> Role <i class="fas fa-sort"></i>
+                  </th>
+                  <th sortable data-sort="department" style="min-width: 120px;">
+                    <i class="fas fa-building"></i> Department <i class="fas fa-sort"></i>
+                  </th>
+                  <th sortable data-sort="status" style="min-width: 100px;">
+                    <i class="fas fa-toggle-on"></i> Status <i class="fas fa-sort"></i>
+                  </th>
+                  <th sortable data-sort="lastLogin" style="min-width: 140px;">
+                    <i class="fas fa-clock"></i> Last Login <i class="fas fa-sort"></i>
+                  </th>
+                  <th style="min-width: 80px;">
+                    <i class="fas fa-exclamation-triangle"></i> Failed Attempts
+                  </th>
+                  <th style="min-width: 100px;">
+                    <i class="fas fa-calendar-times"></i> Expires
+                  </th>
+                  <th style="min-width: 200px;">
+                    <i class="fas fa-cogs"></i> Actions
+                  </th>
                 </tr>
               </thead>
               <tbody id="users-table-tbody">
                 <!-- Users will be populated by JavaScript -->
+                <tr>
+                  <td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin"></i> Loading user accounts...
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
           
-          <div class="table-pagination" id="users-pagination" style="display: none;">
+          <!-- Table Pagination -->
+          <div class="table-pagination" id="users-pagination">
             <div class="pagination-info">
-              Showing <span id="users-start">1</span> to <span id="users-end">10</span> of <span id="users-total">0</span> users
+              Showing <span id="users-start">0</span> to <span id="users-end">0</span> of <span id="users-total">0</span> users
             </div>
             <div class="pagination-controls">
-              <button class="btn btn-sm" id="users-prev" disabled>Previous</button>
+              <button class="btn btn-sm btn-secondary" id="users-prev" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
               <span class="pagination-pages" id="users-pages"></span>
-              <button class="btn btn-sm" id="users-next" disabled>Next</button>
+              <button class="btn btn-sm btn-secondary" id="users-next" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -427,85 +600,125 @@
         <!-- Security Audit Log -->
         <div class="user-form-container">
           <div class="section-header">
-            <h4>Security Audit Log</h4>
+            <h4><i class="fas fa-shield-alt"></i> Security Audit Log & Activity Monitoring</h4>
             <div class="table-actions">
-              <button class="btn btn-secondary btn-sm" id="refresh-audit-log">
-                <i class="fas fa-sync-alt"></i> Refresh
+              <button class="btn btn-secondary btn-sm" id="refresh-audit-log" title="Refresh audit log">
+                <i class="fas fa-sync-alt"></i> Refresh Log
               </button>
-              <button class="btn btn-primary btn-sm" id="export-audit-log">
-                <i class="fas fa-download"></i> Export Log
+              <button class="btn btn-info btn-sm" id="export-audit-log" title="Export audit log">
+                <i class="fas fa-file-export"></i> Export Log
+              </button>
+              <button class="btn btn-warning btn-sm" id="clear-audit-log" title="Clear old audit entries">
+                <i class="fas fa-trash"></i> Clear Old Entries
               </button>
             </div>
           </div>
           
+          <!-- Audit Log Filters -->
           <div class="table-filters">
+            <h6><i class="fas fa-search"></i> Audit Log Search & Filters</h6>
             <div class="grid-4">
               <div class="form-group">
-                <label for="audit-from-date">From Date</label>
+                <label for="audit-from-date">
+                  <i class="fas fa-calendar"></i> From Date
+                </label>
                 <input type="date" id="audit-from-date">
               </div>
               
               <div class="form-group">
-                <label for="audit-to-date">To Date</label>
+                <label for="audit-to-date">
+                  <i class="fas fa-calendar"></i> To Date
+                </label>
                 <input type="date" id="audit-to-date">
               </div>
               
               <div class="form-group">
-                <label for="audit-action-type">Action Type</label>
+                <label for="audit-action-type">
+                  <i class="fas fa-list"></i> Action Type
+                </label>
                 <select id="audit-action-type">
                   <option value="">All Actions</option>
-                  <option value="Login">Login</option>
-                  <option value="Logout">Logout</option>
-                  <option value="Create User">Create User</option>
-                  <option value="Modify User">Modify User</option>
-                  <option value="Delete User">Delete User</option>
-                  <option value="Failed Login">Failed Login</option>
-                  <option value="Password Change">Password Change</option>
-                  <option value="Role Change">Role Change</option>
-                  <option value="Account Lock">Account Lock</option>
-                  <option value="Account Unlock">Account Unlock</option>
+                  <option value="Login">🔓 Login Attempts</option>
+                  <option value="Logout">🔒 Logout Events</option>
+                  <option value="Create User">👤 User Creation</option>
+                  <option value="Modify User">✏️ User Modifications</option>
+                  <option value="Delete User">🗑️ User Deletions</option>
+                  <option value="Failed Login">❌ Failed Login Attempts</option>
+                  <option value="Password Change">🔑 Password Changes</option>
+                  <option value="Role Change">👑 Role Changes</option>
+                  <option value="Account Lock">🔐 Account Locks</option>
+                  <option value="Account Unlock">🔓 Account Unlocks</option>
+                  <option value="Data Access">📊 Data Access</option>
+                  <option value="Settings Change">⚙️ Settings Changes</option>
                 </select>
               </div>
               
               <div class="form-group filter-actions">
-                <button class="btn btn-primary" id="apply-audit-filters">
-                  <i class="fas fa-filter"></i> Apply Filters
+                <button class="btn btn-primary" id="apply-audit-filters" title="Apply audit filters">
+                  <i class="fas fa-search"></i> Search Log
                 </button>
-                <button class="btn btn-secondary" id="clear-audit-filters">
-                  <i class="fas fa-times"></i> Clear
+                <button class="btn btn-secondary" id="clear-audit-filters" title="Clear audit filters">
+                  <i class="fas fa-times"></i> Clear Filters
                 </button>
               </div>
             </div>
           </div>
           
+          <!-- Audit Log Table -->
           <div class="table-container">
             <table class="data-table" id="audit-log-table">
               <thead>
                 <tr>
-                  <th>Timestamp</th>
-                  <th>User</th>
-                  <th>Action</th>
-                  <th>Target</th>
-                  <th>IP Address</th>
-                  <th>Status</th>
-                  <th>Details</th>
-                  <th>Actions</th>
+                  <th style="min-width: 140px;">
+                    <i class="fas fa-clock"></i> Timestamp
+                  </th>
+                  <th style="min-width: 100px;">
+                    <i class="fas fa-user"></i> User
+                  </th>
+                  <th style="min-width: 120px;">
+                    <i class="fas fa-list"></i> Action
+                  </th>
+                  <th style="min-width: 100px;">
+                    <i class="fas fa-crosshairs"></i> Target
+                  </th>
+                  <th style="min-width: 120px;">
+                    <i class="fas fa-network-wired"></i> IP Address
+                  </th>
+                  <th style="min-width: 80px;">
+                    <i class="fas fa-check-circle"></i> Status
+                  </th>
+                  <th style="min-width: 200px;">
+                    <i class="fas fa-info-circle"></i> Details
+                  </th>
+                  <th style="min-width: 80px;">
+                    <i class="fas fa-cogs"></i> Actions
+                  </th>
                 </tr>
               </thead>
               <tbody id="audit-log-tbody">
                 <!-- Audit log will be populated by JavaScript -->
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin"></i> Loading audit log entries...
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
           
-          <div class="table-pagination" id="audit-pagination" style="display: none;">
+          <!-- Audit Log Pagination -->
+          <div class="table-pagination" id="audit-pagination">
             <div class="pagination-info">
-              Showing <span id="audit-start">1</span> to <span id="audit-end">20</span> of <span id="audit-total">0</span> entries
+              Showing <span id="audit-start">0</span> to <span id="audit-end">0</span> of <span id="audit-total">0</span> audit entries
             </div>
             <div class="pagination-controls">
-              <button class="btn btn-sm" id="audit-prev">Previous</button>
+              <button class="btn btn-sm btn-secondary" id="audit-prev" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
               <span class="pagination-pages" id="audit-pages"></span>
-              <button class="btn btn-sm" id="audit-next">Next</button>
+              <button class="btn btn-sm btn-secondary" id="audit-next" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
         </div>
