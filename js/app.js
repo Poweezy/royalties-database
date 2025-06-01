@@ -637,52 +637,186 @@ function handleUserCreation() {
 }
 
 function populateUserAccounts() {
-    const tbody = document.getElementById('users-table-tbody');
-    if (!tbody) return;
+    const userTableBody = document.getElementById('users-table-tbody');
+    if (!userTableBody) return;
+
+    userTableBody.innerHTML = '';
     
-    tbody.innerHTML = '';
-    
-    userAccounts.forEach(user => {
-        const row = document.createElement('tr');
+    userAccounts.forEach((user, index) => {
+        const row = userTableBody.insertRow();
         row.innerHTML = `
-            <td><input type="checkbox" data-user-id="${user.id}"></td>
+            <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
             <td>${user.username}</td>
             <td>${user.email}</td>
             <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
             <td>${user.department}</td>
             <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-            <td>${user.lastLogin}</td>
-            <td>${user.failedAttempts}</td>
+            <td>${user.lastLogin || 'Never'}</td>
+            <td>${user.failedAttempts || 0}</td>
             <td>${user.expires || 'Never'}</td>
             <td>
                 <div class="btn-group">
-                    <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})" title="Edit user">
-                        <i class="fas fa-edit"></i>
+                    <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})" title="Edit user">
+                        <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-warning btn-sm" onclick="resetPassword(${user.id})" title="Reset password">
-                        <i class="fas fa-key"></i>
+                    <button class="btn btn-sm btn-warning" onclick="resetPassword(${user.id})" title="Reset password">
+                        <i class="fas fa-key"></i> Reset
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})" title="Delete user">
-                        <i class="fas fa-trash"></i>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete user">
+                        <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
             </td>
         `;
-        tbody.appendChild(row);
     });
-    
-    // Setup checkbox listeners
+
+    // Set up checkbox event listeners
     setupUserCheckboxes();
+    updateUserMetrics();
 }
 
+function setupUserCheckboxes() {
+    const selectAllCheckbox = document.getElementById('select-all-users');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-users');
+    const selectedCountSpan = document.getElementById('selected-count');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            userCheckboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkActions();
+        });
+    }
+
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        const count = checkedBoxes.length;
+
+        if (selectedCountSpan) selectedCountSpan.textContent = count;
+        
+        if (bulkDeleteBtn) {
+            if (count > 0) {
+                bulkDeleteBtn.style.display = 'inline-flex';
+                bulkDeleteBtn.disabled = false;
+            } else {
+                bulkDeleteBtn.style.display = 'none';
+                bulkDeleteBtn.disabled = true;
+            }
+        }
+
+        // Update select all checkbox state
+        if (selectAllCheckbox) {
+            if (count === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (count === userCheckboxes.length) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+    }
+}
+
+function updateUserMetrics() {
+    const activeUsersCount = document.getElementById('active-users-count');
+    const failedLoginsCount = document.getElementById('failed-logins-count');
+    const securityAlertsCount = document.getElementById('security-alerts-count');
+    const passwordComplianceRate = document.getElementById('password-compliance-rate');
+
+    if (activeUsersCount) {
+        const activeUsers = userAccounts.filter(user => user.status === 'Active').length;
+        activeUsersCount.textContent = activeUsers;
+    }
+
+    if (failedLoginsCount) {
+        const totalFailedLogins = userAccounts.reduce((sum, user) => sum + (user.failedAttempts || 0), 0);
+        failedLoginsCount.textContent = totalFailedLogins;
+    }
+
+    if (securityAlertsCount) {
+        securityAlertsCount.textContent = 'None';
+    }
+
+    if (passwordComplianceRate) {
+        passwordComplianceRate.textContent = '100%';
+    }
+}
+
+// User Management Actions
+function editUser(userId) {
+    const user = userAccounts.find(u => u.id === userId);
+    if (!user) return;
+
+    showNotification(`Editing user: ${user.username}`, 'info');
+    // You would implement edit form logic here
+}
+
+function resetPassword(userId) {
+    const user = userAccounts.find(u => u.id === userId);
+    if (!user) return;
+
+    if (confirm(`Reset password for ${user.username}?`)) {
+        showNotification(`Password reset email sent to ${user.email}`, 'success');
+        
+        // Add audit log entry
+        const auditEntry = {
+            id: auditLog.length + 1,
+            timestamp: new Date().toLocaleString(),
+            user: 'admin',
+            action: 'Password Reset',
+            target: user.username,
+            ipAddress: '192.168.1.100',
+            status: 'Success',
+            details: `Password reset initiated for user ${user.username}`
+        };
+        auditLog.push(auditEntry);
+        populateAuditLog();
+    }
+}
+
+function deleteUser(userId) {
+    const user = userAccounts.find(u => u.id === userId);
+    if (!user) return;
+
+    if (confirm(`Are you sure you want to delete user "${user.username}"? This action cannot be undone.`)) {
+        const index = userAccounts.findIndex(u => u.id === userId);
+        if (index > -1) {
+            userAccounts.splice(index, 1);
+            populateUserAccounts();
+            showNotification(`User "${user.username}" has been deleted`, 'success');
+            
+            // Add audit log entry
+            const auditEntry = {
+                id: auditLog.length + 1,
+                timestamp: new Date().toLocaleString(),
+                user: 'admin',
+                action: 'Delete User',
+                target: user.username,
+                ipAddress: '192.168.1.100',
+                status: 'Success',
+                details: `User ${user.username} deleted from system`
+            };
+            auditLog.push(auditEntry);
+            populateAuditLog();
+        }
+    }
+}
+
+// Audit Log Functions
 function populateAuditLog() {
-    const tbody = document.getElementById('audit-log-tbody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
+    const auditTableBody = document.getElementById('audit-log-tbody');
+    if (!auditTableBody) return;
+
+    auditTableBody.innerHTML = '';
     
     auditLog.forEach(entry => {
-        const row = document.createElement('tr');
+        const row = auditTableBody.insertRow();
         row.innerHTML = `
             <td>${entry.timestamp}</td>
             <td>${entry.user}</td>
@@ -692,140 +826,33 @@ function populateAuditLog() {
             <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
             <td>${entry.details}</td>
             <td>
-                <button class="btn btn-secondary btn-sm" onclick="viewAuditDetails(${entry.id})" title="View details">
-                    <i class="fas fa-eye"></i>
-                </button>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails(${entry.id})" title="View details">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="exportAuditEntry(${entry.id})" title="Export entry">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
             </td>
         `;
-        tbody.appendChild(row);
     });
 }
 
-function setupUserCheckboxes() {
-    const selectAllCheckbox = document.getElementById('select-all-users');
-    const userCheckboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]');
-    const bulkDeleteBtn = document.getElementById('bulk-delete-users');
-    const selectedCountSpan = document.getElementById('selected-count');
-    
-    // Select all functionality
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            userCheckboxes.forEach(cb => cb.checked = this.checked);
-            updateBulkActions();
-        });
-    }
-    
-    // Individual checkbox listeners
-    userCheckboxes.forEach(cb => {
-        cb.addEventListener('change', updateBulkActions);
-    });
-    
-    function updateBulkActions() {
-        const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
-        const count = checkedBoxes.length;
-        
-        if (bulkDeleteBtn) {
-            if (count > 0) {
-                bulkDeleteBtn.style.display = 'inline-block';
-                bulkDeleteBtn.disabled = false;
-            } else {
-                bulkDeleteBtn.style.display = 'none';
-                bulkDeleteBtn.disabled = true;
-            }
-        }
-        
-        if (selectedCountSpan) {
-            selectedCountSpan.textContent = count;
-        }
-    }
+function viewAuditDetails(entryId) {
+    const entry = auditLog.find(e => e.id === entryId);
+    if (!entry) return;
+
+    alert(`Audit Entry Details:\n\nTimestamp: ${entry.timestamp}\nUser: ${entry.user}\nAction: ${entry.action}\nTarget: ${entry.target}\nIP Address: ${entry.ipAddress}\nStatus: ${entry.status}\nDetails: ${entry.details}`);
 }
 
-function setupUserFiltering() {
-    const applyFiltersBtn = document.getElementById('apply-user-filters');
-    const clearFiltersBtn = document.getElementById('clear-user-filters');
-    
-    if (applyFiltersBtn) {
-        applyFiltersBtn.addEventListener('click', function() {
-            const roleFilter = document.getElementById('filter-user-role').value;
-            const statusFilter = document.getElementById('filter-user-status').value;
-            const departmentFilter = document.getElementById('filter-user-department').value;
-            
-            filterUserAccounts(roleFilter, statusFilter, departmentFilter);
-        });
-    }
-    
-    if (clearFiltersBtn) {
-        clearFiltersBtn.addEventListener('click', function() {
-            document.getElementById('filter-user-role').value = '';
-            document.getElementById('filter-user-status').value = '';
-            document.getElementById('filter-user-department').value = '';
-            populateUserAccounts();
-        });
-    }
-}
+function exportAuditEntry(entryId) {
+    const entry = auditLog.find(e => e.id === entryId);
+    if (!entry) return;
 
-function filterUserAccounts(role, status, department) {
-    let filteredUsers = userAccounts;
-    
-    if (role) {
-        filteredUsers = filteredUsers.filter(user => user.role === role);
-    }
-    if (status) {
-        filteredUsers = filteredUsers.filter(user => user.status === status);
-    }
-    if (department) {
-        filteredUsers = filteredUsers.filter(user => user.department === department);
-    }
-    
-    // Temporarily replace userAccounts for display
-    const originalUsers = userAccounts;
-    userAccounts = filteredUsers;
-    populateUserAccounts();
-    userAccounts = originalUsers;
-}
-
-function setupAuditLog() {
-    const applyAuditFiltersBtn = document.getElementById('apply-audit-filters');
-    const clearAuditFiltersBtn = document.getElementById('clear-audit-filters');
-    
-    if (applyAuditFiltersBtn) {
-        applyAuditFiltersBtn.addEventListener('click', function() {
-            const fromDate = document.getElementById('audit-from-date').value;
-            const toDate = document.getElementById('audit-to-date').value;
-            const actionType = document.getElementById('audit-action-type').value;
-            
-            filterAuditLog(fromDate, toDate, actionType);
-        });
-    }
-    
-    if (clearAuditFiltersBtn) {
-        clearAuditFiltersBtn.addEventListener('click', function() {
-            document.getElementById('audit-from-date').value = '';
-            document.getElementById('audit-to-date').value = '';
-            document.getElementById('audit-action-type').value = '';
-            populateAuditLog();
-        });
-    }
-}
-
-function filterAuditLog(fromDate, toDate, actionType) {
-    let filteredLog = auditLog;
-    
-    if (fromDate) {
-        filteredLog = filteredLog.filter(entry => entry.timestamp >= fromDate);
-    }
-    if (toDate) {
-        filteredLog = filteredLog.filter(entry => entry.timestamp <= toDate);
-    }
-    if (actionType) {
-        filteredLog = filteredLog.filter(entry => entry.action === actionType);
-    }
-    
-    // Temporarily replace auditLog for display
-    const originalLog = auditLog;
-    auditLog = filteredLog;
-    populateAuditLog();
-    auditLog = originalLog;
+    const csv = `Timestamp,User,Action,Target,IP Address,Status,Details\n"${entry.timestamp}","${entry.user}","${entry.action}","${entry.target}","${entry.ipAddress}","${entry.status}","${entry.details}"`;
+    downloadCSV(csv, `audit_entry_${entry.id}.csv`);
+    showNotification('Audit entry exported successfully', 'success');
 }
 
 // Royalty Records functionality
@@ -836,7 +863,7 @@ function populateRoyaltyRecords() {
     tbody.innerHTML = '';
     
     royaltyRecords.forEach(record => {
-        const row = document.createElement('tr');
+        const row = tbody.insertRow();
         row.innerHTML = `
             <td>${record.entity}</td>
             <td>${record.mineral}</td>
@@ -846,28 +873,60 @@ function populateRoyaltyRecords() {
             <td>${record.date}</td>
             <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
             <td>
-                <button class="btn btn-primary btn-sm">Edit</button>
-                <button class="btn btn-secondary btn-sm">View</button>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-secondary" onclick="editRecord(${record.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
             </td>
         `;
-        tbody.appendChild(row);
     });
 }
 
-// Reporting & Analytics
+// Record action handlers
+function editRecord(recordId) {
+    showNotification(`Edit functionality for record ${recordId} would be implemented here`, 'info');
+}
+
+function viewRecord(recordId) {
+    const record = royaltyRecords.find(r => r.id === recordId);
+    if (record) {
+        alert(`Record Details:\n\nEntity: ${record.entity}\nMineral: ${record.mineral}\nVolume: ${record.volume} m³\nTariff: E${record.tariff}/m³\nTotal Royalties: E${record.royalties}\nDate: ${record.date}\nStatus: ${record.status}`);
+    }
+}
+
+function deleteRecord(recordId) {
+    if (confirm('Are you sure you want to delete this record?')) {
+        const index = royaltyRecords.findIndex(r => r.id === recordId);
+        if (index > -1) {
+            royaltyRecords.splice(index, 1);
+            populateRoyaltyRecords();
+            updateDashboardMetrics();
+            showNotification('Record deleted successfully', 'success');
+        }
+    }
+}
+
+// Reporting & Analytics functionality
 function setupReportingTabs() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
+    const reportTabs = document.querySelectorAll('.report-tabs .tab-btn');
+    const reportContents = document.querySelectorAll('.tab-content');
     
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const targetTab = this.dataset.tab;
+    reportTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
             
-            // Remove active class from all buttons and contents
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
+            // Remove active class from all tabs and contents
+            reportTabs.forEach(t => t.classList.remove('active'));
+            reportContents.forEach(c => c.classList.remove('active'));
             
-            // Add active class to clicked button and corresponding content
+            // Add active class to clicked tab and corresponding content
             this.classList.add('active');
             const targetContent = document.querySelector(targetTab);
             if (targetContent) {
@@ -877,164 +936,293 @@ function setupReportingTabs() {
     });
 }
 
-// Additional sections setup
-function setupAllSections() {
-    // Royalty Records
-    const saveRoyaltyBtn = document.getElementById('save-royalty-btn');
-    if (saveRoyaltyBtn) {
-        saveRoyaltyBtn.addEventListener('click', function() {
-            // Handle royalty record saving
-            showNotification('Royalty record saved successfully!', 'success');
-        });
-    }
-    
-    // Export functionality
-    const exportButtons = document.querySelectorAll('[id*="export"]');
-    exportButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            showNotification('Export functionality would be implemented here', 'info');
-        });
-    });
-    
-    // Refresh buttons
-    const refreshButtons = document.querySelectorAll('[id*="refresh"]');
-    refreshButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (this.id.includes('users')) {
-                populateUserAccounts();
-            } else if (this.id.includes('audit')) {
-                populateAuditLog();
-            }
-            showNotification('Data refreshed successfully', 'success');
-        });
-    });
-}
-
-// User action handlers (called from HTML)
-window.editUser = function(userId) {
-    showNotification(`Edit functionality for user ${userId} would be implemented here`, 'info');
-};
-
-window.resetPassword = function(userId) {
-    if (confirm('Are you sure you want to reset the password for this user?')) {
-        showNotification(`Password reset for user ${userId}`, 'success');
-        
-        // Add to audit log
-        auditLog.unshift({
-            id: auditLog.length + 1,
-            timestamp: new Date().toLocaleString(),
-            user: currentUser.username,
-            action: 'Password Reset',
-            target: `User ${userId}`,
-            ipAddress: '192.168.1.100',
-            status: 'Success',
-            details: 'Password reset initiated by administrator'
-        });
-        
-        populateAuditLog();
-    }
-};
-
-window.deleteUser = function(userId) {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-        const userIndex = userAccounts.findIndex(u => u.id === userId);
-        if (userIndex > -1) {
-            const deletedUser = userAccounts[userIndex];
-            userAccounts.splice(userIndex, 1);
-            
-            // Add to audit log
-            auditLog.unshift({
-                id: auditLog.length + 1,
-                timestamp: new Date().toLocaleString(),
-                user: currentUser.username,
-                action: 'Delete User',
-                target: deletedUser.username,
-                ipAddress: '192.168.1.100',
-                status: 'Success',
-                details: `Deleted user account: ${deletedUser.username}`
-            });
-            
-            populateUserAccounts();
-            populateAuditLog();
-            showNotification('User deleted successfully', 'success');
-        }
-    }
-};
-
-window.viewAuditDetails = function(entryId) {
-    const entry = auditLog.find(e => e.id === entryId);
-    if (entry) {
-        alert(`Audit Details:\n\nTimestamp: ${entry.timestamp}\nUser: ${entry.user}\nAction: ${entry.action}\nTarget: ${entry.target}\nIP: ${entry.ipAddress}\nStatus: ${entry.status}\nDetails: ${entry.details}`);
-    }
-};
-
-// Logout functionality
-function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        // Add logout to audit log
-        auditLog.unshift({
-            id: auditLog.length + 1,
-            timestamp: new Date().toLocaleString(),
-            user: currentUser.username,
-            action: 'Logout',
-            target: 'System',
-            ipAddress: '192.168.1.100',
-            status: 'Success',
-            details: 'User logged out successfully'
-        });
-        
-        // Reset application state
-        currentUser = null;
-        currentSection = 'dashboard';
-        
-        // Show login section
-        const appContainer = document.getElementById('app-container');
-        const loginSection = document.getElementById('login-section');
-        
-        if (appContainer) appContainer.style.display = 'none';
-        if (loginSection) loginSection.style.display = 'flex';
-        
-        // Clear login form
-        const loginForm = document.querySelector('.login-form');
-        if (loginForm) loginForm.reset();
-        
-        showNotification('Logged out successfully', 'success');
-    }
-}
-
-// Utility functions
+// Notification system
 function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+    
+    // Set notification content
+    const iconMap = {
+        'success': 'fas fa-check-circle',
+        'error': 'fas fa-exclamation-circle',
+        'warning': 'fas fa-exclamation-triangle',
+        'info': 'fas fa-info-circle'
+    };
+    
+    const icon = iconMap[type] || iconMap['info'];
+    
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <i class="${icon}"></i>
             <span>${message}</span>
         </div>
-        <button class="notification-close">&times;</button>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
     `;
     
-    // Add to body
+    // Add to page
     document.body.appendChild(notification);
     
-    // Remove after 5 seconds
+    // Auto-remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.remove();
         }
     }, 5000);
+}
+
+// Form validation and user filtering setup
+function setupUserFiltering() {
+    // Set up filter buttons
+    const applyFiltersBtn = document.getElementById('apply-user-filters');
+    const clearFiltersBtn = document.getElementById('clear-user-filters');
     
-    // Close button functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => notification.remove());
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+            const roleFilter = document.getElementById('filter-user-role')?.value || '';
+            const statusFilter = document.getElementById('filter-user-status')?.value || '';
+            const departmentFilter = document.getElementById('filter-user-department')?.value || '';
+            
+            let filteredUsers = userAccounts.filter(user => {
+                return (!roleFilter || user.role === roleFilter) &&
+                       (!statusFilter || user.status === statusFilter) &&
+                       (!departmentFilter || user.department === departmentFilter);
+            });
+            
+            updateUserTable(filteredUsers);
+            showNotification(`Found ${filteredUsers.length} user(s) matching the filters`, 'info');
+        });
+    }
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            document.getElementById('filter-user-role').value = '';
+            document.getElementById('filter-user-status').value = '';
+            document.getElementById('filter-user-department').value = '';
+            populateUserAccounts();
+            showNotification('Filters cleared, showing all users', 'info');
+        });
     }
 }
 
-// Export functions for global access
+function updateUserTable(users) {
+    const userTableBody = document.getElementById('users-table-tbody');
+    if (!userTableBody) return;
+
+    userTableBody.innerHTML = '';
+    
+    if (users.length === 0) {
+        const row = userTableBody.insertRow();
+        row.innerHTML = `<td colspan="10" style="text-align: center; padding: 2rem;">No users match the selected filters</td>`;
+        return;
+    }
+
+    users.forEach(user => {
+        const row = userTableBody.insertRow();
+        row.innerHTML = `
+            <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
+            <td>${user.department}</td>
+            <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
+            <td>${user.lastLogin || 'Never'}</td>
+            <td>${user.failedAttempts || 0}</td>
+            <td>${user.expires || 'Never'}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})" title="Edit user">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="resetPassword(${user.id})" title="Reset password">
+                        <i class="fas fa-key"></i> Reset
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete user">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </td>
+        `;
+    });
+
+    setupUserCheckboxes();
+}
+
+function setupAuditLog() {
+    // Set up audit log filters
+    const applyAuditFiltersBtn = document.getElementById('apply-audit-filters');
+    const clearAuditFiltersBtn = document.getElementById('clear-audit-filters');
+    
+    if (applyAuditFiltersBtn) {
+        applyAuditFiltersBtn.addEventListener('click', function() {
+            const fromDate = document.getElementById('audit-from-date')?.value;
+            const toDate = document.getElementById('audit-to-date')?.value;
+            const actionType = document.getElementById('audit-action-type')?.value;
+            
+            let filteredEntries = auditLog.filter(entry => {
+                const entryDate = new Date(entry.timestamp);
+                const matchesDate = (!fromDate || entryDate >= new Date(fromDate)) &&
+                                  (!toDate || entryDate <= new Date(toDate));
+                const matchesAction = !actionType || entry.action === actionType;
+                
+                return matchesDate && matchesAction;
+            });
+            
+            updateAuditTable(filteredEntries);
+            showNotification(`Found ${filteredEntries.length} audit entries matching the filters`, 'info');
+        });
+    }
+    
+    if (clearAuditFiltersBtn) {
+        clearAuditFiltersBtn.addEventListener('click', function() {
+            document.getElementById('audit-from-date').value = '';
+            document.getElementById('audit-to-date').value = '';
+            document.getElementById('audit-action-type').value = '';
+            populateAuditLog();
+            showNotification('Audit filters cleared', 'info');
+        });
+    }
+}
+
+function updateAuditTable(entries) {
+    const auditTableBody = document.getElementById('audit-log-tbody');
+    if (!auditTableBody) return;
+
+    auditTableBody.innerHTML = '';
+    
+    if (entries.length === 0) {
+        const row = auditTableBody.insertRow();
+        row.innerHTML = `<td colspan="8" style="text-align: center; padding: 2rem;">No audit entries match the selected filters</td>`;
+        return;
+    }
+
+    entries.forEach(entry => {
+        const row = auditTableBody.insertRow();
+        row.innerHTML = `
+            <td>${entry.timestamp}</td>
+            <td>${entry.user}</td>
+            <td><span class="action-badge ${entry.action.toLowerCase().replace(/\s+/g, '-')}">${entry.action}</span></td>
+            <td>${entry.target}</td>
+            <td>${entry.ipAddress}</td>
+            <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
+            <td>${entry.details}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails(${entry.id})" title="View details">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="exportAuditEntry(${entry.id})" title="Export entry">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </td>
+        `;
+    });
+}
+
+// Utility functions
+function downloadCSV(csvContent, filename) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+// Additional section setup
+function setupAllSections() {
+    // Setup royalty records
+    const saveRoyaltyBtn = document.getElementById('save-royalty-btn');
+    if (saveRoyaltyBtn) {
+        saveRoyaltyBtn.addEventListener('click', function() {
+            const entity = document.getElementById('entity')?.value;
+            const mineral = document.getElementById('mineral')?.value;
+            const volume = parseFloat(document.getElementById('volume')?.value);
+            const tariff = parseFloat(document.getElementById('tariff')?.value);
+            const date = document.getElementById('payment-date')?.value;
+            
+            if (entity && mineral && volume && tariff && date) {
+                const newRecord = {
+                    id: royaltyRecords.length + 1,
+                    entity,
+                    mineral,
+                    volume,
+                    tariff,
+                    royalties: volume * tariff,
+                    date,
+                    status: 'Pending'
+                };
+                
+                royaltyRecords.push(newRecord);
+                populateRoyaltyRecords();
+                updateDashboardMetrics();
+                showNotification('Royalty record saved successfully', 'success');
+                
+                // Clear form
+                document.getElementById('entity').value = '';
+                document.getElementById('mineral').value = '';
+                document.getElementById('volume').value = '';
+                document.getElementById('tariff').value = '';
+                document.getElementById('payment-date').value = '';
+            } else {
+                showNotification('Please fill in all required fields', 'error');
+            }
+        });
+    }
+    
+    // Setup logout
+    const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+    if (confirmLogoutBtn) {
+        confirmLogoutBtn.addEventListener('click', handleLogout);
+    }
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear current user
+        currentUser = null;
+        
+        // Hide app, show login
+        const loginSection = document.getElementById('login-section');
+        const appContainer = document.getElementById('app-container');
+        
+        if (appContainer) appContainer.style.display = 'none';
+        if (loginSection) loginSection.style.display = 'flex';
+        
+        // Clear login form
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        if (usernameInput) usernameInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+        
+        showNotification('Logged out successfully', 'info');
+    }
+}
+
+// Make functions globally available for HTML onclick handlers
+window.editUser = editUser;
+window.resetPassword = resetPassword;
+window.deleteUser = deleteUser;
+window.viewAuditDetails = viewAuditDetails;
+window.exportAuditEntry = exportAuditEntry;
+window.editRecord = editRecord;
+window.viewRecord = viewRecord;
+window.deleteRecord = deleteRecord;
 window.populateUserAccounts = populateUserAccounts;
 window.populateAuditLog = populateAuditLog;
-window.showNotification = showNotification;
+window.populateRoyaltyRecords = populateRoyaltyRecords;
 
 console.log('Application module loaded successfully');
