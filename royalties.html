@@ -223,15 +223,15 @@
             <div class="grid-4">
               <div class="form-group">
                 <label for="new-username">Username *</label>
-                <input type="text" id="new-username" name="username" placeholder="Username" required aria-describedby="username-validation">
+                <input type="text" id="new-username" name="username" placeholder="Enter username" required aria-describedby="username-validation">
                 <div class="validation-success" id="username-validation" style="display: none;">✓ Username available</div>
-                <div class="validation-error" id="username-error" style="display: none;">Username is required</div>
+                <div class="validation-error" id="username-error" style="display: none;">Username is required and must be unique</div>
               </div>
               
               <div class="form-group">
                 <label for="new-email">Email Address *</label>
-                <input type="email" id="new-email" name="email" placeholder="Email Address" required aria-describedby="email-validation">
-                <div class="validation-error" id="email-validation" style="display: none;">Valid email is required</div>
+                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required aria-describedby="email-validation">
+                <div class="validation-error" id="email-validation" style="display: none;">Valid email address is required</div>
               </div>
               
               <div class="form-group">
@@ -243,7 +243,7 @@
                   <option value="Viewer">👁️ Viewer (Read Only)</option>
                   <option value="Auditor">🔍 Auditor (Audit Access)</option>
                 </select>
-                <div class="validation-error" id="role-validation" style="display: none;">Role is required</div>
+                <div class="validation-error" id="role-validation" style="display: none;">Please select a role</div>
               </div>
               
               <div class="form-group">
@@ -256,57 +256,86 @@
                   <option value="Audit">🔍 Audit</option>
                   <option value="Management">👔 Management</option>
                 </select>
-                <div class="validation-error" id="department-validation" style="display: none;">Department is required</div>
+                <div class="validation-error" id="department-validation" style="display: none;">Please select a department</div>
               </div>
               
               <div class="form-group">
                 <label for="new-password">Password *</label>
-                <input type="password" id="new-password" name="password" placeholder="Password" required aria-describedby="password-strength">
+                <div class="password-input-container">
+                  <input type="password" id="new-password" name="password" placeholder="Enter password" required aria-describedby="password-strength">
+                  <button type="button" class="password-toggle-btn" onclick="togglePassword('new-password')">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
                 <div class="password-strength-meter">
                   <div class="strength-bar strength-weak">
-                    <div class="strength-bar-fill"></div>
+                    <div class="strength-bar-fill" style="width: 0%;"></div>
                   </div>
-                  <p class="strength-text">Password Strength: Weak</p>
+                  <p class="strength-text">Password Strength: Enter password</p>
                 </div>
-                <div class="validation-error" id="password-strength" style="display: none;">Password must be at least 8 characters</div>
+                <div class="validation-error" id="password-strength" style="display: none;">Password must be at least 8 characters with uppercase, lowercase, and number</div>
               </div>
               
               <div class="form-group">
                 <label for="confirm-password">Confirm Password *</label>
-                <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm Password" required aria-describedby="confirm-password-validation">
+                <div class="password-input-container">
+                  <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm password" required aria-describedby="confirm-password-validation">
+                  <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
                 <div class="validation-error" id="confirm-password-validation" style="display: none;">Passwords must match</div>
               </div>
               
               <div class="form-group">
-                <label for="account-expires">Account Expires</label>
+                <label for="account-expires">Account Expires (Optional)</label>
                 <input type="date" id="account-expires" name="expires" aria-describedby="expires-validation">
+                <small class="form-help">Leave blank for no expiration</small>
                 <div class="validation-error" id="expires-validation" style="display: none;">Invalid date format</div>
               </div>
               
-              <div class="form-group">
+              <div class="form-group checkbox-group">
                 <label class="checkbox-label">
                   <input type="checkbox" id="force-password-change" name="forcePasswordChange">
                   <span class="checkmark"></span>
                   Force password change on first login
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="send-welcome-email" name="sendWelcomeEmail" checked>
+                  <span class="checkmark"></span>
+                  Send welcome email with credentials
                 </label>
               </div>
             </div>
             
             <div class="form-actions">
               <button type="button" class="btn btn-secondary" id="cancel-add-user">Cancel</button>
-              <button type="submit" class="btn btn-success" id="create-user-btn">Create User</button>
+              <button type="submit" class="btn btn-success" id="create-user-btn">
+                <i class="fas fa-user-plus"></i> Create User
+              </button>
             </div>
           </form>
         </div>
 
         <!-- User Accounts Table -->
         <div class="user-form-container">
-          <h4>User Accounts</h4>
+          <div class="section-header">
+            <h4>User Accounts</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-users">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button class="btn btn-primary btn-sm" id="export-users">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+          
           <div class="table-filters">
             <div class="grid-4">
               <div class="form-group">
-                <label for="filter-role">Filter by Role</label>
-                <select id="filter-role">
+                <label for="filter-user-role">Filter by Role</label>
+                <select id="filter-user-role">
                   <option value="">All Roles</option>
                   <option value="Administrator">Administrator</option>
                   <option value="Editor">Editor</option>
@@ -316,8 +345,8 @@
               </div>
               
               <div class="form-group">
-                <label for="filter-status">Filter by Status</label>
-                <select id="filter-status">
+                <label for="filter-user-status">Filter by Status</label>
+                <select id="filter-user-status">
                   <option value="">All Statuses</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -327,8 +356,8 @@
               </div>
               
               <div class="form-group">
-                <label for="filter-department">Filter by Department</label>
-                <select id="filter-department">
+                <label for="filter-user-department">Filter by Department</label>
+                <select id="filter-user-department">
                   <option value="">All Departments</option>
                   <option value="Finance">Finance</option>
                   <option value="Operations">Operations</option>
@@ -339,8 +368,12 @@
               </div>
               
               <div class="form-group filter-actions">
-                <button class="btn btn-primary" id="apply-user-filters">Apply Filters</button>
-                <button class="btn btn-secondary" id="clear-user-filters">Clear</button>
+                <button class="btn btn-primary" id="apply-user-filters">
+                  <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button class="btn btn-secondary" id="clear-user-filters">
+                  <i class="fas fa-times"></i> Clear
+                </button>
               </div>
             </div>
           </div>
@@ -349,6 +382,9 @@
             <table class="data-table" id="users-table">
               <thead>
                 <tr>
+                  <th>
+                    <input type="checkbox" id="select-all-users" title="Select all users">
+                  </th>
                   <th>Username</th>
                   <th>Email</th>
                   <th>Role</th>
@@ -365,11 +401,33 @@
               </tbody>
             </table>
           </div>
+          
+          <div class="table-pagination" id="users-pagination" style="display: none;">
+            <div class="pagination-info">
+              Showing <span id="users-start">1</span> to <span id="users-end">10</span> of <span id="users-total">0</span> users
+            </div>
+            <div class="pagination-controls">
+              <button class="btn btn-sm" id="users-prev">Previous</button>
+              <span class="pagination-pages" id="users-pages"></span>
+              <button class="btn btn-sm" id="users-next">Next</button>
+            </div>
+          </div>
         </div>
 
         <!-- Security Audit Log -->
         <div class="user-form-container">
-          <h4>Security Audit Log</h4>
+          <div class="section-header">
+            <h4>Security Audit Log</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-audit-log">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button class="btn btn-primary btn-sm" id="export-audit-log">
+                <i class="fas fa-download"></i> Export Log
+              </button>
+            </div>
+          </div>
+          
           <div class="table-filters">
             <div class="grid-4">
               <div class="form-group">
@@ -393,12 +451,19 @@
                   <option value="Delete User">Delete User</option>
                   <option value="Failed Login">Failed Login</option>
                   <option value="Password Change">Password Change</option>
+                  <option value="Role Change">Role Change</option>
+                  <option value="Account Lock">Account Lock</option>
+                  <option value="Account Unlock">Account Unlock</option>
                 </select>
               </div>
               
               <div class="form-group filter-actions">
-                <button class="btn btn-primary" id="apply-audit-filters">Apply Filters</button>
-                <button class="btn btn-secondary" id="clear-audit-filters">Clear</button>
+                <button class="btn btn-primary" id="apply-audit-filters">
+                  <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button class="btn btn-secondary" id="clear-audit-filters">
+                  <i class="fas fa-times"></i> Clear
+                </button>
               </div>
             </div>
           </div>
@@ -414,12 +479,24 @@
                   <th>IP Address</th>
                   <th>Status</th>
                   <th>Details</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="audit-log-tbody">
                 <!-- Audit log will be populated by JavaScript -->
               </tbody>
             </table>
+          </div>
+          
+          <div class="table-pagination" id="audit-pagination" style="display: none;">
+            <div class="pagination-info">
+              Showing <span id="audit-start">1</span> to <span id="audit-end">20</span> of <span id="audit-total">0</span> entries
+            </div>
+            <div class="pagination-controls">
+              <button class="btn btn-sm" id="audit-prev">Previous</button>
+              <span class="pagination-pages" id="audit-pages"></span>
+              <button class="btn btn-sm" id="audit-next">Next</button>
+            </div>
           </div>
         </div>
       </section>
@@ -1768,5 +1845,192 @@
       }
     });
   </script>
+
+  <script>
+// Add password toggle functionality
+function togglePassword(inputId) {
+  const input = document.getElementById(inputId);
+  const button = input.parentElement.querySelector('.password-toggle-btn');
+  const icon = button.querySelector('i');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fas fa-eye-slash';
+    button.setAttribute('aria-label', 'Hide password');
+  } else {
+    input.type = 'password';
+    icon.className = 'fas fa-eye';
+    button.setAttribute('aria-label', 'Show password');
+  }
+}
+
+// Add form validation helpers
+function validateUsername(username) {
+  if (!username || username.length < 3) {
+    return { valid: false, message: 'Username must be at least 3 characters long' };
+  }
+  if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+    return { valid: false, message: 'Username can only contain letters, numbers, dots, dashes, and underscores' };
+  }
+  return { valid: true, message: 'Username is available' };
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    return { valid: false, message: 'Email address is required' };
+  }
+  if (!emailRegex.test(email)) {
+    return { valid: false, message: 'Please enter a valid email address' };
+  }
+  return { valid: true, message: 'Email address is valid' };
+}
+
+function validatePassword(password) {
+  if (!password) {
+    return { valid: false, message: 'Password is required', strength: 'none' };
+  }
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long', strength: 'weak' };
+  }
+  
+  let strength = 'weak';
+  let score = 0;
+  
+  if (password.length >= 8) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+  
+  if (score >= 4) strength = 'strong';
+  else if (score >= 3) strength = 'medium';
+  
+  return { 
+    valid: score >= 3, 
+    message: score >= 3 ? 'Password strength is good' : 'Password should contain uppercase, lowercase, numbers, and special characters',
+    strength: strength,
+    score: score
+  };
+}
+
+function showFieldValidation(fieldId, validation) {
+  const field = document.getElementById(fieldId);
+  const errorElement = document.getElementById(fieldId.replace('new-', '') + '-error') || 
+                      document.getElementById(fieldId + '-error') ||
+                      document.getElementById(fieldId.replace('new-', '') + '-validation');
+  const successElement = document.getElementById(fieldId.replace('new-', '') + '-validation');
+  
+  if (!field) return;
+  
+  // Clear previous states
+  field.classList.remove('field-valid', 'field-invalid');
+  
+  if (validation.valid) {
+    field.classList.add('field-valid');
+    if (errorElement) {
+      errorElement.style.display = 'none';
+    }
+    if (successElement && successElement.classList.contains('validation-success')) {
+      successElement.textContent = `✓ ${validation.message}`;
+      successElement.style.display = 'block';
+    }
+  } else {
+    field.classList.add('field-invalid');
+    if (successElement && successElement.classList.contains('validation-success')) {
+      successElement.style.display = 'none';
+    }
+    if (errorElement) {
+      errorElement.textContent = validation.message;
+      errorElement.style.display = 'block';
+    }
+  }
+}
+
+function updatePasswordStrength(password) {
+  const validation = validatePassword(password);
+  const strengthBar = document.querySelector('.strength-bar-fill');
+  const strengthText = document.querySelector('.strength-text');
+  const strengthContainer = document.querySelector('.strength-bar');
+  
+  if (strengthBar && strengthText && strengthContainer) {
+    const widthPercent = (validation.score / 5) * 100;
+    strengthBar.style.width = `${widthPercent}%`;
+    
+    // Remove existing strength classes
+    strengthContainer.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+    
+    // Add appropriate strength class
+    if (validation.strength === 'strong') {
+      strengthContainer.classList.add('strength-strong');
+      strengthText.textContent = 'Password Strength: Strong';
+    } else if (validation.strength === 'medium') {
+      strengthContainer.classList.add('strength-medium');
+      strengthText.textContent = 'Password Strength: Medium';
+    } else if (validation.strength === 'weak') {
+      strengthContainer.classList.add('strength-weak');
+      strengthText.textContent = 'Password Strength: Weak';
+    } else {
+      strengthContainer.classList.add('strength-weak');
+      strengthText.textContent = 'Password Strength: Enter password';
+    }
+  }
+}
+
+// Add real-time validation
+document.addEventListener('DOMContentLoaded', function() {
+  // Username validation
+  const usernameField = document.getElementById('new-username');
+  if (usernameField) {
+    usernameField.addEventListener('input', function() {
+      const validation = validateUsername(this.value);
+      showFieldValidation('new-username', validation);
+    });
+  }
+  
+  // Email validation
+  const emailField = document.getElementById('new-email');
+  if (emailField) {
+    emailField.addEventListener('input', function() {
+      const validation = validateEmail(this.value);
+      showFieldValidation('new-email', validation);
+    });
+  }
+  
+  // Password validation
+  const passwordField = document.getElementById('new-password');
+  if (passwordField) {
+    passwordField.addEventListener('input', function() {
+      const validation = validatePassword(this.value);
+      showFieldValidation('new-password', validation);
+      updatePasswordStrength(this.value);
+      
+      // Check confirm password if it has a value
+      const confirmField = document.getElementById('confirm-password');
+      if (confirmField && confirmField.value) {
+        validatePasswordMatch();
+      }
+    });
+  }
+  
+  // Confirm password validation
+  const confirmPasswordField = document.getElementById('confirm-password');
+  if (confirmPasswordField) {
+    confirmPasswordField.addEventListener('input', validatePasswordMatch);
+  }
+  
+  function validatePasswordMatch() {
+    const password = document.getElementById('new-password')?.value || '';
+    const confirmPassword = document.getElementById('confirm-password')?.value || '';
+    
+    const validation = {
+      valid: password === confirmPassword && password.length > 0,
+      message: password === confirmPassword ? 'Passwords match' : 'Passwords do not match'
+    };
+    
+    showFieldValidation('confirm-password', validation);
+  }
+});
+</script>
 </body>
 </html>
