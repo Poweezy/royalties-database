@@ -217,38 +217,44 @@
         </div>
 
         <!-- Add New User Form -->
-        <div class="user-form-container">
-          <h4>Add New User</h4>
+        <div class="user-form-container" id="add-user-form-container" style="display: none;">
+          <div class="section-header">
+            <h4>Add New User</h4>
+            <button class="btn btn-secondary btn-sm" id="close-add-user-form">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
           <form id="add-user-form">
             <div class="grid-4">
               <div class="form-group">
                 <label for="new-username">Username *</label>
-                <input type="text" id="new-username" name="username" placeholder="Enter username" required aria-describedby="username-validation">
-                <div class="validation-success" id="username-validation" style="display: none;">✓ Username available</div>
-                <div class="validation-error" id="username-error" style="display: none;">Username is required and must be unique</div>
+                <input type="text" id="new-username" name="username" placeholder="Enter username" required aria-describedby="new-username-error">
+                <div class="validation-success" id="new-username-success" style="display: none;">✓ Username available</div>
+                <div class="validation-error" id="new-username-error" style="display: none;">Username is required and must be unique</div>
               </div>
               
               <div class="form-group">
                 <label for="new-email">Email Address *</label>
-                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required aria-describedby="email-validation">
-                <div class="validation-error" id="email-validation" style="display: none;">Valid email address is required</div>
+                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required aria-describedby="new-email-error">
+                <div class="validation-success" id="new-email-success" style="display: none;">✓ Email address is valid</div>
+                <div class="validation-error" id="new-email-error" style="display: none;">Valid email address is required</div>
               </div>
               
               <div class="form-group">
                 <label for="new-role">Role *</label>
-                <select id="new-role" name="role" required aria-describedby="role-validation">
+                <select id="new-role" name="role" required aria-describedby="new-role-error">
                   <option value="">Select Role</option>
                   <option value="Administrator">👑 Administrator (Full Access)</option>
                   <option value="Editor">✏️ Editor (Read/Write)</option>
                   <option value="Viewer">👁️ Viewer (Read Only)</option>
                   <option value="Auditor">🔍 Auditor (Audit Access)</option>
                 </select>
-                <div class="validation-error" id="role-validation" style="display: none;">Please select a role</div>
+                <div class="validation-error" id="new-role-error" style="display: none;">Please select a role</div>
               </div>
               
               <div class="form-group">
                 <label for="new-department">Department *</label>
-                <select id="new-department" name="department" required aria-describedby="department-validation">
+                <select id="new-department" name="department" required aria-describedby="new-department-error">
                   <option value="">Select Department</option>
                   <option value="Finance">💰 Finance</option>
                   <option value="Operations">⚙️ Operations</option>
@@ -256,14 +262,14 @@
                   <option value="Audit">🔍 Audit</option>
                   <option value="Management">👔 Management</option>
                 </select>
-                <div class="validation-error" id="department-validation" style="display: none;">Please select a department</div>
+                <div class="validation-error" id="new-department-error" style="display: none;">Please select a department</div>
               </div>
               
               <div class="form-group">
                 <label for="new-password">Password *</label>
                 <div class="password-input-container">
-                  <input type="password" id="new-password" name="password" placeholder="Enter password" required aria-describedby="password-strength">
-                  <button type="button" class="password-toggle-btn" onclick="togglePassword('new-password')">
+                  <input type="password" id="new-password" name="password" placeholder="Enter password" required aria-describedby="new-password-error">
+                  <button type="button" class="password-toggle-btn" onclick="togglePassword('new-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
@@ -273,25 +279,26 @@
                   </div>
                   <p class="strength-text">Password Strength: Enter password</p>
                 </div>
-                <div class="validation-error" id="password-strength" style="display: none;">Password must be at least 8 characters with uppercase, lowercase, and number</div>
+                <div class="validation-error" id="new-password-error" style="display: none;">Password must be at least 8 characters with uppercase, lowercase, and number</div>
               </div>
               
               <div class="form-group">
                 <label for="confirm-password">Confirm Password *</label>
                 <div class="password-input-container">
-                  <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm password" required aria-describedby="confirm-password-validation">
-                  <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')">
+                  <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm password" required aria-describedby="confirm-password-error">
+                  <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
-                <div class="validation-error" id="confirm-password-validation" style="display: none;">Passwords must match</div>
+                <div class="validation-success" id="confirm-password-success" style="display: none;">✓ Passwords match</div>
+                <div class="validation-error" id="confirm-password-error" style="display: none;">Passwords must match</div>
               </div>
               
               <div class="form-group">
                 <label for="account-expires">Account Expires (Optional)</label>
-                <input type="date" id="account-expires" name="expires" aria-describedby="expires-validation">
-                <small class="form-help">Leave blank for no expiration</small>
-                <div class="validation-error" id="expires-validation" style="display: none;">Invalid date format</div>
+                <input type="date" id="account-expires" name="expires" aria-describedby="account-expires-help">
+                <small class="form-help" id="account-expires-help">Leave blank for no expiration</small>
+                <div class="validation-error" id="account-expires-error" style="display: none;">Invalid date format</div>
               </div>
               
               <div class="form-group checkbox-group">
@@ -310,7 +317,7 @@
             
             <div class="form-actions">
               <button type="button" class="btn btn-secondary" id="cancel-add-user">Cancel</button>
-              <button type="submit" class="btn btn-success" id="create-user-btn">
+              <button type="submit" class="btn btn-success" id="create-user-btn" disabled>
                 <i class="fas fa-user-plus"></i> Create User
               </button>
             </div>
@@ -327,6 +334,9 @@
               </button>
               <button class="btn btn-primary btn-sm" id="export-users">
                 <i class="fas fa-download"></i> Export
+              </button>
+              <button class="btn btn-danger btn-sm" id="bulk-delete-users" style="display: none;" disabled>
+                <i class="fas fa-trash"></i> Delete Selected
               </button>
             </div>
           </div>
@@ -385,12 +395,12 @@
                   <th>
                     <input type="checkbox" id="select-all-users" title="Select all users">
                   </th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Department</th>
-                  <th>Status</th>
-                  <th>Last Login</th>
+                  <th sortable data-sort="username">Username <i class="fas fa-sort"></i></th>
+                  <th sortable data-sort="email">Email <i class="fas fa-sort"></i></th>
+                  <th sortable data-sort="role">Role <i class="fas fa-sort"></i></th>
+                  <th sortable data-sort="department">Department <i class="fas fa-sort"></i></th>
+                  <th sortable data-sort="status">Status <i class="fas fa-sort"></i></th>
+                  <th sortable data-sort="lastLogin">Last Login <i class="fas fa-sort"></i></th>
                   <th>Failed Attempts</th>
                   <th>Expires</th>
                   <th>Actions</th>
@@ -407,9 +417,9 @@
               Showing <span id="users-start">1</span> to <span id="users-end">10</span> of <span id="users-total">0</span> users
             </div>
             <div class="pagination-controls">
-              <button class="btn btn-sm" id="users-prev">Previous</button>
+              <button class="btn btn-sm" id="users-prev" disabled>Previous</button>
               <span class="pagination-pages" id="users-pages"></span>
-              <button class="btn btn-sm" id="users-next">Next</button>
+              <button class="btn btn-sm" id="users-next" disabled>Next</button>
             </div>
           </div>
         </div>
@@ -1847,10 +1857,13 @@
   </script>
 
   <script>
-// Add password toggle functionality
+// Enhanced password toggle functionality
 function togglePassword(inputId) {
   const input = document.getElementById(inputId);
-  const button = input.parentElement.querySelector('.password-toggle-btn');
+  if (!input) return;
+  
+  const container = input.parentElement;
+  const button = container.querySelector('.password-toggle-btn');
   const icon = button.querySelector('i');
   
   if (input.type === 'password') {
@@ -1864,62 +1877,115 @@ function togglePassword(inputId) {
   }
 }
 
-// Add form validation helpers
+// Enhanced form validation helpers
 function validateUsername(username) {
-  if (!username || username.length < 3) {
+  if (!username || username.trim().length === 0) {
+    return { valid: false, message: 'Username is required' };
+  }
+  if (username.length < 3) {
     return { valid: false, message: 'Username must be at least 3 characters long' };
+  }
+  if (username.length > 50) {
+    return { valid: false, message: 'Username must be less than 50 characters' };
   }
   if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
     return { valid: false, message: 'Username can only contain letters, numbers, dots, dashes, and underscores' };
+  }
+  // Check for reserved usernames
+  const reserved = ['admin', 'root', 'system', 'test', 'demo'];
+  if (reserved.includes(username.toLowerCase())) {
+    return { valid: false, message: 'This username is reserved' };
   }
   return { valid: true, message: 'Username is available' };
 }
 
 function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email) {
+  if (!email || email.trim().length === 0) {
     return { valid: false, message: 'Email address is required' };
   }
   if (!emailRegex.test(email)) {
     return { valid: false, message: 'Please enter a valid email address' };
+  }
+  // Check for valid domain
+  const domain = email.split('@')[1];
+  if (domain && domain.indexOf('.') === -1) {
+    return { valid: false, message: 'Please enter a valid email domain' };
   }
   return { valid: true, message: 'Email address is valid' };
 }
 
 function validatePassword(password) {
   if (!password) {
-    return { valid: false, message: 'Password is required', strength: 'none' };
+    return { valid: false, message: 'Password is required', strength: 'none', score: 0 };
   }
-  if (password.length < 8) {
-    return { valid: false, message: 'Password must be at least 8 characters long', strength: 'weak' };
+  
+  let score = 0;
+  let feedback = [];
+  
+  // Length check
+  if (password.length >= 8) {
+    score += 1;
+  } else {
+    feedback.push('at least 8 characters');
+  }
+  
+  // Lowercase check
+  if (/[a-z]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('lowercase letters');
+  }
+  
+  // Uppercase check
+  if (/[A-Z]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('uppercase letters');
+  }
+  
+  // Number check
+  if (/[0-9]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('numbers');
+  }
+  
+  // Special character check
+  if (/[^a-zA-Z0-9]/.test(password)) {
+    score += 1;
+  } else {
+    feedback.push('special characters');
   }
   
   let strength = 'weak';
-  let score = 0;
-  
-  if (password.length >= 8) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^a-zA-Z0-9]/.test(password)) score++;
-  
   if (score >= 4) strength = 'strong';
   else if (score >= 3) strength = 'medium';
   
+  const isValid = score >= 3;
+  const message = isValid 
+    ? 'Password strength is good' 
+    : `Password needs: ${feedback.join(', ')}`;
+  
   return { 
-    valid: score >= 3, 
-    message: score >= 3 ? 'Password strength is good' : 'Password should contain uppercase, lowercase, numbers, and special characters',
+    valid: isValid, 
+    message: message,
     strength: strength,
     score: score
   };
 }
 
+function validateRequired(value, fieldName) {
+  if (!value || value.trim().length === 0) {
+    return { valid: false, message: `${fieldName} is required` };
+  }
+  return { valid: true, message: `${fieldName} is valid` };
+}
+
 function showFieldValidation(fieldId, validation) {
   const field = document.getElementById(fieldId);
-  const errorElement = document.getElementById(fieldId.replace('new-', '') + '-error') || 
-                      document.getElementById(fieldId + '-error') ||
-                      document.getElementById(fieldId.replace('new-', '') + '-validation');
-  const successElement = document.getElementById(fieldId.replace('new-', '') + '-validation');
+  const errorElement = document.getElementById(fieldId + '-error');
+  const successElement = document.getElementById(fieldId + '-success');
   
   if (!field) return;
   
@@ -1928,23 +1994,22 @@ function showFieldValidation(fieldId, validation) {
   
   if (validation.valid) {
     field.classList.add('field-valid');
-    if (errorElement) {
-      errorElement.style.display = 'none';
-    }
-    if (successElement && successElement.classList.contains('validation-success')) {
+    if (errorElement) errorElement.style.display = 'none';
+    if (successElement) {
       successElement.textContent = `✓ ${validation.message}`;
       successElement.style.display = 'block';
     }
   } else {
     field.classList.add('field-invalid');
-    if (successElement && successElement.classList.contains('validation-success')) {
-      successElement.style.display = 'none';
-    }
+    if (successElement) successElement.style.display = 'none';
     if (errorElement) {
       errorElement.textContent = validation.message;
       errorElement.style.display = 'block';
     }
   }
+  
+  // Update form submit button state
+  updateSubmitButtonState();
 }
 
 function updatePasswordStrength(password) {
@@ -1954,31 +2019,114 @@ function updatePasswordStrength(password) {
   const strengthContainer = document.querySelector('.strength-bar');
   
   if (strengthBar && strengthText && strengthContainer) {
-    const widthPercent = (validation.score / 5) * 100;
+    const widthPercent = Math.max((validation.score / 5) * 100, 10);
     strengthBar.style.width = `${widthPercent}%`;
     
     // Remove existing strength classes
     strengthContainer.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
     
     // Add appropriate strength class
+    strengthContainer.classList.add(`strength-${validation.strength}`);
+    
     if (validation.strength === 'strong') {
-      strengthContainer.classList.add('strength-strong');
       strengthText.textContent = 'Password Strength: Strong';
     } else if (validation.strength === 'medium') {
-      strengthContainer.classList.add('strength-medium');
       strengthText.textContent = 'Password Strength: Medium';
     } else if (validation.strength === 'weak') {
-      strengthContainer.classList.add('strength-weak');
       strengthText.textContent = 'Password Strength: Weak';
     } else {
-      strengthContainer.classList.add('strength-weak');
       strengthText.textContent = 'Password Strength: Enter password';
     }
   }
 }
 
+function validatePasswordMatch() {
+  const password = document.getElementById('new-password')?.value || '';
+  const confirmPassword = document.getElementById('confirm-password')?.value || '';
+  
+  if (!confirmPassword) {
+    return { valid: false, message: 'Please confirm your password' };
+  }
+  
+  const validation = {
+    valid: password === confirmPassword && password.length > 0,
+    message: password === confirmPassword ? 'Passwords match' : 'Passwords do not match'
+  };
+  
+  showFieldValidation('confirm-password', validation);
+  return validation;
+}
+
+function updateSubmitButtonState() {
+  const submitBtn = document.getElementById('create-user-btn');
+  if (!submitBtn) return;
+  
+  const requiredFields = [
+    { id: 'new-username', validator: validateUsername },
+    { id: 'new-email', validator: validateEmail },
+    { id: 'new-role', validator: (v) => validateRequired(v, 'Role') },
+    { id: 'new-department', validator: (v) => validateRequired(v, 'Department') },
+    { id: 'new-password', validator: validatePassword }
+  ];
+  
+  let allValid = true;
+  
+  for (const field of requiredFields) {
+    const element = document.getElementById(field.id);
+    if (element) {
+      const validation = field.validator(element.value);
+      if (!validation.valid) {
+        allValid = false;
+        break;
+      }
+    }
+  }
+  
+  // Check password match
+  const passwordMatch = validatePasswordMatch();
+  if (!passwordMatch.valid) {
+    allValid = false;
+  }
+  
+  submitBtn.disabled = !allValid;
+}
+
 // Add real-time validation
 document.addEventListener('DOMContentLoaded', function() {
+  // Show/hide add user form
+  const addUserBtn = document.getElementById('add-user-btn');
+  const addUserContainer = document.getElementById('add-user-form-container');
+  const closeFormBtn = document.getElementById('close-add-user-form');
+  const cancelBtn = document.getElementById('cancel-add-user');
+  
+  if (addUserBtn && addUserContainer) {
+    addUserBtn.addEventListener('click', function() {
+      addUserContainer.style.display = 'block';
+      addUserContainer.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+  
+  function hideAddUserForm() {
+    if (addUserContainer) {
+      addUserContainer.style.display = 'none';
+      // Reset form
+      const form = document.getElementById('add-user-form');
+      if (form) form.reset();
+      // Clear validations
+      document.querySelectorAll('.validation-error, .validation-success').forEach(el => {
+        el.style.display = 'none';
+      });
+      // Reset password strength
+      const strengthBar = document.querySelector('.strength-bar-fill');
+      const strengthText = document.querySelector('.strength-text');
+      if (strengthBar) strengthBar.style.width = '0%';
+      if (strengthText) strengthText.textContent = 'Password Strength: Enter password';
+    }
+  }
+  
+  if (closeFormBtn) closeFormBtn.addEventListener('click', hideAddUserForm);
+  if (cancelBtn) cancelBtn.addEventListener('click', hideAddUserForm);
+  
   // Username validation
   const usernameField = document.getElementById('new-username');
   if (usernameField) {
@@ -1994,6 +2142,24 @@ document.addEventListener('DOMContentLoaded', function() {
     emailField.addEventListener('input', function() {
       const validation = validateEmail(this.value);
       showFieldValidation('new-email', validation);
+    });
+  }
+  
+  // Role validation
+  const roleField = document.getElementById('new-role');
+  if (roleField) {
+    roleField.addEventListener('change', function() {
+      const validation = validateRequired(this.value, 'Role');
+      showFieldValidation('new-role', validation);
+    });
+  }
+  
+  // Department validation
+  const departmentField = document.getElementById('new-department');
+  if (departmentField) {
+    departmentField.addEventListener('change', function() {
+      const validation = validateRequired(this.value, 'Department');
+      showFieldValidation('new-department', validation);
     });
   }
   
@@ -2019,16 +2185,58 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmPasswordField.addEventListener('input', validatePasswordMatch);
   }
   
-  function validatePasswordMatch() {
-    const password = document.getElementById('new-password')?.value || '';
-    const confirmPassword = document.getElementById('confirm-password')?.value || '';
-    
-    const validation = {
-      valid: password === confirmPassword && password.length > 0,
-      message: password === confirmPassword ? 'Passwords match' : 'Passwords do not match'
-    };
-    
-    showFieldValidation('confirm-password', validation);
+  // Bulk selection functionality
+  const selectAllCheckbox = document.getElementById('select-all-users');
+  const bulkDeleteBtn = document.getElementById('bulk-delete-users');
+  
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const userCheckboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]');
+      userCheckboxes.forEach(cb => cb.checked = this.checked);
+      updateBulkActions();
+    });
+  }
+  
+  function updateBulkActions() {
+    const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
+    if (bulkDeleteBtn) {
+      if (checkedBoxes.length > 0) {
+        bulkDeleteBtn.style.display = 'inline-block';
+        bulkDeleteBtn.disabled = false;
+      } else {
+        bulkDeleteBtn.style.display = 'none';
+        bulkDeleteBtn.disabled = true;
+      }
+    }
+  }
+  
+  // Form submission
+  const addUserForm = document.getElementById('add-user-form');
+  if (addUserForm) {
+    addUserForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Final validation
+      const isValid = !document.getElementById('create-user-btn').disabled;
+      
+      if (isValid) {
+        // Here you would normally send the data to the server
+        console.log('Creating new user...');
+        
+        // Show success message
+        alert('User created successfully!');
+        
+        // Hide form and reset
+        hideAddUserForm();
+        
+        // Refresh user table (this would be handled by your app.js)
+        if (window.populateUserAccounts) {
+          window.populateUserAccounts();
+        }
+      } else {
+        alert('Please fix all validation errors before submitting.');
+      }
+    });
   }
 });
 </script>
