@@ -306,12 +306,380 @@ function updateNavigationState(activeSection) {
 }
 
 /**
+ * Enhanced dashboard metrics calculation and display
+ */
+function updateDashboardMetrics() {
+  try {
+    // Calculate comprehensive metrics
+    const metrics = calculateDashboardMetrics();
+    
+    // Update metric displays
+    updateMetricDisplays(metrics);
+    
+    // Update charts data
+    updateChartsData(metrics);
+    
+    // Update recent activity
+    updateRecentActivity();
+    
+    // Update system status
+    updateSystemStatus();
+    
+    console.log('Dashboard metrics updated successfully');
+  } catch (error) {
+    console.error('Failed to update dashboard metrics:', error);
+    showNotification('Failed to update dashboard data', 'error');
+  }
+}
+
+/**
+ * Calculate comprehensive dashboard metrics
+ */
+function calculateDashboardMetrics() {
+  const currentYear = new Date().getFullYear();
+  const currentRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear
+  );
+  
+  // Total royalties calculation
+  const totalRoyalties = currentRecords.reduce((sum, record) => sum + record.amount, 0);
+  const lastYearRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear - 1
+  );
+  const lastYearTotal = lastYearRecords.reduce((sum, record) => sum + record.amount, 0);
+  const royaltiesGrowth = lastYearTotal > 0 ? 
+    ((totalRoyalties - lastYearTotal) / lastYearTotal * 100).toFixed(1) : 0;
+  
+  // Active entities
+  const activeEntities = new Set(currentRecords.map(r => r.entity));
+  const mines = new Set(currentRecords.filter(r => r.entity.includes('Mine')).map(r => r.entity));
+  const quarries = new Set(currentRecords.filter(r => r.entity.includes('Quarry')).map(r => r.entity));
+  
+  // Compliance calculations
+  const paidRecords = currentRecords.filter(r => r.status === 'Paid');
+  const pendingRecords = currentRecords.filter(r => r.status === 'Pending');
+  const overdueRecords = currentRecords.filter(r => r.status === 'Overdue');
+  const complianceRate = currentRecords.length > 0 ? 
+    Math.round((paidRecords.length / currentRecords.length) * 100) : 0;
+  
+  // Pending approvals
+  const pendingApprovals = pendingRecords.length + overdueRecords.length;
+  const urgentItems = overdueRecords.length;
+  
+  // Monthly data for charts
+  const monthlyData = getMonthlyRoyaltyData(currentRecords);
+  const entityProductionData = getEntityProductionData(currentRecords);
+  
+  return {
+    totalRoyalties,
+    royaltiesGrowth,
+    activeEntities: activeEntities.size,
+    minesCount: mines.size,
+    quarriesCount: quarries.size,
+    complianceRate,
+    paidCount: paidRecords.length,
+    pendingCount: pendingRecords.length,
+    overdueCount: overdueRecords.length,
+    pendingApprovals,
+    urgentItems,
+    monthlyData,
+    entityProductionData
+  };
+}
+
+/**
+ * Update metric displays with calculated data
+ */
+function updateMetricDisplays(metrics) {
+  // Total royalties
+  updateElement('total-royalties', `E${metrics.totalRoyalties.toLocaleString()}.00`);
+  updateTrendIndicator('royalties-trend', metrics.royaltiesGrowth, '%');
+  updateProgressBar('royalties-progress', Math.min(metrics.totalRoyalties / 3000000 * 100, 100));
+  
+  // Active entities
+  updateElement('active-entities', metrics.activeEntities.toString());
+  updateElement('mines-count', metrics.minesCount.toString());
+  updateElement('quarries-count', metrics.quarriesCount.toString());
+  
+  // Compliance rate
+  updateElement('compliance-rate', `${metrics.complianceRate}%`);
+  updateProgressBar('compliance-progress', metrics.complianceRate);
+  updateElement('paid-count', metrics.paidCount.toString());
+  updateElement('pending-count', metrics.pendingCount.toString());
+  updateElement('overdue-count', metrics.overdueCount.toString());
+  
+  // Pending approvals
+  updateElement('pending-approvals', metrics.pendingApprovals.toString());
+  updateUrgencyIndicator(metrics.urgentItems);
+  
+  // Chart summaries
+  const avgMonthly = metrics.monthlyData.reduce((sum, val) => sum + val, 0) / 12;
+  updateElement('avg-monthly', Math.round(avgMonthly).toLocaleString());
+  
+  const maxMonthIndex = metrics.monthlyData.indexOf(Math.max(...metrics.monthlyData));
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  updateElement('peak-month', monthNames[maxMonthIndex]);
+  
+  const totalProduction = metrics.entityProductionData.reduce((sum, val) => sum + val, 0);
+  updateElement('total-production', totalProduction.toLocaleString());
+  
+  const topProducerIndex = metrics.entityProductionData.indexOf(Math.max(...metrics.entityProductionData));
+  const entityNames = ['Kwalini Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Mbabane Quarry', 'Sidvokodvo Quarry'];
+  updateElement('top-producer', entityNames[topProducerIndex] || 'N/A');
+}
+
+/**
+ * Update trend indicator with proper styling
+ */
+function updateTrendIndicator(elementId, value, suffix = '') {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  const numValue = parseFloat(value);
+  let icon, className, text;
+  
+  if (numValue > 0) {
+    icon = 'fas fa-arrow-up';
+    className = 'trend-positive';
+    text = `+${value}${suffix} from last year`;
+  } else if (numValue < 0) {
+    icon = 'fas fa-arrow-down';
+    className = 'trend-negative';
+    text = `${value}${suffix} from last year`;
+  } else {
+    icon = 'fas fa-minus';
+    className = 'trend-stable';
+    text = 'No change from last year';
+  }
+  
+  element.innerHTML = `<i class="${icon} ${className}"></i> ${text}`;
+  element.className = `trend-indicator ${className}`;
+}
+
+/**
+ * Update progress bar
+ */
+function updateProgressBar(elementId, percentage) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.style.width = `${Math.min(Math.max(percentage, 0), 100)}%`;
+  }
+}
+
+/**
+ * Update urgency indicator
+ */
+function updateUrgencyIndicator(urgentCount) {
+  const urgentElement = document.getElementById('urgent-items');
+  const countElement = document.getElementById('urgent-count');
+  const pendingUrgency = document.getElementById('pending-urgency');
+  
+  if (urgentCount > 0) {
+    if (urgentElement) urgentElement.style.display = 'inline-flex';
+    if (countElement) countElement.textContent = urgentCount.toString();
+    if (pendingUrgency) pendingUrgency.textContent = `${urgentCount} urgent items require attention`;
+  } else {
+    if (urgentElement) urgentElement.style.display = 'none';
+    if (pendingUrgency) pendingUrgency.textContent = 'No urgent items';
+  }
+}
+
+/**
+ * Get monthly royalty data for charts
+ */
+function getMonthlyRoyaltyData(records) {
+  const monthlyTotals = new Array(12).fill(0);
+  
+  records.forEach(record => {
+    const month = new Date(record.date).getMonth();
+    monthlyTotals[month] += record.amount;
+  });
+  
+  return monthlyTotals;
+}
+
+/**
+ * Get entity production data for charts
+ */
+function getEntityProductionData(records) {
+  const entityTotals = {};
+  
+  records.forEach(record => {
+    if (!entityTotals[record.entity]) {
+      entityTotals[record.entity] = 0;
+    }
+    entityTotals[record.entity] += record.volume;
+  });
+  
+  return Object.values(entityTotals);
+}
+
+/**
+ * Update recent activity feed
+ */
+function updateRecentActivity() {
+  const activityContainer = document.getElementById('recent-activity');
+  if (!activityContainer) return;
+  
+  const recentAuditEntries = AppState.auditLog.slice(0, 5);
+  
+  activityContainer.innerHTML = recentAuditEntries.map(entry => {
+    const iconClass = getActivityIcon(entry.action);
+    const timeAgo = formatTimeAgo(entry.timestamp);
+    
+    return `
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="${iconClass}"></i>
+        </div>
+        <div class="activity-content">
+          <p><strong>${entry.action}</strong> ${entry.details}</p>
+          <small>${timeAgo}</small>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Get appropriate icon for activity type
+ */
+function getActivityIcon(action) {
+  const iconMap = {
+    'Login': 'fas fa-sign-in-alt text-info',
+    'Logout': 'fas fa-sign-out-alt text-secondary',
+    'Create User': 'fas fa-user-plus text-success',
+    'Delete User': 'fas fa-user-minus text-danger',
+    'Create Record': 'fas fa-plus-circle text-success',
+    'Delete Record': 'fas fa-trash text-danger',
+    'Data Access': 'fas fa-eye text-info',
+    'Password Reset': 'fas fa-key text-warning',
+    'Failed Login': 'fas fa-exclamation-triangle text-danger'
+  };
+  
+  return iconMap[action] || 'fas fa-circle text-muted';
+}
+
+/**
+ * Format timestamp to relative time
+ */
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diffMs = now - past;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  
+  return formatDate(timestamp);
+}
+
+/**
+ * Update system status indicators
+ */
+function updateSystemStatus() {
+  // Simulate system status checks
+  updateElement('system-status', '<i class="fas fa-circle"></i> Online');
+  updateElement('db-status', '<i class="fas fa-circle"></i> Connected');
+  updateElement('last-backup', 'Today, 03:00 AM');
+  updateElement('active-sessions', `${AppState.users.filter(u => u.status === 'Active').length} users`);
+  updateElement('system-uptime', '7 days, 14 hours');
+  
+  // Update alert count
+  const alertCount = AppState.auditLog.filter(entry => 
+    entry.status === 'Failed' || entry.action === 'Failed Login'
+  ).length;
+  
+  updateElement('alert-count-badge', alertCount.toString());
+  
+  if (alertCount === 0) {
+    const alertsContainer = document.getElementById('system-alerts');
+    if (alertsContainer) {
+      alertsContainer.innerHTML = `
+        <div class="alert-item info">
+          <i class="fas fa-check-circle"></i>
+          <div class="alert-content">
+            <p>System running normally</p>
+            <small>All services operational</small>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+/**
+ * Initialize dashboard event handlers
+ */
+function initializeDashboardHandlers() {
+  // Refresh dashboard
+  const refreshBtn = document.getElementById('refresh-dashboard');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function() {
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+      
+      setTimeout(() => {
+        updateDashboardMetrics();
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+        showNotification('Dashboard refreshed successfully', 'success');
+      }, 1500);
+    });
+  }
+  
+  // Quick actions
+  const quickActions = {
+    'add-royalty-record': () => showSection('royalty-records'),
+    'generate-report': () => showSection('reporting-analytics'),
+    'view-overdue': () => {
+      showSection('royalty-records');
+      // Apply overdue filter (would be implemented in royalty section)
+    },
+    'manage-users': () => showSection('user-management')
+  };
+  
+  Object.entries(quickActions).forEach(([id, action]) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', action);
+    }
+  });
+  
+  // Metric period changes
+  const periodSelectors = document.querySelectorAll('.metric-period');
+  periodSelectors.forEach(selector => {
+    selector.addEventListener('change', function() {
+      // This would trigger a data refresh for the specific metric
+      console.log(`Period changed for ${this.id}: ${this.value}`);
+      updateDashboardMetrics();
+    });
+  });
+}
+
+/**
+ * Helper function to safely update element content
+ */
+function updateElement(id, content) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.innerHTML = content;
+  }
+}
+
+/**
  * Initialize section-specific functionality
  */
 function initializeSection(sectionId) {
   switch (sectionId) {
     case 'dashboard':
       updateDashboardMetrics();
+      initializeDashboardHandlers();
       break;
     case 'user-management':
       populateUserAccounts();
@@ -472,363 +840,826 @@ function loadSampleData() {
  * Update dashboard metrics
  */
 function updateDashboardMetrics() {
-  // Calculate total royalties
-  const totalRoyalties = AppState.royaltyRecords.reduce((sum, record) => sum + record.amount, 0);
-  const totalRoyaltiesElement = document.getElementById('total-royalties');
-  if (totalRoyaltiesElement) {
-    totalRoyaltiesElement.textContent = `E${totalRoyalties.toLocaleString()}.00`;
+  try {
+    // Calculate comprehensive metrics
+    const metrics = calculateDashboardMetrics();
+    
+    // Update metric displays
+    updateMetricDisplays(metrics);
+    
+    // Update charts data
+    updateChartsData(metrics);
+    
+    // Update recent activity
+    updateRecentActivity();
+    
+    // Update system status
+    updateSystemStatus();
+    
+    console.log('Dashboard metrics updated successfully');
+  } catch (error) {
+    console.error('Failed to update dashboard metrics:', error);
+    showNotification('Failed to update dashboard data', 'error');
   }
-  
-  // Count active entities
-  const activeEntities = new Set(AppState.royaltyRecords.map(r => r.entity)).size;
-  const activeEntitiesElement = document.getElementById('active-entities');
-  if (activeEntitiesElement) {
-    activeEntitiesElement.textContent = activeEntities.toString();
-  }
-  
-  // Calculate compliance rate (simplified)
-  const paidRecords = AppState.royaltyRecords.filter(r => r.status === 'Paid').length;
-  const complianceRate = AppState.royaltyRecords.length > 0 ? 
-    Math.round((paidRecords / AppState.royaltyRecords.length) * 100) : 0;
-  
-  const complianceRateElement = document.getElementById('compliance-rate');
-  if (complianceRateElement) {
-    complianceRateElement.textContent = `${complianceRate}%`;
-  }
-  
-  // Update progress bar
-  const progressBar = document.querySelector('.collection-progress .progress-bar');
-  if (progressBar) {
-    progressBar.style.width = `${complianceRate}%`;
-  }
-  
-  // Count pending approvals
-  const pendingApprovals = AppState.royaltyRecords.filter(r => r.status === 'Pending').length;
-  const pendingApprovalsElement = document.getElementById('pending-approvals');
-  if (pendingApprovalsElement) {
-    pendingApprovalsElement.textContent = pendingApprovals.toString();
-  }
-  
-  console.log('Dashboard metrics updated successfully');
 }
 
 /**
- * Initialize chart controls
+ * Calculate comprehensive dashboard metrics
  */
-function initializeChartControls() {
-  const chartButtons = document.querySelectorAll('.chart-btn');
-  chartButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const chartType = this.getAttribute('data-chart-type');
-      const chartId = this.getAttribute('data-chart-id');
+function calculateDashboardMetrics() {
+  const currentYear = new Date().getFullYear();
+  const currentRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear
+  );
+  
+  // Total royalties calculation
+  const totalRoyalties = currentRecords.reduce((sum, record) => sum + record.amount, 0);
+  const lastYearRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear - 1
+  );
+  const lastYearTotal = lastYearRecords.reduce((sum, record) => sum + record.amount, 0);
+  const royaltiesGrowth = lastYearTotal > 0 ? 
+    ((totalRoyalties - lastYearTotal) / lastYearTotal * 100).toFixed(1) : 0;
+  
+  // Active entities
+  const activeEntities = new Set(currentRecords.map(r => r.entity));
+  const mines = new Set(currentRecords.filter(r => r.entity.includes('Mine')).map(r => r.entity));
+  const quarries = new Set(currentRecords.filter(r => r.entity.includes('Quarry')).map(r => r.entity));
+  
+  // Compliance calculations
+  const paidRecords = currentRecords.filter(r => r.status === 'Paid');
+  const pendingRecords = currentRecords.filter(r => r.status === 'Pending');
+  const overdueRecords = currentRecords.filter(r => r.status === 'Overdue');
+  const complianceRate = currentRecords.length > 0 ? 
+    Math.round((paidRecords.length / currentRecords.length) * 100) : 0;
+  
+  // Pending approvals
+  const pendingApprovals = pendingRecords.length + overdueRecords.length;
+  const urgentItems = overdueRecords.length;
+  
+  // Monthly data for charts
+  const monthlyData = getMonthlyRoyaltyData(currentRecords);
+  const entityProductionData = getEntityProductionData(currentRecords);
+  
+  return {
+    totalRoyalties,
+    royaltiesGrowth,
+    activeEntities: activeEntities.size,
+    minesCount: mines.size,
+    quarriesCount: quarries.size,
+    complianceRate,
+    paidCount: paidRecords.length,
+    pendingCount: pendingRecords.length,
+    overdueCount: overdueRecords.length,
+    pendingApprovals,
+    urgentItems,
+    monthlyData,
+    entityProductionData
+  };
+}
+
+/**
+ * Update metric displays with calculated data
+ */
+function updateMetricDisplays(metrics) {
+  // Total royalties
+  updateElement('total-royalties', `E${metrics.totalRoyalties.toLocaleString()}.00`);
+  updateTrendIndicator('royalties-trend', metrics.royaltiesGrowth, '%');
+  updateProgressBar('royalties-progress', Math.min(metrics.totalRoyalties / 3000000 * 100, 100));
+  
+  // Active entities
+  updateElement('active-entities', metrics.activeEntities.toString());
+  updateElement('mines-count', metrics.minesCount.toString());
+  updateElement('quarries-count', metrics.quarriesCount.toString());
+  
+  // Compliance rate
+  updateElement('compliance-rate', `${metrics.complianceRate}%`);
+  updateProgressBar('compliance-progress', metrics.complianceRate);
+  updateElement('paid-count', metrics.paidCount.toString());
+  updateElement('pending-count', metrics.pendingCount.toString());
+  updateElement('overdue-count', metrics.overdueCount.toString());
+  
+  // Pending approvals
+  updateElement('pending-approvals', metrics.pendingApprovals.toString());
+  updateUrgencyIndicator(metrics.urgentItems);
+  
+  // Chart summaries
+  const avgMonthly = metrics.monthlyData.reduce((sum, val) => sum + val, 0) / 12;
+  updateElement('avg-monthly', Math.round(avgMonthly).toLocaleString());
+  
+  const maxMonthIndex = metrics.monthlyData.indexOf(Math.max(...metrics.monthlyData));
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  updateElement('peak-month', monthNames[maxMonthIndex]);
+  
+  const totalProduction = metrics.entityProductionData.reduce((sum, val) => sum + val, 0);
+  updateElement('total-production', totalProduction.toLocaleString());
+  
+  const topProducerIndex = metrics.entityProductionData.indexOf(Math.max(...metrics.entityProductionData));
+  const entityNames = ['Kwalini Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Mbabane Quarry', 'Sidvokodvo Quarry'];
+  updateElement('top-producer', entityNames[topProducerIndex] || 'N/A');
+}
+
+/**
+ * Update trend indicator with proper styling
+ */
+function updateTrendIndicator(elementId, value, suffix = '') {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  const numValue = parseFloat(value);
+  let icon, className, text;
+  
+  if (numValue > 0) {
+    icon = 'fas fa-arrow-up';
+    className = 'trend-positive';
+    text = `+${value}${suffix} from last year`;
+  } else if (numValue < 0) {
+    icon = 'fas fa-arrow-down';
+    className = 'trend-negative';
+    text = `${value}${suffix} from last year`;
+  } else {
+    icon = 'fas fa-minus';
+    className = 'trend-stable';
+    text = 'No change from last year';
+  }
+  
+  element.innerHTML = `<i class="${icon} ${className}"></i> ${text}`;
+  element.className = `trend-indicator ${className}`;
+}
+
+/**
+ * Update progress bar
+ */
+function updateProgressBar(elementId, percentage) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.style.width = `${Math.min(Math.max(percentage, 0), 100)}%`;
+  }
+}
+
+/**
+ * Update urgency indicator
+ */
+function updateUrgencyIndicator(urgentCount) {
+  const urgentElement = document.getElementById('urgent-items');
+  const countElement = document.getElementById('urgent-count');
+  const pendingUrgency = document.getElementById('pending-urgency');
+  
+  if (urgentCount > 0) {
+    if (urgentElement) urgentElement.style.display = 'inline-flex';
+    if (countElement) countElement.textContent = urgentCount.toString();
+    if (pendingUrgency) pendingUrgency.textContent = `${urgentCount} urgent items require attention`;
+  } else {
+    if (urgentElement) urgentElement.style.display = 'none';
+    if (pendingUrgency) pendingUrgency.textContent = 'No urgent items';
+  }
+}
+
+/**
+ * Get monthly royalty data for charts
+ */
+function getMonthlyRoyaltyData(records) {
+  const monthlyTotals = new Array(12).fill(0);
+  
+  records.forEach(record => {
+    const month = new Date(record.date).getMonth();
+    monthlyTotals[month] += record.amount;
+  });
+  
+  return monthlyTotals;
+}
+
+/**
+ * Get entity production data for charts
+ */
+function getEntityProductionData(records) {
+  const entityTotals = {};
+  
+  records.forEach(record => {
+    if (!entityTotals[record.entity]) {
+      entityTotals[record.entity] = 0;
+    }
+    entityTotals[record.entity] += record.volume;
+  });
+  
+  return Object.values(entityTotals);
+}
+
+/**
+ * Update recent activity feed
+ */
+function updateRecentActivity() {
+  const activityContainer = document.getElementById('recent-activity');
+  if (!activityContainer) return;
+  
+  const recentAuditEntries = AppState.auditLog.slice(0, 5);
+  
+  activityContainer.innerHTML = recentAuditEntries.map(entry => {
+    const iconClass = getActivityIcon(entry.action);
+    const timeAgo = formatTimeAgo(entry.timestamp);
+    
+    return `
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="${iconClass}"></i>
+        </div>
+        <div class="activity-content">
+          <p><strong>${entry.action}</strong> ${entry.details}</p>
+          <small>${timeAgo}</small>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Get appropriate icon for activity type
+ */
+function getActivityIcon(action) {
+  const iconMap = {
+    'Login': 'fas fa-sign-in-alt text-info',
+    'Logout': 'fas fa-sign-out-alt text-secondary',
+    'Create User': 'fas fa-user-plus text-success',
+    'Delete User': 'fas fa-user-minus text-danger',
+    'Create Record': 'fas fa-plus-circle text-success',
+    'Delete Record': 'fas fa-trash text-danger',
+    'Data Access': 'fas fa-eye text-info',
+    'Password Reset': 'fas fa-key text-warning',
+    'Failed Login': 'fas fa-exclamation-triangle text-danger'
+  };
+  
+  return iconMap[action] || 'fas fa-circle text-muted';
+}
+
+/**
+ * Format timestamp to relative time
+ */
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diffMs = now - past;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  
+  return formatDate(timestamp);
+}
+
+/**
+ * Update system status indicators
+ */
+function updateSystemStatus() {
+  // Simulate system status checks
+  updateElement('system-status', '<i class="fas fa-circle"></i> Online');
+  updateElement('db-status', '<i class="fas fa-circle"></i> Connected');
+  updateElement('last-backup', 'Today, 03:00 AM');
+  updateElement('active-sessions', `${AppState.users.filter(u => u.status === 'Active').length} users`);
+  updateElement('system-uptime', '7 days, 14 hours');
+  
+  // Update alert count
+  const alertCount = AppState.auditLog.filter(entry => 
+    entry.status === 'Failed' || entry.action === 'Failed Login'
+  ).length;
+  
+  updateElement('alert-count-badge', alertCount.toString());
+  
+  if (alertCount === 0) {
+    const alertsContainer = document.getElementById('system-alerts');
+    if (alertsContainer) {
+      alertsContainer.innerHTML = `
+        <div class="alert-item info">
+          <i class="fas fa-check-circle"></i>
+          <div class="alert-content">
+            <p>System running normally</p>
+            <small>All services operational</small>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+/**
+ * Initialize dashboard event handlers
+ */
+function initializeDashboardHandlers() {
+  // Refresh dashboard
+  const refreshBtn = document.getElementById('refresh-dashboard');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function() {
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
       
-      // Update active button
-      const parentControls = this.parentElement;
-      parentControls.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Update chart (placeholder functionality)
-      console.log(`Updating chart ${chartId} to type ${chartType}`);
-      
-      // Here you would update the actual chart
-      updateChart(chartId, chartType);
+      setTimeout(() => {
+        updateDashboardMetrics();
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+        showNotification('Dashboard refreshed successfully', 'success');
+      }, 1500);
+    });
+  }
+  
+  // Quick actions
+  const quickActions = {
+    'add-royalty-record': () => showSection('royalty-records'),
+    'generate-report': () => showSection('reporting-analytics'),
+    'view-overdue': () => {
+      showSection('royalty-records');
+      // Apply overdue filter (would be implemented in royalty section)
+    },
+    'manage-users': () => showSection('user-management')
+  };
+  
+  Object.entries(quickActions).forEach(([id, action]) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', action);
+    }
+  });
+  
+  // Metric period changes
+  const periodSelectors = document.querySelectorAll('.metric-period');
+  periodSelectors.forEach(selector => {
+    selector.addEventListener('change', function() {
+      // This would trigger a data refresh for the specific metric
+      console.log(`Period changed for ${this.id}: ${this.value}`);
+      updateDashboardMetrics();
     });
   });
-  
-  console.log(`Set up ${chartButtons.length} chart control buttons`);
 }
 
 /**
- * Update chart display (placeholder)
+ * Helper function to safely update element content
  */
-function updateChart(chartId, chartType) {
-  const canvas = document.getElementById(chartId);
-  if (!canvas) return;
-  
-  // Destroy existing chart if it exists
-  if (AppState.charts[chartId]) {
-    AppState.charts[chartId].destroy();
-  }
-  
-  const ctx = canvas.getContext('2d');
-  
-  // Sample data
-  const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [{
-      label: 'Revenue (E)',
-      data: [65000, 59000, 80000, 81000, 56000, 55000],
-      backgroundColor: chartType === 'bar' ? 'rgba(26, 54, 93, 0.8)' : 'rgba(26, 54, 93, 0.2)',
-      borderColor: 'rgba(26, 54, 93, 1)',
-      borderWidth: 2,
-      fill: chartType === 'area'
-    }]
-  };
-  
-  const config = {
-    type: chartType === 'area' ? 'line' : chartType,
-    data: data,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return 'E' + value.toLocaleString();
-            }
-          }
-        }
-      }
-    }
-  };
-  
-  AppState.charts[chartId] = new Chart(ctx, config);
-}
-
-/**
- * Initialize user management functionality
- */
-function initializeUserManagement() {
-  // Filter functionality
-  const applyFiltersBtn = document.getElementById('apply-user-filters');
-  if (applyFiltersBtn) {
-    applyFiltersBtn.addEventListener('click', applyUserFilters);
-  }
-  
-  const clearFiltersBtn = document.getElementById('clear-user-filters');
-  if (clearFiltersBtn) {
-    clearFiltersBtn.addEventListener('click', clearUserFilters);
-  }
-  
-  // Bulk actions
-  const bulkDeleteBtn = document.getElementById('bulk-delete-users');
-  if (bulkDeleteBtn) {
-    bulkDeleteBtn.addEventListener('click', handleBulkDelete);
-  }
-  
-  // Export functionality
-  const exportUsersBtn = document.getElementById('export-users');
-  if (exportUsersBtn) {
-    exportUsersBtn.addEventListener('click', exportUserData);
-  }
-  
-  // Refresh functionality
-  const refreshUsersBtn = document.getElementById('refresh-users');
-  if (refreshUsersBtn) {
-    refreshUsersBtn.addEventListener('click', populateUserAccounts);
+function updateElement(id, content) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.innerHTML = content;
   }
 }
 
 /**
- * Populate user accounts table
+ * Initialize all event listeners
  */
-function populateUserAccounts() {
-  const tbody = document.getElementById('users-table-tbody');
-  if (!tbody) return;
-  
-  tbody.innerHTML = '';
-  
-  AppState.users.forEach(user => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><input type="checkbox" data-user-id="${user.id}"></td>
-      <td>${user.username}</td>
-      <td>${user.email}</td>
-      <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-      <td>${user.department}</td>
-      <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-      <td>${formatDateTime(user.lastLogin)}</td>
-      <td>${user.failedAttempts}</td>
-      <td>${user.expires || 'Never'}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})" title="Edit user">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-sm btn-warning" onclick="resetPassword(${user.id})" title="Reset password">
-            <i class="fas fa-key"></i>
-          </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete user">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-  
-  // Add event listeners for checkboxes
-  const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', updateBulkActions);
-  });
-  
-  updateUserStats();
-}
+function initializeEventListeners() {
+  // Login form
+  const loginForm = document.querySelector('.login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleLogin);
+  }
 
-/**
- * Populate audit log table
- */
-function populateAuditLog() {
-  const tbody = document.getElementById('audit-log-tbody');
-  if (!tbody) return;
-  
-  tbody.innerHTML = '';
-  
-  AppState.auditLog.forEach(entry => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${formatDateTime(entry.timestamp)}</td>
-      <td>${entry.user}</td>
-      <td><span class="action-badge ${entry.action.toLowerCase().replace(' ', '-')}">${entry.action}</span></td>
-      <td>${entry.target}</td>
-      <td>${entry.ipAddress}</td>
-      <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
-      <td>${entry.details}</td>
-      <td>
-        <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails(${entry.id})" title="View details">
-          <i class="fas fa-eye"></i>
-        </button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
+  // Password toggle
+  const passwordToggle = document.querySelector('.password-toggle');
+  if (passwordToggle) {
+    passwordToggle.addEventListener('click', togglePasswordVisibility);
+  }
 
-/**
- * Initialize royalty management
- */
-function initializeRoyaltyManagement() {
-  const saveRoyaltyBtn = document.getElementById('save-royalty-btn');
-  if (saveRoyaltyBtn) {
-    saveRoyaltyBtn.addEventListener('click', saveRoyaltyRecord);
+  // Navigation
+  initializeNavigation();
+  
+  // Chart controls
+  initializeChartControls();
+  
+  // User management
+  initializeUserManagement();
+  
+  // Royalty records
+  initializeRoyaltyManagement();
+  
+  // Profile management
+  initializeProfileManagement();
+  
+  // Logout
+  const logoutBtn = document.getElementById('confirm-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
   }
 }
 
 /**
- * Populate royalty records table
+ * Handle login form submission
  */
-function populateRoyaltyRecords() {
-  const tbody = document.getElementById('royalty-records-tbody');
-  if (!tbody) return;
+async function handleLogin(event) {
+  event.preventDefault();
   
-  tbody.innerHTML = '';
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
   
-  AppState.royaltyRecords.forEach(record => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${record.entity}</td>
-      <td>${record.mineral}</td>
-      <td>${record.volume.toLocaleString()}</td>
-      <td>E${record.tariff}</td>
-      <td>E${record.amount.toLocaleString()}</td>
-      <td>${formatDate(record.date)}</td>
-      <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
-      <td>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-secondary" onclick="editRoyaltyRecord(${record.id})">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteRoyaltyRecord(${record.id})">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-/**
- * Save new royalty record
- */
-function saveRoyaltyRecord() {
-  const entity = document.getElementById('entity').value;
-  const mineral = document.getElementById('mineral').value;
-  const volume = parseFloat(document.getElementById('volume').value);
-  const tariff = parseFloat(document.getElementById('tariff').value);
-  const date = document.getElementById('payment-date').value;
+  console.log('Login attempt:', { username, password: password ? '***' : '' });
   
-  // Validation
-  if (!entity || !mineral || !volume || !tariff || !date) {
-    showNotification('Please fill in all required fields', 'error');
+  // Basic validation
+  if (!username || !password) {
+    showNotification('Please enter both username and password', 'error');
     return;
   }
   
-  if (volume <= 0 || tariff <= 0) {
-    showNotification('Volume and tariff must be positive numbers', 'error');
-    return;
+  try {
+    // Simulate authentication
+    await authenticateUser(username, password);
+    
+    // Hide login and show main app
+    hideLoginSection();
+    showMainApplication();
+    
+    // Initialize main application components
+    initializeMainApplication();
+    
+    showNotification('Welcome to Mining Royalties Manager!', 'success');
+    
+  } catch (error) {
+    console.error('Login failed:', error);
+    showNotification('Invalid credentials. Please try again.', 'error');
+  }
+}
+
+/**
+ * Authenticate user (simplified for demo)
+ */
+async function authenticateUser(username, password) {
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Demo credentials
+  const validCredentials = [
+    { username: 'admin', password: 'admin123', role: 'Administrator', name: 'System Administrator' },
+    { username: 'finance', password: 'finance123', role: 'Finance', name: 'Finance Manager' },
+    { username: 'auditor', password: 'audit123', role: 'Auditor', name: 'Chief Auditor' }
+  ];
+  
+  const user = validCredentials.find(u => u.username === username && u.password === password);
+  
+  if (!user) {
+    throw new Error('Invalid credentials');
   }
   
-  // Create new record
-  const newRecord = {
-    id: AppState.royaltyRecords.length + 1,
-    entity: entity,
-    mineral: mineral,
-    volume: volume,
-    tariff: tariff,
-    amount: volume * tariff,
-    date: date,
-    status: 'Pending'
-  };
+  AppState.currentUser = user;
   
-  AppState.royaltyRecords.push(newRecord);
+  // Update UI with user info
+  const userNameElement = document.getElementById('user-name');
+  if (userNameElement) {
+    userNameElement.textContent = user.name;
+  }
   
-  // Clear form
-  document.getElementById('entity').value = '';
-  document.getElementById('mineral').value = '';
-  document.getElementById('volume').value = '';
-  document.getElementById('tariff').value = '';
-  document.getElementById('payment-date').value = '';
+  // Log successful login
+  logAuditEvent('Login', user.username, 'System', 'Success', `User ${user.username} logged in successfully`);
+}
+
+/**
+ * Initialize main application after login
+ */
+function initializeMainApplication() {
+  console.log('Initializing main application...');
   
-  // Refresh table
-  populateRoyaltyRecords();
+  // Load initial data
+  loadSampleData();
   
-  // Update dashboard
+  // Show dashboard by default
+  showSection('dashboard');
+  
+  // Update dashboard metrics
   updateDashboardMetrics();
   
-  // Log the action
-  logAuditEvent('Create Record', AppState.currentUser.username, `Royalty Record #${newRecord.id}`, 'Success', `Created new royalty record for ${entity}`);
+  console.log('Application initialized successfully');
+}
+
+/**
+ * Navigation handling
+ */
+function initializeNavigation() {
+  const navLinks = document.querySelectorAll('nav a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const href = this.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const section = href.substring(1);
+        if (section === 'logout') {
+          // Handle logout separately
+          showSection('logout');
+        } else {
+          showSection(section);
+        }
+      }
+    });
+  });
+}
+
+/**
+ * Show specific section
+ */
+function showSection(sectionId) {
+  // Hide all sections
+  const sections = document.querySelectorAll('.main-content section');
+  sections.forEach(section => {
+    section.style.display = 'none';
+  });
   
-  showNotification('Royalty record saved successfully', 'success');
+  // Show target section
+  const targetSection = document.getElementById(sectionId);
+  if (targetSection) {
+    targetSection.style.display = 'block';
+    AppState.currentSection = sectionId;
+    
+    // Update navigation active state
+    updateNavigationState(sectionId);
+    
+    // Section-specific initialization
+    initializeSection(sectionId);
+  }
 }
 
 /**
- * Initialize profile management
+ * Update navigation active state
  */
-function initializeProfileManagement() {
-  // Profile form submission would go here
-  console.log('Profile management initialized');
+function updateNavigationState(activeSection) {
+  const navLinks = document.querySelectorAll('nav a');
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === `#${activeSection}`) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
 }
 
 /**
- * Utility functions
+ * Enhanced dashboard metrics calculation and display
  */
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-SZ', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+function updateDashboardMetrics() {
+  try {
+    // Calculate comprehensive metrics
+    const metrics = calculateDashboardMetrics();
+    
+    // Update metric displays
+    updateMetricDisplays(metrics);
+    
+    // Update charts data
+    updateChartsData(metrics);
+    
+    // Update recent activity
+    updateRecentActivity();
+    
+    // Update system status
+    updateSystemStatus();
+    
+    console.log('Dashboard metrics updated successfully');
+  } catch (error) {
+    console.error('Failed to update dashboard metrics:', error);
+    showNotification('Failed to update dashboard data', 'error');
+  }
 }
 
-function formatDateTime(dateTimeString) {
-  const date = new Date(dateTimeString);
-  return date.toLocaleString('en-SZ', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+/**
+ * Calculate comprehensive dashboard metrics
+ */
+function calculateDashboardMetrics() {
+  const currentYear = new Date().getFullYear();
+  const currentRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear
+  );
+  
+  // Total royalties calculation
+  const totalRoyalties = currentRecords.reduce((sum, record) => sum + record.amount, 0);
+  const lastYearRecords = AppState.royaltyRecords.filter(r => 
+    new Date(r.date).getFullYear() === currentYear - 1
+  );
+  const lastYearTotal = lastYearRecords.reduce((sum, record) => sum + record.amount, 0);
+  const royaltiesGrowth = lastYearTotal > 0 ? 
+    ((totalRoyalties - lastYearTotal) / lastYearTotal * 100).toFixed(1) : 0;
+  
+  // Active entities
+  const activeEntities = new Set(currentRecords.map(r => r.entity));
+  const mines = new Set(currentRecords.filter(r => r.entity.includes('Mine')).map(r => r.entity));
+  const quarries = new Set(currentRecords.filter(r => r.entity.includes('Quarry')).map(r => r.entity));
+  
+  // Compliance calculations
+  const paidRecords = currentRecords.filter(r => r.status === 'Paid');
+  const pendingRecords = currentRecords.filter(r => r.status === 'Pending');
+  const overdueRecords = currentRecords.filter(r => r.status === 'Overdue');
+  const complianceRate = currentRecords.length > 0 ? 
+    Math.round((paidRecords.length / currentRecords.length) * 100) : 0;
+  
+  // Pending approvals
+  const pendingApprovals = pendingRecords.length + overdueRecords.length;
+  const urgentItems = overdueRecords.length;
+  
+  // Monthly data for charts
+  const monthlyData = getMonthlyRoyaltyData(currentRecords);
+  const entityProductionData = getEntityProductionData(currentRecords);
+  
+  return {
+    totalRoyalties,
+    royaltiesGrowth,
+    activeEntities: activeEntities.size,
+    minesCount: mines.size,
+    quarriesCount: quarries.size,
+    complianceRate,
+    paidCount: paidRecords.length,
+    pendingCount: pendingRecords.length,
+    overdueCount: overdueRecords.length,
+    pendingApprovals,
+    urgentItems,
+    monthlyData,
+    entityProductionData
+  };
+}
+
+/**
+ * Update metric displays with calculated data
+ */
+function updateMetricDisplays(metrics) {
+  // Total royalties
+  updateElement('total-royalties', `E${metrics.totalRoyalties.toLocaleString()}.00`);
+  updateTrendIndicator('royalties-trend', metrics.royaltiesGrowth, '%');
+  updateProgressBar('royalties-progress', Math.min(metrics.totalRoyalties / 3000000 * 100, 100));
+  
+  // Active entities
+  updateElement('active-entities', metrics.activeEntities.toString());
+  updateElement('mines-count', metrics.minesCount.toString());
+  updateElement('quarries-count', metrics.quarriesCount.toString());
+  
+  // Compliance rate
+  updateElement('compliance-rate', `${metrics.complianceRate}%`);
+  updateProgressBar('compliance-progress', metrics.complianceRate);
+  updateElement('paid-count', metrics.paidCount.toString());
+  updateElement('pending-count', metrics.pendingCount.toString());
+  updateElement('overdue-count', metrics.overdueCount.toString());
+  
+  // Pending approvals
+  updateElement('pending-approvals', metrics.pendingApprovals.toString());
+  updateUrgencyIndicator(metrics.urgentItems);
+  
+  // Chart summaries
+  const avgMonthly = metrics.monthlyData.reduce((sum, val) => sum + val, 0) / 12;
+  updateElement('avg-monthly', Math.round(avgMonthly).toLocaleString());
+  
+  const maxMonthIndex = metrics.monthlyData.indexOf(Math.max(...metrics.monthlyData));
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  updateElement('peak-month', monthNames[maxMonthIndex]);
+  
+  const totalProduction = metrics.entityProductionData.reduce((sum, val) => sum + val, 0);
+  updateElement('total-production', totalProduction.toLocaleString());
+  
+  const topProducerIndex = metrics.entityProductionData.indexOf(Math.max(...metrics.entityProductionData));
+  const entityNames = ['Kwalini Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Mbabane Quarry', 'Sidvokodvo Quarry'];
+  updateElement('top-producer', entityNames[topProducerIndex] || 'N/A');
+}
+
+/**
+ * Update trend indicator with proper styling
+ */
+function updateTrendIndicator(elementId, value, suffix = '') {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  
+  const numValue = parseFloat(value);
+  let icon, className, text;
+  
+  if (numValue > 0) {
+    icon = 'fas fa-arrow-up';
+    className = 'trend-positive';
+    text = `+${value}${suffix} from last year`;
+  } else if (numValue < 0) {
+    icon = 'fas fa-arrow-down';
+    className = 'trend-negative';
+    text = `${value}${suffix} from last year`;
+  } else {
+    icon = 'fas fa-minus';
+    className = 'trend-stable';
+    text = 'No change from last year';
+  }
+  
+  element.innerHTML = `<i class="${icon} ${className}"></i> ${text}`;
+  element.className = `trend-indicator ${className}`;
+}
+
+/**
+ * Update progress bar
+ */
+function updateProgressBar(elementId, percentage) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.style.width = `${Math.min(Math.max(percentage, 0), 100)}%`;
+  }
+}
+
+/**
+ * Update urgency indicator
+ */
+function updateUrgencyIndicator(urgentCount) {
+  const urgentElement = document.getElementById('urgent-items');
+  const countElement = document.getElementById('urgent-count');
+  const pendingUrgency = document.getElementById('pending-urgency');
+  
+  if (urgentCount > 0) {
+    if (urgentElement) urgentElement.style.display = 'inline-flex';
+    if (countElement) countElement.textContent = urgentCount.toString();
+    if (pendingUrgency) pendingUrgency.textContent = `${urgentCount} urgent items require attention`;
+  } else {
+    if (urgentElement) urgentElement.style.display = 'none';
+    if (pendingUrgency) pendingUrgency.textContent = 'No urgent items';
+  }
+}
+
+/**
+ * Get monthly royalty data for charts
+ */
+function getMonthlyRoyaltyData(records) {
+  const monthlyTotals = new Array(12).fill(0);
+  
+  records.forEach(record => {
+    const month = new Date(record.date).getMonth();
+    monthlyTotals[month] += record.amount;
   });
+  
+  return monthlyTotals;
+}
+
+/**
+ * Get entity production data for charts
+ */
+function getEntityProductionData(records) {
+  const entityTotals = {};
+  
+  records.forEach(record => {
+    if (!entityTotals[record.entity]) {
+      entityTotals[record.entity] = 0;
+    }
+    entityTotals[record.entity] += record.volume;
+  });
+  
+  return Object.values(entityTotals);
+}
+
+/**
+ * Update recent activity feed
+ */
+function updateRecentActivity() {
+  const activityContainer = document.getElementById('recent-activity');
+  if (!activityContainer) return;
+  
+  const recentAuditEntries = AppState.auditLog.slice(0, 5);
+  
+  activityContainer.innerHTML = recentAuditEntries.map(entry => {
+    const iconClass = getActivityIcon(entry.action);
+    const timeAgo = formatTimeAgo(entry.timestamp);
+    
+    return `
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="${iconClass}"></i>
+        </div>
+        <div class="activity-content">
+          <p><strong>${entry.action}</strong> ${entry.details}</p>
+          <small>${timeAgo}</small>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Get appropriate icon for activity type
+ */
+function getActivityIcon(action) {
+  const iconMap = {
+    'Login': 'fas fa-sign-in-alt text-info',
+    'Logout': 'fas fa-sign-out-alt text-secondary',
+    'Create User': 'fas fa-user-plus text-success',
+    'Delete User': 'fas fa-user-minus text-danger',
+    'Create Record': 'fas fa-plus-circle text-success',
+    'Delete Record': 'fas fa-trash text-danger',
+    'Data Access': 'fas fa-eye text-info',
+    'Password Reset': 'fas fa-key text-warning',
+    'Failed Login': 'fas fa-exclamation-triangle text-danger'
+  };
+  
+  return iconMap[action] || 'fas fa-circle text-muted';
+}
+
+/**
+ * Format timestamp to relative time
+ */
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diffMs = now - past;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  
+  return formatDate(timestamp);
 }
 
 /**
