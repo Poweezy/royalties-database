@@ -65,7 +65,7 @@ body {
   background-color: var(--background-light);
   color: var(--text-primary);
   line-height: 1.6;
-  font-size: 14px;
+  font-size: 16px; /* Increased from 14px for better legibility */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -548,14 +548,14 @@ nav ul li a span {
 }
 
 .card-body p {
-  font-size: 0.726rem; /* Increased from 0.605rem */
+  font-size: 2.5rem; /* Increased from 0.726rem for better visibility */
   font-weight: bold;
   color: var(--text-primary);
 }
 
 .card-body small {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 0.9rem; /* Increased from 0.875rem */
   font-weight: 500;
 }
 
@@ -2214,7 +2214,7 @@ input[type="checkbox"]:checked {
 }
 
 .metric-card .card-body p {
-  font-size: 0.9075rem; /* Increased from 0.75625rem */
+  font-size: 2.5rem; /* Increased from 0.9075rem for better visibility */
   font-weight: 700;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
@@ -2535,7 +2535,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 2rem;
+    font-size: 2.25rem; /* Adjusted for medium screens */
   }
 }
 
@@ -2549,7 +2549,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 1.75rem;
+    font-size: 2rem; /* Adjusted for small screens */
   }
   
   .chart-controls {
@@ -2583,6 +2583,8 @@ input[type="checkbox"]:checked {
   position: relative;
   border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 }
+
+
 
 .communication-tabs .tab-btn:hover {
   color: var(--primary-color);
