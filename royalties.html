@@ -506,7 +506,7 @@
                 </label>
                 <select id="new-role" name="role" required aria-describedby="new-role-error">
                   <option value="">Select User Role</option>
-                  <option value="Administrator">👑 Administrator (Full System Access)</option>
+                  <option value="ADMIN">👑 ADMIN (Full System Access)</option>
                   <option value="Editor">✏️ Editor (Read/Write Access)</option>
                   <option value="Viewer">👁️ Viewer (Read-Only Access)</option>
                   <option value="Auditor">🔍 Auditor (Audit & Compliance Access)</option>
@@ -688,7 +688,7 @@
                 </label>
                 <select id="filter-user-role">
                   <option value="">All Roles</option>
-                  <option value="Administrator">Administrator</option>
+                  <option value="ADMIN">ADMIN</option>
                   <option value="Editor">Editor</option>
                   <option value="Viewer">Viewer</option>
                   <option value="Auditor">Auditor</option>
@@ -2336,7 +2336,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (roleField && departmentField) {
     roleField.addEventListener('change', function() {
       // Auto-select department based on role (example logic)
-      if (this.value === 'Administrator') {
+      if (this.value === 'ADMIN') {
         departmentField.value = 'Management';
       } else {
         departmentField.value = '';
@@ -2347,7 +2347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     departmentField.addEventListener('change', function() {
       // Auto-select role based on department (example logic)
       if (this.value === 'Management') {
-        roleField.value = 'Administrator';
+        roleField.value = 'ADMIN';
       } else {
         roleField.value = '';
       }
