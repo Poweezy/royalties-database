@@ -1299,504 +1299,287 @@
         </div>
       </section>
 
-      <!-- Communication Section (Missing Implementation) -->
-      <section id="communication">
+      <!-- Regulatory Management -->
+      <section id="regulatory-management">
         <div class="page-header">
           <div class="page-title">
-            <h1>📧 Communication Center</h1>
-            <p>Centralized communication hub for stakeholder engagement and regulatory correspondence</p>
+            <h1><i class="fas fa-gavel"></i> Regulatory Management</h1>
+            <p>Manage regulatory frameworks, tax structures, and jurisdictional compliance for Eswatini mining sector.</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success" id="compose-message-btn">
-              <i class="fas fa-pen"></i> Compose Message
-            </button>
-            <button class="btn btn-info" id="sync-messages-btn">
-              <i class="fas fa-sync-alt"></i> Sync Messages
-            </button>
-            <button class="btn btn-primary" id="communication-settings-btn">
-              <i class="fas fa-cog"></i> Settings
-            </button>
+            <button class="btn btn-success" id="add-regulation-btn"><i class="fas fa-plus"></i> Add New Regulation</button>
+            <button class="btn btn-info" id="sync-regulations-btn"><i class="fas fa-sync-alt"></i> Sync with Government Portal</button>
+            <button class="btn btn-primary" id="export-regulations-btn"><i class="fas fa-download"></i> Export Regulations</button>
           </div>
         </div>
 
-        <!-- Communication Dashboard -->
+        <!-- Regulatory Overview Dashboard -->
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-envelope"></i> Unread Messages</h3>
+              <h3><i class="fas fa-balance-scale"></i> Active Regulations</h3>
             </div>
             <div class="card-body">
-              <p id="unread-messages-count">7</p>
-              <small><i class="fas fa-clock"></i> 3 urgent, 4 normal priority</small>
+              <p id="active-regulations-count">23</p>
+              <small><i class="fas fa-check-circle text-success"></i> All regulations current</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-paper-plane"></i> Sent Today</h3>
+              <h3><i class="fas fa-exclamation-triangle"></i> Pending Updates</h3>
             </div>
             <div class="card-body">
-              <p id="sent-messages-count">12</p>
-              <small><i class="fas fa-check-circle text-success"></i> All delivered successfully</small>
+              <p id="pending-updates-count">2</p>
+              <small><i class="fas fa-clock text-warning"></i> Awaiting implementation</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-calendar-check"></i> Pending Responses</h3>
+              <h3><i class="fas fa-calendar-alt"></i> Recent Changes</h3>
             </div>
             <div class="card-body">
-              <p id="pending-responses-count">3</p>
-              <small><i class="fas fa-exclamation-triangle text-warning"></i> 1 overdue response</small>
+              <p id="recent-changes-count">1</p>
+              <small><i class="fas fa-bell text-info"></i> Last 30 days</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-users"></i> Active Conversations</h3>
+              <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
             </div>
             <div class="card-body">
-              <p id="active-conversations-count">15</p>
-              <small><i class="fas fa-comments"></i> Across 8 different entities</small>
+              <p id="regulatory-compliance-rate">98.5%</p>
+              <small><i class="fas fa-shield-check text-success"></i> Excellent compliance</small>
             </div>
           </div>
         </div>
 
-        <!-- Message Center -->
-        <!-- Message Center -->
-        <div class="user-form-container">
-          <div class="communication-tabs">
-            <button class="tab-btn active" data-tab="#inbox-tab">
-              <i class="fas fa-inbox"></i> Inbox (7)
-            </button>
-            <button class="tab-btn" data-tab="#sent-tab">
-              <i class="fas fa-paper-plane"></i> Sent
-            </button>
-            <button class="tab-btn" data-tab="#drafts-tab">
-              <i class="fas fa-edit"></i> Drafts (2)
-            </button>
-            <button class="tab-btn" data-tab="#templates-tab">
-              <i class="fas fa-copy"></i> Templates
-            </button>
-            <button class="tab-btn" data-tab="#scheduled-tab">
-              <i class="fas fa-clock"></i> Scheduled
-            </button>
-          </div>
-
-          <!-- Inbox Tab -->
-          <div class="tab-content active" id="inbox-tab">
-            <div class="message-list">
-              <div class="message-item unread urgent">
-                <div class="message-header">
-                  <div class="sender-info">
-                    <strong>Ministry of Natural Resources</strong>
-                    <span class="message-time">2 hours ago</span>
-                  </div>
-                  <div class="message-priority">
-                    <span class="priority-badge urgent">URGENT</span>
-                  </div>
-                </div>
-                <div class="message-subject">
-                  <h6>Immediate Compliance Review Required - Maloma Colliery</h6>
-                </div>
-                <div class="message-preview">
-                  <p>Following recent inspection findings, immediate action is required for compliance verification...</p>
-                </div>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-primary">Reply</button>
-                  <button class="btn btn-sm btn-secondary">Mark Read</button>
-                  <button class="btn btn-sm btn-info">View Details</button>
-                </div>
-              </div>
-
-              <div class="message-item unread">
-                <div class="message-header">
-                  <div class="sender-info">
-                    <strong>Kwalini Quarry Management</strong>
-                    <span class="message-time">5 hours ago</span>
-                  </div>
-                </div>
-                <div class="message-subject">
-                  <h6>Monthly Production Report Submission</h6>
-                </div>
-                <div class="message-preview">
-                  <p>Please find attached our monthly production report for February 2024...</p>
-                </div>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-primary">Reply</button>
-                  <button class="btn btn-sm btn-secondary">Mark Read</button>
-                  <button class="btn btn-sm btn-success">Download Attachment</button>
-                </div>
-              </div>
-
-              <div class="message-item">
-                <div class="message-header">
-                  <div class="sender-info">
-                    <strong>Environmental Protection Agency</strong>
-                    <span class="message-time">1 day ago</span>
-                  </div>
-                </div>
-                <div class="message-subject">
-                  <h6>Environmental Impact Assessment Update</h6>
-                </div>
-                <div class="message-preview">
-                  <p>Updated guidelines for environmental impact assessments are now available...</p>
-                </div>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-secondary">Archive</button>
-                  <button class="btn btn-sm btn-info">View Guidelines</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sent Tab -->
-          <div class="tab-content" id="sent-tab">
-            <div class="message-list">
-              <div class="message-item sent">
-                <div class="message-header">
-                  <div class="sender-info">
-                    <strong>To: All Mining Entities</strong>
-                    <span class="message-time">3 hours ago</span>
-                  </div>
-                  <div class="delivery-status">
-                    <span class="status-badge delivered">Delivered</span>
-                  </div>
-                </div>
-                <div class="message-subject">
-                  <h6>Updated Royalty Rate Schedule - Effective March 2024</h6>
-                </div>
-                <div class="message-actions">
-                  <button class="btn btn-sm btn-info">View Message</button>
-                  <button class="btn btn-sm btn-secondary">Send Follow-up</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Message Templates Tab -->
-          <div class="tab-content" id="templates-tab">
-            <div class="template-grid">
-              <div class="template-card">
-                <h6>Compliance Reminder</h6>
-                <p>Standard reminder for upcoming compliance deadlines</p>
-                <button class="btn btn-sm btn-primary">Use Template</button>
-              </div>
-              <div class="template-card">
-                <h6>Payment Overdue Notice</h6>
-                <p>Formal notice for overdue royalty payments</p>
-                <button class="btn btn-sm btn-primary">Use Template</button>
-              </div>
-              <div class="template-card">
-                <h6>Rate Change Notification</h6>
-                <p>Official notification of royalty rate changes</p>
-                <button class="btn btn-sm btn-primary">Use Template</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Notifications Section (Complete Implementation) -->
-      <section id="notifications">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>🔔 Notifications Center</h1>
-            <p>Real-time alerts, system notifications, and important updates</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary" id="mark-all-read">
-              <i class="fas fa-check-double"></i> Mark All Read
-            </button>
-            <button class="btn btn-secondary" id="notification-settings">
-              <i class="fas fa-cog"></i> Settings
-            </button>
-          </div>
-        </div>
-
-        <!-- Notification Statistics -->
-        <div class="charts-grid">
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-bell"></i> Unread Notifications</h3>
-            </div>
-            <div class="card-body">
-              <p id="unread-count">8</p>
-              <small>3 high priority, 5 normal</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-exclamation-triangle"></i> Critical Alerts</h3>
-            </div>
-            <div class="card-body">
-              <p id="critical-alerts-count">2</p>
-              <small class="text-danger">Requires immediate attention</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-calendar-alt"></i> Due Today</h3>
-            </div>
-            <div class="card-body">
-              <p id="due-today-count">4</p>
-              <small>Compliance deadlines and tasks</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-chart-line"></i> System Health</h3>
-            </div>
-            <div class="card-body">
-              <p id="system-health-score">98%</p>
-              <small class="text-success">All systems operational</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Notifications List -->
-        <div class="user-form-container">
-          <div class="notification-filters">
-            <h6><i class="fas fa-filter"></i> Filter Notifications</h6>
-            <div class="grid-4">
-              <div class="form-group">
-                <select id="notification-type-filter">
-                  <option value="">All Types</option>
-                  <option value="system">System Alerts</option>
-                  <option value="compliance">Compliance</option>
-                  <option value="payment">Payments</option>
-                  <option value="security">Security</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <select id="notification-priority-filter">
-                  <option value="">All Priorities</option>
-                  <option value="critical">Critical</option>
-                  <option value="high">High</option>
-                  <option value="normal">Normal</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <select id="notification-status-filter">
-                  <option value="">All Status</option>
-                  <option value="unread">Unread</option>
-                  <option value="read">Read</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <button class="btn btn-primary" id="apply-notification-filters">Apply</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="notifications-container">
-            <div class="notification-item unread critical">
-              <div class="notification-icon">
-                <i class="fas fa-exclamation-triangle text-danger"></i>
-              </div>
-              <div class="notification-content">
-                <div class="notification-header">
-                  <h6>Critical: Payment Overdue Alert</h6>
-                  <span class="notification-time">30 minutes ago</span>
-                </div>
-                <p>Ngwenya Mine has exceeded the 30-day payment deadline. Immediate action required.</p>
-                <div class="notification-actions">
-                  <button class="btn btn-sm btn-danger">Send Notice</button>
-                  <button class="btn btn-sm btn-secondary">Mark Read</button>
-                  <button class="btn btn-sm btn-info">View Details</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="notification-item unread high">
-              <div class="notification-icon">
-                <i class="fas fa-calendar-times text-warning"></i>
-              </div>
-              <div class="notification-content">
-                <div class="notification-header">
-                  <h6>Compliance Deadline Approaching</h6>
-                  <span class="notification-time">2 hours ago</span>
-                </div>
-                <p>Environmental Impact Report due in 3 days for Maloma Colliery.</p>
-                <div class="notification-actions">
-                  <button class="btn btn-sm btn-warning">Remind Entity</button>
-                  <button class="btn btn-sm btn-secondary">Mark Read</button>
-                  <button class="btn btn-sm btn-info">View Report Status</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="notification-item unread normal">
-              <div class="notification-icon">
-                <i class="fas fa-user-plus text-info"></i>
-              </div>
-              <div class="notification-content">
-                <div class="notification-header">
-                  <h6>New User Account Created</h6>
-                  <span class="notification-time">4 hours ago</span>
-                </div>
-                <p>User account 'audit.officer' has been successfully created and activated.</p>
-                <div class="notification-actions">
-                  <button class="btn btn-sm btn-secondary">Mark Read</button>
-                  <button class="btn btn-sm btn-info">View User Details</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="notification-item read normal">
-              <div class="notification-icon">
-                <i class="fas fa-chart-line text-success"></i>
-              </div>
-              <div class="notification-content">
-                <div class="notification-header">
-                  <h6>Monthly Report Generated</h6>
-                  <span class="notification-time">1 day ago</span>
-                </div>
-                <p>February 2024 royalty collection report has been generated and is ready for review.</p>
-                <div class="notification-actions">
-                  <button class="btn btn-sm btn-success">Download Report</button>
-                  <button class="btn btn-sm btn-secondary">Archive</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Compliance & Regulatory Section (Complete Implementation) -->
-      <section id="compliance">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>✅ Compliance & Regulatory Management</h1>
-            <p>Comprehensive compliance tracking, regulatory requirements, and deadline management</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-success" id="generate-compliance-report">
-              <i class="fas fa-file-alt"></i> Generate Report
-            </button>
-            <button class="btn btn-primary" id="schedule-inspection">
-              <i class="fas fa-calendar-plus"></i> Schedule Inspection
-            </button>
-            <button class="btn btn-warning" id="compliance-alerts">
-              <i class="fas fa-bell"></i> View Alerts
-            </button>
-          </div>
-        </div>
-
-        <!-- Compliance Overview -->
-        <div class="charts-grid">
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-percentage"></i> Overall Compliance Rate</h3>
-            </div>
-            <div class="card-body">
-              <p id="overall-compliance-rate">94.2%</p>
-              <div class="mini-progress">
-                <div class="progress-bar" style="width: 94.2%; background: var(--success-color);"></div>
-              </div>
-              <small class="text-success">Above industry standard</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
-            </div>
-            <div class="card-body">
-              <p id="upcoming-deadlines-count">7</p>
-              <small>Next 30 days: 3 critical, 4 standard</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-exclamation-triangle"></i> Overdue Items</h3>
-            </div>
-            <div class="card-body">
-              <p id="overdue-items-count">2</p>
-              <small class="text-danger">Requires immediate attention</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-shield-check"></i> Inspections Completed</h3>
-            </div>
-            <div class="card-body">
-              <p id="inspections-completed">15</p>
-              <small>This quarter: 12 passed, 3 conditional</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Regulatory Requirements Tracking -->
+        <!-- Primary Mining Laws & Acts -->
         <div class="user-form-container">
           <div class="section-header">
-            <h4><i class="fas fa-list-check"></i> Regulatory Requirements Status</h4>
+            <h4><i class="fas fa-book"></i> Primary Mining Laws & Acts of Eswatini</h4>
             <div class="table-actions">
-              <button class="btn btn-secondary btn-sm" id="refresh-compliance">
-                <i class="fas fa-sync-alt"></i> Refresh
+              <button class="btn btn-secondary btn-sm" id="filter-primary-laws">
+                <i class="fas fa-filter"></i> Filter Laws
               </button>
-              <button class="btn btn-info btn-sm" id="export-compliance">
-                <i class="fas fa-download"></i> Export
+              <button class="btn btn-info btn-sm" id="download-act-summaries">
+                <i class="fas fa-file-pdf"></i> Download Summaries
+              </button>
+            </div>
+          </div>
+
+          <div class="regulations-grid">
+            <div class="regulation-card primary-law">
+              <div class="regulation-header">
+                <h6><i class="fas fa-scroll"></i> Mines and Minerals Act, 2011</h6>
+                <span class="regulation-status active">Active</span>
+              </div>
+              <div class="regulation-content">
+                <p><strong>Act No. 4 of 2011</strong> - The principal legislation governing mining operations in Eswatini.</p>
+                <div class="regulation-details">
+                  <ul>
+                    <li>Establishes the legal framework for mineral rights</li>
+                    <li>Defines procedures for mining licenses and permits</li>
+                    <li>Sets out environmental and safety requirements</li>
+                    <li>Prescribes royalty rates and taxation</li>
+                    <li>Establishes the Mining Commissioner's office</li>
+                  </ul>
+                </div>
+                <div class="regulation-meta">
+                  <small><strong>Last Updated:</strong> 15 March 2023</small>
+                  <small><strong>Effective Date:</strong> 1 January 2012</small>
+                </div>
+              </div>
+              <div class="regulation-actions">
+                <button class="btn btn-sm btn-primary">View Full Text</button>
+                <button class="btn btn-sm btn-info">Download PDF</button>
+                <button class="btn btn-sm btn-secondary">View Amendments</button>
+              </div>
+            </div>
+
+            <div class="regulation-card primary-law">
+              <div class="regulation-header">
+                <h6><i class="fas fa-leaf"></i> Environmental Management Act, 2002</h6>
+                <span class="regulation-status active">Active</span>
+              </div>
+              <div class="regulation-content">
+                <p><strong>Act No. 5 of 2002</strong> - Environmental protection and impact assessment requirements for mining.</p>
+                <div class="regulation-details">
+                  <ul>
+                    <li>Environmental Impact Assessment (EIA) requirements</li>
+                    <li>Environmental Management Plans (EMP)</li>
+                    <li>Waste management and pollution control</li>
+                    <li>Restoration and rehabilitation obligations</li>
+                    <li>Environmental monitoring and compliance</li>
+                  </ul>
+                </div>
+                <div class="regulation-meta">
+                  <small><strong>Last Updated:</strong> 8 September 2022</small>
+                  <small><strong>Effective Date:</strong> 1 July 2003</small>
+                </div>
+              </div>
+              <div class="regulation-actions">
+                <button class="btn btn-sm btn-primary">View Full Text</button>
+                <button class="btn btn-sm btn-info">Download PDF</button>
+                <button class="btn btn-sm btn-warning">EIA Guidelines</button>
+              </div>
+            </div>
+
+            <div class="regulation-card primary-law">
+              <div class="regulation-header">
+                <h6><i class="fas fa-hard-hat"></i> Occupational Health and Safety Act, 2001</h6>
+                <span class="regulation-status active">Active</span>
+              </div>
+              <div class="regulation-content">
+                <p><strong>Act No. 9 of 2001</strong> - Workplace safety standards and requirements for mining operations.</p>
+                <div class="regulation-details">
+                  <ul>
+                    <li>Mining safety standards and protocols</li>
+                    <li>Worker protection and safety equipment</li>
+                    <li>Accident reporting and investigation</li>
+                    <li>Safety training and certification</li>
+                    <li>Inspection and enforcement procedures</li>
+                  </ul>
+                </div>
+                <div class="regulation-meta">
+                  <small><strong>Last Updated:</strong> 22 November 2023</small>
+                  <small><strong>Effective Date:</strong> 1 April 2002</small>
+                </div>
+              </div>
+              <div class="regulation-actions">
+                <button class="btn btn-sm btn-primary">View Full Text</button>
+                <button class="btn btn-sm btn-info">Download PDF</button>
+                <button class="btn btn-sm btn-success">Safety Guidelines</button>
+              </div>
+            </div>
+
+            <div class="regulation-card primary-law">
+              <div class="regulation-header">
+                <h6><i class="fas fa-coins"></i> Income Tax Act, 1975 (Mining Provisions)</h6>
+                <span class="regulation-status active">Active</span>
+              </div>
+              <div class="regulation-content">
+                <p><strong>Act No. 21 of 1975</strong> - Tax obligations and incentives for mining companies.</p>
+                <div class="regulation-details">
+                  <ul>
+                    <li>Corporate income tax rates for mining companies</li>
+                    <li>Depreciation allowances for mining equipment</li>
+                    <li>Capital gains tax on mineral rights</li>
+                    <li>Withholding tax on dividends and royalties</li>
+                    <li>Investment incentives and tax holidays</li>
+                  </ul>
+                </div>
+                <div class="regulation-meta">
+                  <small><strong>Last Updated:</strong> 30 June 2023</small>
+                  <small><strong>Effective Date:</strong> Ongoing amendments</small>
+                </div>
+              </div>
+              <div class="regulation-actions">
+                <button class="btn btn-sm btn-primary">View Mining Sections</button>
+                <button class="btn btn-sm btn-info">Tax Calculator</button>
+                <button class="btn btn-sm btn-warning">Recent Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mining Regulations & Statutory Instruments -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-cogs"></i> Mining Regulations & Statutory Instruments</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="filter-regulations">
+                <i class="fas fa-search"></i> Search Regulations
+              </button>
+              <button class="btn btn-info btn-sm" id="regulation-updates">
+                <i class="fas fa-bell"></i> Get Updates
               </button>
             </div>
           </div>
 
           <div class="table-container">
-            <table class="data-table" id="compliance-table">
+            <table class="data-table" id="regulations-table">
               <thead>
                 <tr>
-                  <th>Requirement</th>
-                  <th>Regulatory Body</th>
-                  <th>Due Date</th>
+                  <th>Regulation Title</th>
+                  <th>Type</th>
+                  <th>Reference No.</th>
+                  <th>Effective Date</th>
                   <th>Status</th>
-                  <th>Submitted Date</th>
-                  <th>Reference Number</th>
+                  <th>Last Review</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Monthly Royalty Return</td>
-                  <td>Ministry of Natural Resources</td>
-                  <td>15 Mar 2024</td>
-                  <td><span class="status-badge warning">Due Soon</span></td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>Mining Licence Application Regulations</td>
+                  <td>Statutory Instrument</td>
+                  <td>S.I. No. 45 of 2012</td>
+                  <td>1 April 2012</td>
+                  <td><span class="status-badge success">Active</span></td>
+                  <td>15 Jan 2024</td>
                   <td>
-                    <button class="btn btn-primary btn-sm">Prepare</button>
-                    <button class="btn btn-success btn-sm">Submit</button>
+                    <button class="btn btn-sm btn-primary">View</button>
+                    <button class="btn btn-sm btn-info">Download</button>
                   </td>
                 </tr>
                 <tr>
-                  <td>Environmental Report</td>
-                  <td>Environmental Authority</td>
-                  <td>28 Feb 2024</td>
-                  <td><span class="status-badge danger">Overdue</span></td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>Royalty Payment Procedures</td>
+                  <td>Regulation</td>
+                  <td>Reg. No. 12 of 2013</td>
+                  <td>1 July 2013</td>
+                  <td><span class="status-badge success">Active</span></td>
+                  <td>8 Feb 2024</td>
                   <td>
-                    <button class="btn btn-danger btn-sm">Submit Urgent</button>
-                    <button class="btn btn-secondary btn-sm">Request Extension</button>
+                    <button class="btn btn-sm btn-primary">View</button>
+                    <button class="btn btn-sm btn-info">Download</button>
                   </td>
                 </tr>
                 <tr>
-                  <td>Quarterly Production</td>
-                  <td>Ministry of Natural Resources</td>
-                  <td>31 Jan 2024</td>
-                  <td><span class="status-badge success">Submitted</span></td>
-                  <td>29 Jan 2024</td>
-                  <td>MNR-Q4-2023-001</td>
+                  <td>Environmental Impact Assessment Guidelines</td>
+                  <td>Guideline</td>
+                  <td>EIA-MIN-001</td>
+                  <td>15 March 2020</td>
+                  <td><span class="status-badge warning">Under Review</span></td>
+                  <td>22 Feb 2024</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm">View</button>
+                    <button class="btn btn-sm btn-primary">View</button>
+                    <button class="btn btn-sm btn-warning">Review Status</button>
                   </td>
                 </tr>
                 <tr>
-                  <td>Safety Inspection Report</td>
-                  <td>Department of Labour</td>
-                  <td>20 Mar 2024</td>
-                  <td><span class="status-badge info">In Progress</span></td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>Small Scale Mining Regulations</td>
+                  <td>Statutory Instrument</td>
+                  <td>S.I. No. 78 of 2015</td>
+                  <td>1 October 2015</td>
+                  <td><span class="status-badge success">Active</span></td>
+                  <td>5 March 2024</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm">Continue</button>
+                    <button class="btn btn-sm btn-primary">View</button>
+                    <button class="btn btn-sm btn-info">Download</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Mining Safety Standards</td>
+                  <td>Standard</td>
+                  <td>ESS-MIN-002</td>
+                  <td>1 June 2019</td>
+                  <td><span class="status-badge success">Active</span></td>
+                  <td>12 March 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary">View</button>
+                    <button class="btn btn-sm btn-success">Safety Checklist</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Quarrying Operations Guidelines</td>
+                  <td>Guideline</td>
+                  <td>QOG-2021-01</td>
+                  <td>1 January 2021</td>
+                  <td><span class="status-badge info">Updated</span></td>
+                  <td>18 March 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary">View Latest</button>
+                    <button class="btn btn-sm btn-info">Download</button>
                   </td>
                 </tr>
               </tbody>
@@ -1804,101 +1587,302 @@
           </div>
         </div>
 
-        <!-- Compliance Alerts & Notifications -->
+        <!-- Regulatory Authorities & Contact Information -->
         <div class="user-form-container">
-          <h4>🚨 Compliance Alerts & Deadlines</h4>
-          <div class="alert-dashboard">
-            <div class="alert-item urgent">
-              <div class="alert-icon">🔴</div>
-              <div class="alert-content">
-                <h6>Environmental Impact Report Overdue</h6>
-                <p>Due: 28 Feb 2024 | Days Overdue: 2</p>
-                <div class="alert-actions">
-                  <button class="btn btn-danger btn-sm">Submit Now</button>
-                  <button class="btn btn-secondary btn-sm">Request Extension</button>
+          <div class="section-header">
+            <h4><i class="fas fa-building"></i> Regulatory Authorities & Contact Information</h4>
+          </div>
+
+          <div class="authorities-grid">
+            <div class="authority-card">
+              <div class="authority-header">
+                <h6><i class="fas fa-university"></i> Ministry of Natural Resources and Energy</h6>
+                <span class="authority-role">Primary Mining Authority</span>
+              </div>
+              <div class="authority-content">
+                <p><strong>Mining Commissioner's Office</strong></p>
+                <div class="contact-info">
+                  <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> Lobamba, Eswatini</p>
+                  <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +268 2416 1171</p>
+                  <p><i class="fas fa-fax"></i> <strong>Fax:</strong> +268 2416 1506</p>
+                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> mining@gov.sz</p>
+                </div>
+                <div class="authority-services">
+                  <h7>Services:</h7>
+                  <ul>
+                    <li>Mining licence applications and renewals</li>
+                    <li>Royalty collection and administration</li>
+                    <li>Mining policy development</li>
+                    <li>Compliance monitoring and enforcement</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="authority-actions">
+                <button class="btn btn-sm btn-primary">Visit Website</button>
+                <button class="btn btn-sm btn-info">Contact Directory</button>
+              </div>
+            </div>
+
+            <div class="authority-card">
+              <div class="authority-header">
+                <h6><i class="fas fa-leaf"></i> Eswatini Environment Authority (EEA)</h6>
+                <span class="authority-role">Environmental Regulation</span>
+              </div>
+              <div class="authority-content">
+                <p><strong>Environmental Protection & Assessment</strong></p>
+                <div class="contact-info">
+                  <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> Mbabane, Eswatini</p>
+                  <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +268 2404 6931</p>
+                  <p><i class="fas fa-fax"></i> <strong>Fax:</strong> +268 2404 7219</p>
+                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> info@eea.org.sz</p>
+                </div>
+                <div class="authority-services">
+                  <h7>Services:</h7>
+                  <ul>
+                    <li>Environmental Impact Assessments</li>
+                    <li>Environmental permits and licences</li>
+                    <li>Environmental monitoring</li>
+                    <li>Pollution control and enforcement</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="authority-actions">
+                <button class="btn btn-sm btn-primary">Visit Website</button>
+                <button class="btn btn-sm btn-success">EIA Application</button>
+              </div>
+            </div>
+
+            <div class="authority-card">
+              <div class="authority-header">
+                <h6><i class="fas fa-shield-alt"></i> Department of Labour & Social Security</h6>
+                <span class="authority-role">Occupational Safety</span>
+              </div>
+              <div class="authority-content">
+                <p><strong>Occupational Health & Safety Division</strong></p>
+                <div class="contact-info">
+                  <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> Mbabane, Eswatini</p>
+                  <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +268 2404 2771</p>
+                  <p><i class="fas fa-fax"></i> <strong>Fax:</strong> +268 2404 3041</p>
+                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> labour@gov.sz</p>
+                </div>
+                <div class="authority-services">
+                  <h7>Services:</h7>
+                  <ul>
+                    <li>Workplace safety inspections</li>
+                    <li>Safety permits and certifications</li>
+                    <li>Accident investigation</li>
+                    <li>Safety training and compliance</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="authority-actions">
+                <button class="btn btn-sm btn-primary">Visit Website</button>
+                <button class="btn btn-sm btn-warning">Safety Report</button>
+              </div>
+            </div>
+
+            <div class="authority-card">
+              <div class="authority-header">
+                <h6><i class="fas fa-calculator"></i> Eswatini Revenue Authority (ERA)</h6>
+                <span class="authority-role">Tax Administration</span>
+              </div>
+              <div class="authority-content">
+                <p><strong>Corporate Tax & Mining Revenue</strong></p>
+                <div class="contact-info">
+                  <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> Mbabane, Eswatini</p>
+                  <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +268 2404 8100</p>
+                  <p><i class="fas fa-fax"></i> <strong>Fax:</strong> +268 2404 8122</p>
+                  <p><i class="fas fa-envelope"></i> <strong>Email:</strong> info@era.org.sz</p>
+                </div>
+                <div class="authority-services">
+                  <h7>Services:</h7>
+                  <ul>
+                    <li>Corporate income tax collection</li>
+                    <li>Royalty tax administration</li>
+                    <li>Tax compliance and audits</li>
+                    <li>Tax incentive administration</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="authority-actions">
+                <button class="btn btn-sm btn-primary">Visit Website</button>
+                <button class="btn btn-sm btn-info">Tax Portal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Updates & Amendments -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-newspaper"></i> Recent Regulatory Updates & Amendments</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="subscribe-updates">
+                <i class="fas fa-bell"></i> Subscribe to Updates
+              </button>
+              <button class="btn btn-info btn-sm" id="view-all-updates">
+                <i class="fas fa-list"></i> View All Updates
+              </button>
+            </div>
+          </div>
+
+          <div class="updates-timeline">
+            <div class="update-item recent">
+              <div class="update-date">
+                <span class="date">15 MAR</span>
+                <span class="year">2024</span>
+              </div>
+              <div class="update-content">
+                <h6><i class="fas fa-gavel"></i> Amendment to Mines and Minerals Act</h6>
+                <p><strong>Notice No. 25 of 2024</strong> - Updated royalty calculation methods for coal mining operations.</p>
+                <div class="update-details">
+                  <p>Key changes include:</p>
+                  <ul>
+                    <li>Revised royalty rate structure for coal from 4% to 5%</li>
+                    <li>New quarterly payment schedule requirements</li>
+                    <li>Enhanced environmental bond requirements</li>
+                  </ul>
+                </div>
+                <div class="update-actions">
+                  <button class="btn btn-sm btn-primary">Read Full Amendment</button>
+                  <button class="btn btn-sm btn-warning">Impact Assessment</button>
                 </div>
               </div>
             </div>
-            <div class="alert-item warning">
-              <div class="alert-icon">🟡</div>
-              <div class="alert-content">
-                <h6>Monthly Royalty Return Due Soon</h6>
-                <p>Due: 15 Mar 2024 | Days Remaining: 5</p>
-                <div class="alert-actions">
-                  <button class="btn btn-primary btn-sm">Prepare Report</button>
+
+            <div class="update-item">
+              <div class="update-date">
+                <span class="date">08 FEB</span>
+                <span class="year">2024</span>
+              </div>
+              <div class="update-content">
+                <h6><i class="fas fa-leaf"></i> New Environmental Guidelines</h6>
+                <p><strong>EIA Circular 2024-01</strong> - Updated environmental impact assessment procedures for quarrying operations.</p>
+                <div class="update-details">
+                  <p>New requirements include:</p>
+                  <ul>
+                    <li>Mandatory biodiversity assessments</li>
+                    <li>Community consultation requirements</li>
+                    <li>Water resource impact studies</li>
+                  </ul>
+                </div>
+                <div class="update-actions">
+                  <button class="btn btn-sm btn-primary">Download Guidelines</button>
+                  <button class="btn btn-sm btn-info">Compliance Checklist</button>
                 </div>
               </div>
             </div>
-            <div class="alert-item info">
-              <div class="alert-icon">🔵</div>
-              <div class="alert-content">
-                <h6>New Mining Act Amendment</h6>
-                <p>Effective: 1 Apr 2024 | Review required for compliance impact</p>
-                <div class="alert-actions">
-                  <button class="btn btn-secondary btn-sm">Review Changes</button>
+
+            <div class="update-item">
+              <div class="update-date">
+                <span class="date">22 JAN</span>
+                <span class="year">2024</span>
+              </div>
+              <div class="update-content">
+                <h6><i class="fas fa-hard-hat"></i> Safety Regulation Updates</h6>
+                <p><strong>Safety Notice 2024-03</strong> - Enhanced safety protocols for underground mining operations.</p>
+                <div class="update-details">
+                  <p>Updated requirements:</p>
+                  <ul>
+                    <li>Mandatory gas detection systems</li>
+                    <li>Enhanced emergency response procedures</li>
+                    <li>Additional safety training requirements</li>
+                  </ul>
+                </div>
+                <div class="update-actions">
+                  <button class="btn btn-sm btn-primary">View Safety Notice</button>
+                  <button class="btn btn-sm btn-success">Training Schedule</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Regulatory Calendar -->
+        <!-- Regulatory Compliance Matrix -->
         <div class="user-form-container">
-          <h4>📅 Regulatory Calendar</h4>
-          <div class="calendar-view">
-            <div class="calendar-header">
-              <button class="btn btn-secondary" id="prev-month">&lt; Previous</button>
-              <h5 id="calendar-month-year">March 2024</h5>
-              <button class="btn btn-secondary" id="next-month">Next &gt;</button>
-            </div>
-            <div class="calendar-grid">
-              <div class="calendar-week">
-                <div class="calendar-day">
-                  <span class="day-number">15</span>
-                  <div class="day-events">
-                    <div class="event royalty">Royalty Return Due</div>
-                  </div>
-                </div>
-                <div class="calendar-day">
-                  <span class="day-number">20</span>
-                  <div class="day-events">
-                    <div class="event safety">Safety Inspection</div>
-                  </div>
-                </div>
-                <div class="calendar-day">
-                  <span class="day-number">31</span>
-                  <div class="day-events">
-                    <div class="event environmental">Environmental Report</div>
-                  </div>
-                </div>
-              </div>
+          <div class="section-header">
+            <h4><i class="fas fa-table"></i> Regulatory Compliance Matrix</h4>
+            <div class="table-actions">
+              <button class="btn btn-primary btn-sm" id="update-compliance-status">
+                <i class="fas fa-sync-alt"></i> Update Status
+              </button>
+              <button class="btn btn-info btn-sm" id="export-compliance-matrix">
+                <i class="fas fa-download"></i> Export Matrix
+              </button>
             </div>
           </div>
-        </div>
-      </section>
 
-      <!-- Regulatory Management Placeholder -->
-      <section id="regulatory-management">
-        <div class="page-header">
-          <div class="page-title">
-            <h1><i class="fas fa-gavel"></i> Regulatory Management</h1>
-            <p>Manage regulatory frameworks, tax structures, and jurisdictional compliance.</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add New Regulation</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <h4>Regulatory Management Content</h4>
-          <p>This section is under development. Tools for managing regulations will be available here.</p>
-          <!-- Placeholder for regulatory content -->
-          <div class="jurisdiction-matrix">
-                       <div class="jurisdiction-card">
-              <div class="jurisdiction-header">
-                <h6>National Mining Act 2023</h6>
-                <span class="compliance-score">98% Compliant</span>
-              </div>
-              <p>Details about the National Mining Act and its requirements...</p>
+          <div class="compliance-matrix">
+            <div class="matrix-header">
+              <h6>Mining Entity Regulatory Compliance Status</h6>
+              <p>Current compliance status across all active mining operations</p>
+            </div>
+            
+            <div class="table-container">
+              <table class="data-table compliance-table">
+                <thead>
+                  <tr>
+                    <th>Mining Entity</th>
+                    <th>Mining Licence</th>
+                    <th>Environmental Permit</th>
+                    <th>Safety Certificate</th>
+                    <th>Tax Compliance</th>
+                    <th>Royalty Status</th>
+                    <th>Overall Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Kwalini Quarry</strong></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Current</span></td>
+                    <td><span class="compliance-status compliant">✓ Up to Date</span></td>
+                    <td><span class="overall-status excellent">Excellent</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-info">View Details</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Mbabane Quarry</strong></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status warning">⚠ Expires Soon</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Current</span></td>
+                    <td><span class="compliance-status compliant">✓ Up to Date</span></td>
+                    <td><span class="overall-status good">Good</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-warning">Renew Permit</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Maloma Colliery</strong></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status non-compliant">✗ Expired</span></td>
+                    <td><span class="compliance-status compliant">✓ Current</span></td>
+                    <td><span class="compliance-status warning">⚠ Overdue</span></td>
+                    <td><span class="overall-status critical">Critical</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-danger">Take Action</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Ngwenya Mine</strong></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Valid</span></td>
+                    <td><span class="compliance-status compliant">✓ Current</span></td>
+                    <td><span class="compliance-status compliant">✓ Up to Date</span></td>
+                    <td><span class="overall-status excellent">Excellent</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-info">View Details</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
