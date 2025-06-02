@@ -1095,6 +1095,42 @@
         </div>
       </section>
 
+      <!-- Reporting & Analytics Placeholder -->
+      <section id="reporting-analytics">
+        <div class="page-header">
+          <div class="page-title">
+            <h1><i class="fas fa-chart-bar"></i> Reporting & Analytics</h1>
+            <p>Generate and view detailed reports and analytics.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Export All Data</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <h4>Reporting & Analytics Content</h4>
+          <p>This section is under development. Reports and analytical tools will be available here.</p>
+          <!-- Placeholder for charts or report tables -->
+          <div class="charts-grid">
+            <div class="card">
+              <div class="card-header">
+                <h5>Sample Report Area 1</h5>
+              </div>
+              <div class="card-body">
+                <p>Report content or chart will be displayed here.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h5>Sample Report Area 2</h5>
+              </div>
+              <div class="card-body">
+                <p>Report content or chart will be displayed here.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Communication Section (Missing Implementation) -->
       <section id="communication">
         <div class="page-header">
@@ -1673,6 +1709,33 @@
         </div>
       </section>
 
+      <!-- Regulatory Management Placeholder -->
+      <section id="regulatory-management">
+        <div class="page-header">
+          <div class="page-title">
+            <h1><i class="fas fa-gavel"></i> Regulatory Management</h1>
+            <p>Manage regulatory frameworks, tax structures, and jurisdictional compliance.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add New Regulation</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <h4>Regulatory Management Content</h4>
+          <p>This section is under development. Tools for managing regulations will be available here.</p>
+          <!-- Placeholder for regulatory content -->
+          <div class="jurisdiction-matrix">
+                       <div class="jurisdiction-card">
+              <div class="jurisdiction-header">
+                <h6>National Mining Act 2023</h6>
+                <span class="compliance-score">98% Compliant</span>
+              </div>
+              <p>Details about the National Mining Act and its requirements...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- My Profile -->
       <section id="profile">
         <div class="page-header">
@@ -1762,6 +1825,7 @@
   </div>
 
   <!-- Modern Modular JavaScript -->
+  <!-- Note: The file js/app.js needs to be created and populated with the application's main JavaScript logic. -->
   <script type="module" src="js/app.js"></script>
   
   <!-- Legacy support for non-module browsers -->
@@ -2080,24 +2144,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Role validation
-  const roleField = document.getElementById('new-role');
-  if (roleField) {
-    roleField.addEventListener('change', function() {
-      const validation = validateRequired(this.value, 'Role');
-      showFieldValidation('new-role', validation);
-    });
-  }
-  
-  // Department validation
-  const departmentField = document.getElementById('new-department');
-  if (departmentField) {
-    departmentField.addEventListener('change', function() {
-      const validation = validateRequired(this.value, 'Department');
-      showFieldValidation('new-department', validation);
-    });
-  }
-  
   // Password validation
   const passwordField = document.getElementById('new-password');
   if (passwordField) {
@@ -2105,75 +2151,43 @@ document.addEventListener('DOMContentLoaded', function() {
       const validation = validatePassword(this.value);
       showFieldValidation('new-password', validation);
       updatePasswordStrength(this.value);
-      
-      // Check confirm password if it has a value
-      const confirmField = document.getElementById('confirm-password');
-      if (confirmField && confirmField.value) {
-        validatePasswordMatch();
-      }
     });
   }
   
   // Confirm password validation
   const confirmPasswordField = document.getElementById('confirm-password');
   if (confirmPasswordField) {
-    confirmPasswordField.addEventListener('input', validatePasswordMatch);
-  }
-  
-  // Bulk selection functionality
-  const selectAllCheckbox = document.getElementById('select-all-users');
-  const bulkDeleteBtn = document.getElementById('bulk-delete-users');
-  
-  if (selectAllCheckbox) {
-    selectAllCheckbox.addEventListener('change', function() {
-      const userCheckboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]');
-      userCheckboxes.forEach(cb => cb.checked = this.checked);
-      updateBulkActions();
+    confirmPasswordField.addEventListener('input', function() {
+      validatePasswordMatch();
     });
   }
   
-  function updateBulkActions() {
-    const checkedBoxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
-    if (bulkDeleteBtn) {
-      if (checkedBoxes.length > 0) {
-        bulkDeleteBtn.style.display = 'inline-block';
-        bulkDeleteBtn.disabled = false;
+  // Role and department change actions
+  const roleField = document.getElementById('new-role');
+  const departmentField = document.getElementById('new-department');
+  if (roleField && departmentField) {
+    roleField.addEventListener('change', function() {
+      // Auto-select department based on role (example logic)
+      if (this.value === 'Administrator') {
+        departmentField.value = 'Management';
       } else {
-        bulkDeleteBtn.style.display = 'none';
-        bulkDeleteBtn.disabled = true;
+        departmentField.value = '';
       }
-    }
-  }
-  
-  // Form submission
-  const addUserForm = document.getElementById('add-user-form');
-  if (addUserForm) {
-    addUserForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Final validation
-      const isValid = !document.getElementById('create-user-btn').disabled;
-      
-      if (isValid) {
-        // Here you would normally send the data to the server
-        console.log('Creating new user...');
-        
-        // Show success message
-        alert('User created successfully!');
-        
-        // Hide form and reset
-        hideAddUserForm();
-        
-        // Refresh user table (this would be handled by your app.js)
-        if (window.populateUserAccounts) {
-          window.populateUserAccounts();
-        }
+      updateSubmitButtonState();
+    });
+    
+    departmentField.addEventListener('change', function() {
+      // Auto-select role based on department (example logic)
+      if (this.value === 'Management') {
+        roleField.value = 'Administrator';
       } else {
-        alert('Please fix all validation errors before submitting.');
+        roleField.value = '';
       }
+      updateSubmitButtonState();
     });
   }
 });
-</script>
+
+  </script>
 </body>
 </html>
