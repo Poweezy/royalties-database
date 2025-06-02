@@ -548,14 +548,14 @@ nav ul li a span {
 }
 
 .card-body p {
-  font-size: 2.5rem; /* Increased from 0.726rem for better visibility */
+  font-size: 1.40625rem; /* Reduced from 1.875rem by 25% */
   font-weight: bold;
   color: var(--text-primary);
 }
 
 .card-body small {
   color: var(--text-muted);
-  font-size: 0.9rem; /* Increased from 0.875rem */
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -1478,7 +1478,7 @@ input[type="checkbox"]:checked {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* Increased from 0.8rem for better legibility */
 }
 
 .data-table th,
@@ -1841,7 +1841,7 @@ input[type="checkbox"]:checked {
 #user-management .data-table {
   width: 100%;
   min-width: 800px;
-  font-size: 0.8rem;
+  font-size: 0.875rem; /* Increased from 0.8rem for better legibility */
   table-layout: fixed;
 }
 
@@ -1982,7 +1982,7 @@ input[type="checkbox"]:checked {
 
 @media (max-width: 992px) {
   #user-management .data-table {
-    font-size: 0.75rem;
+    font-size: 0.8rem; /* Increased from 0.75rem */
     min-width: 700px;
   }
 
@@ -2040,7 +2040,7 @@ input[type="checkbox"]:checked {
 
   #user-management .data-table {
     min-width: 600px;
-    font-size: 0.7rem;
+    font-size: 0.75rem; /* Increased from 0.7rem */
   }
 }
 
@@ -2063,7 +2063,7 @@ input[type="checkbox"]:checked {
 
   #user-management .data-table {
     min-width: 500px;
-    font-size: 0.65rem;
+    font-size: 0.7rem; /* Increased from 0.65rem */
   }
 
   #user-management .data-table th,
@@ -2214,9 +2214,9 @@ input[type="checkbox"]:checked {
 }
 
 .metric-card .card-body p {
-  font-size: 2.5rem; /* Increased from 0.9075rem for better visibility */
-  font-weight: 700;
-  color: var(--primary-color);
+  font-size: 1.40625rem; /* Reduced from 1.875rem by 25% */
+  font-weight: bold;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   line-height: 1;
 }
@@ -2535,7 +2535,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 2.25rem; /* Adjusted for medium screens */
+    font-size: 1.6875rem; /* Reduced from 2.25rem by 25% */
   }
 }
 
@@ -2549,7 +2549,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 2rem; /* Adjusted for small screens */
+    font-size: 1.5rem; /* Reduced from 2rem by 25% */
   }
   
   .chart-controls {
@@ -2583,8 +2583,6 @@ input[type="checkbox"]:checked {
   position: relative;
   border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 }
-
-
 
 .communication-tabs .tab-btn:hover {
   color: var(--primary-color);
