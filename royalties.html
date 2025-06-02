@@ -1100,34 +1100,202 @@
         <div class="page-header">
           <div class="page-title">
             <h1><i class="fas fa-chart-bar"></i> Reporting & Analytics</h1>
-            <p>Generate and view detailed reports and analytics.</p>
+            <p>Generate comprehensive reports, analyze data, and visualize key performance indicators.</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Export All Data</button>
+            <button class="btn btn-primary" id="export-all-data-btn"><i class="fas fa-file-excel"></i> Export All Data</button>
+            <button class="btn btn-info" id="customize-dashboard-btn"><i class="fas fa-tachometer-alt"></i> Customize Dashboard</button>
           </div>
         </div>
+
+        <!-- Report Generation -->
         <div class="user-form-container">
-          <h4>Reporting & Analytics Content</h4>
-          <p>This section is under development. Reports and analytical tools will be available here.</p>
-          <!-- Placeholder for charts or report tables -->
-          <div class="charts-grid">
-            <div class="card">
-              <div class="card-header">
-                <h5>Sample Report Area 1</h5>
+          <div class="section-header">
+            <h4><i class="fas fa-file-alt"></i> Generate Reports</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="view-scheduled-reports-btn"><i class="fas fa-clock"></i> Scheduled Reports</button>
+            </div>
+          </div>
+          <form id="report-generation-form">
+            <div class="grid-4">
+              <div class="form-group">
+                <label for="report-type"><i class="fas fa-list-alt"></i> Report Type</label>
+                <select id="report-type" name="reportType">
+                  <option value="">Select Report Type</option>
+                  <option value="royalty_summary">Royalty Summary</option>
+                  <option value="production_volume">Production Volume</option>
+                  <option value="sales_analysis">Sales Analysis</option>
+                  <option value="contract_performance">Contract Performance</option>
+                  <option value="payment_history">Payment History</option>
+                  <option value="compliance_status">Compliance Status</option>
+                  <option value="audit_trail_summary">Audit Trail Summary</option>
+                </select>
               </div>
-              <div class="card-body">
-                <p>Report content or chart will be displayed here.</p>
+              <div class="form-group">
+                <label for="report-entity-filter"><i class="fas fa-industry"></i> Filter by Entity</label>
+                <select id="report-entity-filter" name="entityFilter">
+                  <option value="all">All Entities</option>
+                  <option value="kwalini">Kwalini Quarry</option>
+                  <option value="mbabane">Mbabane Quarry</option>
+                  <option value="maloma">Maloma Colliery</option>
+                  <!-- Add more entities as needed -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="report-date-range"><i class="fas fa-calendar-alt"></i> Date Range</label>
+                <div class="date-range-inputs">
+                  <input type="date" id="report-start-date" name="startDate" aria-label="Start Date">
+                  <span>to</span>
+                  <input type="date" id="report-end-date" name="endDate" aria-label="End Date">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="report-format"><i class="fas fa-file-export"></i> Export Format</label>
+                <select id="report-format" name="reportFormat">
+                  <option value="pdf">PDF</option>
+                  <option value="xlsx">Excel (XLSX)</option>
+                  <option value="csv">CSV</option>
+                </select>
               </div>
             </div>
-            <div class="card">
-              <div class="card-header">
-                <h5>Sample Report Area 2</h5>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success"><i class="fas fa-cogs"></i> Generate Report</button>
+              <button type="button" class="btn btn-secondary" id="preview-report-btn"><i class="fas fa-eye"></i> Preview Report</button>
+              <button type="button" class="btn btn-info" id="schedule-report-btn"><i class="fas fa-calendar-plus"></i> Schedule Report</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Data Analysis & KPI Dashboards -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-chart-line"></i> Data Analysis & KPI Dashboards</h4>
+          </div>
+          <div class="charts-grid">
+            <div class="analytics-chart card">
+              <div class="chart-header">
+                <h5><i class="fas fa-coins"></i> Royalty Payments Over Time</h5>
+                <div class="chart-controls">
+                  <select class="metric-period" id="royalty-analysis-period">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
               </div>
-              <div class="card-body">
-                <p>Report content or chart will be displayed here.</p>
+              <div class="chart-container">
+                <canvas id="royalty-payments-chart" aria-label="Royalty payments analysis chart"></canvas>
+              </div>
+              <div class="chart-summary">
+                <small><i class="fas fa-info-circle"></i> Total collected: E <span id="total-collected-analysis">0.00</span></small>
+              </div>
+            </div>
+            <div class="analytics-chart card">
+              <div class="chart-header">
+                <h5><i class="fas fa-cube"></i> Production vs. Sales Volume</h5>
+                <div class="chart-controls">
+                  <select class="metric-period" id="production-sales-period">
+                    <option value="last_3_months">Last 3 Months</option>
+                    <option value="last_6_months">Last 6 Months</option>
+                    <option value="ytd">Year to Date</option>
+                  </select>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="production-sales-chart" aria-label="Production vs. Sales volume chart"></canvas>
+              </div>
+              <div class="chart-summary">
+                <small><i class="fas fa-info-circle"></i> Variance: <span id="production-sales-variance">0</span>%</small>
               </div>
             </div>
           </div>
+          <div class="charts-grid">
+            <div class="metric-card card">
+                <div class="card-header"><h3><i class="fas fa-file-contract"></i> Contract Performance KPI</h3></div>
+                <div class="card-body">
+                    <p id="avg-contract-value">E 0.00</p>
+                    <small>Average Contract Value</small>
+                </div>
+            </div>
+            <div class="metric-card card">
+                <div class="card-header"><h3><i class="fas fa-check-double"></i> Compliance Adherence KPI</h3></div>
+                <div class="card-body">
+                    <p id="compliance-adherence-rate">0%</p>
+                    <small>Overall Compliance Rate</small>
+                </div>
+            </div>
+             <div class="metric-card card">
+                <div class="card-header"><h3><i class="fas fa-users"></i> Active Contracts</h3></div>
+                <div class="card-body">
+                    <p id="active-contracts-count">0</p>
+                    <small>Total Active Agreements</small>
+                </div>
+            </div>
+             <div class="metric-card card">
+                <div class="card-header"><h3><i class="fas fa-exclamation-circle"></i> Expiring Soon</h3></div>
+                <div class="card-body">
+                    <p id="expiring-contracts-count">0</p>
+                    <small>Contracts Expiring in 90 Days</small>
+                </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Audit Trail Reporting -->
+        <div class="user-form-container">
+            <div class="section-header">
+                <h4><i class="fas fa-history"></i> Audit Trail Reporting</h4>
+                <div class="table-actions">
+                     <button class="btn btn-primary btn-sm" id="full-audit-log-link-btn"><i class="fas fa-external-link-alt"></i> View Full Audit Log</button>
+                </div>
+            </div>
+            <p>Generate specific reports from the audit trail to track system activities, data changes, and calculations for transparency and compliance.</p>
+            <!-- Simplified form for audit trail reports, more detailed filtering can be on the main audit log page -->
+            <form id="audit-report-form">
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label for="audit-report-type"><i class="fas fa-tags"></i> Focus Area</label>
+                        <select id="audit-report-type" name="auditReportType">
+                            <option value="all">All Activities</option>
+                            <option value="data_changes">Data Changes</option>
+                            <option value="user_activity">User Activity</option>
+                            <option value="calculation_history">Calculation History</option>
+                            <option value="security_events">Security Events</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="audit-report-user"><i class="fas fa-user-secret"></i> Specific User (Optional)</label>
+                        <input type="text" id="audit-report-user" name="auditUser" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="audit-report-date-range"><i class="fas fa-calendar-alt"></i> Date Range</label>
+                         <div class="date-range-inputs">
+                            <input type="date" id="audit-report-start-date" name="auditStartDate" aria-label="Start Date">
+                            <span>to</span>
+                            <input type="date" id="audit-report-end-date" name="auditEndDate" aria-label="End Date">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-search"></i> Generate Audit Report</button>
+                </div>
+            </form>
+            <div class="table-container" id="audit-report-results" style="margin-top: 1.5rem; display: none;">
+                <h5>Audit Report Results</h5>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-report-tbody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
       </section>
 
