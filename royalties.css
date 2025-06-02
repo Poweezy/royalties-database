@@ -2216,7 +2216,7 @@ input[type="checkbox"]:checked {
 }
 
 .metric-card .card-body p {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
@@ -2543,7 +2543,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -2557,7 +2557,7 @@ input[type="checkbox"]:checked {
   }
   
   .metric-card .card-body p {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
   }
   
   .chart-controls {
@@ -2565,4 +2565,8 @@ input[type="checkbox"]:checked {
   }
 }
 
-/* ...existing code... */
+@media (max-width: 480px) {
+  .metric-card .card-body p {
+    font-size: 1rem;
+  }
+}
