@@ -129,14 +129,14 @@
               </select>
             </div>
             <div class="card-body">
-              <p id="active-entities">0</p>
+              <p id="active-entities">6</p>
               <small class="trend-indicator" id="entities-trend">
-                <i class="fas fa-minus trend-stable"></i> No change
+                <i class="fas fa-arrow-up trend-positive"></i> +2 new entities
               </small>
               <div class="entities-breakdown">
                 <small>
-                  <span class="entity-type">Mines: <span id="mines-count">0</span></span> | 
-                  <span class="entity-type">Quarries: <span id="quarries-count">0</span></span>
+                  <span class="entity-type">Mines: <span id="mines-count">4</span></span> | 
+                  <span class="entity-type">Quarries: <span id="quarries-count">2</span></span>
                 </small>
               </div>
             </div>
@@ -170,11 +170,11 @@
               </button>
             </div>
             <div class="card-body">
-              <p id="pending-approvals">0</p>
-              <small id="pending-urgency">No urgent items</small>
+              <p id="pending-approvals">3</p>
+              <small id="pending-urgency">2 urgent items requiring attention</small>
               <div class="urgency-indicator">
-                <span class="urgent-badge" id="urgent-items" style="display: none;">
-                  <i class="fas fa-exclamation-triangle"></i> <span id="urgent-count">0</span> Urgent
+                <span class="urgent-badge" id="urgent-items" style="display: inline-flex;">
+                  <i class="fas fa-exclamation-triangle"></i> <span id="urgent-count">2</span> Urgent
                 </span>
               </div>
             </div>
@@ -309,7 +309,7 @@
           <div class="card">
             <div class="card-header">
               <h3><i class="fas fa-bell"></i> System Alerts</h3>
-              <span class="alert-count" id="alert-count-badge">0</span>
+              <span class="alert-count" id="alert-count-badge">1</span>
             </div>
             <div class="card-body">
               <div class="alerts-container" id="system-alerts">
@@ -318,6 +318,13 @@
                   <div class="alert-content">
                     <p>System running normally</p>
                     <small>All services operational</small>
+                  </div>
+                </div>
+                 <div class="alert-item warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <div class="alert-content">
+                    <p>Database backup pending</p>
+                    <small>Last backup 2 days ago</small>
                   </div>
                 </div>
               </div>
@@ -612,7 +619,7 @@
                   type="date" 
                   id="account-expires" 
                   name="expires"
-                  min="2024-02-01"
+                  min="2024-02-01" 
                   aria-describedby="account-expires-help"
                 >
                 <small class="form-help" id="account-expires-help">
@@ -1088,625 +1095,467 @@
         </div>
       </section>
 
-      <!-- Reporting & Analytics -->
-      <section id="reporting-analytics">
+      <!-- Communication Section (Missing Implementation) -->
+      <section id="communication">
         <div class="page-header">
           <div class="page-title">
-            <h1>Reporting & Analytics</h1>
-            <p>Comprehensive reporting, real-time analytics, and KPI dashboards for stakeholder insights</p>
+            <h1>📧 Communication Center</h1>
+            <p>Centralized communication hub for stakeholder engagement and regulatory correspondence</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Export Dashboard</button>
-            <button class="btn btn-primary">Schedule Report</button>
-            <button class="btn btn-success">Generate Report</button>
+            <button class="btn btn-success" id="compose-message-btn">
+              <i class="fas fa-pen"></i> Compose Message
+            </button>
+            <button class="btn btn-info" id="sync-messages-btn">
+              <i class="fas fa-sync-alt"></i> Sync Messages
+            </button>
+            <button class="btn btn-primary" id="communication-settings-btn">
+              <i class="fas fa-cog"></i> Settings
+            </button>
           </div>
         </div>
+
+        <!-- Communication Dashboard -->
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Total Revenue (YTD)</h3>
-              <select class="metric-period">
-                <option>2024</option>
-                <option>2023</option>
-                <option>All Time</option>
-              </select>
+              <h3><i class="fas fa-envelope"></i> Unread Messages</h3>
             </div>
             <div class="card-body">
-              <p>E 2,847,650.00</p>
-              <small class="trend-positive">+15.8% from last year</small>
-              <div class="mini-chart">Trend</div>
+              <p id="unread-messages-count">7</p>
+              <small><i class="fas fa-clock"></i> 3 urgent, 4 normal priority</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Production Volume</h3>
-              <select class="metric-period">
-                <option>This Quarter</option>
-                <option>Last Quarter</option>
-                <option>YTD</option>
-              </select>
+              <h3><i class="fas fa-paper-plane"></i> Sent Today</h3>
             </div>
             <div class="card-body">
-              <p>485,250 m³</p>
-              <small class="trend-positive">+08.2% from last quarter</small>
+              <p id="sent-messages-count">12</p>
+              <small><i class="fas fa-check-circle text-success"></i> All delivered successfully</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Collection Rate</h3>
+              <h3><i class="fas fa-calendar-check"></i> Pending Responses</h3>
             </div>
             <div class="card-body">
-              <p>96.5%</p>
-              <small>Maintained high collection rate</small>
-              <div class="collection-progress">
-                <div class="progress-bar" style="width: 96.5%;"></div>
-              </div>
+              <p id="pending-responses-count">3</p>
+              <small><i class="fas fa-exclamation-triangle text-warning"></i> 1 overdue response</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Outstanding Amounts</h3>
+              <h3><i class="fas fa-users"></i> Active Conversations</h3>
             </div>
             <div class="card-body">
-              <p>E 125,400.00</p>
-              <small>3 entities with overdue payments</small>
-              <button class="btn btn-primary btn-sm">View Details</button>
+              <p id="active-conversations-count">15</p>
+              <small><i class="fas fa-comments"></i> Across 8 different entities</small>
             </div>
           </div>
         </div>
+
+        <!-- Message Center -->
+        <!-- Message Center -->
         <div class="user-form-container">
-          <div class="report-tabs">
-            <button class="tab-btn active" data-tab="#quick-reports">Quick Reports</button>
-            <button class="tab-btn" data-tab="#custom-reports">Custom Reports</button>
-            <button class="tab-btn" data-tab="#scheduled-reports">Scheduled Reports</button>
-            <button class="btn tab-btn" data-tab="#audit-trail-reports">Audit Trail Reports</button>
+          <div class="communication-tabs">
+            <button class="tab-btn active" data-tab="#inbox-tab">
+              <i class="fas fa-inbox"></i> Inbox (7)
+            </button>
+            <button class="tab-btn" data-tab="#sent-tab">
+              <i class="fas fa-paper-plane"></i> Sent
+            </button>
+            <button class="tab-btn" data-tab="#drafts-tab">
+              <i class="fas fa-edit"></i> Drafts (2)
+            </button>
+            <button class="tab-btn" data-tab="#templates-tab">
+              <i class="fas fa-copy"></i> Templates
+            </button>
+            <button class="tab-btn" data-tab="#scheduled-tab">
+              <i class="fas fa-clock"></i> Scheduled
+            </button>
           </div>
-          <div class="tab-content active" id="quick-reports">
-            <div class="quick-reports-grid">
-              <div class="report-card">
-                <div class="report-icon">📊</div>
-                <div class="report-info">
-                  <h5>Monthly Royalty Summary</h5>
-                  <p>Comprehensive overview of all royalty payments for the current month</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 2-3 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
+
+          <!-- Inbox Tab -->
+          <div class="tab-content active" id="inbox-tab">
+            <div class="message-list">
+              <div class="message-item unread urgent">
+                <div class="message-header">
+                  <div class="sender-info">
+                    <strong>Ministry of Natural Resources</strong>
+                    <span class="message-time">2 hours ago</span>
+                  </div>
+                  <div class="message-priority">
+                    <span class="priority-badge urgent">URGENT</span>
                   </div>
                 </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-              <div class="report-card">
-                <div class="report-icon">📈</div>
-                <div class="report-info">
-                  <h5>Entity Performance Analysis</h5>
-                  <p>Production and payment metrics by mining entity</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 3-5 minutes</span>
-                    <span><i class="fas fa-file-excel"></i> Excel</span>
-                  </div>
+                <div class="message-subject">
+                  <h6>Immediate Compliance Review Required - Maloma Colliery</h6>
                 </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-              <div class="report-card">
-                <div class="report-icon">📋</div>
-                <div class="report-info">
-                  <h5>Compliance Status Report</h5>
-                  <p>Current compliance standings and upcoming requirements</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 1-2 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
-                  </div>
+                <div class="message-preview">
+                  <p>Following recent inspection findings, immediate action is required for compliance verification...</p>
                 </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-              <div class="report-card">
-                <div class="report-icon">💰</div>
-                <div class="report-info">
-                  <h5>Outstanding Payments</h5>
-                  <p>Detailed breakdown of overdue and pending payments</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 1 minute</span>
-                    <span><i class="fas fa-file-csv"></i> CSV</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-            </div>
-          </div>
-          <div class="tab-content" id="custom-reports">
-            <div class="custom-report-builder">
-              <div class="builder-section">
-                <h5><i class="fas fa-filter"></i> Report Criteria</h5>
-                <div class="grid-4">
-                  <div class="form-group">
-                    <label for="report-type">Report Type</label>
-                    <select id="report-type" aria-describedby="report-type-validation">
-                      <option>Select Report Type</option>
-                      <option>Financial Analysis</option>
-                      <option>Production Analysis</option>
-                      <option>Compliance Tracking</option>
-                      <option>Entity Performance</option>
-                      <option>Audit & Verification</option>
-                      <option>Comparative Analysis</option>
-                    </select>
-                    <div class="validation-error" id="report-type-validation">Report type is required</div>
-                  </div>
-                  <div class="form-group">
-                    <label for="report-period">Period</label>
-                    <select id="report-period" aria-describedby="period-validation">
-                      <option>Select Period</option>
-                      <option>Monthly</option>
-                      <option>Quarterly</option>
-                      <option>Yearly</option>
-                      <option>Custom Range</option>
-                    </select>
-                    <div class="validation-error" id="period-validation">Period is required</div>
-                  </div>
-                  <div class="form-group">
-                    <label for="report-entity">Entity</label>
-                    <select id="report-entity" aria-describedby="entity-report-validation">
-                      <option>All Entities</option>
-                      <option>Kwalini Quarry</option>
-                      <option>Mbabane Quarry</option>
-                      <option>Sidvokodvo Quarry</option>
-                      <option>Maloma Colliery</option>
-                      <option>Ngwenya Mine</option>
-                      <option>Malolotja Mine</option>
-                    </select>
-                    <div class="validation-error" id="entity-report-validation">Entity selection required</div>
-                  </div>
-                  <div class="form-group">
-                    <label for="output-format">Output Format</label>
-                    <select id="output-format" aria-describedby="format-validation">
-                      <option>PDF</option>
-                      <option>Excel</option>
-                      <option>CSV</option>
-                      <option>HTML</option>
-                    </select>
-                    <div class="validation-error" id="format-validation">Output format is required</div>
-                  </div>
+                <div class="message-actions">
+                  <button class="btn btn-sm btn-primary">Reply</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                  <button class="btn btn-sm btn-info">View Details</button>
                 </div>
               </div>
-              <div class="builder-section">
-                <h5><i class="fas fa-chart-bar"></i> Metrics Selection</h5>
-                <div class="metrics-selector">
-                  <div class="checkbox-group">
-                    <label class="checkbox-label">
-                      <input type="checkbox" checked> Total Revenue
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox" checked> Production Volume
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox"> Collection Rate
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox"> Outstanding Amounts
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox"> Compliance Status
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox"> Entity Performance
-                    </label>
+
+              <div class="message-item unread">
+                <div class="message-header">
+                  <div class="sender-info">
+                    <strong>Kwalini Quarry Management</strong>
+                    <span class="message-time">5 hours ago</span>
                   </div>
                 </div>
-              </div>
-              <div class="form-actions">
-                <button class="btn btn-secondary">Reset</button>
-                <button class="btn btn-success">Preview Report</button>
-              </div>
-            </div>
-          </div>
-          <div class="tab-content" id="scheduled-reports">
-            <div class="scheduled-reports-header">
-              <button class="btn btn-success">Add Scheduled Report</button>
-            </div>
-            <div class="scheduled-reports-list">
-              <div class="schedule-item">
-                <div class="schedule-info">
-                  <h6>Weekly Revenue Report</h6>
-                  <p>Every Monday at 9:00 AM</p>
-                  <span class="status-badge active">Active</span>
+                <div class="message-subject">
+                  <h6>Monthly Production Report Submission</h6>
                 </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">Edit</button>
-                  <button class="btn btn-sm btn-warning">Pause</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
+                <div class="message-preview">
+                  <p>Please find attached our monthly production report for February 2024...</p>
+                </div>
+                <div class="message-actions">
+                  <button class="btn btn-sm btn-primary">Reply</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                  <button class="btn btn-sm btn-success">Download Attachment</button>
                 </div>
               </div>
-              <div class="schedule-item active">
-                <div class="schedule-info">
-                  <h6>Monthly Compliance Report</h6>
-                  <p>First day of each month at 8:00 AM</p>
-                  <span class="status-badge active">Active</span>
+
+              <div class="message-item">
+                <div class="message-header">
+                  <div class="sender-info">
+                    <strong>Environmental Protection Agency</strong>
+                    <span class="message-time">1 day ago</span>
+                  </div>
                 </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">Edit</button>
-                  <button class="btn btn-sm btn-warning">Pause</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
+                <div class="message-subject">
+                  <h6>Environmental Impact Assessment Update</h6>
+                </div>
+                <div class="message-preview">
+                  <p>Updated guidelines for environmental impact assessments are now available...</p>
+                </div>
+                <div class="message-actions">
+                  <button class="btn btn-sm btn-secondary">Archive</button>
+                  <button class="btn btn-sm btn-info">View Guidelines</button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="tab-content" id="audit-trail-reports">
-            <div class="report-history-controls">
-              <div class="grid-4">
-                <div class="form-group">
-                  <label for="audit-report-from">From Date</label>
-                  <input type="date" id="audit-report-from">
+
+          <!-- Sent Tab -->
+          <div class="tab-content" id="sent-tab">
+            <div class="message-list">
+              <div class="message-item sent">
+                <div class="message-header">
+                  <div class="sender-info">
+                    <strong>To: All Mining Entities</strong>
+                    <span class="message-time">3 hours ago</span>
+                  </div>
+                  <div class="delivery-status">
+                    <span class="status-badge delivered">Delivered</span>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label for="audit-report-to">To Date</label>
-                  <input type="date" id="audit-report-to">
+                <div class="message-subject">
+                  <h6>Updated Royalty Rate Schedule - Effective March 2024</h6>
                 </div>
-                <div class="form-group">
-                  <label for="audit-report-user">User</label>
-                  <select id="audit-report-user">
-                    <option>All users</option>
-                    <option>admin</option>
-                    <option>finance.user</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <button class="btn btn-primary">Generate Audit Report</button>
+                <div class="message-actions">
+                  <button class="btn btn-sm btn-info">View Message</button>
+                  <button class="btn btn-sm btn-secondary">Send Follow-up</button>
                 </div>
               </div>
             </div>
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Report Name</th>
-                    <th>Generated By</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>User Activity Report</td>
-                    <td>admin</td>
-                    <td>2024-02-10</td>
-                    <td>
-                      <button class="btn btn-sm btn-secondary">Download</button>
-                      <button class="btn btn-sm btn-info">View</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>System Changes Log</td>
-                    <td>system</td>
-                    <td>2024-02-09</td>
-                    <td>
-                      <button class="btn btn-sm btn-secondary">Download</button>
-                      <button class="btn btn-sm btn-info">View</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          </div>
+
+          <!-- Message Templates Tab -->
+          <div class="tab-content" id="templates-tab">
+            <div class="template-grid">
+              <div class="template-card">
+                <h6>Compliance Reminder</h6>
+                <p>Standard reminder for upcoming compliance deadlines</p>
+                <button class="btn btn-sm btn-primary">Use Template</button>
+              </div>
+              <div class="template-card">
+                <h6>Payment Overdue Notice</h6>
+                <p>Formal notice for overdue royalty payments</p>
+                <button class="btn btn-sm btn-primary">Use Template</button>
+              </div>
+              <div class="template-card">
+                <h6>Rate Change Notification</h6>
+                <p>Official notification of royalty rate changes</p>
+                <button class="btn btn-sm btn-primary">Use Template</button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Royalty Records -->
-      <section id="royalty-records">
+      <!-- Notifications Section (Complete Implementation) -->
+      <section id="notifications">
         <div class="page-header">
           <div class="page-title">
-            <h1>Royalty Records</h1>
-            <p>Manage and review all royalty payments</p>
+            <h1>🔔 Notifications Center</h1>
+            <p>Real-time alerts, system notifications, and important updates</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success">Record Payment</button>
+            <button class="btn btn-primary" id="mark-all-read">
+              <i class="fas fa-check-double"></i> Mark All Read
+            </button>
+            <button class="btn btn-secondary" id="notification-settings">
+              <i class="fas fa-cog"></i> Settings
+            </button>
           </div>
         </div>
-        <div class="user-form-container">
-          <h4>Record Royalty Payment</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="entity">Entity</label>
-              <select id="entity" aria-describedby="entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-              <div class="validation-error" id="entity-validation">Entity is required</div>
+
+        <!-- Notification Statistics -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-bell"></i> Unread Notifications</h3>
             </div>
-            <div class="form-group">
-              <label for="mineral">Mineral</label>
-              <select id="mineral" aria-describedby="mineral-validation">
-                <option>Select Mineral</option>
-                <option>Coal</option>
-                <option>Iron Ore</option>
-                <option>Green Chert</option>
-                <option>Gravel</option>
-                <option>River Sand</option>
-                <option>Plaster Sand</option>
-                <option>Quarried Stone</option>
-              </select>
-              <div class="validation-error" id="mineral-validation">Mineral is required</div>
-            </div>
-            <div class="form-group">
-              <label for="volume">Volume (m³)</label>
-              <input type="number" id="volume" placeholder="Volume (m³)" aria-describedby="volume-validation">
-              <div class="validation-error" id="volume-validation">Volume must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="tariff">Royalty Tariff (E/m³)</label>
-              <input type="number" id="tariff" placeholder="Tariff (E/m³)" aria-describedby="tariff-validation">
-              <div class="validation-error" id="tariff-validation">Tariff must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="payment-date">Date</label>
-              <input type="date" id="payment-date" aria-describedby="date-validation">
-              <div class="validation-error" id="date-validation">Date is required</div>
+            <div class="card-body">
+              <p id="unread-count">8</p>
+              <small>3 high priority, 5 normal</small>
             </div>
           </div>
-          <div class="form-actions">
-            <button class="btn btn-success" id="save-royalty-btn">Save Royalty</button>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Critical Alerts</h3>
+            </div>
+            <div class="card-body">
+              <p id="critical-alerts-count">2</p>
+              <small class="text-danger">Requires immediate attention</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar-alt"></i> Due Today</h3>
+            </div>
+            <div class="card-body">
+              <p id="due-today-count">4</p>
+              <small>Compliance deadlines and tasks</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-line"></i> System Health</h3>
+            </div>
+            <div class="card-body">
+              <p id="system-health-score">98%</p>
+              <small class="text-success">All systems operational</small>
+            </div>
           </div>
         </div>
+
+        <!-- Notifications List -->
         <div class="user-form-container">
-          <h4>Royalty Records Table</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="filter-entity">Entity</label>
-              <select id="filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
-              <button class="btn btn-primary">Export Report</button>
+          <div class="notification-filters">
+            <h6><i class="fas fa-filter"></i> Filter Notifications</h6>
+            <div class="grid-4">
+              <div class="form-group">
+                <select id="notification-type-filter">
+                  <option value="">All Types</option>
+                  <option value="system">System Alerts</option>
+                  <option value="compliance">Compliance</option>
+                  <option value="payment">Payments</option>
+                  <option value="security">Security</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <select id="notification-priority-filter">
+                  <option value="">All Priorities</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="normal">Normal</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <select id="notification-status-filter">
+                  <option value="">All Status</option>
+                  <option value="unread">Unread</option>
+                  <option value="read">Read</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <button class="btn btn-primary" id="apply-notification-filters">Apply</button>
+              </div>
             </div>
           </div>
+
+          <div class="notifications-container">
+            <div class="notification-item unread critical">
+              <div class="notification-icon">
+                <i class="fas fa-exclamation-triangle text-danger"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h6>Critical: Payment Overdue Alert</h6>
+                  <span class="notification-time">30 minutes ago</span>
+                </div>
+                <p>Ngwenya Mine has exceeded the 30-day payment deadline. Immediate action required.</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-danger">Send Notice</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                  <button class="btn btn-sm btn-info">View Details</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="notification-item unread high">
+              <div class="notification-icon">
+                <i class="fas fa-calendar-times text-warning"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h6>Compliance Deadline Approaching</h6>
+                  <span class="notification-time">2 hours ago</span>
+                </div>
+                <p>Environmental Impact Report due in 3 days for Maloma Colliery.</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-warning">Remind Entity</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                  <button class="btn btn-sm btn-info">View Report Status</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="notification-item unread normal">
+              <div class="notification-icon">
+                <i class="fas fa-user-plus text-info"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h6>New User Account Created</h6>
+                  <span class="notification-time">4 hours ago</span>
+                </div>
+                <p>User account 'audit.officer' has been successfully created and activated.</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                  <button class="btn btn-sm btn-info">View User Details</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="notification-item read normal">
+              <div class="notification-icon">
+                <i class="fas fa-chart-line text-success"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h6>Monthly Report Generated</h6>
+                  <span class="notification-time">1 day ago</span>
+                </div>
+                <p>February 2024 royalty collection report has been generated and is ready for review.</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-success">Download Report</button>
+                  <button class="btn btn-sm btn-secondary">Archive</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compliance & Regulatory Section (Complete Implementation) -->
+      <section id="compliance">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>✅ Compliance & Regulatory Management</h1>
+            <p>Comprehensive compliance tracking, regulatory requirements, and deadline management</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="generate-compliance-report">
+              <i class="fas fa-file-alt"></i> Generate Report
+            </button>
+            <button class="btn btn-primary" id="schedule-inspection">
+              <i class="fas fa-calendar-plus"></i> Schedule Inspection
+            </button>
+            <button class="btn btn-warning" id="compliance-alerts">
+              <i class="fas fa-bell"></i> View Alerts
+            </button>
+          </div>
+        </div>
+
+        <!-- Compliance Overview -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-percentage"></i> Overall Compliance Rate</h3>
+            </div>
+            <div class="card-body">
+              <p id="overall-compliance-rate">94.2%</p>
+              <div class="mini-progress">
+                <div class="progress-bar" style="width: 94.2%; background: var(--success-color);"></div>
+              </div>
+              <small class="text-success">Above industry standard</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
+            </div>
+            <div class="card-body">
+              <p id="upcoming-deadlines-count">7</p>
+              <small>Next 30 days: 3 critical, 4 standard</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Overdue Items</h3>
+            </div>
+            <div class="card-body">
+              <p id="overdue-items-count">2</p>
+              <small class="text-danger">Requires immediate attention</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-shield-check"></i> Inspections Completed</h3>
+            </div>
+            <div class="card-body">
+              <p id="inspections-completed">15</p>
+              <small>This quarter: 12 passed, 3 conditional</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regulatory Requirements Tracking -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-list-check"></i> Regulatory Requirements Status</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-compliance">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button class="btn btn-info btn-sm" id="export-compliance">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+
           <div class="table-container">
-            <table class="data-table">
+            <table class="data-table" id="compliance-table">
               <thead>
                 <tr>
-                  <th>Entity</th>
-                  <th>Mineral</th>
-                  <th>Volume (m³)</th>
-                  <th>Tariff (E/m³)</th>
-                  <th>Royalties (E)</th>
-                  <th>Date</th>
+                  <th>Requirement</th>
+                  <th>Regulatory Body</th>
+                  <th>Due Date</th>
                   <th>Status</th>
+                  <th>Submitted Date</th>
+                  <th>Reference Number</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="royalty-records-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Contract Management -->
-      <section id="contract-management">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Contract Management</h1>
-            <p>Manage royalty agreements for mines and quarries</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-success">Add Contract</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <h4>Add Contract</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="contract-entity">Entity</label>
-              <select id="contract-entity" aria-describedby="contract-entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-              <div class="validation-error" id="contract-entity-validation">Entity is required</div>
-            </div>
-            <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
-              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
-            </div>
-            <div class="form-group">
-              <label for="start-date">Start Date</label>
-              <input type="date" id="start-date" aria-describedby="start-date-validation">
-              <div class="validation-error" id="start-date-validation">Start date is required</div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-success">Save Contract</button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
-                <th>Start Date</th>
-                <th>Document</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Audit Dashboard -->
-      <section id="audit-dashboard">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Audit Dashboard</h1>
-            <p>Review discrepancies and audit reports</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">Export Report</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="audit-filter-entity">Entity</label>
-              <select id="audit-filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
-            </div>
-          </div>
-          <h4>Discrepancies</h4>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
+              <tbody>
                 <tr>
-                  <th>Project</th>
-                  <th>Mineral</th>
-                  <th>Declared (m³)</th>
-                  <th>Verified (m³)</th>
-                  <th>Outstanding (E)</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Reporting & Analytics -->
-      <section id="reporting-analytics">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Reporting & Analytics</h1>
-            <p>Comprehensive reporting, real-time analytics, and KPI dashboards for stakeholder insights</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">Export Dashboard</button>
-            <button class="btn btn-primary">Schedule Report</button>
-            <button class="btn btn-success">Generate Report</button>
-          </div>
-        </div>
-        <div class="charts-grid">
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3>Total Revenue (YTD)</h3>
-              <select class="metric-period">
-                <option>2024</option>
-                <option>2023</option>
-                <option>All Time</option>
-              </select>
-            </div>
-            <div class="card-body">
-              <p>E 2,847,650.00</p>
-              <small class="trend-positive">+15.8% from last year</small>
-              <div class="mini-chart">Trend</div>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3>Production Volume</h3>
-              <select class="metric-period">
-                <option>This Quarter</option>
-                <option>Last Quarter</option>
-                <option>YTD</option>
-              </select>
-            </div>
-            <div class="card-body">
-              <p>485,250 m³</p>
-              <small class="trend-positive">+08.2% from last quarter</small>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3>Collection Rate</h3>
-            </div>
-            <div class="card-body">
-              <p>96.5%</p>
-              <small>Maintained high collection rate</small>
-              <div class="collection-progress">
-                <div class="progress-bar" style="width: 96.5%;"></div>
-              </div>
-            </div>
-          </div>
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3>Outstanding Amounts</h3>
-            </div>
-            <div class="card-body">
-              <p>E 125,400.00</p>
-              <small>3 entities with overdue payments</small>
-              <button class="btn btn-primary btn-sm">View Details</button>
-            </div>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <div class="report-tabs">
-            <button class="tab-btn active" data-tab="#quick-reports">Quick Reports</button>
-            <button class="tab-btn" data-tab="#custom-reports">Custom Reports</button>
-            <button class="tab-btn" data-tab="#scheduled-reports">Scheduled Reports</button>
-            <button class="btn tab-btn" data-tab="#audit-trail-reports">Audit Trail Reports</button>
-          </div>
-          <div class="tab-content active" id="quick-reports">
-            <div class="quick-reports-grid">
-              <div class="report-card">
-                <div class="report-icon">📊</div>
-                <div class="report-info">
-                  <h5>Monthly Royalty Summary</h5>
-                  <p>Comprehensive overview of all royalty payments for the current month</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 2-3 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-              <div class="report-card">
-                <div class="report-icon">📈</div>
-                <div class="report-info">
-                  <h5>Entity Performance Analysis</h5>
-                  <p>Production and payment metrics by mining entity</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 3-5 minutes</span>
-                    <span><i class="fas fa-file-excel"></i> Excel</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
-              <div class="report-card">
-                <div class="report-icon">📋</div>
-                <div class="report-info">
-                  <h5>Compliance Status Report</h5>
-                  <p>Current compliance standings and upcoming requirements</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 1-2 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
-              </div>
+                  <td>Monthly Royalty Return</td>
+                  <td>Ministry of Natural Resources</td>
+                  <td>15 Mar 2024</td>
+                  <td><span class="status-badge warning">Due Soon</span></td>
+                  <td>-</td>
+                  <td>-</td>
                   <td>
                     <button class="btn btn-primary btn-sm">Prepare</button>
                     <button class="btn btn-success btn-sm">Submit</button>
@@ -1716,22 +1565,34 @@
                   <td>Environmental Report</td>
                   <td>Environmental Authority</td>
                   <td>28 Feb 2024</td>
-                  <td><span class="status-badge warning">In Progress</span></td>
+                  <td><span class="status-badge danger">Overdue</span></td>
                   <td>-</td>
                   <td>-</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm">Continue</button>
+                    <button class="btn btn-danger btn-sm">Submit Urgent</button>
+                    <button class="btn btn-secondary btn-sm">Request Extension</button>
                   </td>
                 </tr>
                 <tr>
                   <td>Quarterly Production</td>
                   <td>Ministry of Natural Resources</td>
                   <td>31 Jan 2024</td>
-                  <td><span class="status-badge compliant">Submitted</span></td>
+                  <td><span class="status-badge success">Submitted</span></td>
                   <td>29 Jan 2024</td>
                   <td>MNR-Q4-2023-001</td>
                   <td>
                     <button class="btn btn-secondary btn-sm">View</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Safety Inspection Report</td>
+                  <td>Department of Labour</td>
+                  <td>20 Mar 2024</td>
+                  <td><span class="status-badge info">In Progress</span></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Continue</button>
                   </td>
                 </tr>
               </tbody>
@@ -1758,7 +1619,7 @@
               <div class="alert-icon">🟡</div>
               <div class="alert-content">
                 <h6>Monthly Royalty Return Due Soon</h6>
-                <p>Due: 15 Feb 2024 | Days Remaining: 5</p>
+                <p>Due: 15 Mar 2024 | Days Remaining: 5</p>
                 <div class="alert-actions">
                   <button class="btn btn-primary btn-sm">Prepare Report</button>
                 </div>
@@ -1782,12 +1643,11 @@
           <h4>📅 Regulatory Calendar</h4>
           <div class="calendar-view">
             <div class="calendar-header">
-              <button class="btn btn-secondary">&lt; Previous</button>
-              <h5>February 2024</h5>
-              <button class="btn btn-secondary">Next &gt;</button>
+              <button class="btn btn-secondary" id="prev-month">&lt; Previous</button>
+              <h5 id="calendar-month-year">March 2024</h5>
+              <button class="btn btn-secondary" id="next-month">Next &gt;</button>
             </div>
             <div class="calendar-grid">
-              <!-- Simplified calendar representation -->
               <div class="calendar-week">
                 <div class="calendar-day">
                   <span class="day-number">15</span>
@@ -1796,139 +1656,19 @@
                   </div>
                 </div>
                 <div class="calendar-day">
-                  <span class="day-number">28</span>
+                  <span class="day-number">20</span>
+                  <div class="day-events">
+                    <div class="event safety">Safety Inspection</div>
+                  </div>
+                </div>
+                <div class="calendar-day">
+                  <span class="day-number">31</span>
                   <div class="day-events">
                     <div class="event environmental">Environmental Report</div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- New Regulatory Management Section -->
-      <section id="regulatory-management">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Regulatory Management</h1>
-            <p>Comprehensive management of jurisdictional requirements and regulatory frameworks</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">Regulatory Assessment</button>
-            <button class="btn btn-success">Update Compliance Matrix</button>
-          </div>
-        </div>
-
-        <!-- Jurisdictional Requirements Matrix -->
-        <div class="user-form-container">
-          <h4>🏛️ Multi-Jurisdictional Compliance Matrix</h4>
-          <div class="jurisdiction-matrix">
-            <div class="grid-4">
-              <div class="jurisdiction-card">
-                <div class="jurisdiction-header">
-                  <h6>🇸🇿 Eswatini (Local)</h6>
-                  <span class="compliance-score">94%</span>
-                </div>
-                <div class="jurisdiction-requirements">
-                  <div class="requirement-item">
-                    <span class="requirement-name">Mining Licenses</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Royalty Payments</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Environmental Permits</span>
-                    <span class="requirement-status warning">⚠️</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Tax Filings</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="jurisdiction-card">
-                <div class="jurisdiction-header">
-                  <h6>🏛️ SADC Regional</h6>
-                  <span class="compliance-score">100%</span>
-                </div>
-                <div class="jurisdiction-requirements">
-                  <div class="requirement-item">
-                    <span class="requirement-name">Regional Protocols</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Cross-border Trade</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Environmental Standards</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tax Structure Management -->
-        <div class="user-form-container">
-          <h4>💰 Tax Structure & Rates Management</h4>
-          <div class="tax-structure-grid">
-            <div class="tax-category">
-              <h6>Mineral Royalties</h6>
-              <div class="tax-rates">
-                <div class="rate-item">
-                  <span>Coal</span>
-                  <span class="rate">3%</span>
-                  <span class="basis">of gross value</span>
-                </div>
-                <div class="rate-item">
-                  <span>Iron Ore</span>
-                  <span class="rate">5%</span>
-                  <span class="basis">of gross value</span>
-                </div>
-                <div class="rate-item">
-                  <span>Quarry Products</span>
-                  <span class="rate">E15/m³</span>
-                  <span class="basis">flat rate</span>
-                </div>
-                <div class="rate-item">
-                  <span>Precious Minerals</span>
-                  <span class="rate">10%</span>
-                  <span class="basis">of gross value</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="tax-category">
-              <h6>Corporate Taxes</h6>
-              <div class="tax-rates">
-                <div class="rate-item">
-                  <span>Corporate Income Tax</span>
-                  <span class="rate">27.5%</span>
-                  <span class="basis">on net profit</span>
-                </div>
-                <div class="rate-item">
-                  <span>Withholding Tax (Dividends)</span>
-                  <span class="rate">15%</span>
-                  <span class="basis">on distributions</span>
-                </div>
-                <div class="rate-item">
-                  <span>VAT</span>
-                  <span class="rate">15%</span>
-                  <span class="basis">on applicable sales</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button class="btn btn-primary">Update Tax Rates</button>
-            <button class="btn btn-secondary">Export Tax Schedule</button>
           </div>
         </div>
       </section>
