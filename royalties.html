@@ -1047,55 +1047,197 @@
           </table>
         </div>
       </section>
-
+    
       <!-- Audit Dashboard -->
       <section id="audit-dashboard">
         <div class="page-header">
           <div class="page-title">
-            <h1>Audit Dashboard</h1>
-            <p>Review discrepancies and audit reports</p>
+            <h1><i class="fas fa-shield-alt"></i> Audit Dashboard</h1>
+            <p>Comprehensive audit overview, discrepancy analysis, and compliance monitoring</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary">Export Report</button>
+            <button class="btn btn-info" id="view-full-audit-log">
+              <i class="fas fa-list"></i> Full Audit Log
+            </button>
+            <button class="btn btn-primary" id="export-audit-report">
+              <i class="fas fa-file-export"></i> Export Report
+            </button>
           </div>
         </div>
-        <div class="user-form-container">
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="audit-filter-entity">Entity</label>
-              <select id="audit-filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
+      
+        <!-- Audit Metrics Overview -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Active Discrepancies</h3>
             </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
+            <div class="card-body">
+              <p id="active-discrepancies-count">0</p>
+              <small class="trend-indicator">
+                <i class="fas fa-arrow-down trend-positive"></i> -2 from last week
+              </small>
             </div>
           </div>
-          <h4>Discrepancies</h4>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-money-bill-wave"></i> Outstanding Amount</h3>
+            </div>
+            <div class="card-body">
+              <p id="outstanding-amount">E 0.00</p>
+              <small>Requiring resolution</small>
+            </div>
+          </div>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-clock"></i> Audit Activities (24h)</h3>
+            </div>
+            <div class="card-body">
+              <p id="recent-audit-activities">0</p>
+              <small>System activities logged</small>
+            </div>
+          </div>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-check-circle"></i> Compliance Rate</h3>
+            </div>
+            <div class="card-body">
+              <p id="audit-compliance-rate">0%</p>
+              <div class="mini-progress">
+                <div class="progress-bar" id="audit-compliance-progress" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Filters and Controls -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-filter"></i> Audit Filters & Analysis</h4>
+          </div>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="audit-filter-entity">
+                <i class="fas fa-industry"></i> Entity
+              </label>
+              <select id="audit-filter-entity">
+                <option value="">All Entities</option>
+                <option value="kwalini">Kwalini Quarry</option>
+                <option value="mbabane">Mbabane Quarry</option>
+                <option value="sidvokodvo">Sidvokodvo Quarry</option>
+                <option value="maloma">Maloma Colliery</option>
+                <option value="ngwenya">Ngwenya Mine</option>
+                <option value="malolotja">Malolotja Mine</option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="audit-filter-period">
+                <i class="fas fa-calendar-alt"></i> Period
+              </label>
+              <select id="audit-filter-period">
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="audit-filter-severity">
+                <i class="fas fa-exclamation-circle"></i> Severity
+              </label>
+              <select id="audit-filter-severity">
+                <option value="">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <button class="btn btn-primary" id="apply-audit-filters">
+                <i class="fas fa-search"></i> Apply Filters
+              </button>
+              <button class="btn btn-secondary" id="clear-audit-filters">
+                <i class="fas fa-times"></i> Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Discrepancies Table -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-exclamation-triangle"></i> Discrepancies & Issues</h4>
+            <div class="table-actions">
+              <button class="btn btn-success btn-sm" id="resolve-selected-discrepancies" disabled>
+                <i class="fas fa-check"></i> Resolve Selected
+              </button>
+            </div>
+          </div>
+      
           <div class="table-container">
-            <table class="data-table">
+            <table class="data-table" id="discrepancies-table">
               <thead>
                 <tr>
-                  <th>Project</th>
-                  <th>Mineral</th>
-                  <th>Declared (m³)</th>
-                  <th>Verified (m³)</th>
-                  <th>Outstanding (E)</th>
+                  <th><input type="checkbox" id="select-all-discrepancies"></th>
+                  <th sortable>Entity</th>
+                  <th sortable>Mineral</th>
+                  <th sortable>Declared (m³)</th>
+                  <th sortable>Verified (m³)</th>
+                  <th sortable>Variance</th>
+                  <th sortable>Outstanding (E)</th>
+                  <th>Severity</th>
+                  <th sortable>Date</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="discrepancies-tbody">
+                <!-- Populated by JavaScript -->
+              </tbody>
             </table>
+          </div>
+      
+          <div class="table-pagination" id="discrepancies-pagination">
+            <div class="pagination-info">
+              Showing <span id="discrepancies-start">0</span> to <span id="discrepancies-end">0</span> of <span
+                id="discrepancies-total">0</span> discrepancies
+            </div>
+            <div class="pagination-controls">
+              <button class="btn btn-sm btn-secondary" id="discrepancies-prev" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
+              <span class="pagination-pages" id="discrepancies-pages"></span>
+              <button class="btn btn-sm btn-secondary" id="discrepancies-next" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Recent Audit Activities -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-history"></i> Recent Audit Activities</h4>
+            <div class="table-actions">
+              <button class="btn btn-info btn-sm" id="view-all-audit-activities">
+                <i class="fas fa-external-link-alt"></i> View All Activities
+              </button>
+            </div>
+          </div>
+      
+          <div class="activity-list" id="recent-audit-activities-list">
+            <!-- Populated by JavaScript -->
           </div>
         </div>
       </section>
-
+      
       <!-- Reporting & Analytics Placeholder -->
       <section id="reporting-analytics">
         <div class="page-header">

@@ -356,6 +356,9 @@ function initializeSection(sectionId) {
     case 'royalty-records':
       populateRoyaltyRecords();
       break;
+    case 'audit-dashboard':
+      AuditDashboard.init();
+      break;
     case 'reporting-analytics':
       initializeReportingCharts();
       break;
@@ -429,7 +432,7 @@ function loadSampleData() {
     {
       id: 1,
       username: 'admin',
-      email: 'admin@eswacaa.sz',
+      email: 'admin@email.sz',
       role: 'Administrator',
       department: 'Management',
       status: 'Active',
@@ -441,7 +444,7 @@ function loadSampleData() {
     {
       id: 2,
       username: 'finance.manager',
-      email: 'finance@eswacaa.sz',
+      email: 'finance@email.sz',
       role: 'Finance',
       department: 'Finance',
       status: 'Active',
@@ -453,7 +456,7 @@ function loadSampleData() {
     {
       id: 3,
       username: 'auditor.chief',
-      email: 'audit@eswacaa.sz',
+      email: 'audit@email.sz',
       role: 'Auditor',
       department: 'Audit',
       status: 'Active',
@@ -1164,7 +1167,601 @@ function handleBulkDelete() {
     logAuditEvent('Bulk Delete', AppState.currentUser.username, `${checkboxes.length} users`, 'Success', `Bulk deleted ${checkboxes.length} user accounts`);
   }
 }
+// Audit Dashboard functionality
+const AuditDashboard = {
+  discrepancies: [
+    {
+      id: 1,
+      entity: 'Kwalini Quarry',
+      mineral: 'Gravel',
+      declared: 1200,
+      verified: 1150,
+      variance: -50,
+      outstanding: 125.00,
+      severity: 'medium',
+      date: '2024-02-15',
+      status: 'Open'
+    },
+    {
+      id: 2,
+      entity: 'Maloma Colliery',
+      mineral: 'Coal',
+      declared: 850,
+      verified: 920,
+      variance: 70,
+      outstanding: 350.00,
+      severity: 'high',
+      date: '2024-02-10',
+      status: 'Under Review'
+    },
+    {
+      id: 3,
+      entity: 'Mbabane Quarry',
+      mineral: 'Quarried Stone',
+      declared: 2100,
+      verified: 2080,
+      variance: -20,
+      outstanding: 40.00,
+      severity: 'low',
+      date: '2024-02-12',
+      status: 'Open'
+    },
+    {
+      id: 4,
+      entity: 'Ngwenya Mine',
+      mineral: 'Iron Ore',
+      declared: 1800,
+      verified: 1750,
+      variance: -50,
+      outstanding: 250.00,
+      severity: 'critical',
+      date: '2024-02-08',
+      status: 'Escalated'
+    }
+  ],
 
+  currentPage: 1,
+  itemsPerPage: 10,
+  filteredDiscrepancies: [],
+  selectedDiscrepancies: new Set(),
+
+  init() {
+    this.filteredDiscrepancies = [...this.discrepancies];
+    this.setupEventListeners();
+    this.updateMetrics();
+    this.renderDiscrepanciesTable();
+    this.renderRecentActivities();
+  },
+
+  setupEventListeners() {
+    // Filter controls
+    const applyFiltersBtn = document.getElementById('apply-audit-filters');
+    const clearFiltersBtn = document.getElementById('clear-audit-filters');
+    
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', () => this.applyFilters());
+    }
+    
+    if (clearFiltersBtn) {
+      clearFiltersBtn.addEventListener('click', () => this.clearFilters());
+    }
+
+    // Export and view buttons
+    const exportBtn = document.getElementById('export-audit-report');
+    const viewFullLogBtn = document.getElementById('view-full-audit-log');
+    const viewAllActivitiesBtn = document.getElementById('view-all-audit-activities');
+    
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => this.exportAuditReport());
+    }
+    
+    if (viewFullLogBtn) {
+      viewFullLogBtn.addEventListener('click', () => this.viewFullAuditLog());
+    }
+    
+    if (viewAllActivitiesBtn) {
+      viewAllActivitiesBtn.addEventListener('click', () => this.viewAllActivities());
+    }
+
+    // Bulk actions
+    const selectAllCheckbox = document.getElementById('select-all-discrepancies');
+    const resolveSelectedBtn = document.getElementById('resolve-selected-discrepancies');
+    
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', (e) => {
+        this.toggleSelectAll(e.target.checked);
+      });
+    }
+    
+    if (resolveSelectedBtn) {
+      resolveSelectedBtn.addEventListener('click', () => this.resolveSelectedDiscrepancies());
+    }
+
+    // Pagination
+    const prevBtn = document.getElementById('discrepancies-prev');
+    const nextBtn = document.getElementById('discrepancies-next');
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => this.previousPage());
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => this.nextPage());
+    }
+  },
+
+  updateMetrics() {
+    // Update active discrepancies count
+    const activeCount = this.discrepancies.filter(d => d.status !== 'Resolved').length;
+    this.updateElement('active-discrepancies-count', activeCount);
+
+    // Calculate outstanding amount
+    const outstandingTotal = this.discrepancies
+      .filter(d => d.status !== 'Resolved')
+      .reduce((sum, d) => sum + d.outstanding, 0);
+    this.updateElement('outstanding-amount', `E ${outstandingTotal.toFixed(2)}`);
+
+    // Recent audit activities (last 24 hours)
+    const recentActivities = AppState.auditLog.filter(log => {
+      const logDate = new Date(log.timestamp);
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      return logDate > yesterday;
+    }).length;
+    this.updateElement('recent-audit-activities', recentActivities);
+
+    // Calculate compliance rate
+    const totalDiscrepancies = this.discrepancies.length;
+    const resolvedDiscrepancies = this.discrepancies.filter(d => d.status === 'Resolved').length;
+    const complianceRate = totalDiscrepancies > 0 ? ((resolvedDiscrepancies / totalDiscrepancies) * 100).toFixed(1) : 100;
+    this.updateElement('audit-compliance-rate', `${complianceRate}%`);
+    
+    // Update progress bar
+    const progressBar = document.getElementById('audit-compliance-progress');
+    if (progressBar) {
+      progressBar.style.width = `${complianceRate}%`;
+    }
+  },
+
+  updateElement(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = value;
+    }
+  },
+
+  applyFilters() {
+    const entityFilter = document.getElementById('audit-filter-entity')?.value || '';
+    const periodFilter = document.getElementById('audit-filter-period')?.value || '';
+    const severityFilter = document.getElementById('audit-filter-severity')?.value || '';
+
+    this.filteredDiscrepancies = this.discrepancies.filter(discrepancy => {
+      // Entity filter
+      if (entityFilter && !discrepancy.entity.toLowerCase().includes(entityFilter.toLowerCase())) {
+        return false;
+      }
+
+      // Severity filter
+      if (severityFilter && discrepancy.severity !== severityFilter) {
+        return false;
+      }
+
+      // Period filter (simplified - you can enhance this)
+      if (periodFilter && periodFilter !== 'custom') {
+        const discrepancyDate = new Date(discrepancy.date);
+        const today = new Date();
+        
+        switch (periodFilter) {
+          case 'today':
+            if (discrepancyDate.toDateString() !== today.toDateString()) return false;
+            break;
+          case 'week':
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            if (discrepancyDate < weekAgo) return false;
+            break;
+          case 'month':
+            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            if (discrepancyDate < monthAgo) return false;
+            break;
+          case 'quarter':
+            const quarterAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+            if (discrepancyDate < quarterAgo) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+
+    this.currentPage = 1;
+    this.renderDiscrepanciesTable();
+    this.logAuditEvent('Applied audit dashboard filters', 'Filter Applied');
+  },
+
+  clearFilters() {
+    // Reset filter dropdowns
+    const entityFilter = document.getElementById('audit-filter-entity');
+    const periodFilter = document.getElementById('audit-filter-period');
+    const severityFilter = document.getElementById('audit-filter-severity');
+
+    if (entityFilter) entityFilter.value = '';
+    if (periodFilter) periodFilter.value = 'month';
+    if (severityFilter) severityFilter.value = '';
+
+    // Reset filtered data
+    this.filteredDiscrepancies = [...this.discrepancies];
+    this.currentPage = 1;
+    this.renderDiscrepanciesTable();
+    this.logAuditEvent('Cleared audit dashboard filters', 'Filter Cleared');
+  },
+
+  renderDiscrepanciesTable() {
+    const tbody = document.getElementById('discrepancies-tbody');
+    if (!tbody) return;
+
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    const pageDiscrepancies = this.filteredDiscrepancies.slice(startIndex, endIndex);
+
+    if (pageDiscrepancies.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="11" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+            No discrepancies found matching your criteria.
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = pageDiscrepancies.map(discrepancy => this.createDiscrepancyRow(discrepancy)).join('');
+    }
+
+    this.updatePagination();
+    this.updateBulkActionButtons();
+  },
+
+  createDiscrepancyRow(discrepancy) {
+    const variancePercent = discrepancy.declared > 0 ? 
+      ((discrepancy.variance / discrepancy.declared) * 100).toFixed(1) : 0;
+    
+    const severityClass = this.getSeverityClass(discrepancy.severity);
+    const statusClass = this.getStatusClass(discrepancy.status);
+
+    return `
+      <tr>
+        <td>
+          <input type="checkbox" class="discrepancy-checkbox" value="${discrepancy.id}" 
+                 ${this.selectedDiscrepancies.has(discrepancy.id) ? 'checked' : ''}>
+        </td>
+        <td><strong>${discrepancy.entity}</strong></td>
+        <td>${discrepancy.mineral}</td>
+        <td>${discrepancy.declared.toLocaleString()}</td>
+        <td>${discrepancy.verified.toLocaleString()}</td>
+        <td>
+          <span class="${discrepancy.variance >= 0 ? 'text-success' : 'text-danger'}">
+            ${discrepancy.variance >= 0 ? '+' : ''}${discrepancy.variance} (${variancePercent}%)
+          </span>
+        </td>
+        <td><strong>E ${discrepancy.outstanding.toFixed(2)}</strong></td>
+        <td><span class="severity-badge ${severityClass}">${discrepancy.severity.toUpperCase()}</span></td>
+        <td>${this.formatDate(discrepancy.date)}</td>
+        <td><span class="status-badge ${statusClass}">${discrepancy.status}</span></td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-primary" onclick="AuditDashboard.viewDiscrepancyDetails(${discrepancy.id})" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-warning" onclick="AuditDashboard.editDiscrepancy(${discrepancy.id})" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            ${discrepancy.status !== 'Resolved' ? 
+              `<button class="btn btn-sm btn-success" onclick="AuditDashboard.resolveDiscrepancy(${discrepancy.id})" title="Resolve">
+                <i class="fas fa-check"></i>
+              </button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  },
+
+  getSeverityClass(severity) {
+    const classes = {
+      'low': 'severity-low',
+      'medium': 'severity-medium', 
+      'high': 'severity-high',
+      'critical': 'severity-critical'
+    };
+    return classes[severity] || 'severity-medium';
+  },
+
+  getStatusClass(status) {
+    const classes = {
+      'Open': 'status-warning',
+      'Under Review': 'status-info',
+      'Resolved': 'status-success',
+      'Escalated': 'status-danger'
+    };
+    return classes[status] || 'status-warning';
+  },
+
+  formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  },
+
+  updatePagination() {
+    const totalItems = this.filteredDiscrepancies.length;
+    const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+    const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const endItem = Math.min(startItem + this.itemsPerPage - 1, totalItems);
+
+    // Update pagination info
+    this.updateElement('discrepancies-start', startItem);
+    this.updateElement('discrepancies-end', endItem);
+    this.updateElement('discrepancies-total', totalItems);
+
+    // Update pagination buttons
+    const prevBtn = document.getElementById('discrepancies-prev');
+    const nextBtn = document.getElementById('discrepancies-next');
+
+    if (prevBtn) {
+      prevBtn.disabled = this.currentPage <= 1;
+    }
+
+    if (nextBtn) {
+      nextBtn.disabled = this.currentPage >= totalPages;
+    }
+
+    // Update page numbers (simplified)
+    const pagesContainer = document.getElementById('discrepancies-pages');
+    if (pagesContainer && totalPages > 1) {
+      pagesContainer.innerHTML = `Page ${this.currentPage} of ${totalPages}`;
+    }
+  },
+
+  toggleSelectAll(checked) {
+    const checkboxes = document.querySelectorAll('.discrepancy-checkbox');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = checked;
+      const discrepancyId = parseInt(checkbox.value);
+      if (checked) {
+        this.selectedDiscrepancies.add(discrepancyId);
+      } else {
+        this.selectedDiscrepancies.delete(discrepancyId);
+      }
+    });
+    this.updateBulkActionButtons();
+  },
+
+  updateBulkActionButtons() {
+    const resolveBtn = document.getElementById('resolve-selected-discrepancies');
+    const selectedCount = this.selectedDiscrepancies.size;
+
+    if (resolveBtn) {
+      resolveBtn.disabled = selectedCount === 0;
+      resolveBtn.innerHTML = `<i class="fas fa-check"></i> Resolve Selected (${selectedCount})`;
+    }
+  },
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.renderDiscrepanciesTable();
+    }
+  },
+
+  nextPage() {
+    const totalPages = Math.ceil(this.filteredDiscrepancies.length / this.itemsPerPage);
+    if (this.currentPage < totalPages) {
+      this.currentPage++;
+      this.renderDiscrepanciesTable();
+    }
+  },
+
+  renderRecentActivities() {
+    const container = document.getElementById('recent-audit-activities-list');
+    if (!container) return;
+
+    // Get recent audit activities from the main audit log
+    const recentActivities = AppState.auditLog
+      .filter(log => {
+        const logDate = new Date(log.timestamp);
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+        return logDate > threeDaysAgo;
+      })
+      .slice(0, 10)
+      .map(activity => this.createActivityItem(activity))
+      .join('');
+
+    if (recentActivities) {
+      container.innerHTML = `<div class="activity-list">${recentActivities}</div>`;
+    } else {
+      container.innerHTML = `
+        <div class="activity-item" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+          No recent audit activities to display.
+        </div>
+      `;
+    }
+  },
+
+  createActivityItem(activity) {
+    const timeAgo = this.getTimeAgo(activity.timestamp);
+    const actionIcon = this.getActionIcon(activity.action);
+
+    return `
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="${actionIcon}"></i>
+        </div>
+        <div class="activity-content">
+          <p><strong>${activity.action}</strong> by ${activity.user}</p>
+          <small>${activity.details} • ${timeAgo}</small>
+        </div>
+      </div>
+    `;
+  },
+
+  getActionIcon(action) {
+    const icons = {
+      'Login': 'fas fa-sign-in-alt text-success',
+      'Logout': 'fas fa-sign-out-alt text-info',
+      'Create User': 'fas fa-user-plus text-success',
+      'Delete User': 'fas fa-user-minus text-danger',
+      'Data Access': 'fas fa-database text-info',
+      'Failed Login': 'fas fa-exclamation-triangle text-danger',
+      'Filter Applied': 'fas fa-filter text-info',
+      'Filter Cleared': 'fas fa-eraser text-secondary'
+    };
+    return icons[action] || 'fas fa-info-circle text-info';
+  },
+
+  getTimeAgo(timestamp) {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now - past;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffMins > 0) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    return 'Just now';
+  },
+
+  // Action methods
+  viewDiscrepancyDetails(discrepancyId) {
+    const discrepancy = this.discrepancies.find(d => d.id === discrepancyId);
+    if (discrepancy) {
+      this.showDiscrepancyModal(discrepancy);
+      this.logAuditEvent('Viewed discrepancy details', `Discrepancy ID: ${discrepancyId}`);
+    }
+  },
+
+  editDiscrepancy(discrepancyId) {
+    const discrepancy = this.discrepancies.find(d => d.id === discrepancyId);
+    if (discrepancy) {
+      this.showEditDiscrepancyModal(discrepancy);
+      this.logAuditEvent('Opened discrepancy for editing', `Discrepancy ID: ${discrepancyId}`);
+    }
+  },
+
+  resolveDiscrepancy(discrepancyId) {
+    const discrepancy = this.discrepancies.find(d => d.id === discrepancyId);
+    if (discrepancy && confirm(`Are you sure you want to resolve the discrepancy for ${discrepancy.entity}?`)) {
+      discrepancy.status = 'Resolved';
+      this.renderDiscrepanciesTable();
+      this.updateMetrics();
+      this.logAuditEvent('Resolved discrepancy', `${discrepancy.entity} - ${discrepancy.mineral}`);
+      this.showNotification('Discrepancy resolved successfully', 'success');
+    }
+  },
+
+  resolveSelectedDiscrepancies() {
+    if (this.selectedDiscrepancies.size === 0) return;
+
+    if (confirm(`Are you sure you want to resolve ${this.selectedDiscrepancies.size} selected discrepancies?`)) {
+      let resolvedCount = 0;
+      this.selectedDiscrepancies.forEach(discrepancyId => {
+        const discrepancy = this.discrepancies.find(d => d.id === discrepancyId);
+        if (discrepancy && discrepancy.status !== 'Resolved') {
+          discrepancy.status = 'Resolved';
+          resolvedCount++;
+        }
+      });
+
+      this.selectedDiscrepancies.clear();
+      this.renderDiscrepanciesTable();
+      this.updateMetrics();
+      this.logAuditEvent('Bulk resolved discrepancies', `Resolved ${resolvedCount} discrepancies`);
+      this.showNotification(`${resolvedCount} discrepancies resolved successfully`, 'success');
+    }
+  },
+
+  exportAuditReport() {
+    try {
+      const reportData = this.filteredDiscrepancies.map(d => ({
+        'Entity': d.entity,
+        'Mineral': d.mineral,
+        'Declared (m³)': d.declared,
+        'Verified (m³)': d.verified,
+        'Variance': d.variance,
+        'Outstanding (E)': d.outstanding,
+        'Severity': d.severity,
+        'Date': d.date,
+        'Status': d.status
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(reportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Audit Report');
+      
+      const fileName = `audit_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+      
+      this.logAuditEvent('Exported audit report', `File: ${fileName}`);
+      this.showNotification('Audit report exported successfully', 'success');
+    } catch (error) {
+      console.error('Export failed:', error);
+      this.showNotification('Failed to export audit report', 'error');
+    }
+  },
+
+  viewFullAuditLog() {
+    // Navigate to user management section where the full audit log is located
+    App.showSection('user-management');
+    // Scroll to audit log section
+    setTimeout(() => {
+      const auditLogSection = document.querySelector('#user-management .security-audit-log');
+      if (auditLogSection) {
+        auditLogSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 300);
+    this.logAuditEvent('Viewed full audit log', 'Navigated from audit dashboard');
+  },
+
+  viewAllActivities() {
+    // This could open a modal or navigate to a dedicated activities page
+    this.showAllActivitiesModal();
+    this.logAuditEvent('Viewed all audit activities', 'From audit dashboard');
+  },
+
+  // Utility methods
+  showDiscrepancyModal(discrepancy) {
+    // Implementation for showing discrepancy details modal
+    console.log('Show discrepancy modal for:', discrepancy);
+  },
+
+  showEditDiscrepancyModal(discrepancy) {
+    // Implementation for showing edit discrepancy modal
+    console.log('Show edit discrepancy modal for:', discrepancy);
+  },
+
+  showAllActivitiesModal() {
+    // Implementation for showing all activities modal
+    console.log('Show all activities modal');
+  },
+
+  showNotification(message, type = 'info') {
+    // Use existing notification system
+    if (typeof App !== 'undefined' && App.showNotification) {
+      App.showNotification(message, type);
+    } else {
+      alert(message);
+    }
+  },
+
+  logAuditEvent(action, details) {
+    // Use existing audit logging system
+    if (typeof logAuditEvent === 'function') {
+      logAuditEvent(action, details);
+    }
+  }
+};
 /**
  * Export functionality
  */
@@ -1215,6 +1812,21 @@ function convertToCSV(data) {
   
   return [csvHeaders, ...csvRows].join('\n');
 }
+
+/**
+ * Add event delegation for dynamically created checkboxes
+ */
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('discrepancy-checkbox')) {
+    const discrepancyId = parseInt(e.target.value);
+    if (e.target.checked) {
+      AuditDashboard.selectedDiscrepancies.add(discrepancyId);
+    } else {
+      AuditDashboard.selectedDiscrepancies.delete(discrepancyId);
+    }
+    AuditDashboard.updateBulkActionButtons();
+  }
+});
 
 /**
  * Update user statistics
