@@ -1505,65 +1505,533 @@
         </div>
       </section>
       
-      
-      <!-- Contract Management -->
-      <section id="contract-management">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Contract Management</h1>
-            <p>Manage royalty agreements for mines and quarries</p>
+    <!-- Contract Management -->
+    <section id="contract-management">
+      <div class="page-header">
+        <div class="page-title">
+          <h1><i class="fas fa-file-contract"></i> Contract Management</h1>
+          <p>Comprehensive management of mining agreements, royalty contracts, and compliance monitoring</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-success" id="add-contract-btn">
+            <i class="fas fa-plus"></i> Add New Contract
+          </button>
+          <button class="btn btn-info" id="import-contracts-btn">
+            <i class="fas fa-upload"></i> Import Contracts
+          </button>
+          <button class="btn btn-primary" id="export-contracts-btn">
+            <i class="fas fa-download"></i> Export Contracts
+          </button>
+          <button class="btn btn-warning" id="contract-audit-btn">
+            <i class="fas fa-search"></i> Contract Audit
+          </button>
+        </div>
+      </div>
+    
+      <!-- Contract Overview Dashboard -->
+      <div class="charts-grid">
+        <div class="metric-card card">
+          <div class="card-header">
+            <h3><i class="fas fa-file-signature"></i> Active Contracts</h3>
           </div>
-          <div class="page-actions">
-            <button class="btn btn-success">Add Contract</button>
+          <div class="card-body">
+            <p id="active-contracts-count">12</p>
+            <small><i class="fas fa-handshake text-success"></i> Currently in force</small>
           </div>
         </div>
-        <div class="user-form-container">
-          <h4>Add Contract</h4>
+    
+        <div class="metric-card card">
+          <div class="card-header">
+            <h3><i class="fas fa-clock"></i> Expiring Soon</h3>
+          </div>
+          <div class="card-body">
+            <p id="expiring-contracts-count">3</p>
+            <small><i class="fas fa-exclamation-triangle text-warning"></i> Within 90 days</small>
+          </div>
+        </div>
+    
+        <div class="metric-card card">
+          <div class="card-header">
+            <h3><i class="fas fa-money-bill-wave"></i> Total Contract Value</h3>
+          </div>
+          <div class="card-body">
+            <p id="total-contract-value">E 2.4M</p>
+            <small><i class="fas fa-chart-line text-info"></i> Annual projected revenue</small>
+          </div>
+        </div>
+    
+        <div class="metric-card card">
+          <div class="card-header">
+            <h3><i class="fas fa-check-circle"></i> Compliance Rate</h3>
+          </div>
+          <div class="card-body">
+            <p id="contract-compliance-rate">96.2%</p>
+            <small><i class="fas fa-shield-check text-success"></i> Payment compliance</small>
+            <div class="mini-progress">
+              <div class="progress-bar" style="width: 96.2%; background: var(--success-color);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Add New Contract Form -->
+      <div class="user-form-container" id="contract-form-container" style="display: none;">
+        <div class="section-header">
+          <h4><i class="fas fa-file-plus"></i> Add New Mining Contract</h4>
+          <div class="table-actions">
+            <button class="btn btn-secondary btn-sm" id="close-contract-form" title="Close form">
+              <i class="fas fa-times"></i> Close
+            </button>
+          </div>
+        </div>
+    
+        <form id="contract-form" novalidate>
+          <div class="grid-4">
+            <!-- Contract Basic Information -->
+            <div class="form-group">
+              <label for="contract-entity">
+                <i class="fas fa-industry"></i> Mining Entity *
+              </label>
+              <select id="contract-entity" name="entity" required aria-describedby="contract-entity-error">
+                <option value="">Select Mining Entity</option>
+                <option value="kwalini">Kwalini Quarry</option>
+                <option value="mbabane">Mbabane Quarry</option>
+                <option value="sidvokodvo">Sidvokodvo Quarry</option>
+                <option value="maloma">Maloma Colliery</option>
+                <option value="ngwenya">Ngwenya Mine</option>
+                <option value="malolotja">Malolotja Mine</option>
+              </select>
+              <div class="validation-error" id="contract-entity-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Please select a mining entity
+              </div>
+            </div>
+    
+            <div class="form-group">
+              <label for="contract-number">
+                <i class="fas fa-hashtag"></i> Contract Number *
+              </label>
+              <input type="text" id="contract-number" name="contractNumber" placeholder="e.g., MC-2024-001" required
+                aria-describedby="contract-number-error">
+              <div class="validation-error" id="contract-number-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Contract number is required
+              </div>
+              <small class="form-help">Unique identifier for this contract</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="contract-type">
+                <i class="fas fa-tags"></i> Contract Type *
+              </label>
+              <select id="contract-type" name="contractType" required aria-describedby="contract-type-error">
+                <option value="">Select Contract Type</option>
+                <option value="royalty_agreement">📄 Royalty Agreement</option>
+                <option value="mining_lease">🏗️ Mining Lease</option>
+                <option value="exploration_license">🔍 Exploration License</option>
+                <option value="quarrying_permit">🪨 Quarrying Permit</option>
+                <option value="processing_agreement">⚙️ Processing Agreement</option>
+              </select>
+              <div class="validation-error" id="contract-type-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Please select contract type
+              </div>
+            </div>
+    
+            <div class="form-group">
+              <label for="mineral-type">
+                <i class="fas fa-gem"></i> Mineral Type *
+              </label>
+              <select id="mineral-type" name="mineralType" required aria-describedby="mineral-type-error">
+                <option value="">Select Mineral</option>
+                <option value="coal">🔥 Coal</option>
+                <option value="iron_ore">⚫ Iron Ore</option>
+                <option value="green_chert">🟢 Green Chert</option>
+                <option value="gravel">🪨 Gravel</option>
+                <option value="river_sand">🏖️ River Sand</option>
+                <option value="plaster_sand">🏗️ Plaster Sand</option>
+                <option value="quarried_stone">🗿 Quarried Stone</option>
+                <option value="limestone">⚪ Limestone</option>
+                <option value="granite">⚫ Granite</option>
+              </select>
+              <div class="validation-error" id="mineral-type-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Please select mineral type
+              </div>
+            </div>
+    
+            <!-- Contract Terms -->
+            <div class="form-group">
+              <label for="royalty-rate">
+                <i class="fas fa-percentage"></i> Royalty Rate (E/m³) *
+              </label>
+              <input type="number" id="royalty-rate" name="royaltyRate" placeholder="e.g., 4.50" required
+                aria-describedby="royalty-rate-error" min="0" step="0.01">
+              <div class="validation-error" id="royalty-rate-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Royalty rate is required
+              </div>
+              <small class="form-help">Rate per cubic meter extracted</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="minimum-royalty">
+                <i class="fas fa-money-bill-wave"></i> Minimum Annual Royalty (E)
+              </label>
+              <input type="number" id="minimum-royalty" name="minimumRoyalty" placeholder="e.g., 50000"
+                aria-describedby="minimum-royalty-help" min="0" step="0.01">
+              <small class="form-help" id="minimum-royalty-help">Minimum guaranteed annual payment</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="payment-frequency">
+                <i class="fas fa-calendar-alt"></i> Payment Frequency *
+              </label>
+              <select id="payment-frequency" name="paymentFrequency" required aria-describedby="payment-frequency-error">
+                <option value="">Select Frequency</option>
+                <option value="monthly">📅 Monthly</option>
+                <option value="quarterly">📆 Quarterly</option>
+                <option value="semi-annually">📋 Semi-Annually</option>
+                <option value="annually">📊 Annually</option>
+              </select>
+              <div class="validation-error" id="payment-frequency-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Please select payment frequency
+              </div>
+            </div>
+    
+            <div class="form-group">
+              <label for="escalation-rate">
+                <i class="fas fa-chart-line"></i> Annual Escalation Rate (%)
+              </label>
+              <input type="number" id="escalation-rate" name="escalationRate" placeholder="e.g., 3.5"
+                aria-describedby="escalation-rate-help" min="0" max="20" step="0.1">
+              <small class="form-help" id="escalation-rate-help">Annual rate increase percentage</small>
+            </div>
+    
+            <!-- Contract Dates -->
+            <div class="form-group">
+              <label for="start-date">
+                <i class="fas fa-calendar-check"></i> Start Date *
+              </label>
+              <input type="date" id="start-date" name="startDate" required aria-describedby="start-date-error">
+              <div class="validation-error" id="start-date-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Start date is required
+              </div>
+            </div>
+    
+            <div class="form-group">
+              <label for="end-date">
+                <i class="fas fa-calendar-times"></i> End Date *
+              </label>
+              <input type="date" id="end-date" name="endDate" required aria-describedby="end-date-error">
+              <div class="validation-error" id="end-date-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> End date is required
+              </div>
+              <small class="form-help">Contract expiration date</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="renewal-terms">
+                <i class="fas fa-redo"></i> Renewal Terms
+              </label>
+              <select id="renewal-terms" name="renewalTerms" aria-describedby="renewal-terms-help">
+                <option value="">No Automatic Renewal</option>
+                <option value="auto_1_year">🔄 Auto-renew for 1 year</option>
+                <option value="auto_2_years">🔄 Auto-renew for 2 years</option>
+                <option value="auto_5_years">🔄 Auto-renew for 5 years</option>
+                <option value="negotiable">💬 Subject to Negotiation</option>
+              </select>
+              <small class="form-help" id="renewal-terms-help">Automatic renewal conditions</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="notice-period">
+                <i class="fas fa-bell"></i> Notice Period (Days)
+              </label>
+              <input type="number" id="notice-period" name="noticePeriod" placeholder="e.g., 90"
+                aria-describedby="notice-period-help" min="1" max="365">
+              <small class="form-help" id="notice-period-help">Days notice required for termination</small>
+            </div>
+    
+            <!-- Contract Details -->
+            <div class="form-group full-width">
+              <label for="contract-description">
+                <i class="fas fa-file-alt"></i> Contract Description
+              </label>
+              <textarea id="contract-description" name="description" rows="3"
+                placeholder="Brief description of the contract terms and conditions..."
+                aria-describedby="contract-description-help"></textarea>
+              <small class="form-help" id="contract-description-help">Summary of key contract provisions</small>
+            </div>
+    
+            <!-- Environmental and Safety Requirements -->
+            <div class="form-group">
+              <label for="environmental-bond">
+                <i class="fas fa-leaf"></i> Environmental Bond (E)
+              </label>
+              <input type="number" id="environmental-bond" name="environmentalBond" placeholder="e.g., 100000"
+                aria-describedby="environmental-bond-help" min="0" step="0.01">
+              <small class="form-help" id="environmental-bond-help">Required environmental guarantee</small>
+            </div>
+    
+            <div class="form-group">
+              <label for="safety-requirements">
+                <i class="fas fa-hard-hat"></i> Safety Requirements
+              </label>
+              <select id="safety-requirements" name="safetyRequirements" aria-describedby="safety-requirements-help">
+                <option value="standard">📋 Standard Safety Protocols</option>
+                <option value="enhanced">🛡️ Enhanced Safety Requirements</option>
+                <option value="specialized">⚠️ Specialized Safety Measures</option>
+              </select>
+              <small class="form-help" id="safety-requirements-help">Required safety compliance level</small>
+            </div>
+    
+            <!-- Contract Documents -->
+            <div class="form-group">
+              <label for="contract-documents">
+                <i class="fas fa-paperclip"></i> Contract Documents
+              </label>
+              <input type="file" id="contract-documents" name="documents" multiple accept=".pdf,.doc,.docx"
+                aria-describedby="contract-documents-help">
+              <small class="form-help" id="contract-documents-help">Upload signed contract and related documents</small>
+            </div>
+    
+            <!-- Contract Status -->
+            <div class="form-group">
+              <label for="contract-status">
+                <i class="fas fa-flag"></i> Contract Status *
+              </label>
+              <select id="contract-status" name="status" required aria-describedby="contract-status-error">
+                <option value="">Select Status</option>
+                <option value="draft">📝 Draft</option>
+                <option value="pending_approval">⏳ Pending Approval</option>
+                <option value="active">✅ Active</option>
+                <option value="suspended">⏸️ Suspended</option>
+                <option value="terminated">❌ Terminated</option>
+                <option value="expired">⌛ Expired</option>
+              </select>
+              <div class="validation-error" id="contract-status-error" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Please select contract status
+              </div>
+            </div>
+          </div>
+    
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-contract">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn btn-warning" id="save-draft-contract">
+              <i class="fas fa-save"></i> Save as Draft
+            </button>
+            <button type="submit" class="btn btn-success" id="save-contract-btn">
+              <i class="fas fa-check"></i> Save Contract
+            </button>
+          </div>
+        </form>
+      </div>
+    
+      <!-- Contract Management Table -->
+      <div class="user-form-container">
+        <div class="section-header">
+          <h4><i class="fas fa-table"></i> Mining Contracts Registry</h4>
+          <div class="table-actions">
+            <button class="btn btn-secondary btn-sm" id="refresh-contracts" title="Refresh contracts">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="btn btn-info btn-sm" id="export-contract-list" title="Export contract list">
+              <i class="fas fa-download"></i> Export
+            </button>
+            <button class="btn btn-warning btn-sm" id="bulk-renew-contracts" style="display: none;" disabled
+              title="Bulk renew selected contracts">
+              <i class="fas fa-redo"></i> Renew Selected (<span id="selected-contracts-count">0</span>)
+            </button>
+          </div>
+        </div>
+    
+        <!-- Contract Filtering -->
+        <div class="table-filters">
+          <h6><i class="fas fa-filter"></i> Filter Contracts</h6>
           <div class="grid-4">
             <div class="form-group">
-              <label for="contract-entity">Entity</label>
-              <select id="contract-entity" aria-describedby="contract-entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
+              <label for="filter-contract-entity">
+                <i class="fas fa-industry"></i> Filter by Entity
+              </label>
+              <select id="filter-contract-entity">
+                <option value="">All Entities</option>
+                <option value="kwalini">Kwalini Quarry</option>
+                <option value="mbabane">Mbabane Quarry</option>
+                <option value="sidvokodvo">Sidvokodvo Quarry</option>
+                <option value="maloma">Maloma Colliery</option>
+                <option value="ngwenya">Ngwenya Mine</option>
+                <option value="malolotja">Malolotja Mine</option>
               </select>
-              <div class="validation-error" id="contract-entity-validation">Entity is required</div>
             </div>
+    
             <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
-              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
+              <label for="filter-contract-status">
+                <i class="fas fa-flag"></i> Filter by Status
+              </label>
+              <select id="filter-contract-status">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="expiring">Expiring Soon</option>
+                <option value="suspended">Suspended</option>
+                <option value="expired">Expired</option>
+              </select>
             </div>
+    
             <div class="form-group">
-              <label for="start-date">Start Date</label>
-              <input type="date" id="start-date" aria-describedby="start-date-validation">
-              <div class="validation-error" id="start-date-validation">Start date is required</div>
+              <label for="filter-contract-type">
+                <i class="fas fa-tags"></i> Filter by Type
+              </label>
+              <select id="filter-contract-type">
+                <option value="">All Types</option>
+                <option value="royalty_agreement">Royalty Agreement</option>
+                <option value="mining_lease">Mining Lease</option>
+                <option value="exploration_license">Exploration License</option>
+                <option value="quarrying_permit">Quarrying Permit</option>
+              </select>
             </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-success">Save Contract</button>
+    
+            <div class="form-group filter-actions">
+              <button class="btn btn-primary" id="apply-contract-filters" title="Apply selected filters">
+                <i class="fas fa-filter"></i> Apply Filters
+              </button>
+              <button class="btn btn-secondary" id="clear-contract-filters" title="Clear all filters">
+                <i class="fas fa-times"></i> Clear Filters
+              </button>
+            </div>
           </div>
         </div>
+    
+        <!-- Contracts Data Table -->
         <div class="table-container">
-          <table class="data-table">
+          <table class="data-table" id="contracts-table">
             <thead>
               <tr>
-                <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
-                <th>Start Date</th>
-                <th>Document</th>
+                <th><input type="checkbox" id="select-all-contracts" title="Select all contracts"></th>
+                <th sortable>Contract #</th>
+                <th sortable>Entity</th>
+                <th>Type</th>
+                <th>Mineral</th>
+                <th sortable>Royalty Rate</th>
+                <th sortable>Start Date</th>
+                <th sortable>End Date</th>
+                <th>Days to Expiry</th>
+                <th>Status</th>
+                <th>Compliance</th>
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="contracts-tbody">
+              <!-- Example contracts will be populated by JavaScript -->
+              <tr>
+                <td><input type="checkbox" value="1"></td>
+                <td><strong>MC-2023-001</strong></td>
+                <td>Kwalini Quarry</td>
+                <td>Royalty Agreement</td>
+                <td>Quarried Stone</td>
+                <td>E 4.50/m³</td>
+                <td>2023-01-15</td>
+                <td>2025-01-14</td>
+                <td><span class="days-remaining good">225 days</span></td>
+                <td><span class="status-badge success">Active</span></td>
+                <td><span class="compliance-badge excellent">98%</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-primary" title="View contract">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning" title="Edit contract">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-info" title="View documents">
+                      <i class="fas fa-paperclip"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary dropdown-toggle" title="More actions">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" value="2"></td>
+                <td><strong>MC-2022-003</strong></td>
+                <td>Maloma Colliery</td>
+                <td>Mining Lease</td>
+                <td>Coal</td>
+                <td>E 5.00/m³</td>
+                <td>2022-03-01</td>
+                <td>2024-08-31</td>
+                <td><span class="days-remaining warning">62 days</span></td>
+                <td><span class="status-badge warning">Expiring Soon</span></td>
+                <td><span class="compliance-badge warning">85%</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-primary" title="View contract">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success" title="Renew contract">
+                      <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning" title="Send renewal notice">
+                      <i class="fas fa-bell"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <!-- More contracts will be populated by JavaScript -->
+            </tbody>
           </table>
         </div>
-      </section>
     
+        <!-- Table Pagination -->
+        <div class="table-pagination" id="contracts-pagination">
+          <div class="pagination-info">
+            Showing <span id="contracts-start">1</span> to <span id="contracts-end">10</span> of <span
+              id="contracts-total">23</span> contracts
+          </div>
+          <div class="pagination-controls">
+            <button class="btn btn-sm btn-secondary" id="contracts-prev" disabled>
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span class="pagination-pages" id="contracts-pages"></span>
+            <button class="btn btn-sm btn-secondary" id="contracts-next">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Contract Analytics -->
+      <div class="charts-grid">
+        <div class="analytics-chart card">
+          <div class="chart-header">
+            <h5><i class="fas fa-chart-pie"></i> Contracts by Type</h5>
+          </div>
+          <div class="chart-container">
+            <canvas id="contracts-by-type-chart" aria-label="Contract distribution by type"></canvas>
+          </div>
+          <div class="chart-summary">
+            <small>
+              <i class="fas fa-info-circle"></i>
+              Most common: <strong><span id="most-common-contract-type">Royalty Agreements</span></strong>
+            </small>
+          </div>
+        </div>
+    
+        <div class="analytics-chart card">
+          <div class="chart-header">
+            <h5><i class="fas fa-chart-line"></i> Contract Expiration Timeline</h5>
+          </div>
+          <div class="chart-container">
+            <canvas id="contract-expiration-chart" aria-label="Contract expiration timeline"></canvas>
+          </div>
+          <div class="chart-summary">
+            <small>
+              <i class="fas fa-exclamation-triangle"></i>
+              <strong><span id="upcoming-expirations">3</span></strong> contracts expiring in next 90 days
+            </small>
+          </div>
+        </div>
+      </div>
+    </section>
+
       <!-- Audit Dashboard -->
       <section id="audit-dashboard">
         <div class="page-header">
