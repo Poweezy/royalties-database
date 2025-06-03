@@ -1299,6 +1299,272 @@
         </div>
       </section>
 
+      <!-- Compliance & Regulatory (Dedicated Section) -->
+      <section id="compliance">
+        <div class="page-header">
+          <div class="page-title">
+            <h1><i class="fas fa-check-circle"></i> Compliance & Regulatory</h1>
+            <p>Monitor compliance status, track regulatory requirements, and ensure adherence to mining laws and regulations.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success"><i class="fas fa-plus"></i> New Compliance Check</button>
+            <button class="btn btn-info"><i class="fas fa-file-export"></i> Export Compliance Report</button>
+            <button class="btn btn-primary"><i class="fas fa-gavel"></i> View Regulations</button>
+          </div>
+        </div>
+
+        <!-- Compliance Overview Dashboard -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-shield-check"></i> Overall Compliance</h3>
+            </div>
+            <div class="card-body">
+              <p id="overall-compliance-rate">94.2%</p>
+              <small><i class="fas fa-arrow-up trend-positive"></i> +2.3% from last month</small>
+              <div class="mini-progress">
+                <div class="progress-bar" style="width: 94.2%; background: var(--success-color);"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Non-Compliant Items</h3>
+            </div>
+            <div class="card-body">
+              <p id="non-compliant-count">3</p>
+              <small><i class="fas fa-clock text-warning"></i> Require immediate attention</small>
+            </div>
+          </div>
+          
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar-check"></i> Due This Month</h3>
+            </div>
+            <div class="card-body">
+              <p id="due-this-month">8</p>
+              <small><i class="fas fa-tasks text-info"></i> Compliance tasks pending</small>
+            </div>
+          </div>
+          
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-certificate"></i> Certifications</h3>
+            </div>
+            <div class="card-body">
+              <p id="valid-certifications">12/15</p>
+              <small><i class="fas fa-check text-success"></i> Valid certifications</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Status by Entity -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-industry"></i> Compliance Status by Mining Entity</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> Refresh Status</button>
+              <button class="btn btn-info btn-sm"><i class="fas fa-download"></i> Export Report</button>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>License Status</th>
+                  <th>Environmental Compliance</th>
+                  <th>Safety Compliance</th>
+                  <th>Tax Status</th>
+                  <th>Overall Score</th>
+                  <th>Last Audit</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Kwalini Quarry</strong></td>
+                  <td><span class="status-badge success">✓ Valid</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge success">✓ Current</span></td>
+                  <td><span class="compliance-score excellent">98%</span></td>
+                  <td>Jan 15, 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-info">View Details</button>
+                    <button class="btn btn-sm btn-primary">Schedule Audit</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mbabane Quarry</strong></td>
+                  <td><span class="status-badge success">✓ Valid</span></td>
+                  <td><span class="status-badge warning">⚠ Review Required</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge success">✓ Current</span></td>
+                  <td><span class="compliance-score good">87%</span></td>
+                  <td>Feb 02, 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-warning">Review Environmental</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Maloma Colliery</strong></td>
+                  <td><span class="status-badge warning">⚠ Expires Soon</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge danger">✗ Non-Compliant</span></td>
+                  <td><span class="status-badge warning">⚠ Overdue</span></td>
+                  <td><span class="compliance-score critical">62%</span></td>
+                  <td>Jan 28, 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-danger">Urgent Action Required</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Ngwenya Mine</strong></td>
+                  <td><span class="status-badge success">✓ Valid</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge success">✓ Compliant</span></td>
+                  <td><span class="status-badge success">✓ Current</span></td>
+                  <td><span class="compliance-score excellent">96%</span></td>
+                  <td>Feb 10, 2024</td>
+                  <td>
+                    <button class="btn btn-sm btn-info">View Details</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Regulatory Requirements Tracker -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-list-check"></i> Regulatory Requirements Tracker</h4>
+            <div class="table-actions">
+              <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Requirement</button>
+              <button class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter Requirements</button>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Requirement</th>
+                  <th>Regulation Reference</th>
+                  <th>Applicable Entities</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Annual Environmental Impact Report</td>
+                  <td>Environmental Management Act, 2002</td>
+                  <td>All Mining Entities</td>
+                  <td>March 31, 2024</td>
+                  <td><span class="status-badge warning">In Progress</span></td>
+                  <td><span class="priority-badge high">High</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-primary">Track Progress</button>
+                    <button class="btn btn-sm btn-info">View Details</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Safety Certificate Renewal</td>
+                  <td>Occupational Health and Safety Act, 2001</td>
+                  <td>Maloma Colliery</td>
+                  <td>February 28, 2024</td>
+                  <td><span class="status-badge danger">Overdue</span></td>
+                  <td><span class="priority-badge critical">Critical</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-danger">Escalate</button>
+                    <button class="btn btn-sm btn-warning">Notify Entity</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Quarterly Royalty Declaration</td>
+                  <td>Mines and Minerals Act, 2011</td>
+                  <td>All Active Entities</td>
+                  <td>April 15, 2024</td>
+                  <td><span class="status-badge info">Upcoming</span></td>
+                  <td><span class="priority-badge medium">Medium</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-info">Send Reminder</button>
+                    <button class="btn btn-sm btn-secondary">Schedule</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Compliance Alerts & Actions -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header">
+              <h5><i class="fas fa-exclamation-circle"></i> Compliance Alerts</h5>
+              <span class="alert-count">4</span>
+            </div>
+            <div class="card-body">
+              <div class="activity-list">
+                <div class="activity-item urgent">
+                  <div class="activity-icon"><i class="fas fa-exclamation-triangle text-danger"></i></div>
+                  <div class="activity-content">
+                    <p><strong>Critical:</strong> Maloma Colliery safety certificate expired</p>
+                    <small>Operations must cease until renewal</small>
+                  </div>
+                </div>
+                <div class="activity-item warning">
+                  <div class="activity-icon"><i class="fas fa-clock text-warning"></i></div>
+                  <div class="activity-content">
+                    <p><strong>Warning:</strong> Environmental permit expires in 15 days</p>
+                    <small>Mbabane Quarry renewal required</small>
+                  </div>
+                </div>
+                <div class="activity-item info">
+                  <div class="activity-icon"><i class="fas fa-info-circle text-info"></i></div>
+                  <div class="activity-content">
+                    <p><strong>Reminder:</strong> Annual reports due next month</p>
+                    <small>All entities must submit by March 31</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h5><i class="fas fa-tasks"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions-grid">
+                <button class="btn btn-danger quick-action-btn">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span>Review Critical Issues</span>
+                </button>
+                <button class="btn btn-warning quick-action-btn">
+                  <i class="fas fa-bell"></i>
+                  <span>Send Reminders</span>
+                </button>
+                <button class="btn btn-info quick-action-btn">
+                  <i class="fas fa-file-alt"></i>
+                  <span>Generate Report</span>
+                </button>
+                <button class="btn btn-primary quick-action-btn">
+                  <i class="fas fa-calendar-check"></i>
+                  <span>Schedule Audits</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Regulatory Management -->
       <section id="regulatory-management">
         <div class="page-header">
@@ -2267,11 +2533,26 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.validation-error, .validation-success').forEach(el => {
         el.style.display = 'none';
       });
-      // Reset password strength
-      const strengthBar = document.querySelector('.strength-bar-fill');
-      const strengthText = document.querySelector('.strength-text');
-      if (strengthBar) strengthBar.style.width = '0%';
+      // Reset password strength meter
+      const strengthBarFill = addUserContainer.querySelector('.strength-bar-fill');
+      const strengthText = addUserContainer.querySelector('.strength-text');
+      const strengthBarContainer = addUserContainer.querySelector('.strength-bar');
+
+      if (strengthBarFill) strengthBarFill.style.width = '0%';
       if (strengthText) strengthText.textContent = 'Password Strength: Enter password';
+      if(strengthBarContainer) {
+        strengthBarContainer.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+      }
+      
+      // Reset all input field custom validation styles
+      const validatedFields = addUserContainer.querySelectorAll('.field-valid, .field-invalid');
+      validatedFields.forEach(field => {
+        field.classList.remove('field-valid', 'field-invalid');
+      });
+
+      // Disable submit button
+      const submitBtn = document.getElementById('create-user-btn');
+      if(submitBtn) submitBtn.disabled = true;
     }
   }
   
