@@ -1226,3 +1226,121 @@ window.populateAuditLog = populateAuditLog;
 window.populateRoyaltyRecords = populateRoyaltyRecords;
 
 console.log('Application module loaded successfully');
+
+// Add regulatory update button handlers
+function initializeRegulatoryButtons() {
+    // Handle "Read Full Amendment" buttons
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.btn-primary') && e.target.textContent.includes('Read Full Amendment')) {
+        e.preventDefault();
+        showAmendmentModal(e.target.closest('.update-item'));
+      }
+      
+      if (e.target.closest('.btn-warning') && e.target.textContent.includes('Impact Assessment')) {
+        e.preventDefault();
+        showImpactAssessment(e.target.closest('.update-item'));
+      }
+    });
+  }
+  
+  function showAmendmentModal(updateItem) {
+    const title = updateItem.querySelector('h6').textContent;
+    const content = updateItem.querySelector('.update-details').innerHTML;
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'regulatory-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>${title}</h4>
+            <button class="close-modal" aria-label="Close">&times;</button>
+          </div>
+          <div class="modal-body">
+            ${content}
+            <div class="amendment-details">
+              <h5>Full Amendment Details</h5>
+              <p>This amendment introduces significant changes to the royalty calculation framework...</p>
+              <ul>
+                <li>Implementation date: April 1, 2024</li>
+                <li>Affected entities: All coal mining operations</li>
+                <li>Grace period: 30 days for compliance</li>
+              </ul>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Close</button>
+            <button class="btn btn-primary" onclick="downloadAmendment()">Download PDF</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close modal handlers
+    modal.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+  }
+  
+  function showImpactAssessment(updateItem) {
+    const assessmentModal = document.createElement('div');
+    assessmentModal.className = 'regulatory-modal';
+    assessmentModal.innerHTML = `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Impact Assessment - Coal Royalty Amendment</h4>
+            <button class="close-modal" aria-label="Close">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="impact-metrics">
+              <div class="metric-card">
+                <h6>Financial Impact</h6>
+                <p>Estimated 25% increase in royalty revenue</p>
+              </div>
+              <div class="metric-card">
+                <h6>Affected Entities</h6>
+                <p>2 coal mining operations (Maloma Colliery)</p>
+              </div>
+              <div class="metric-card">
+                <h6>Implementation Timeline</h6>
+                <p>30 days from publication</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Close</button>
+            <button class="btn btn-info" onclick="generateImpactReport()">Generate Report</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(assessmentModal);
+    
+    assessmentModal.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(assessmentModal);
+      });
+    });
+  }
+  
+  // Initialize everything when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize regulatory management features
+    initializeRegulatoryButtons();
+    
+    // Add utility functions to global scope
+    window.downloadAmendment = function() {
+      alert('Downloading Amendment PDF...\n\nIn a real implementation, this would download the actual document.');
+    };
+    
+    window.generateImpactReport = function() {
+      alert('Generating Impact Report...\n\nReport: Impact Assessment - Coal Royalty Amendment\nDate: ' + new Date().toLocaleDateString() + '\n\nThis would generate a detailed impact assessment document.');
+    };
+  });
