@@ -888,108 +888,624 @@
           </div>
         </div>
       </section>
-
+           
       <!-- Royalty Records -->
       <section id="royalty-records">
         <div class="page-header">
           <div class="page-title">
-            <h1>Royalty Records</h1>
-            <p>Manage and review all royalty payments</p>
+            <h1><i class="fas fa-file-invoice-dollar"></i> Royalty Records Management</h1>
+            <p>Comprehensive tracking, recording, and analysis of all royalty payments and production data</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success">Record Payment</button>
+            <button class="btn btn-success" id="record-payment-btn">
+              <i class="fas fa-plus"></i> Record New Payment
+            </button>
+            <button class="btn btn-info" id="bulk-import-btn">
+              <i class="fas fa-upload"></i> Bulk Import
+            </button>
+            <button class="btn btn-primary" id="export-records-btn">
+              <i class="fas fa-download"></i> Export Records
+            </button>
+            <button class="btn btn-warning" id="validate-records-btn">
+              <i class="fas fa-check-circle"></i> Validate Records
+            </button>
           </div>
         </div>
-        <div class="user-form-container">
-          <h4>Record Royalty Payment</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="entity">Entity</label>
-              <select id="entity" aria-describedby="entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
+      
+        <!-- Royalty Overview Dashboard -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-coins"></i> Total Collections (YTD)</h3>
+              <select class="metric-period" id="collections-period">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="all">All Time</option>
               </select>
-              <div class="validation-error" id="entity-validation">Entity is required</div>
             </div>
-            <div class="form-group">
-              <label for="mineral">Mineral</label>
-              <select id="mineral" aria-describedby="mineral-validation">
-                <option>Select Mineral</option>
-                <option>Coal</option>
-                <option>Iron Ore</option>
-                <option>Green Chert</option>
-                <option>Gravel</option>
-                <option>River Sand</option>
-                <option>Plaster Sand</option>
-                <option>Quarried Stone</option>
-              </select>
-              <div class="validation-error" id="mineral-validation">Mineral is required</div>
-            </div>
-            <div class="form-group">
-              <label for="volume">Volume (m³)</label>
-              <input type="number" id="volume" placeholder="Volume (m³)" aria-describedby="volume-validation">
-              <div class="validation-error" id="volume-validation">Volume must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="tariff">Royalty Tariff (E/m³)</label>
-              <input type="number" id="tariff" placeholder="Tariff (E/m³)" aria-describedby="tariff-validation">
-              <div class="validation-error" id="tariff-validation">Tariff must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="payment-date">Date</label>
-              <input type="date" id="payment-date" aria-describedby="date-validation">
-              <div class="validation-error" id="date-validation">Date is required</div>
+            <div class="card-body">
+              <p id="total-collections-ytd">E 1,245,890.50</p>
+              <small class="trend-indicator">
+                <i class="fas fa-arrow-up trend-positive"></i> +18.5% from last year
+              </small>
+              <div class="mini-progress">
+                <div class="progress-bar" id="collections-progress" style="width: 78%;"></div>
+              </div>
             </div>
           </div>
-          <div class="form-actions">
-            <button class="btn btn-success" id="save-royalty-btn">Save Royalty</button>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-cube"></i> Volume Extracted (m³)</h3>
+              <select class="metric-period" id="volume-period">
+                <option value="current_month">This Month</option>
+                <option value="ytd">YTD</option>
+                <option value="last_year">Last Year</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <p id="total-volume-extracted">285,750</p>
+              <small class="trend-indicator">
+                <i class="fas fa-arrow-up trend-positive"></i> +12.3% from last month
+              </small>
+              <div class="volume-breakdown">
+                <small>
+                  <span class="volume-type">Coal: <span id="coal-volume">145,200</span></span> |
+                  <span class="volume-type">Stone: <span id="stone-volume">140,550</span></span>
+                </small>
+              </div>
+            </div>
+          </div>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-clock"></i> Pending Records</h3>
+              <button class="btn btn-sm btn-warning" id="view-pending-records" title="View pending records">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <p id="pending-records-count">7</p>
+              <small id="pending-urgency">3 records require validation</small>
+              <div class="urgency-indicator">
+                <span class="urgent-badge" id="urgent-records" style="display: inline-flex;">
+                  <i class="fas fa-exclamation-triangle"></i> <span id="urgent-pending-count">3</span> Urgent
+                </span>
+              </div>
+            </div>
+          </div>
+      
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-percentage"></i> Collection Rate</h3>
+              <button class="btn btn-sm btn-info" id="collection-details" title="View collection details">
+                <i class="fas fa-info-circle"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <p id="collection-rate">94.8%</p>
+              <div class="collection-progress">
+                <div class="progress-bar" id="collection-rate-progress" style="width: 94.8%;"></div>
+              </div>
+              <small class="collection-breakdown">
+                <span>Collected: <span id="collected-count">187</span></span> |
+                <span>Outstanding: <span id="outstanding-count">10</span></span>
+              </small>
+            </div>
           </div>
         </div>
-        <div class="user-form-container">
-          <h4>Royalty Records Table</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="filter-entity">Entity</label>
-              <select id="filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
-              <button class="btn btn-primary">Export Report</button>
+      
+        <!-- Record Royalty Payment Form -->
+        <div class="user-form-container" id="royalty-form-container" style="display: none;">
+          <div class="section-header">
+            <h4><i class="fas fa-file-plus"></i> Record New Royalty Payment</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="close-royalty-form" title="Close form">
+                <i class="fas fa-times"></i> Close
+              </button>
             </div>
           </div>
+      
+          <form id="royalty-form" novalidate>
+            <div class="grid-4">
+              <!-- Basic Information -->
+              <div class="form-group">
+                <label for="entity">
+                  <i class="fas fa-industry"></i> Mining Entity *
+                </label>
+                <select id="entity" name="entity" required aria-describedby="entity-error">
+                  <option value="">Select Entity</option>
+                  <option value="kwalini">Kwalini Quarry</option>
+                  <option value="mbabane">Mbabane Quarry</option>
+                  <option value="sidvokodvo">Sidvokodvo Quarry</option>
+                  <option value="maloma">Maloma Colliery</option>
+                  <option value="ngwenya">Ngwenya Mine</option>
+                  <option value="malolotja">Malolotja Mine</option>
+                </select>
+                <div class="validation-error" id="entity-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select a mining entity
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="mineral">
+                  <i class="fas fa-gem"></i> Mineral Type *
+                </label>
+                <select id="mineral" name="mineral" required aria-describedby="mineral-error">
+                  <option value="">Select Mineral</option>
+                  <option value="coal">🔥 Coal</option>
+                  <option value="iron_ore">⚫ Iron Ore</option>
+                  <option value="green_chert">🟢 Green Chert</option>
+                  <option value="gravel">🪨 Gravel</option>
+                  <option value="river_sand">🏖️ River Sand</option>
+                  <option value="plaster_sand">🏗️ Plaster Sand</option>
+                  <option value="quarried_stone">🗿 Quarried Stone</option>
+                  <option value="limestone">⚪ Limestone</option>
+                  <option value="granite">⚫ Granite</option>
+                </select>
+                <div class="validation-error" id="mineral-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select a mineral type
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="payment-period">
+                  <i class="fas fa-calendar-alt"></i> Payment Period *
+                </label>
+                <select id="payment-period" name="paymentPeriod" required aria-describedby="payment-period-error">
+                  <option value="">Select Period</option>
+                  <option value="2024-01">January 2024</option>
+                  <option value="2024-02">February 2024</option>
+                  <option value="2024-03">March 2024</option>
+                  <option value="2024-04">April 2024</option>
+                  <option value="2024-05">May 2024</option>
+                  <option value="2024-06">June 2024</option>
+                  <option value="custom">Custom Period</option>
+                </select>
+                <div class="validation-error" id="payment-period-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select payment period
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="payment-date">
+                  <i class="fas fa-calendar-check"></i> Payment Date *
+                </label>
+                <input type="date" id="payment-date" name="paymentDate" required aria-describedby="payment-date-error"
+                  max="2024-06-03">
+                <div class="validation-error" id="payment-date-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Payment date is required
+                </div>
+                <small class="form-help">Date when payment was received</small>
+              </div>
+      
+              <!-- Production Data -->
+              <div class="form-group">
+                <label for="volume">
+                  <i class="fas fa-cube"></i> Volume Extracted (m³) *
+                </label>
+                <input type="number" id="volume" name="volume" placeholder="e.g., 1500.50" required
+                  aria-describedby="volume-error" min="0" step="0.01">
+                <div class="validation-error" id="volume-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Volume must be a positive number
+                </div>
+                <small class="form-help">Total volume extracted during the period</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="tariff">
+                  <i class="fas fa-tags"></i> Royalty Tariff (E/m³) *
+                </label>
+                <input type="number" id="tariff" name="tariff" placeholder="e.g., 4.50" required
+                  aria-describedby="tariff-error" min="0" step="0.01">
+                <div class="validation-error" id="tariff-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Tariff must be a positive number
+                </div>
+                <small class="form-help">Current royalty rate per cubic meter</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="calculated-royalty">
+                  <i class="fas fa-calculator"></i> Calculated Royalty (E)
+                </label>
+                <input type="number" id="calculated-royalty" name="calculatedRoyalty" readonly placeholder="0.00"
+                  aria-describedby="calculated-royalty-help">
+                <small class="form-help" id="calculated-royalty-help">Automatically calculated: Volume × Tariff</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="actual-payment">
+                  <i class="fas fa-money-bill-wave"></i> Actual Payment (E) *
+                </label>
+                <input type="number" id="actual-payment" name="actualPayment" placeholder="e.g., 6757.50" required
+                  aria-describedby="actual-payment-error" min="0" step="0.01">
+                <div class="validation-error" id="actual-payment-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Actual payment amount is required
+                </div>
+                <small class="form-help">Amount actually paid by the entity</small>
+              </div>
+      
+              <!-- Payment Details -->
+              <div class="form-group">
+                <label for="payment-method">
+                  <i class="fas fa-credit-card"></i> Payment Method *
+                </label>
+                <select id="payment-method" name="paymentMethod" required aria-describedby="payment-method-error">
+                  <option value="">Select Method</option>
+                  <option value="bank_transfer">🏦 Bank Transfer</option>
+                  <option value="eft">💳 Electronic Funds Transfer</option>
+                  <option value="cheque">📄 Cheque</option>
+                  <option value="cash">💵 Cash</option>
+                  <option value="rtgs">⚡ RTGS</option>
+                </select>
+                <div class="validation-error" id="payment-method-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select payment method
+                </div>
+              </div>
+      
+              <div class="form-group">
+                <label for="reference-number">
+                  <i class="fas fa-hashtag"></i> Reference Number
+                </label>
+                <input type="text" id="reference-number" name="referenceNumber" placeholder="e.g., TXN-2024-001234"
+                  aria-describedby="reference-number-help">
+                <small class="form-help" id="reference-number-help">Transaction or receipt reference number</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="bank-account">
+                  <i class="fas fa-university"></i> Deposited to Account
+                </label>
+                <select id="bank-account" name="bankAccount" aria-describedby="bank-account-help">
+                  <option value="">Select Account</option>
+                  <option value="govt_revenue">Government Revenue Account</option>
+                  <option value="era_main">ERA Main Account</option>
+                  <option value="ministry_account">Ministry Account</option>
+                </select>
+                <small class="form-help" id="bank-account-help">Government account where payment was deposited</small>
+              </div>
+      
+              <div class="form-group">
+                <label for="exchange-rate">
+                  <i class="fas fa-exchange-alt"></i> Exchange Rate (if applicable)
+                </label>
+                <input type="number" id="exchange-rate" name="exchangeRate" placeholder="e.g., 18.50"
+                  aria-describedby="exchange-rate-help" min="0" step="0.01">
+                <small class="form-help" id="exchange-rate-help">E/USD rate if payment was in foreign currency</small>
+              </div>
+      
+              <!-- Additional Information -->
+              <div class="form-group full-width">
+                <label for="payment-notes">
+                  <i class="fas fa-sticky-note"></i> Payment Notes
+                </label>
+                <textarea id="payment-notes" name="notes" rows="3"
+                  placeholder="Additional notes, discrepancies, or special circumstances..."
+                  aria-describedby="payment-notes-help"></textarea>
+                <small class="form-help" id="payment-notes-help">Optional notes about this payment</small>
+              </div>
+      
+              <!-- Supporting Documents -->
+              <div class="form-group">
+                <label for="supporting-documents">
+                  <i class="fas fa-paperclip"></i> Supporting Documents
+                </label>
+                <input type="file" id="supporting-documents" name="documents" multiple
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" aria-describedby="documents-help">
+                <small class="form-help" id="documents-help">Upload receipts, production reports, or other supporting
+                  documents</small>
+              </div>
+      
+              <!-- Verification -->
+              <div class="form-group">
+                <label for="verified-by">
+                  <i class="fas fa-user-check"></i> Verified By
+                </label>
+                <input type="text" id="verified-by" name="verifiedBy" placeholder="Name of verifying officer"
+                  aria-describedby="verified-by-help">
+                <small class="form-help" id="verified-by-help">Name of the officer who verified this payment</small>
+              </div>
+      
+              <!-- Status -->
+              <div class="form-group">
+                <label for="payment-status">
+                  <i class="fas fa-flag"></i> Payment Status *
+                </label>
+                <select id="payment-status" name="status" required aria-describedby="payment-status-error">
+                  <option value="">Select Status</option>
+                  <option value="pending">⏳ Pending Verification</option>
+                  <option value="verified">✅ Verified</option>
+                  <option value="partial">⚠️ Partial Payment</option>
+                  <option value="overpaid">📈 Overpaid</option>
+                  <option value="disputed">❓ Disputed</option>
+                </select>
+                <div class="validation-error" id="payment-status-error" style="display: none;">
+                  <i class="fas fa-exclamation-circle"></i> Please select payment status
+                </div>
+              </div>
+            </div>
+      
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="cancel-royalty">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+              <button type="button" class="btn btn-warning" id="save-draft-royalty">
+                <i class="fas fa-save"></i> Save as Draft
+              </button>
+              <button type="submit" class="btn btn-success" id="save-royalty-btn">
+                <i class="fas fa-check"></i> Record Payment
+              </button>
+            </div>
+          </form>
+        </div>
+      
+        <!-- Royalty Records Management Table -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-table"></i> Royalty Payment Records</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-royalty-records" title="Refresh records">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+              <button class="btn btn-info btn-sm" id="export-royalty-records" title="Export records">
+                <i class="fas fa-download"></i> Export
+              </button>
+              <button class="btn btn-warning btn-sm" id="bulk-verify-records" style="display: none;" disabled
+                title="Bulk verify selected records">
+                <i class="fas fa-check-double"></i> Verify Selected (<span id="selected-records-count">0</span>)
+              </button>
+            </div>
+          </div>
+      
+          <!-- Advanced Filtering -->
+          <div class="table-filters">
+            <h6><i class="fas fa-filter"></i> Filter & Search Records</h6>
+            <div class="grid-4">
+              <div class="form-group">
+                <label for="filter-entity">
+                  <i class="fas fa-industry"></i> Filter by Entity
+                </label>
+                <select id="filter-entity">
+                  <option value="">All Entities</option>
+                  <option value="kwalini">Kwalini Quarry</option>
+                  <option value="mbabane">Mbabane Quarry</option>
+                  <option value="sidvokodvo">Sidvokodvo Quarry</option>
+                  <option value="maloma">Maloma Colliery</option>
+                  <option value="ngwenya">Ngwenya Mine</option>
+                  <option value="malolotja">Malolotja Mine</option>
+                </select>
+              </div>
+      
+              <div class="form-group">
+                <label for="filter-mineral">
+                  <i class="fas fa-gem"></i> Filter by Mineral
+                </label>
+                <select id="filter-mineral">
+                  <option value="">All Minerals</option>
+                  <option value="coal">Coal</option>
+                  <option value="iron_ore">Iron Ore</option>
+                  <option value="green_chert">Green Chert</option>
+                  <option value="gravel">Gravel</option>
+                  <option value="river_sand">River Sand</option>
+                  <option value="plaster_sand">Plaster Sand</option>
+                  <option value="quarried_stone">Quarried Stone</option>
+                </select>
+              </div>
+      
+              <div class="form-group">
+                <label for="filter-status">
+                  <i class="fas fa-flag"></i> Filter by Status
+                </label>
+                <select id="filter-status">
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="verified">Verified</option>
+                  <option value="partial">Partial Payment</option>
+                  <option value="overpaid">Overpaid</option>
+                  <option value="disputed">Disputed</option>
+                </select>
+              </div>
+      
+              <div class="form-group">
+                <label for="filter-date-range">
+                  <i class="fas fa-calendar-alt"></i> Date Range
+                </label>
+                <div class="date-range-inputs">
+                  <input type="date" id="filter-start-date" aria-label="Start Date">
+                  <span>to</span>
+                  <input type="date" id="filter-end-date" aria-label="End Date">
+                </div>
+              </div>
+      
+              <div class="form-group filter-actions">
+                <button class="btn btn-primary" id="apply-royalty-filters" title="Apply selected filters">
+                  <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button class="btn btn-secondary" id="clear-royalty-filters" title="Clear all filters">
+                  <i class="fas fa-times"></i> Clear Filters
+                </button>
+              </div>
+            </div>
+          </div>
+      
+          <!-- Royalty Records Data Table -->
           <div class="table-container">
-            <table class="data-table">
+            <table class="data-table" id="royalty-records-table">
               <thead>
                 <tr>
-                  <th>Entity</th>
-                  <th>Mineral</th>
-                  <th>Volume (m³)</th>
-                  <th>Tariff (E/m³)</th>
-                  <th>Royalties (E)</th>
-                  <th>Date</th>
+                  <th><input type="checkbox" id="select-all-records" title="Select all records"></th>
+                  <th sortable>Entity</th>
+                  <th sortable>Mineral</th>
+                  <th sortable>Volume (m³)</th>
+                  <th sortable>Tariff (E/m³)</th>
+                  <th sortable>Calculated (E)</th>
+                  <th sortable>Paid (E)</th>
+                  <th>Variance</th>
+                  <th sortable>Date</th>
                   <th>Status</th>
+                  <th>Payment Method</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="royalty-records-tbody"></tbody>
+              <tbody id="royalty-records-tbody">
+                <!-- Example records will be populated by JavaScript -->
+                <tr>
+                  <td><input type="checkbox" value="1"></td>
+                  <td><strong>Kwalini Quarry</strong></td>
+                  <td>Quarried Stone</td>
+                  <td>1,250.00</td>
+                  <td>4.50</td>
+                  <td>5,625.00</td>
+                  <td>5,625.00</td>
+                  <td><span class="variance-badge exact">Exact</span></td>
+                  <td>2024-05-15</td>
+                  <td><span class="status-badge success">Verified</span></td>
+                  <td>Bank Transfer</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-primary" title="View details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-warning" title="Edit record">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-info" title="View documents">
+                        <i class="fas fa-paperclip"></i>
+                      </button>
+                      <button class="btn btn-sm btn-secondary dropdown-toggle" title="More actions">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" value="2"></td>
+                  <td><strong>Maloma Colliery</strong></td>
+                  <td>Coal</td>
+                  <td>2,100.50</td>
+                  <td>5.00</td>
+                  <td>10,502.50</td>
+                  <td>10,000.00</td>
+                  <td><span class="variance-badge under">-502.50</span></td>
+                  <td>2024-05-20</td>
+                  <td><span class="status-badge warning">Partial Payment</span></td>
+                  <td>EFT</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-primary" title="View details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-danger" title="Follow up payment">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </button>
+                      <button class="btn btn-sm btn-info" title="Send notice">
+                        <i class="fas fa-bell"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" value="3"></td>
+                  <td><strong>Mbabane Quarry</strong></td>
+                  <td>Gravel</td>
+                  <td>890.25</td>
+                  <td>3.75</td>
+                  <td>3,338.44</td>
+                  <td>3,500.00</td>
+                  <td><span class="variance-badge over">+161.56</span></td>
+                  <td>2024-05-25</td>
+                  <td><span class="status-badge info">Overpaid</span></td>
+                  <td>Cheque</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-primary" title="View details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-success" title="Process refund">
+                        <i class="fas fa-undo"></i>
+                      </button>
+                      <button class="btn btn-sm btn-info" title="Apply to next period">
+                        <i class="fas fa-forward"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- More records will be populated by JavaScript -->
+              </tbody>
             </table>
+          </div>
+      
+          <!-- Table Pagination -->
+          <div class="table-pagination" id="royalty-pagination">
+            <div class="pagination-info">
+              Showing <span id="royalty-start">1</span> to <span id="royalty-end">10</span> of <span
+                id="royalty-total">156</span> records
+            </div>
+            <div class="pagination-controls">
+              <button class="btn btn-sm btn-secondary" id="royalty-prev" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
+              <span class="pagination-pages" id="royalty-pages"></span>
+              <button class="btn btn-sm btn-secondary" id="royalty-next">
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Royalty Analytics -->
+        <div class="charts-grid">
+          <div class="analytics-chart card">
+            <div class="chart-header">
+              <h5><i class="fas fa-chart-line"></i> Royalty Collection Trends</h5>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="line" data-chart-id="royalty-trends-chart">
+                  <i class="fas fa-chart-line"></i> Line
+                </button>
+                <button class="chart-btn" data-chart-type="bar" data-chart-id="royalty-trends-chart">
+                  <i class="fas fa-chart-bar"></i> Bar
+                </button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="royalty-trends-chart" aria-label="Royalty collection trends over time"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle"></i>
+                Average monthly: <strong>E <span id="avg-monthly-royalty">103,824</span></strong> |
+                Peak month: <strong><span id="peak-royalty-month">March 2024</span></strong>
+              </small>
+            </div>
+          </div>
+      
+          <div class="analytics-chart card">
+            <div class="chart-header">
+              <h5><i class="fas fa-chart-pie"></i> Collections by Entity</h5>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="pie" data-chart-id="entity-collections-chart">
+                  <i class="fas fa-chart-pie"></i> Pie
+                </button>
+                <button class="chart-btn" data-chart-type="doughnut" data-chart-id="entity-collections-chart">
+                  <i class="fas fa-circle-notch"></i> Doughnut
+                </button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="entity-collections-chart" aria-label="Royalty collections breakdown by mining entity"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle"></i>
+                Top contributor: <strong><span id="top-contributor">Maloma Colliery</span></strong> |
+                Total entities: <strong><span id="active-entities-chart">6</span></strong>
+              </small>
+            </div>
           </div>
         </div>
       </section>
-
+      
+      
       <!-- Contract Management -->
       <section id="contract-management">
         <div class="page-header">
