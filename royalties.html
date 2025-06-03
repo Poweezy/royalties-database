@@ -1299,6 +1299,274 @@
         </div>
       </section>
 
+      <!-- Communication -->
+      <section id="communication">
+        <div class="page-header">
+          <div class="page-title">
+            <h1><i class="fas fa-envelope"></i> Communication Hub</h1>
+            <p>Manage internal and external communications, announcements, and alerts.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="new-message-btn"><i class="fas fa-paper-plane"></i> New Message</button>
+            <button class="btn btn-info" id="view-templates-btn"><i class="fas fa-file-alt"></i> Message Templates</button>
+          </div>
+        </div>
+      
+        <!-- Communication Dashboard/Metrics (Optional) -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-inbox"></i> Unread Messages</h3>
+            </div>
+            <div class="card-body">
+              <p id="unread-messages-count">5</p>
+              <small><i class="fas fa-envelope-open-text"></i> Requiring attention</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-bullhorn"></i> Active Announcements</h3>
+            </div>
+            <div class="card-body">
+              <p id="active-announcements-count">2</p>
+              <small><i class="fas fa-info-circle"></i> System-wide alerts</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-users"></i> Contact Groups</h3>
+            </div>
+            <div class="card-body">
+              <p id="contact-groups-count">8</p>
+              <small><i class="fas fa-list-alt"></i> For targeted messaging</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-paper-plane"></i> Sent Today</h3>
+            </div>
+            <div class="card-body">
+              <p id="sent-today-count">12</p>
+              <small><i class="fas fa-check-circle"></i> Messages successfully sent</small>
+            </div>
+          </div>
+        </div>
+      
+        <!-- New Message/Announcement Form (Initially Hidden or in a Modal) -->
+        <div class="user-form-container" id="new-message-form-container" style="display: none;">
+          <div class="section-header">
+            <h4><i class="fas fa-edit"></i> Compose New Message/Announcement</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="close-message-form-btn" title="Close form">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
+          </div>
+          <form id="new-message-form">
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="message-recipient"><i class="fas fa-users"></i> Recipients/Group</label>
+                <select id="message-recipient" name="recipient">
+                  <option value="all_users">All Users</option>
+                  <option value="all_entities">All Mining Entities</option>
+                  <option value="finance_dept">Finance Department</option>
+                  <option value="compliance_team">Compliance Team</option>
+                  <!-- Add more groups or allow custom input -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message-type"><i class="fas fa-tag"></i> Message Type</label>
+                <select id="message-type" name="messageType">
+                  <option value="announcement">📢 Announcement</option>
+                  <option value="alert">⚠️ Alert</option>
+                  <option value="notification">🔔 Notification</option>
+                  <option value="direct_message">✉️ Direct Message</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="message-subject"><i class="fas fa-heading"></i> Subject</label>
+              <input type="text" id="message-subject" name="subject" placeholder="Enter message subject" required>
+            </div>
+            <div class="form-group">
+              <label for="message-body"><i class="fas fa-paragraph"></i> Message Body</label>
+              <textarea id="message-body" name="body" rows="6" placeholder="Compose your message here..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="message-attachments"><i class="fas fa-paperclip"></i> Attachments (Optional)</label>
+              <input type="file" id="message-attachments" name="attachments" multiple>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="cancel-message-btn">Cancel</button>
+              <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Send Message</button>
+            </div>
+          </form>
+        </div>
+      
+        <!-- Message History / Inbox -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-history"></i> Message History & Inbox</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-messages-btn"><i class="fas fa-sync-alt"></i>
+                Refresh</button>
+              <button class="btn btn-info btn-sm" id="filter-messages-btn"><i class="fas fa-filter"></i> Filter</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="communication-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>From</th>
+                  <th>To/Group</th>
+                  <th>Subject</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="communication-table-tbody">
+                <!-- Example Row -->
+                <tr>
+                  <td>2025-06-03 10:00 AM</td>
+                  <td>System Admin</td>
+                  <td>All Users</td>
+                  <td>Scheduled System Maintenance</td>
+                  <td><span class="status-badge info">Announcement</span></td>
+                  <td><span class="status-badge success">Sent</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> View</button>
+                    <button class="btn btn-sm btn-secondary"><i class="fas fa-archive"></i> Archive</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2025-06-02 02:30 PM</td>
+                  <td>Compliance Officer</td>
+                  <td>Maloma Colliery</td>
+                  <td>Urgent: Overdue Safety Report</td>
+                  <td><span class="status-badge danger">Alert</span></td>
+                  <td><span class="status-badge success">Delivered</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> View</button>
+                    <button class="btn btn-sm btn-warning"><i class="fas fa-reply"></i> Reply</button>
+                  </td>
+                </tr>
+                <!-- More messages will be populated here -->
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-envelope-open" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                    No messages to display or loading messages...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination for messages (similar to other tables) -->
+          <div class="table-pagination" id="communication-pagination">
+            <!-- Pagination controls here -->
+          </div>
+        </div>
+      </section>
+      <!-- End of Communication -->
+
+        <!-- Notifications -->
+        <section id="notifications">
+          <div class="page-header">
+            <div class="page-title">
+              <h1><i class="fas fa-bell"></i> Notifications</h1>
+              <p>View important updates, alerts, and system messages.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="mark-all-read-btn"><i class="fas fa-check-double"></i> Mark All as
+                Read</button>
+              <button class="btn btn-danger" id="clear-all-notifications-btn"><i class="fas fa-trash-alt"></i> Clear
+                All</button>
+            </div>
+          </div>
+        
+          <div class="user-form-container">
+            <div class="section-header">
+              <h4><i class="fas fa-list-ul"></i> Recent Notifications</h4>
+              <div class="table-actions">
+                <select id="filter-notifications-type" class="form-control-sm" style="margin-right: 10px;">
+                  <option value="all">All Types</option>
+                  <option value="alert">Alerts</option>
+                  <option value="system">System Updates</option>
+                  <option value="approval">Approvals</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" id="refresh-notifications-btn"><i class="fas fa-sync-alt"></i>
+                  Refresh</button>
+              </div>
+            </div>
+        
+            <div class="notifications-list" id="notifications-list-container">
+              <!-- Example Notification Item (Unread) -->
+              <div class="notification-item unread">
+                <div class="notification-icon alert">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                  <div class="notification-header">
+                    <span class="notification-title">Urgent: Royalty Payment Overdue</span>
+                    <span class="notification-time">2 hours ago</span>
+                  </div>
+                  <p class="notification-message">Royalty payment for Maloma Colliery (Q1 2025) is overdue by 3 days. Please
+                    take action.</p>
+                </div>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-primary" title="View Details"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-sm btn-success" title="Mark as Read"><i class="fas fa-check"></i></button>
+                </div>
+              </div>
+        
+              <!-- Example Notification Item (Read) -->
+              <div class="notification-item">
+                <div class="notification-icon system">
+                  <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="notification-content">
+                  <div class="notification-header">
+                    <span class="notification-title">System Maintenance Scheduled</span>
+                    <span class="notification-time">1 day ago</span>
+                  </div>
+                  <p class="notification-message">Scheduled system maintenance will occur on June 5, 2025, from 02:00 AM to
+                    04:00 AM.</p>
+                </div>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-secondary" title="Archive"><i class="fas fa-archive"></i></button>
+                </div>
+              </div>
+        
+              <!-- Example Notification Item (Approval) -->
+              <div class="notification-item unread">
+                <div class="notification-icon approval">
+                  <i class="fas fa-thumbs-up"></i>
+                </div>
+                <div class="notification-content">
+                  <div class="notification-header">
+                    <span class="notification-title">New User Registration Pending Approval</span>
+                    <span class="notification-time">3 days ago</span>
+                  </div>
+                  <p class="notification-message">User 'john.doe' has registered and requires your approval to access the
+                    system.</p>
+                </div>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-primary" title="Review Request"><i class="fas fa-user-check"></i></button>
+                  <button class="btn btn-sm btn-success" title="Mark as Read"><i class="fas fa-check"></i></button>
+                </div>
+              </div>
+              <!-- Placeholder for no notifications -->
+              <div class="notification-item no-notifications"
+                style="display: none; text-align: center; padding: 2rem; color: var(--text-muted);">
+                <i class="fas fa-bell-slash" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                No new notifications.
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- End of Notifications -->
+
       <!-- Compliance & Regulatory (Dedicated Section) -->
       <section id="compliance">
         <div class="page-header">
@@ -2533,26 +2801,11 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.validation-error, .validation-success').forEach(el => {
         el.style.display = 'none';
       });
-      // Reset password strength meter
-      const strengthBarFill = addUserContainer.querySelector('.strength-bar-fill');
-      const strengthText = addUserContainer.querySelector('.strength-text');
-      const strengthBarContainer = addUserContainer.querySelector('.strength-bar');
-
-      if (strengthBarFill) strengthBarFill.style.width = '0%';
+      // Reset password strength
+      const strengthBar = document.querySelector('.strength-bar-fill');
+      const strengthText = document.querySelector('.strength-text');
+      if (strengthBar) strengthBar.style.width = '0%';
       if (strengthText) strengthText.textContent = 'Password Strength: Enter password';
-      if(strengthBarContainer) {
-        strengthBarContainer.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
-      }
-      
-      // Reset all input field custom validation styles
-      const validatedFields = addUserContainer.querySelectorAll('.field-valid, .field-invalid');
-      validatedFields.forEach(field => {
-        field.classList.remove('field-valid', 'field-invalid');
-      });
-
-      // Disable submit button
-      const submitBtn = document.getElementById('create-user-btn');
-      if(submitBtn) submitBtn.disabled = true;
     }
   }
   
