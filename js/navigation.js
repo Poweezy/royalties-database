@@ -97,6 +97,21 @@ export class NavigationModule {
             case 'reporting-analytics':
                 document.dispatchEvent(new CustomEvent('loadReportingAnalytics'));
                 break;
+            case 'communication':
+                document.dispatchEvent(new CustomEvent('loadCommunication'));
+                break;
+            case 'notifications':
+                document.dispatchEvent(new CustomEvent('loadNotifications'));
+                break;
+            case 'compliance':
+                document.dispatchEvent(new CustomEvent('loadCompliance'));
+                break;
+            case 'regulatory-management':
+                document.dispatchEvent(new CustomEvent('loadRegulatoryManagement'));
+                break;
+            case 'profile':
+                document.dispatchEvent(new CustomEvent('loadProfile'));
+                break;
             default:
                 this.loadGenericSection(sectionId);
         }

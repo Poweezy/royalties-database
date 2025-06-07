@@ -182,6 +182,243 @@ class MiningRoyaltiesApp {
     // Implementation for showing general errors
     console.error('Application error:', message);
   }
+
+  // Chart setup methods
+  setupAuditCharts() {
+    // Security Events Timeline Chart
+    const securityEventsCtx = document.getElementById('security-events-chart');
+    if (securityEventsCtx) {
+      new Chart(securityEventsCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Security Events',
+            data: [12, 8, 15, 6, 10, 4],
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Event Types Distribution Chart
+    const eventTypesCtx = document.getElementById('event-types-chart');
+    if (eventTypesCtx) {
+      new Chart(eventTypesCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Login Success', 'Failed Login', 'Data Access', 'System Changes'],
+          datasets: [{
+            data: [45, 12, 28, 15],
+            backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+  }
+
+  setupReportingCharts() {
+    // Revenue by Entity Chart
+    const revenueEntityCtx = document.getElementById('revenue-entity-chart');
+    if (revenueEntityCtx) {
+      new Chart(revenueEntityCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Maloma Colliery', 'Ngwenya Mine', 'Kwalini Quarry', 'Others'],
+          datasets: [{
+            label: 'Revenue (E)',
+            data: [52500, 25200, 18750, 11200],
+            backgroundColor: ['#007bff', '#28a745', '#ffc107', '#6c757d']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Monthly Trends Chart
+    const monthlyTrendsCtx = document.getElementById('monthly-trends-chart');
+    if (monthlyTrendsCtx) {
+      new Chart(monthlyTrendsCtx, {
+        type: 'line',
+        data: {
+          labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+          datasets: [{
+            label: 'Revenue',
+            data: [95000, 102000, 98500, 107650, 95420],
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+  }
+
+  setupComplianceCharts() {
+    const complianceScoresCtx = document.getElementById('compliance-scores-chart');
+    if (complianceScoresCtx) {
+      new Chart(complianceScoresCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Maloma Colliery', 'Ngwenya Mine', 'Kwalini Quarry'],
+          datasets: [{
+            label: 'Compliance Score (%)',
+            data: [95, 68, 88],
+            backgroundColor: ['#28a745', '#dc3545', '#ffc107']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Action methods for new sections
+  exportAuditLog() {
+    console.log('Exporting audit log...');
+    // Implementation for audit log export
+  }
+
+  generateSecurityReport() {
+    console.log('Generating security report...');
+    // Implementation for security report generation
+  }
+
+  refreshAuditData() {
+    console.log('Refreshing audit data...');
+    // Implementation for audit data refresh
+  }
+
+  generateCustomReport() {
+    console.log('Generating custom report...');
+    // Implementation for custom report generation
+  }
+
+  scheduleReport() {
+    console.log('Scheduling report...');
+    // Implementation for report scheduling
+  }
+
+  exportAnalytics() {
+    console.log('Exporting analytics data...');
+    // Implementation for analytics export
+  }
+
+  composeMessage() {
+    console.log('Composing new message...');
+    // Implementation for message composition
+  }
+
+  manageTemplates() {
+    console.log('Managing message templates...');
+    // Implementation for template management
+  }
+
+  sendBulkNotice() {
+    console.log('Sending bulk notice...');
+    // Implementation for bulk notice sending
+  }
+
+  markAllNotificationsRead() {
+    console.log('Marking all notifications as read...');
+    // Implementation for marking notifications as read
+  }
+
+  configureAlerts() {
+    console.log('Configuring alerts...');
+    // Implementation for alert configuration
+  }
+
+  testNotifications() {
+    console.log('Testing notifications...');
+    // Implementation for notification testing
+  }
+
+  scheduleAssessment() {
+    console.log('Scheduling compliance assessment...');
+    // Implementation for assessment scheduling
+  }
+
+  generateComplianceReport() {
+    console.log('Generating compliance report...');
+    // Implementation for compliance report generation
+  }
+
+  viewViolations() {
+    console.log('Viewing compliance violations...');
+    // Implementation for viewing violations
+  }
+
+  addRegulation() {
+    console.log('Adding new regulation...');
+    // Implementation for adding regulation
+  }
+
+  updateFramework() {
+    console.log('Updating regulatory framework...');
+    // Implementation for framework update
+  }
+
+  exportRegulatory() {
+    console.log('Exporting regulatory data...');
+    // Implementation for regulatory data export
+  }
+
+  changePassword() {
+    console.log('Changing password...');
+    // Implementation for password change
+  }
+
+  enableTwoFactor() {
+    console.log('Enabling two-factor authentication...');
+    // Implementation for 2FA enablement
+  }
+
+  updateProfile() {
+    console.log('Updating profile...');
+    // Implementation for profile update
+  }
+
+  toggle2FA() {
+    console.log('Toggling 2FA...');
+    // Implementation for 2FA toggle
+  }
+
+  manageSessions() {
+    console.log('Managing active sessions...');
+    // Implementation for session management
+  }
 }
 
 // Initialize application when DOM is loaded
