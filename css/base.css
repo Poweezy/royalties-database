@@ -1,3 +1,54 @@
+/* Corporate Color Palette */
+:root {
+  --primary-color: #1a365d;
+  --primary-dark: #153450;
+  --primary-light: #2d5282;
+  --accent-color: #d4af37;
+  --accent-dark: #b8941f;
+  --accent-light: #e6c659;
+  --secondary-color: #4a5568;
+  --neutral-100: #f7fafc;
+  --neutral-200: #edf2f7;
+  --neutral-300: #e2e8f0;
+  --neutral-400: #cbd5e0;
+  --neutral-500: #a0aec0;
+  --neutral-600: #718096;
+  --neutral-700: #4a5568;
+  --neutral-800: #2d3748;
+  --neutral-900: #1a202c;
+  --success-color: #38a169;
+  --warning-color: #d69e2e;
+  --danger-color: #e53e3e;
+  --info-color: #3182ce;
+  --background-light: #f7fafc;
+  --background-white: #ffffff;
+  --background-gray: #edf2f7;
+  --background-dark: #2d3748;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --text-inverse: #ffffff;
+  --border-color: #e2e8f0;
+  --border-color-dark: #cbd5e0;
+  --border-radius: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 3px 5px -1px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 7px 10px -2px rgb(0 0 0 / 0.06);
+  --shadow-xl: 0 15px 20px -5px rgb(0 0 0 / 0.08);
+  --gradient-primary: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
+  --gradient-accent: linear-gradient(135deg, #d4af37 0%, #e6c659 100%);
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
+  --gradient-corporate: linear-gradient(135deg, #1a365d 0%, #d4af37 100%);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-sans: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
 /* Base Styles and Reset */
 
 /* Global Reset */

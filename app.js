@@ -685,18 +685,145 @@ class RoyaltiesApp {
         console.log('Main application initialized successfully');
     }
 
-    initializeManagers() {
-        // Initialize action handlers
-        this.actionHandlers = {
-            userActions: new UserActions(dataManager, notificationManager),
-            recordActions: new RecordActions(dataManager, notificationManager),
-            contractActions: new ContractActions(dataManager, notificationManager)
-        };
+    loadRoyaltyRecordsSection() {
+        const section = document.getElementById('royalty-records');
+        if (!section) return;
 
-        // Make action handlers globally available
-        window.userActions = this.actionHandlers.userActions;
-        window.recordActions = this.actionHandlers.recordActions;
-        window.contractActions = this.actionHandlers.contractActions;
+        // Create section manager if it doesn't exist
+        if (!this.sectionManagers.royaltyRecords) {
+            // Import and create the manager
+            import('./js/ui/sectionManagers.js').then(module => {
+                this.sectionManagers.royaltyRecords = new module.RoyaltyRecordsManager(dataManager);
+                this.sectionManagers.royaltyRecords.loadSection();
+            }).catch(() => {
+                // Fallback if module loading fails
+                this.loadRoyaltyRecordsFallback();
+            });
+        } else {
+            this.sectionManagers.royaltyRecords.loadSection();
+        }
+        
+        console.log('Royalty Records section loaded successfully');
+    }
+
+    loadRoyaltyRecordsFallback() {
+        const section = document.getElementById('royalty-records');
+        if (!section) return;
+        
+        const royaltyRecords = dataManager.getRoyaltyRecords();
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>💰 Royalty Records</h1>
+                    <p>Manage royalty payments and records</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="window.recordActions.showAddRecordForm()">
+                        <i class="fas fa-plus"></i> Add Record
+                    </button>
+                    <button class="btn btn-info" onclick="window.recordActions.exportRecords()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Royalty Records</h3>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Entity</th>
+                                <th>Mineral</th>
+                                <th>Volume</th>
+                                <th>Tariff</th>
+                                <th>Royalties</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${royaltyRecords.map(record => `
+                                <tr>
+                                    <td>${record.referenceNumber}</td>
+                                    <td>${record.entity}</td>
+                                    <td>${record.mineral}</td>
+                                    <td>${record.volume.toLocaleString()}</td>
+                                    <td>E${record.tariff}</td>
+                                    <td>E${record.royalties.toLocaleString()}</td>
+                                    <td>${record.date}</td>
+                                    <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-info" onclick="window.recordActions.viewRecord(${record.id})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" onclick="window.recordActions.editRecord(${record.id})" title="Edit Record">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-success" onclick="window.recordActions.markAsPaid(${record.id})" title="Mark as Paid">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    loadContractManagementSection() {
+        const section = document.getElementById('contract-management');
+        if (!section) return;
+        
+        // Placeholder for contract management - will be enhanced later
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📋 Contract Management</h1>
+                    <p>Manage mining contracts, agreements, and compliance</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="window.contractActions.showAddContractForm()">
+                        <i class="fas fa-plus"></i> Add Contract
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Contract management features will be implemented here.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    initializeManagers() {
+        // Initialize action handlers with dynamic imports
+        Promise.all([
+            import('./js/actions/recordActions.js').catch(() => null)
+        ]).then(([recordActionsModule]) => {
+            // Initialize action handlers
+            this.actionHandlers = {
+                userActions: new UserActions(dataManager, notificationManager),
+                recordActions: recordActionsModule ? 
+                    new recordActionsModule.RecordActions(dataManager, notificationManager) : 
+                    new RecordActions(dataManager, notificationManager),
+                contractActions: new ContractActions(dataManager, notificationManager)
+            };
+
+            // Make action handlers globally available
+            window.userActions = this.actionHandlers.userActions;
+            window.recordActions = this.actionHandlers.recordActions;
+            window.contractActions = this.actionHandlers.contractActions;
+        });
     }
 
     setupEventListeners() {
