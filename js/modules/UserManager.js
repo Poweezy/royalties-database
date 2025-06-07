@@ -1,6 +1,45 @@
-export class UserManager {
-  constructor(notificationManager) {
+import { BaseModule } from './base-module.js';
+
+export class UserManager extends BaseModule {
+  constructor(templateLoader) {
+    super(templateLoader, 'user-management');
+    this.notificationManager = null;
+  }
+
+  setNotificationManager(notificationManager) {
     this.notificationManager = notificationManager;
+  }
+
+  async onLoad() {
+    try {
+      await this.loadTemplate('templates/user-management.html');
+      this.setupUserManagement();
+    } catch (error) {
+      console.error('Failed to load user management template:', error);
+      this.showFallback();
+    }
+  }
+
+  showFallback() {
+    if (this.container) {
+      this.container.innerHTML = `
+        <section id="user-management">
+          <div class="page-header">
+            <div class="page-title">
+              <h1>User Management</h1>
+              <p>Manage system users and permissions</p>
+            </div>
+          </div>
+          <div class="loading-container">
+            <p>Loading user management features...</p>
+          </div>
+        </section>
+      `;
+    }
+  }
+
+  setupUserManagement() {
+    // Setup user management functionality
     this.setupEventListeners();
   }
 
@@ -31,38 +70,29 @@ export class UserManager {
     
     const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
     if (!auditLogSection) {
-      this.notificationManager.error('Security Audit Log section not found');
+      this.showNotification('Security Audit Log section not found', 'error');
       return;
     }
 
     await this.sleep(300);
     this.scrollToElement(auditLogSection);
     this.highlightElement(auditLogSection);
-    this.notificationManager.info('Scrolled to Security Audit Log section');
+    this.showNotification('Scrolled to Security Audit Log section', 'info');
   }
 
   async handleExportReport(event) {
     event.preventDefault();
     
-    this.notificationManager.info('Generating user management report...');
+    this.showNotification('Generating user management report...', 'info');
     await this.sleep(1500);
     
-    this.notificationManager.success('User management report exported successfully!');
+    this.showNotification('User management report exported successfully!', 'success');
     this.downloadFile('user_management_report.csv', 'User Management Report\nGenerated on: ' + new Date().toLocaleString());
   }
 
   handleAddUser(event) {
     event.preventDefault();
-    
-    const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
-    if (!addUserForm) return;
-
-    this.scrollToElement(addUserForm);
-    this.highlightElement(addUserForm, 'success');
-    
-    setTimeout(() => {
-      addUserForm.querySelector('input')?.focus();
-    }, 500);
+    this.showNotification('Add user functionality would be implemented here', 'info');
   }
 
   setupTabSwitching() {
@@ -87,35 +117,31 @@ export class UserManager {
     parentContainer.querySelector(tabId)?.classList.add('active');
   }
 
-  scrollToElement(element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  highlightElement(element, type = 'primary') {
-    const colors = {
-      primary: { bg: 'rgba(26, 54, 93, 0.05)', border: '#1a365d' },
-      success: { bg: 'rgba(56, 161, 105, 0.05)', border: 'var(--success-color)' }
-    };
-    
-    const color = colors[type];
-    element.style.transition = 'background-color 0.3s ease, border-color 0.3s ease';
-    element.style.backgroundColor = color.bg;
-    element.style.borderColor = color.border;
-    
+  scrollToElement(element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  highlightElement(element) {
+    element.style.transition = 'background-color 0.3s ease';
+    element.style.backgroundColor = 'rgba(37, 99, 235, 0.1)';
     setTimeout(() => {
       element.style.backgroundColor = '';
-      element.style.borderColor = '';
-    }, 3000);
+    }, 2000);
   }
 
   downloadFile(filename, content) {
-    const link = document.createElement('a');
-    link.href = `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
-    link.download = `${filename.split('.')[0]}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  }
-
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 }

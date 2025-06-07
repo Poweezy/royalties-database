@@ -1,0 +1,55 @@
+<div class="user-form-container" id="add-user-form-container" style="display: none;">
+  <div class="section-header">
+    <h4><i class="fas fa-user-plus"></i> Add New User Account</h4>
+    <div class="table-actions">
+      <button class="btn btn-secondary btn-sm" id="close-add-user-form" title="Close form">
+        <i class="fas fa-times"></i> Close
+      </button>
+    </div>
+  </div>
+  
+  <form id="add-user-form" novalidate>
+    <div class="grid-4">
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="new-username">
+          <i class="fas fa-user"></i> Username *
+        </label>
+        <input 
+          type="text" 
+          id="new-username" 
+          name="username" 
+          placeholder="Enter unique username" 
+          required 
+          aria-describedby="new-username-error new-username-success"
+          autocomplete="off"
+          minlength="3"
+          maxlength="50"
+          pattern="^[a-zA-Z0-9._-]+$"
+        >
+        <div class="validation-success" id="new-username-success" style="display: none;">
+          <i class="fas fa-check-circle"></i> Username is available
+        </div>
+        <div class="validation-error" id="new-username-error" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i> Username is required and must be unique
+        </div>
+        <small class="form-help">3-50 characters, letters, numbers, dots, dashes, underscores only</small>
+      </div>
+      
+      <!-- ...existing form fields... -->
+      
+    </div>
+    
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" id="cancel-add-user">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-warning" id="reset-form">
+        <i class="fas fa-undo"></i> Reset Form
+      </button>
+      <button type="submit" class="btn btn-success" id="create-user-btn" disabled>
+        <i class="fas fa-user-plus"></i> Create User Account
+      </button>
+    </div>
+  </form>
+</div>

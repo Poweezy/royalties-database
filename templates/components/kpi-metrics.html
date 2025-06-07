@@ -1,0 +1,46 @@
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-coins"></i> Total Royalties (YTD)</h3>
+      <select class="metric-period" id="royalties-period">
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="total-royalties">E 0.00</p>
+      <small class="trend-indicator" id="royalties-trend">
+        <i class="fas fa-arrow-up trend-positive"></i> +0% from last year
+      </small>
+      <div class="mini-progress">
+        <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-industry"></i> Active Entities</h3>
+      <select class="metric-period" id="entities-period">
+        <option value="current">This Quarter</option>
+        <option value="last">Last Quarter</option>
+        <option value="ytd">YTD</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="active-entities">6</p>
+      <small class="trend-indicator" id="entities-trend">
+        <i class="fas fa-arrow-up trend-positive"></i> +2 new entities
+      </small>
+      <div class="entities-breakdown">
+        <small>
+          <span class="entity-type">Mines: <span id="mines-count">4</span></span> | 
+          <span class="entity-type">Quarries: <span id="quarries-count">2</span></span>
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ...existing compliance and pending approval cards... -->
+</div>
