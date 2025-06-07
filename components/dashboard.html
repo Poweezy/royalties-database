@@ -1,0 +1,78 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>Dashboard</h1>
+    <p>Welcome back, <span id="user-name">System Administrator</span> | Last login: <span id="last-login-time">Today, 09:15 AM</span></p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="refresh-dashboard" title="Refresh dashboard data">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
+    <button class="btn btn-primary" id="admin-panel-btn" title="Access Admin Panel">
+      <i class="fas fa-cog"></i> Admin Panel
+    </button>
+    <button class="btn btn-secondary" id="notifications-btn" title="View Notifications">
+      <i class="fas fa-bell"></i> <span id="notifications-count">3</span>
+    </button>
+  </div>
+</div>
+
+<!-- Key Performance Indicators -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-coins"></i> Total Royalties (YTD)</h3>
+      <select class="metric-period" id="royalties-period">
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="total-royalties">E 0.00</p>
+      <small class="trend-indicator" id="royalties-trend">
+        <i class="fas fa-arrow-up trend-positive"></i> +0% from last year
+      </small>
+      <div class="mini-progress">
+        <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ...existing metric cards... -->
+
+</div>
+
+<!-- Analytics Charts Section -->
+<div class="charts-grid">
+  <div class="analytics-chart card">
+    <div class="chart-header">
+      <h5><i class="fas fa-chart-line"></i> Revenue Trends</h5>
+      <div class="chart-controls">
+        <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">
+          <i class="fas fa-chart-line"></i> Line
+        </button>
+        <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">
+          <i class="fas fa-chart-bar"></i> Bar
+        </button>
+        <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">
+          <i class="fas fa-chart-area"></i> Area
+        </button>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="revenue-trends-chart" aria-label="Revenue trends chart showing monthly royalty collections"></canvas>
+    </div>
+    <div class="chart-summary">
+      <small>
+        <i class="fas fa-info-circle"></i> 
+        Average monthly collection: <strong>E <span id="avg-monthly">0</span></strong> | 
+        Peak month: <strong><span id="peak-month">-</span></strong>
+      </small>
+    </div>
+  </div>
+
+  <!-- ...existing charts... -->
+
+</div>
+
+<!-- ...existing code for recent activity and quick actions... -->
