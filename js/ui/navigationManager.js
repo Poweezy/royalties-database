@@ -3,40 +3,32 @@
 export class NavigationManager {
     constructor() {
         this.currentSection = 'dashboard';
-        this.sections = new Map();
+        this.sectionManagers = new Map();
     }
 
-    initialize() {
-        this.setupNavigation();
-        this.setupMobileSidebar();
+    initialize(dataManager) {
+        this.dataManager = dataManager;
+        this.setupEventListeners();
+        this.loadInitialSection();
     }
 
-    setupNavigation() {
-        const navLinks = document.querySelectorAll('nav a');
-        
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
+    setupEventListeners() {
+        // Handle navigation clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.nav-link') || e.target.closest('.nav-link')) {
                 e.preventDefault();
+                const link = e.target.closest('.nav-link');
                 const href = link.getAttribute('href');
                 
                 if (href === '#logout') {
-                    this.handleLogout();
+                    document.dispatchEvent(new CustomEvent('logoutRequested'));
                     return;
                 }
                 
                 const sectionId = href.substring(1);
                 this.showSection(sectionId);
-            });
+            }
         });
-    }
-
-    setupMobileSidebar() {
-        const sidebarClose = document.getElementById('sidebar-close');
-        if (sidebarClose) {
-            sidebarClose.addEventListener('click', () => {
-                document.getElementById('sidebar').classList.remove('active');
-            });
-        }
     }
 
     showSection(sectionId) {
@@ -55,8 +47,8 @@ export class NavigationManager {
             // Update navigation active state
             this.updateNavigationState(sectionId);
             
-            // Trigger section load event
-            this.onSectionChange(sectionId);
+            // Load section content
+            this.loadSectionContent(sectionId);
         }
     }
 
@@ -70,19 +62,31 @@ export class NavigationManager {
         });
     }
 
-    onSectionChange(sectionId) {
-        // Event for other modules to listen to
-        document.dispatchEvent(new CustomEvent('sectionChanged', {
-            detail: { sectionId }
-        }));
+    async loadSectionContent(sectionId) {
+        // Get or create section manager
+        let manager = this.sectionManagers.get(sectionId);
+        
+        if (!manager) {
+            switch (sectionId) {
+                case 'user-management':
+                    const { UserManagementManager } = await import('./sectionManagers.js');
+                    manager = new UserManagementManager(this.dataManager);
+                    break;
+                // Add other section managers as needed
+            }
+            
+            if (manager) {
+                this.sectionManagers.set(sectionId, manager);
+            }
+        }
+        
+        if (manager && manager.loadSection) {
+            manager.loadSection();
+        }
     }
 
-    getCurrentSection() {
-        return this.currentSection;
-    }
-
-    handleLogout() {
-        document.dispatchEvent(new CustomEvent('logoutRequested'));
+    loadInitialSection() {
+        this.showSection('dashboard');
     }
 }
 

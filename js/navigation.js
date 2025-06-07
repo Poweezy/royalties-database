@@ -1,12 +1,15 @@
-// Navigation Module - Handles navigation, section switching, and routing
+// This file is deprecated - navigation functionality moved to navigationManager.js
+// Keeping for backward compatibility during transition
 
 export class NavigationModule {
     constructor() {
+        console.warn('NavigationModule is deprecated. Use NavigationManager instead.');
         this.currentSection = 'dashboard';
-        this.sectionLoaders = new Map();
     }
 
     initialize() {
+        console.warn('Use NavigationManager for new implementations');
+        // Minimal backward compatibility
         this.setupNavigation();
         this.showSection('dashboard');
     }

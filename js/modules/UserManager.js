@@ -1,9 +1,10 @@
 import { BaseModule } from './base-module.js';
 
 export class UserManager extends BaseModule {
-  constructor(templateLoader) {
-    super(templateLoader, 'user-management');
-    this.notificationManager = null;
+  constructor(dataManager, notificationManager) {
+    super();
+    this.dataManager = dataManager;
+    this.notificationManager = notificationManager;
     this.users = [
       {
         id: 1,
@@ -40,10 +41,6 @@ export class UserManager extends BaseModule {
       }
     ];
     this.nextId = 4;
-  }
-
-  setNotificationManager(notificationManager) {
-    this.notificationManager = notificationManager;
   }
 
   async onLoad() {
@@ -104,7 +101,7 @@ export class UserManager extends BaseModule {
   async handleViewAuditLog(event) {
     event.preventDefault();
     
-    const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
+    const auditLogSection = document.querySelector('#user-management .audit-log-section');
     if (!auditLogSection) {
       this.showNotification('Security Audit Log section not found', 'error');
       return;
@@ -116,19 +113,14 @@ export class UserManager extends BaseModule {
     this.showNotification('Scrolled to Security Audit Log section', 'info');
   }
 
-  async handleExportReport(event) {
-    event.preventDefault();
-    
-    this.showNotification('Generating user management report...', 'info');
-    await this.sleep(1500);
-    
-    this.showNotification('User management report exported successfully!', 'success');
-    this.downloadFile('user_management_report.csv', 'User Management Report\nGenerated on: ' + new Date().toLocaleString());
+  handleAddUser() {
+    // Implementation for adding users
+    this.showNotification('Add User functionality coming soon', 'info');
   }
 
-  handleAddUser(event) {
-    event.preventDefault();
-    this.showNotification('Add user functionality would be implemented here', 'info');
+  handleExportReport() {
+    // Implementation for exporting reports
+    this.showNotification('Export functionality coming soon', 'info');
   }
 
   setupTabSwitching() {

@@ -86,6 +86,22 @@ export class UserManagementManager {
                 </div>
             </div>
         `;
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        const addUserBtn = document.getElementById('add-user-btn');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => {
+                this.showAddUserForm();
+            });
+        }
+    }
+
+    showAddUserForm() {
+        // Implementation for showing add user form
+        console.log('Showing add user form');
     }
 }
 
