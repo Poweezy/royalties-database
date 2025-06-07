@@ -129,38 +129,147 @@ export class DataManager {
             {
                 id: 1,
                 username: 'admin',
+                fullname: 'Administrator User',
                 email: 'admin@eswacaa.sz',
+                phone: '+268 7612 1001',
                 role: 'Administrator',
                 department: 'Management',
+                employeeId: 'EMP001',
                 status: 'Active',
                 lastLogin: '2024-02-10 09:15:00',
                 failedAttempts: 0,
                 expires: null,
-                created: '2023-01-15'
+                created: '2023-01-15',
+                permissions: ['read', 'write', 'delete', 'admin', 'audit', 'finance', 'export'],
+                preferences: {
+                    language: 'en',
+                    timezone: 'Africa/Mbabane',
+                    dateFormat: 'DD/MM/YYYY',
+                    emailNotifications: true,
+                    systemNotifications: true,
+                    loginAlerts: false
+                },
+                security: {
+                    twoFactorEnabled: false,
+                    forcePasswordChange: false,
+                    lastPasswordChange: '2023-01-15'
+                }
             },
             {
                 id: 2,
                 username: 'editor',
+                fullname: 'Finance Editor',
                 email: 'editor@eswacaa.sz',
+                phone: '+268 7612 1002',
                 role: 'Editor',
                 department: 'Finance',
+                employeeId: 'EMP002',
                 status: 'Active',
                 lastLogin: '2024-02-09 14:30:00',
                 failedAttempts: 0,
                 expires: '2024-12-31',
-                created: '2023-03-20'
+                created: '2023-03-20',
+                permissions: ['read', 'write', 'finance', 'export'],
+                preferences: {
+                    language: 'en',
+                    timezone: 'Africa/Mbabane',
+                    dateFormat: 'DD/MM/YYYY',
+                    emailNotifications: true,
+                    systemNotifications: true,
+                    loginAlerts: true
+                },
+                security: {
+                    twoFactorEnabled: true,
+                    forcePasswordChange: false,
+                    lastPasswordChange: '2024-01-15'
+                }
             },
             {
                 id: 3,
                 username: 'viewer',
+                fullname: 'Audit Viewer',
                 email: 'viewer@eswacaa.sz',
+                phone: '+268 7612 1003',
                 role: 'Viewer',
                 department: 'Audit',
+                employeeId: 'EMP003',
                 status: 'Active',
                 lastLogin: '2024-02-08 11:45:00',
                 failedAttempts: 1,
                 expires: '2024-12-31',
-                created: '2023-06-10'
+                created: '2023-06-10',
+                permissions: ['read', 'audit'],
+                preferences: {
+                    language: 'en',
+                    timezone: 'Africa/Mbabane',
+                    dateFormat: 'YYYY-MM-DD',
+                    emailNotifications: false,
+                    systemNotifications: true,
+                    loginAlerts: false
+                },
+                security: {
+                    twoFactorEnabled: false,
+                    forcePasswordChange: true,
+                    lastPasswordChange: '2023-06-10'
+                }
+            },
+            {
+                id: 4,
+                username: 'auditor',
+                fullname: 'Senior Auditor',
+                email: 'auditor@eswacaa.sz',
+                phone: '+268 7612 1004',
+                role: 'Auditor',
+                department: 'Audit',
+                employeeId: 'EMP004',
+                status: 'Active',
+                lastLogin: '2024-02-07 16:20:00',
+                failedAttempts: 0,
+                expires: '2025-06-30',
+                created: '2023-08-15',
+                permissions: ['read', 'audit', 'export'],
+                preferences: {
+                    language: 'en',
+                    timezone: 'Africa/Mbabane',
+                    dateFormat: 'DD/MM/YYYY',
+                    emailNotifications: true,
+                    systemNotifications: true,
+                    loginAlerts: true
+                },
+                security: {
+                    twoFactorEnabled: true,
+                    forcePasswordChange: false,
+                    lastPasswordChange: '2024-02-01'
+                }
+            },
+            {
+                id: 5,
+                username: 'finance_mgr',
+                fullname: 'Finance Manager',
+                email: 'finance@eswacaa.sz',
+                phone: '+268 7612 1005',
+                role: 'Finance',
+                department: 'Finance',
+                employeeId: 'EMP005',
+                status: 'Inactive',
+                lastLogin: '2024-01-28 10:15:00',
+                failedAttempts: 0,
+                expires: '2024-12-31',
+                created: '2023-04-10',
+                permissions: ['read', 'write', 'finance', 'export'],
+                preferences: {
+                    language: 'en',
+                    timezone: 'Africa/Mbabane',
+                    dateFormat: 'MM/DD/YYYY',
+                    emailNotifications: true,
+                    systemNotifications: false,
+                    loginAlerts: true
+                },
+                security: {
+                    twoFactorEnabled: false,
+                    forcePasswordChange: false,
+                    lastPasswordChange: '2023-12-15'
+                }
             }
         ];
     }
@@ -632,6 +741,71 @@ export class DataManager {
 
     findContractById(contractId) {
         return this.contracts.find(c => c.id === contractId);
+    }
+
+    // Enhanced methods for user management
+    createUser(userData) {
+        const newUser = {
+            id: this.userAccounts.length + 1,
+            ...userData,
+            status: 'Active',
+            created: new Date().toISOString().split('T')[0],
+            lastLogin: null,
+            failedAttempts: 0
+        };
+        
+        this.userAccounts.push(newUser);
+        return newUser;
+    }
+
+    updateUser(userId, updatedData) {
+        const userIndex = this.userAccounts.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            this.userAccounts[userIndex] = { ...this.userAccounts[userIndex], ...updatedData };
+            return this.userAccounts[userIndex];
+        }
+        return null;
+    }
+
+    getUsersByRole(role) {
+        return this.userAccounts.filter(u => u.role === role);
+    }
+
+    getUsersByDepartment(department) {
+        return this.userAccounts.filter(u => u.department === department);
+    }
+
+    getUsersByStatus(status) {
+        return this.userAccounts.filter(u => u.status === status);
+    }
+
+    searchUsers(query) {
+        const searchTerm = query.toLowerCase();
+        return this.userAccounts.filter(user => 
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.fullname.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    getUserMetrics() {
+        const users = this.userAccounts;
+        return {
+            total: users.length,
+            active: users.filter(u => u.status === 'Active').length,
+            inactive: users.filter(u => u.status === 'Inactive').length,
+            locked: users.filter(u => u.status === 'Locked').length,
+            expired: users.filter(u => u.status === 'Expired').length,
+            administrators: users.filter(u => u.role === 'Administrator').length,
+            failedLogins: users.reduce((sum, u) => sum + (u.failedAttempts || 0), 0),
+            expiringAccounts: users.filter(u => {
+                if (!u.expires) return false;
+                const expiry = new Date(u.expires);
+                const in90Days = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+                return expiry <= in90Days;
+            }).length,
+            twoFactorEnabled: users.filter(u => u.security?.twoFactorEnabled).length
+        };
     }
 }
 

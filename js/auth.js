@@ -4,121 +4,50 @@ export class AuthModule {
     constructor() {
         this.currentUser = null;
         this.validCredentials = [
-            { username: 'admin', password: 'admin123', role: 'Administrator' },
-            { username: 'editor', password: 'editor123', role: 'Editor' },
-            { username: 'viewer', password: 'viewer123', role: 'Viewer' }
+            { username: 'admin', password: 'admin123', role: 'Administrator', userId: 1 },
+            { username: 'editor', password: 'editor123', role: 'Editor', userId: 2 },
+            { username: 'viewer', password: 'viewer123', role: 'Viewer', userId: 3 },
+            { username: 'auditor', password: 'auditor123', role: 'Auditor', userId: 4 },
+            { username: 'finance_mgr', password: 'finance123', role: 'Finance', userId: 5 }
         ];
     }
 
-    setupLoginForm() {
-        const loginForm = document.getElementById('login-form');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const passwordToggle = document.querySelector('.password-toggle');
-        
-        // Password toggle
-        if (passwordToggle && passwordInput) {
-            passwordToggle.addEventListener('click', function() {
-                const type = passwordInput.type === 'password' ? 'text' : 'password';
-                passwordInput.type = type;
-                
-                const icon = this.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
-                }
-            });
-        }
-        
-        // Form submission
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const username = usernameInput?.value?.trim() || '';
-                const password = passwordInput?.value?.trim() || '';
-                
-                if (!username || !password) {
-                    this.showValidationErrors();
-                    return;
-                }
-                
-                this.authenticateUser(username, password);
-            });
-        }
-        
-        // Enter key support
-        [usernameInput, passwordInput].forEach(input => {
-            if (input) {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        loginForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            }
-        });
-    }
-
-    showValidationErrors() {
-        const usernameError = document.getElementById('username-error');
-        const passwordError = document.getElementById('password-error');
-        
-        if (usernameError) usernameError.style.display = 'block';
-        if (passwordError) passwordError.style.display = 'block';
-        
-        setTimeout(() => {
-            if (usernameError) usernameError.style.display = 'none';
-            if (passwordError) passwordError.style.display = 'none';
-        }, 3000);
-    }
-
-    authenticateUser(username, password) {
+    authenticate(username, password) {
         const user = this.validCredentials.find(cred => 
             cred.username === username && cred.password === password
         );
-        
+
         if (user) {
             this.currentUser = {
+                id: user.userId,
                 username: user.username,
                 role: user.role,
-                department: user.role === 'Administrator' ? 'Management' : 
-                          user.role === 'Editor' ? 'Finance' : 'Audit',
+                department: this.getDepartmentByRole(user.role),
                 lastLogin: new Date().toISOString()
             };
-            
-            // Dispatch custom event for successful login
-            document.dispatchEvent(new CustomEvent('userAuthenticated', {
-                detail: { user: this.currentUser, username }
-            }));
-            
-            return true;
-        } else {
-            // Dispatch custom event for failed login
-            document.dispatchEvent(new CustomEvent('authenticationFailed', {
-                detail: { username }
-            }));
-            
-            return false;
+            return { success: true, user: this.currentUser };
         }
+
+        return { success: false, error: 'Invalid credentials' };
     }
 
-    logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            const currentUser = this.currentUser;
-            this.currentUser = null;
-            
-            // Dispatch logout event
-            document.dispatchEvent(new CustomEvent('userLoggedOut', {
-                detail: { user: currentUser }
-            }));
-            
-            return true;
-        }
-        return false;
+    getDepartmentByRole(role) {
+        const departmentMap = {
+            'Administrator': 'Management',
+            'Editor': 'Finance',
+            'Viewer': 'Audit',
+            'Auditor': 'Audit',
+            'Finance': 'Finance'
+        };
+        return departmentMap[role] || 'General';
     }
 
     getCurrentUser() {
         return this.currentUser;
+    }
+
+    logout() {
+        this.currentUser = null;
     }
 
     isAuthenticated() {
@@ -127,5 +56,19 @@ export class AuthModule {
 
     hasRole(role) {
         return this.currentUser && this.currentUser.role === role;
+    }
+
+    hasPermission(permission) {
+        if (!this.currentUser) return false;
+        
+        const permissions = {
+            'Administrator': ['read', 'write', 'delete', 'admin'],
+            'Editor': ['read', 'write'],
+            'Viewer': ['read'],
+            'Auditor': ['read', 'audit'],
+            'Finance': ['read', 'write', 'finance']
+        };
+
+        return permissions[this.currentUser.role]?.includes(permission) || false;
     }
 }

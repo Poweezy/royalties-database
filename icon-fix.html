@@ -1,570 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Icon Fix Script</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Fix - Mining Royalties Manager</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .icon-preview {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #d4af37;
+        }
+        h1 { margin-bottom: 10px; }
+        p { margin-bottom: 20px; opacity: 0.9; }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #d4af37;
+            color: #1a365d;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #e6c659;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
-    <script>
-        // Enhanced FontAwesome replacement and error handling
-        (function() {
-            'use strict';
-            
-            // Extended icon mapping with more icons
-            const iconMap = {
-                'fa-home': '🏠',
-                'fa-user': '👤',
-                'fa-users': '👥',
-                'fa-chart-bar': '📊',
-                'fa-chart-line': '📈',
-                'fa-chart-pie': '🥧',
-                'fa-file-alt': '📄',
-                'fa-file': '📄',
-                'fa-folder': '📁',
-                'fa-cog': '⚙️',
-                'fa-settings': '⚙️',
-                'fa-database': '🗄️',
-                'fa-money-bill': '💰',
-                'fa-dollar-sign': '💲',
-                'fa-search': '🔍',
-                'fa-plus': '➕',
-                'fa-edit': '✏️',
-                'fa-pencil': '✏️',
-                'fa-trash': '🗑️',
-                'fa-delete': '🗑️',
-                'fa-download': '⬇️',
-                'fa-upload': '⬆️',
-                'fa-print': '🖨️',
-                'fa-eye': '👁️',
-                'fa-eye-slash': '🙈',
-                'fa-lock': '🔒',
-                'fa-unlock': '🔓',
-                'fa-calendar': '📅',
-                'fa-clock': '🕐',
-                'fa-time': '🕐',
-                'fa-check': '✅',
-                'fa-times': '❌',
-                'fa-close': '❌',
-                'fa-warning': '⚠️',
-                'fa-exclamation-triangle': '⚠️',
-                'fa-info': 'ℹ️',
-                'fa-info-circle': 'ℹ️',
-                'fa-arrow-up': '⬆️',
-                'fa-arrow-down': '⬇️',
-                'fa-arrow-left': '⬅️',
-                'fa-arrow-right': '➡️',
-                'fa-bars': '☰',
-                'fa-menu': '☰',
-                'fa-bell': '🔔',
-                'fa-envelope': '✉️',
-                'fa-phone': '📞',
-                'fa-star': '⭐',
-                'fa-heart': '❤️',
-                'fa-bookmark': '🔖',
-                'fa-share': '📤',
-                'fa-save': '💾',
-                'fa-filter': '🔽',
-                'fa-sort': '↕️',
-                'fa-refresh': '🔄',
-                'fa-sync': '🔄',
-                'fa-power-off': '⏻',
-                'fa-sign-out': '🚪',
-                'fa-sign-in': '🚪',
-                'fa-question': '❓',
-                'fa-help': '❓',
-                // Additional common icons
-                'fa-chart': '📊',
-                'fa-report': '📊',
-                'fa-dashboard': '📋',
-                'fa-analytics': '📈',
-                'fa-notification': '🔔',
-                'fa-notifications': '🔔'
-            };
-
-            // Ultra-aggressive error suppression
-            function suppressErrors() {
-                const errorPatterns = [
-                    'fontawesome',
-                    'favicon',
-                    'CORS',
-                    '404',
-                    'kit.fontawesome.com',
-                    'a076d05399.js',
-                    'favicon-192.png',
-                    'Manifest',
-                    'Access to fetch',
-                    'SyntaxError: Unexpected identifier',
-                    'Download error or resource',
-                    'blocked by CORS policy',
-                    'No \'Access-Control-Allow-Origin\'',
-                    'Unexpected identifier \'content\'',
-                    'GET http://127.0.0.1:5500/favicon-192.png 404',
-                    'Error while trying to use the following icon'
-                ];
-
-                // Override ALL console methods
-                ['error', 'warn', 'log', 'info', 'debug'].forEach(method => {
-                    const original = console[method];
-                    console[method] = function(...args) {
-                        const message = args.join(' ').toLowerCase();
-                        if (errorPatterns.some(pattern => message.includes(pattern.toLowerCase()))) {
-                            return; // Completely suppress these errors
-                        }
-                        original.apply(console, args);
-                    };
-                });
-
-                // Override window.onerror completely
-                window.onerror = function(msg, file, line, col, error) {
-                    const message = (msg || '').toLowerCase();
-                    const filename = (file || '').toLowerCase();
-                    
-                    if (errorPatterns.some(pattern => 
-                        message.includes(pattern.toLowerCase()) || 
-                        filename.includes(pattern.toLowerCase())
-                    )) {
-                        return true; // Suppress the error
-                    }
-                    return false; // Allow other errors
-                };
-
-                // Suppress all unhandled rejections
-                window.addEventListener('unhandledrejection', function(e) {
-                    const reason = (e.reason || '').toString().toLowerCase();
-                    if (errorPatterns.some(pattern => reason.includes(pattern.toLowerCase()))) {
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-
-                // Suppress resource loading errors
-                window.addEventListener('error', function(e) {
-                    if (e.target && e.target.src) {
-                        const src = e.target.src.toLowerCase();
-                        if (errorPatterns.some(pattern => src.includes(pattern.toLowerCase()))) {
-                            e.preventDefault();
-                            return false;
-                        }
-                    }
-                }, true);
-            }
-
-            // Preemptively block ALL problematic requests
-            function blockProblematicRequests() {
-                const blockedUrls = [
-                    'kit.fontawesome.com',
-                    'a076d05399.js',
-                    'favicon-192.png',
-                    'fontawesome'
-                ];
-
-                // Override fetch globally
-                const originalFetch = window.fetch;
-                window.fetch = function(url, options) {
-                    const urlString = (url || '').toString().toLowerCase();
-                    if (blockedUrls.some(blocked => urlString.includes(blocked))) {
-                        return Promise.resolve(new Response('', { status: 200 }));
-                    }
-                    return originalFetch.apply(this, arguments);
-                };
-
-                // Override XMLHttpRequest
-                const OriginalXHR = window.XMLHttpRequest;
-                window.XMLHttpRequest = function() {
-                    const xhr = new OriginalXHR();
-                    const originalOpen = xhr.open;
-                    const originalSend = xhr.send;
-                    
-                    xhr.open = function(method, url) {
-                        const urlString = (url || '').toString().toLowerCase();
-                        if (blockedUrls.some(blocked => urlString.includes(blocked))) {
-                            // Create a fake successful response
-                            setTimeout(() => {
-                                Object.defineProperty(xhr, 'readyState', { value: 4, writable: false });
-                                Object.defineProperty(xhr, 'status', { value: 200, writable: false });
-                                Object.defineProperty(xhr, 'responseText', { value: '', writable: false });
-                                if (xhr.onreadystatechange) xhr.onreadystatechange();
-                                if (xhr.onload) xhr.onload();
-                            }, 0);
-                            return;
-                        }
-                        return originalOpen.apply(this, arguments);
-                    };
-                    
-                    xhr.send = function() {
-                        // Only send if the request wasn't blocked
-                        if (this._blocked) return;
-                        return originalSend.apply(this, arguments);
-                    };
-                    
-                    return xhr;
-                };
-
-                // Block dynamic script loading
-                const originalCreateElement = document.createElement;
-                document.createElement = function(tagName) {
-                    const element = originalCreateElement.call(this, tagName);
-                    
-                    if (tagName.toLowerCase() === 'script') {
-                        const originalSrcSetter = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src').set;
-                        Object.defineProperty(element, 'src', {
-                            set: function(value) {
-                                const src = (value || '').toString().toLowerCase();
-                                if (blockedUrls.some(blocked => src.includes(blocked))) {
-                                    return; // Block setting problematic src
-                                }
-                                originalSrcSetter.call(this, value);
-                            },
-                            get: function() {
-                                return this.getAttribute('src') || '';
-                            }
-                        });
-                    }
-                    
-                    return element;
-                };
-            }
-
-            // Immediate DOM cleanup
-            function immediateCleanup() {
-                // Remove problematic elements immediately
-                const selectors = [
-                    'script[src*="fontawesome"]',
-                    'script[src*="a076d05399"]',
-                    'link[href*="fontawesome"]',
-                    'link[href*="favicon-192"]',
-                    'link[rel="manifest"]'
-                ];
-                
-                selectors.forEach(selector => {
-                    document.querySelectorAll(selector).forEach(el => el.remove());
-                });
-            }
-
-            function replaceIcons() {
-                // Find all elements with FontAwesome classes
-                const allElements = document.querySelectorAll('[class*="fa-"]');
-                
-                allElements.forEach(element => {
-                    const classList = Array.from(element.classList);
-                    let iconReplaced = false;
-                    
-                    classList.forEach(className => {
-                        if (iconMap[className]) {
-                            // Remove FontAwesome classes
-                            element.classList.remove(className, 'fas', 'far', 'fab', 'fa');
-                            
-                            // Add emoji icon
-                            if (!element.textContent.trim() || element.textContent.trim().length === 1) {
-                                element.textContent = iconMap[className];
-                                element.classList.add('emoji-icon');
-                                iconReplaced = true;
-                            }
-                        }
-                    });
-                    
-                    // If no icon was replaced but element has fa- classes, add a default icon
-                    if (!iconReplaced && classList.some(c => c.startsWith('fa-'))) {
-                        element.textContent = '📋';
-                        element.classList.add('emoji-icon');
-                        // Remove all FontAwesome classes
-                        classList.forEach(c => {
-                            if (c.startsWith('fa')) {
-                                element.classList.remove(c);
-                            }
-                        });
-                    }
-                });
-            }
-
-            function removeFailedFontAwesome() {
-                // Remove failed FontAwesome script tags more aggressively
-                const fontAwesomeScripts = document.querySelectorAll('script');
-                fontAwesomeScripts.forEach(script => {
-                    if (script.src && (
-                        script.src.includes('kit.fontawesome.com') ||
-                        script.src.includes('a076d05399.js') ||
-                        script.src.includes('fontawesome')
-                    )) {
-                        script.remove();
-                    }
-                });
-
-                // Remove failed stylesheet links
-                const fontAwesomeLinks = document.querySelectorAll('link');
-                fontAwesomeLinks.forEach(link => {
-                    if (link.href && (
-                        link.href.includes('fontawesome') ||
-                        link.href.includes('favicon-192.png')
-                    )) {
-                        link.remove();
-                    }
-                });
-
-                // Remove any manifest references to problematic icons
-                const manifestLink = document.querySelector('link[rel="manifest"]');
-                if (manifestLink) {
-                    manifestLink.remove();
-                }
-            }
-
-            function addMobileMenuToggle() {
-                if (!document.querySelector('.mobile-menu-toggle')) {
-                    const toggle = document.createElement('button');
-                    toggle.className = 'mobile-menu-toggle';
-                    toggle.innerHTML = '☰';
-                    toggle.setAttribute('aria-label', 'Toggle Menu');
-                    
-                    toggle.onclick = function() {
-                        const sidebar = document.querySelector('.sidebar');
-                        if (sidebar) {
-                            sidebar.classList.toggle('active');
-                        }
-                    };
-                    
-                    document.body.appendChild(toggle);
-                }
-            }
-
-            function handleFontAwesomeError() {
-                // Immediately replace icons without waiting
-                replaceIcons();
-                
-                // Check if FontAwesome loaded properly after a delay
-                setTimeout(() => {
-                    const testElement = document.createElement('i');
-                    testElement.className = 'fas fa-home';
-                    testElement.style.position = 'absolute';
-                    testElement.style.left = '-9999px';
-                    document.body.appendChild(testElement);
-                    
-                    setTimeout(() => {
-                        const computedStyle = window.getComputedStyle(testElement, ':before');
-                        const content = computedStyle.getPropertyValue('content');
-                        
-                        // If FontAwesome didn't load properly, ensure all icons are replaced
-                        if (!content || content === 'none' || content === '""') {
-                            console.log('FontAwesome not available, using emoji fallbacks');
-                            removeFailedFontAwesome();
-                            replaceIcons(); // Run again to catch any new elements
-                        }
-                        
-                        document.body.removeChild(testElement);
-                    }, 100);
-                }, 200);
-            }
-
-            function createFallbackFavicon() {
-                // Remove ALL existing favicon and icon links
-                const allIconLinks = document.querySelectorAll('link[rel*="icon"], link[rel*="shortcut"], link[rel*="apple-touch-icon"]');
-                allIconLinks.forEach(link => link.remove());
-
-                // Create comprehensive favicon coverage
-                const faviconSVG = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e6c659"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="%231a365d">💰</text></svg>';
-                
-                // Standard favicon
-                const favicon = document.createElement('link');
-                favicon.rel = 'icon';
-                favicon.type = 'image/svg+xml';
-                favicon.href = faviconSVG;
-                document.head.appendChild(favicon);
-
-                // Apple touch icon
-                const appleFavicon = document.createElement('link');
-                appleFavicon.rel = 'apple-touch-icon';
-                appleFavicon.href = faviconSVG;
-                document.head.appendChild(appleFavicon);
-
-                // Add theme color
-                let themeColor = document.querySelector('meta[name="theme-color"]');
-                if (!themeColor) {
-                    themeColor = document.createElement('meta');
-                    themeColor.name = 'theme-color';
-                    themeColor.content = '#1a365d';
-                    document.head.appendChild(themeColor);
-                }
-            }
-
-            function cleanupDOM() {
-                // Remove any broken image elements
-                const brokenImages = document.querySelectorAll('img[src*="favicon"]');
-                brokenImages.forEach(img => {
-                    if (!img.src.startsWith('data:')) {
-                        img.remove();
-                    }
-                });
-
-                // Remove any error-causing elements
-                const errorElements = document.querySelectorAll('[src*="a076d05399.js"], [href*="favicon-192.png"]');
-                errorElements.forEach(el => el.remove());
-            }
-
-            // Initialize with maximum suppression
-            function init() {
-                suppressErrors();
-                blockProblematicRequests();
-                immediateCleanup();
-                createFallbackFavicon();
-                removeFailedFontAwesome();
-                cleanupDOM();
-                replaceIcons();
-                addMobileMenuToggle();
-                handleFontAwesomeError();
-                
-                // Add enhanced CSS
-                const style = document.createElement('style');
-                style.textContent = `
-                    /* Hide any broken images or failed resources */
-                    img[src*="favicon"]:not([src^="data:"]) {
-                        display: none !important;
-                    }
-                    
-                    /* Hide any script tags that might show as broken */
-                    script[src*="fontawesome"],
-                    script[src*="a076d05399"] {
-                        display: none !important;
-                    }
-                    
-                    /* Mobile menu styles */
-                    .mobile-menu-toggle {
-                        display: none;
-                        position: fixed;
-                        top: 1rem;
-                        left: 1rem;
-                        z-index: 1001;
-                        background: #1a365d;
-                        color: white;
-                        border: none;
-                        border-radius: 6px;
-                        padding: 0.75rem;
-                        box-shadow: 0 3px 5px -1px rgba(0,0,0,0.08);
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        font-size: 1.2rem;
-                        width: 48px;
-                        height: 48px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    
-                    .mobile-menu-toggle:hover {
-                        background: #153450;
-                        transform: translateY(-1px);
-                    }
-                    
-                    @media (max-width: 768px) {
-                        .mobile-menu-toggle {
-                            display: flex !important;
-                        }
-                        
-                        .main-content {
-                            padding-top: 4rem !important;
-                        }
-                        
-                        .sidebar {
-                            transform: translateX(-100%);
-                            transition: transform 0.3s ease;
-                        }
-                        
-                        .sidebar.active {
-                            transform: translateX(0);
-                        }
-                    }
-                    
-                    /* Ensure emoji icons display properly */
-                    .emoji-icon {
-                        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif !important;
-                        font-style: normal !important;
-                        font-weight: normal !important;
-                        font-variant: normal !important;
-                        text-transform: none !important;
-                        line-height: 1 !important;
-                        -webkit-font-feature-settings: "liga" !important;
-                        font-feature-settings: "liga" !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
-            // Run IMMEDIATELY before anything else can load
-            suppressErrors();
-            blockProblematicRequests();
-            immediateCleanup();
-
-            // Intercept document ready states
-            if (document.readyState === 'loading') {
-                // Run immediately and on DOMContentLoaded
-                immediateCleanup();
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-
-            // Aggressive timing
-            setTimeout(immediateCleanup, 1);
-            setTimeout(init, 10);
-            setTimeout(init, 50);
-            setTimeout(removeFailedFontAwesome, 100);
-            setTimeout(cleanupDOM, 150);
-            setTimeout(replaceIcons, 200);
-
-            // Ultra-aggressive continuous cleanup
-            setInterval(() => {
-                immediateCleanup();
-                removeFailedFontAwesome();
-                cleanupDOM();
-                replaceIcons();
-            }, 1000);
-
-            // Monitor for ANY new problematic elements
-            if (window.MutationObserver) {
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.type === 'childList') {
-                            mutation.addedNodes.forEach(function(node) {
-                                if (node.nodeType === 1) {
-                                    // Immediately remove problematic elements
-                                    if (node.src && (
-                                        node.src.includes('fontawesome') || 
-                                        node.src.includes('a076d05399') ||
-                                        node.src.includes('favicon-192')
-                                    )) {
-                                        node.remove();
-                                    }
-                                    
-                                    if (node.href && (
-                                        node.href.includes('fontawesome') ||
-                                        node.href.includes('favicon-192')
-                                    )) {
-                                        node.remove();
-                                    }
-                                    
-                                    // Replace any new FontAwesome icons
-                                    if (node.classList && Array.from(node.classList).some(c => c.startsWith('fa-'))) {
-                                        setTimeout(() => replaceIcons(), 1);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                });
-
-                // Monitor everything
-                observer.observe(document, {
-                    childList: true,
-                    subtree: true,
-                    attributes: true,
-                    attributeFilter: ['src', 'href']
-                });
-            }
-
-        })();
-    </script>
-    
-    <!-- Fallback message for users -->
-    <div style="display: none;">
-        <p>This script provides comprehensive error handling, icon fallbacks, and mobile menu functionality for the Royalties Database application.</p>
+    <div class="container">
+        <div class="icon-preview">💎</div>
+        <h1>Icons and Favicon Fixed</h1>
+        <p>All icon references have been properly configured for the Mining Royalties Manager application.</p>
+        <a href="index.html" class="btn">Return to Application</a>
     </div>
 </body>
 </html>

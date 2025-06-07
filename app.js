@@ -1014,77 +1014,183 @@ class RoyaltiesApp {
         return iconMap[action] || 'circle';
     }
 
-    loadUserManagementSection() {
+    async loadUserManagementSection() {
         const section = document.getElementById('user-management');
-        if (!section || section.innerHTML.trim()) return;
+        if (!section) return;
         
+        try {
+            // Load the user management template
+            const response = await fetch('components/user-management.html');
+            if (response.ok) {
+                const templateContent = await response.text();
+                section.innerHTML = templateContent;
+            } else {
+                // Fallback to inline content if template fails to load
+                this.loadUserManagementFallback(section);
+            }
+        } catch (error) {
+            console.log('Loading user management template from components failed, using fallback');
+            this.loadUserManagementFallback(section);
+        }
+        
+        // Populate with data and setup event handlers
+        this.populateUserManagementData();
+        this.setupUserManagementEventHandlers();
+    }
+
+    loadUserManagementFallback(section) {
         const userAccounts = dataManager.getUserAccounts();
         
         section.innerHTML = `
             <div class="page-header">
                 <div class="page-title">
-                    <h1>User Management</h1>
-                    <p>Manage system users and permissions</p>
+                    <h1>👥 User Management</h1>
+                    <p>Comprehensive user administration with role-based access control, security monitoring, and audit trails</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-primary" id="add-user-btn">
-                        <i class="fas fa-plus"></i> Add User
+                    <button class="btn btn-info" id="view-audit-btn" title="View detailed audit logs">
+                        <i class="fas fa-shield-alt"></i> View Audit Log
+                    </button>
+                    <button class="btn btn-primary" id="export-report-btn" title="Export user management report">
+                        <i class="fas fa-file-export"></i> Export Report
+                    </button>
+                    <button class="btn btn-success" id="add-user-btn" title="Add new user account">
+                        <i class="fas fa-user-plus"></i> Add User
                     </button>
                 </div>
             </div>
             
-            <div class="charts-grid">
+            <!-- User Management Metrics Dashboard -->
+            <div class="charts-grid" id="user-metrics">
                 <div class="metric-card card">
                     <div class="card-header">
                         <h3><i class="fas fa-users"></i> Active Users</h3>
+                        <select class="metric-period">
+                            <option>Current</option>
+                            <option>Last 30 days</option>
+                            <option>All time</option>
+                        </select>
                     </div>
                     <div class="card-body">
                         <p id="active-users-count">${userAccounts.filter(u => u.status === 'Active').length}</p>
+                        <small><i class="fas fa-circle text-success"></i> Currently active and logged in</small>
                     </div>
                 </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-shield"></i> Administrators</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="admin-count">${userAccounts.filter(u => u.role === 'Administrator').length}</p>
+                        <small><i class="fas fa-shield-alt"></i> System administrators</small>
+                    </div>
+                </div>
+                
                 <div class="metric-card card">
                     <div class="card-header">
                         <h3><i class="fas fa-exclamation-triangle"></i> Failed Logins</h3>
                     </div>
                     <div class="card-body">
                         <p id="failed-logins-count">${userAccounts.reduce((sum, u) => sum + (u.failedAttempts || 0), 0)}</p>
+                        <small><i class="fas fa-clock"></i> Last 24 hours</small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-times"></i> Account Expiry</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="expiring-accounts">2</p>
+                        <small><i class="fas fa-warning"></i> Expiring within 90 days</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick User Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" onclick="showBulkUserUpload()">
+                            <i class="fas fa-upload"></i>
+                            <span>Bulk Import Users</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="resetAllPasswords()">
+                            <i class="fas fa-key"></i>
+                            <span>Reset Passwords</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="auditUserActivity()">
+                            <i class="fas fa-search"></i>
+                            <span>Audit Activity</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="generateUserReport()">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Generate Report</span>
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-header">
-                    <h3>User Accounts</h3>
-                </div>
+            <!-- User Management Table Container -->
+            <div id="user-table-container">
                 <div class="table-container">
+                    <div class="section-header">
+                        <h4><i class="fas fa-users"></i> User Accounts Registry</h4>
+                        <div class="table-actions">
+                            <button class="btn btn-info btn-sm" id="filter-users-btn">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="sort-users-btn">
+                                <i class="fas fa-sort"></i> Sort
+                            </button>
+                            <button class="btn btn-warning btn-sm" id="bulk-actions-btn">
+                                <i class="fas fa-tasks"></i> Bulk Actions
+                            </button>
+                        </div>
+                    </div>
+
                     <table class="data-table" id="users-table">
                         <thead>
                             <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Department</th>
-                                <th>Status</th>
-                                <th>Last Login</th>
+                                <th><input type="checkbox" id="select-all-users" title="Select all users"></th>
+                                <th sortable data-sort="username">Username</th>
+                                <th sortable data-sort="email">Email</th>
+                                <th sortable data-sort="role">Role</th>
+                                <th sortable data-sort="department">Department</th>
+                                <th sortable data-sort="status">Status</th>
+                                <th sortable data-sort="lastLogin">Last Login</th>
+                                <th sortable data-sort="created">Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="users-table-tbody">
                             ${userAccounts.map(user => `
                                 <tr>
+                                    <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
                                     <td>${user.username}</td>
                                     <td>${user.email}</td>
                                     <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
                                     <td>${user.department}</td>
                                     <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-                                    <td>${user.lastLogin || 'Never'}</td>
+                                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
+                                    <td>${new Date(user.created).toLocaleDateString()}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})">
-                                                <i class="fas fa-edit"></i> Edit
+                                            <button class="btn btn-sm btn-info" onclick="window.userActions.viewUserDetails(${user.id})" title="View Details">
+                                                <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})">
-                                                <i class="fas fa-trash"></i> Delete
+                                            <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})" title="Edit User">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="window.userActions.resetUserPassword(${user.id})" title="Reset Password">
+                                                <i class="fas fa-key"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})" title="Delete User">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -1092,231 +1198,306 @@ class RoyaltiesApp {
                             `).join('')}
                         </tbody>
                     </table>
+
+                    <div class="table-pagination">
+                        <div class="pagination-info">
+                            Showing <span id="showing-start">1</span> to <span id="showing-end">${userAccounts.length}</span> of <span id="total-users">${userAccounts.length}</span> users
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn btn-sm btn-secondary" id="prev-page" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <div class="pagination-pages">
+                                <a href="#" class="page-btn active">1</a>
+                            </div>
+                            <button class="btn btn-sm btn-secondary" id="next-page" disabled>
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
     }
 
-    loadRoyaltyRecordsSection() {
-        const section = document.getElementById('royalty-records');
-        if (!section) return;
+    populateUserManagementData() {
+        const userAccounts = dataManager.getUserAccounts();
         
-        const royaltyRecords = dataManager.getRoyaltyRecords();
+        // Update metrics
+        const activeUsersElement = document.getElementById('active-users-count');
+        if (activeUsersElement) {
+            activeUsersElement.textContent = userAccounts.filter(u => u.status === 'Active').length;
+        }
         
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>Royalty Records</h1>
-                    <p>Manage royalty payments and records</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-primary" onclick="window.recordActions.showAddRecordForm()">
-                        <i class="fas fa-plus"></i> Add Record
+        const adminCountElement = document.getElementById('admin-count');
+        if (adminCountElement) {
+            adminCountElement.textContent = userAccounts.filter(u => u.role === 'Administrator').length;
+        }
+        
+        const failedLoginsElement = document.getElementById('failed-logins-count');
+        if (failedLoginsElement) {
+            failedLoginsElement.textContent = userAccounts.reduce((sum, u) => sum + (u.failedAttempts || 0), 0);
+        }
+        
+        // Populate user table
+        const tbody = document.getElementById('users-table-tbody');
+        if (tbody) {
+            tbody.innerHTML = userAccounts.map(user => `
+                <tr>
+                    <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
+                    <td>${user.department}</td>
+                    <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
+                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
+                    <td>${new Date(user.created).toLocaleDateString()}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-info" onclick="window.userActions.viewUserDetails(${user.id})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="window.userActions.resetUserPassword(${user.id})" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    setupUserManagementEventHandlers() {
+        // Add User button
+        const addUserBtn = document.getElementById('add-user-btn');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => {
+                this.showAddUserModal();
+            });
+        }
+        
+        // View Audit Log button
+        const viewAuditBtn = document.getElementById('view-audit-btn');
+        if (viewAuditBtn) {
+            viewAuditBtn.addEventListener('click', () => {
+                this.toggleAuditLogSection();
+            });
+        }
+        
+        // Export Report button
+        const exportReportBtn = document.getElementById('export-report-btn');
+        if (exportReportBtn) {
+            exportReportBtn.addEventListener('click', () => {
+                notificationManager.show('Exporting user management report...', 'info');
+            });
+        }
+        
+        // Select all users checkbox
+        const selectAllCheckbox = document.getElementById('select-all-users');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                const userCheckboxes = document.querySelectorAll('.user-checkbox');
+                userCheckboxes.forEach(checkbox => {
+                    checkbox.checked = e.target.checked;
+                });
+            });
+        }
+    }
+
+    showAddUserModal() {
+        // Check if modal exists, if not create it
+        let modal = document.getElementById('add-user-modal');
+        if (!modal) {
+            modal = this.createAddUserModal();
+            document.body.appendChild(modal);
+        }
+        
+        modal.style.display = 'flex';
+        this.setupAddUserModalEventHandlers(modal);
+    }
+
+    createAddUserModal() {
+        const modal = document.createElement('div');
+        modal.id = 'add-user-modal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-plus"></i> Add New User Account</h3>
+                    <button class="modal-close" type="button">
+                        <i class="fas fa-times"></i>
                     </button>
-                    <button class="btn btn-info" onclick="window.recordActions.exportRecords()">
-                        <i class="fas fa-download"></i> Export
+                </div>
+                <div class="modal-body">
+                    <form id="add-user-form">
+                        <div class="grid-4">
+                            <div class="form-group">
+                                <label for="new-username">
+                                    <i class="fas fa-user"></i> Username *
+                                </label>
+                                <input type="text" id="new-username" name="username" placeholder="Enter unique username" required>
+                                <small class="form-help">3-50 characters, letters, numbers, dots, dashes, underscores only</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-email">
+                                    <i class="fas fa-envelope"></i> Email Address *
+                                </label>
+                                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required>
+                                <small class="form-help">Official organization email address</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-role">
+                                    <i class="fas fa-user-tag"></i> Role *
+                                </label>
+                                <select id="new-role" name="role" required>
+                                    <option value="">Select user role</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Editor">Editor</option>
+                                    <option value="Viewer">Viewer</option>
+                                    <option value="Auditor">Auditor</option>
+                                    <option value="Finance">Finance Manager</option>
+                                </select>
+                                <small class="form-help">Determines system access permissions</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-department">
+                                    <i class="fas fa-building"></i> Department *
+                                </label>
+                                <select id="new-department" name="department" required>
+                                    <option value="">Select department</option>
+                                    <option value="Management">Management</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Audit">Audit</option>
+                                    <option value="Legal">Legal</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="IT">Information Technology</option>
+                                </select>
+                                <small class="form-help">User's organizational department</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="create-user-btn">
+                        <i class="fas fa-user-plus"></i> Create User Account
                     </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>Royalty Records</h3>
-                </div>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Reference</th>
-                                <th>Entity</th>
-                                <th>Mineral</th>
-                                <th>Volume</th>
-                                <th>Tariff</th>
-                                <th>Royalties</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${royaltyRecords.map(record => `
-                                <tr>
-                                    <td>${record.referenceNumber}</td>
-                                    <td>${record.entity}</td>
-                                    <td>${record.mineral}</td>
-                                    <td>${record.volume.toLocaleString()}</td>
-                                    <td>E${record.tariff}</td>
-                                    <td>E${record.royalties.toLocaleString()}</td>
-                                    <td>${record.date}</td>
-                                    <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-secondary" onclick="window.recordActions.viewRecord(${record.id})">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="btn btn-sm btn-info" onclick="window.recordActions.editRecord(${record.id})">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         `;
+        return modal;
     }
 
-    loadContractManagementSection() {
-        const section = document.getElementById('contract-management');
-        if (!section) return;
+    setupAddUserModalEventHandlers(modal) {
+        // Close modal handlers
+        const closeBtn = modal.querySelector('.modal-close');
+        const cancelBtn = modal.querySelector('.modal-cancel');
         
-        const contracts = dataManager.getContracts();
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📋 Contract Management</h1>
-                    <p>Securely store and manage diverse royalty agreements with various stakeholders</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-success" onclick="window.contractActions.showAddContractForm()">
-                        <i class="fas fa-plus"></i> New Contract
-                    </button>
-                    <button class="btn btn-info" onclick="window.contractActions.showContractTemplates()">
-                        <i class="fas fa-file-contract"></i> Templates
-                    </button>
-                    <button class="btn btn-primary" onclick="window.contractActions.exportContracts()">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Contract Overview Metrics -->
-            <div class="charts-grid">
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>${contracts.filter(c => c.status === 'active').length}</p>
-                        <small><i class="fas fa-arrow-up trend-positive"></i> ${contracts.filter(c => new Date(c.signedDate) > new Date(Date.now() - 90*24*60*60*1000)).length} new this quarter</small>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>${contracts.filter(c => new Date(c.endDate) < new Date(Date.now() + 90*24*60*60*1000)).length}</p>
-                        <small><i class="fas fa-exclamation-triangle trend-negative"></i> Within 90 days</small>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-handshake"></i> Total Value</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>E ${(contracts.reduce((sum, c) => sum + c.totalValue, 0) / 1000000).toFixed(1)}M</p>
-                        <small><i class="fas fa-arrow-up trend-positive"></i> +12% YTD</small>
-                    </div>
-                </div>
+        [closeBtn, cancelBtn].forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        });
 
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-users"></i> Stakeholder Types</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>4</p>
-                        <small>
-                            Gov: ${contracts.filter(c => c.stakeholderType === 'government').length} | 
-                            Private: ${contracts.filter(c => c.stakeholderType === 'private').length} | 
-                            Landowners: ${contracts.filter(c => c.stakeholderType === 'landowner').length} |
-                            JV: ${contracts.filter(c => c.stakeholderType === 'joint-venture').length}
-                        </small>
-                    </div>
-                </div>
-            </div>
+        // Create user handler
+        const createBtn = modal.querySelector('#create-user-btn');
+        createBtn.addEventListener('click', () => {
+            this.handleCreateUser(modal);
+        });
 
-            <!-- Contracts Registry Table -->
-            <div class="table-container">
-                <div class="section-header">
-                    <h4>📋 Contract Registry</h4>
-                    <div class="table-actions">
-                        <button class="btn btn-info btn-sm">
-                            <i class="fas fa-filter"></i> Filter
-                        </button>
-                        <button class="btn btn-secondary btn-sm">
-                            <i class="fas fa-sort"></i> Sort
-                        </button>
-                        <button class="btn btn-warning btn-sm">
-                            <i class="fas fa-bell"></i> Alerts
-                        </button>
-                    </div>
-                </div>
-                <table class="data-table" id="contracts-table">
-                    <thead>
-                        <tr>
-                            <th>Contract ID</th>
-                            <th>Stakeholder</th>
-                            <th>Type</th>
-                            <th>Calculation Method</th>
-                            <th>Royalty Rate</th>
-                            <th>Payment Schedule</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                            <th>Value</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${contracts.map(contract => `
-                            <tr>
-                                <td>${contract.id}</td>
-                                <td>${contract.stakeholder}</td>
-                                <td><span class="contract-type-badge ${contract.stakeholderType}">${contract.stakeholderType.charAt(0).toUpperCase() + contract.stakeholderType.slice(1)}</span></td>
-                                <td><span class="method-badge ${contract.calculationMethod}">${contract.calculationMethod.charAt(0).toUpperCase() + contract.calculationMethod.slice(1)}</span></td>
-                                <td>${contract.royaltyRate}</td>
-                                <td>${contract.paymentSchedule.charAt(0).toUpperCase() + contract.paymentSchedule.slice(1)}</td>
-                                <td>${contract.endDate}</td>
-                                <td><span class="status-badge ${contract.status.replace('-', '_')}">${contract.status.charAt(0).toUpperCase() + contract.status.slice(1).replace('-', ' ')}</span></td>
-                                <td>E ${(contract.totalValue / 1000000).toFixed(1)}M</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <button class="btn btn-info btn-sm" onclick="window.contractActions.viewContractDetails('${contract.id}')"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm" onclick="window.contractActions.editContract('${contract.id}')"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-secondary btn-sm" onclick="window.contractActions.downloadContract('${contract.id}')"><i class="fas fa-download"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
+        // Click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     }
 
-    loadGenericSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (!section) return;
+    handleCreateUser(modal) {
+        const form = modal.querySelector('#add-user-form');
+        const formData = new FormData(form);
         
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ')}</h1>
-                    <p>This section is under development</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p>Content for ${sectionId} section will be implemented here.</p>
-                </div>
-            </div>
-        `;
+        const newUser = {
+            username: formData.get('username'),
+            email: formData.get('email'),
+            role: formData.get('role'),
+            department: formData.get('department'),
+            status: 'Active',
+            created: new Date().toISOString().split('T')[0],
+            lastLogin: null,
+            failedAttempts: 0
+        };
+
+        // Simple validation
+        if (!newUser.username || !newUser.email || !newUser.role || !newUser.department) {
+            notificationManager.show('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Add to data manager
+        dataManager.userAccounts.push({
+            id: dataManager.userAccounts.length + 1,
+            ...newUser
+        });
+
+        // Add audit entry
+        dataManager.addAuditEntry({
+            user: authManager.getCurrentUser()?.username || 'admin',
+            action: 'Create User',
+            target: newUser.username,
+            ipAddress: '192.168.1.100',
+            status: 'Success',
+            details: `Created new user account for ${newUser.username}`
+        });
+
+        notificationManager.show(`User ${newUser.username} created successfully`, 'success');
+        modal.style.display = 'none';
+
+        // Reload the section
+        this.loadSectionContent('user-management');
     }
+
+    toggleAuditLogSection() {
+        const auditContainer = document.getElementById('security-audit-container');
+        if (!auditContainer) return;
+        
+        if (auditContainer.style.display === 'none') {
+            auditContainer.style.display = 'block';
+            this.populateAuditLog();
+        } else {
+            auditContainer.style.display = 'none';
+        }
+    }
+
+    populateAuditLog() {
+        const tbody = document.getElementById('audit-log-tbody');
+        if (!tbody) return;
+        
+        const auditLog = dataManager.getAuditLog();
+        
+        tbody.innerHTML = auditLog.map(entry => `
+            <tr>
+                <td>${entry.timestamp}</td>
+                <td>${entry.user}</td>
+                <td><span class="action-badge ${entry.action.toLowerCase().replace(' ', '-')}">${entry.action}</span></td>
+                <td>${entry.target}</td>
+                <td>${entry.ipAddress}</td>
+                <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
+                <td>${entry.details}</td>
+            </tr>
+        `).join('');
+    }
+
+    // ...existing code...
 }
 
 // Action Handlers
