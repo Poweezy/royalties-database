@@ -10,6 +10,7 @@ let auditLog = [];
 let charts = {};
 let entities = [];
 let minerals = [];
+let contracts = [];
 
 // Application initialization
 document.addEventListener('DOMContentLoaded', function() {
@@ -251,12 +252,148 @@ function initializeApplicationData() {
         }
     ];
 
+    // Initialize comprehensive contract data
+    contracts = [
+        {
+            id: 'MC-2024-001',
+            stakeholder: 'Government of Eswatini',
+            stakeholderType: 'government',
+            entity: 'Maloma Colliery',
+            contractType: 'Mining License Agreement',
+            calculationMethod: 'ad-valorem',
+            royaltyRate: '2.5% of gross value',
+            baseRate: 2.5,
+            rateType: 'percentage',
+            startDate: '2024-01-01',
+            endDate: '2029-12-31',
+            status: 'active',
+            totalValue: 15500000,
+            paymentSchedule: 'monthly',
+            paymentDue: 15, // 15th of each month
+            lateFeeRate: 2.0,
+            gracePeriod: 30,
+            escalationClause: {
+                enabled: true,
+                frequency: 'annual',
+                rate: 2.5,
+                nextEscalation: '2025-03-15'
+            },
+            conditions: [
+                'Environmental compliance required',
+                'Quarterly production reports mandatory',
+                'Safety standards certification'
+            ],
+            signedDate: '2023-12-15',
+            lastReview: '2024-01-01',
+            nextReview: '2025-01-01'
+        },
+        {
+            id: 'LC-2024-002',
+            stakeholder: 'Mhlume Holdings Ltd',
+            stakeholderType: 'private',
+            entity: 'Ngwenya Mine',
+            contractType: 'Private Land Lease',
+            calculationMethod: 'profit-based',
+            royaltyRate: '15% of net profit',
+            baseRate: 15.0,
+            rateType: 'percentage',
+            startDate: '2024-03-15',
+            endDate: '2027-03-14',
+            status: 'active',
+            totalValue: 8200000,
+            paymentSchedule: 'quarterly',
+            paymentDue: 'end-of-quarter',
+            lateFeeRate: 1.5,
+            gracePeriod: 14,
+            escalationClause: {
+                enabled: false
+            },
+            conditions: [
+                'Land restoration fund contribution',
+                'Community development levy',
+                'Water usage monitoring'
+            ],
+            signedDate: '2024-02-28',
+            lastReview: '2024-03-15',
+            nextReview: '2025-03-15'
+        },
+        {
+            id: 'LO-2024-003',
+            stakeholder: 'Magwegwe Community Trust',
+            stakeholderType: 'landowner',
+            entity: 'Piggs Peak Quarry',
+            contractType: 'Landowner Royalty Agreement',
+            calculationMethod: 'quantity-based',
+            royaltyRate: 'E 12 per tonne',
+            baseRate: 12.0,
+            rateType: 'fixed-amount',
+            startDate: '2024-06-01',
+            endDate: '2025-05-31',
+            status: 'pending-renewal',
+            totalValue: 2800000,
+            paymentSchedule: 'monthly',
+            paymentDue: 1, // 1st of each month
+            lateFeeRate: 3.0,
+            gracePeriod: 7,
+            escalationClause: {
+                enabled: true,
+                frequency: 'annual',
+                rate: 3.0,
+                nextEscalation: '2025-06-01'
+            },
+            conditions: [
+                'Traditional land usage rights respected',
+                'Local employment priority',
+                'Cultural heritage site protection'
+            ],
+            signedDate: '2024-05-15',
+            lastReview: '2024-06-01',
+            nextReview: '2025-01-01'
+        },
+        {
+            id: 'JV-2024-004',
+            stakeholder: 'Sikhupe Mining Consortium',
+            stakeholderType: 'joint-venture',
+            entity: 'Sidvokodvo Quarry',
+            contractType: 'Joint Venture Agreement',
+            calculationMethod: 'hybrid',
+            royaltyRate: '2% + E 8 per tonne',
+            baseRate: 2.0,
+            fixedAmount: 8.0,
+            rateType: 'hybrid',
+            startDate: '2024-02-01',
+            endDate: '2029-01-31',
+            status: 'active',
+            totalValue: 18700000,
+            paymentSchedule: 'quarterly',
+            paymentDue: 'end-of-quarter',
+            lateFeeRate: 2.5,
+            gracePeriod: 21,
+            escalationClause: {
+                enabled: true,
+                frequency: 'biennial',
+                rate: 1.5,
+                nextEscalation: '2026-02-01'
+            },
+            conditions: [
+                'Joint environmental management',
+                'Shared infrastructure maintenance',
+                'Technology transfer requirements',
+                'Local content requirements'
+            ],
+            signedDate: '2024-01-15',
+            lastReview: '2024-02-01',
+            nextReview: '2025-02-01'
+        }
+    ];
+
     console.log('Application data initialized:', {
         entities: entities.length,
         minerals: minerals.length,
         royaltyRecords: royaltyRecords.length,
         userAccounts: userAccounts.length,
-        auditEntries: auditLog.length
+        auditEntries: auditLog.length,
+        contracts: contracts.length
     });
 }
 
@@ -483,6 +620,9 @@ function loadSectionContent(sectionId) {
             break;
         case 'royalty-records':
             loadRoyaltyRecordsSection();
+            break;
+        case 'contract-management':
+            loadContractManagementSection();
             break;
         case 'audit-dashboard':
             loadAuditDashboardSection();
@@ -827,155 +967,360 @@ function loadRoyaltyRecordsSection() {
     `;
 }
 
-function loadAuditDashboardSection() {
-    const section = document.getElementById('audit-dashboard');
+function loadContractManagementSection() {
+    const section = document.getElementById('contract-management');
     if (!section) return;
     
     section.innerHTML = `
         <div class="page-header">
             <div class="page-title">
-                <h1>Audit Dashboard</h1>
-                <p>System audit logs and security monitoring</p>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h3>Audit Log</h3>
-            </div>
-            <div class="table-container">
-                <table class="data-table" id="audit-log-table">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>User</th>
-                            <th>Action</th>
-                            <th>Target</th>
-                            <th>IP Address</th>
-                            <th>Status</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${auditLog.map(entry => `
-                            <tr>
-                                <td>${entry.timestamp}</td>
-                                <td>${entry.user}</td>
-                                <td><span class="action-badge ${entry.action.toLowerCase().replace(/\s+/g, '-')}">${entry.action}</span></td>
-                                <td>${entry.target}</td>
-                                <td>${entry.ipAddress}</td>
-                                <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
-                                <td>${entry.details}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-}
-
-function loadReportingAnalyticsSection() {
-    const section = document.getElementById('reporting-analytics');
-    if (!section) return;
-    
-    section.innerHTML = `
-        <div class="page-header">
-            <div class="page-title">
-                <h1>Reporting & Analytics</h1>
-                <p>Generate reports and view analytics</p>
+                <h1>📋 Contract Management</h1>
+                <p>Securely store and manage diverse royalty agreements with various stakeholders</p>
             </div>
             <div class="page-actions">
-                <button class="btn btn-primary">
-                    <i class="fas fa-chart-bar"></i> Generate Report
+                <button class="btn btn-success" onclick="showAddContractForm()">
+                    <i class="fas fa-plus"></i> New Contract
                 </button>
-                <button class="btn btn-info">
-                    <i class="fas fa-download"></i> Export Data
+                <button class="btn btn-info" onclick="showContractTemplates()">
+                    <i class="fas fa-file-contract"></i> Templates
+                </button>
+                <button class="btn btn-primary" onclick="exportContracts()">
+                    <i class="fas fa-download"></i> Export
                 </button>
             </div>
         </div>
         
+        <!-- Contract Overview Metrics -->
         <div class="charts-grid">
             <div class="metric-card card">
                 <div class="card-header">
-                    <h3><i class="fas fa-calendar-month"></i> Monthly Collections</h3>
+                    <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
                 </div>
                 <div class="card-body">
-                    <p>E ${royaltyRecords.filter(r => r.status === 'Paid').reduce((sum, r) => sum + r.royalties, 0).toLocaleString()}</p>
-                    <small class="trend-positive">
-                        <i class="fas fa-arrow-up"></i> +15.2% from last month
-                    </small>
+                    <p>${contracts.filter(c => c.status === 'active').length}</p>
+                    <small><i class="fas fa-arrow-up trend-positive"></i> ${contracts.filter(c => new Date(c.signedDate) > new Date(Date.now() - 90*24*60*60*1000)).length} new this quarter</small>
                 </div>
             </div>
+            
             <div class="metric-card card">
                 <div class="card-header">
-                    <h3><i class="fas fa-percentage"></i> Collection Rate</h3>
+                    <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
                 </div>
                 <div class="card-body">
-                    <p>${Math.round((royaltyRecords.filter(r => r.status === 'Paid').length / royaltyRecords.length) * 100)}%</p>
-                    <small class="trend-positive">
-                        <i class="fas fa-arrow-up"></i> +3.1% this quarter
+                    <p>${contracts.filter(c => new Date(c.endDate) < new Date(Date.now() + 90*24*60*60*1000)).length}</p>
+                    <small><i class="fas fa-exclamation-triangle trend-negative"></i> Within 90 days</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-handshake"></i> Total Value</h3>
+                </div>
+                <div class="card-body">
+                    <p>E ${(contracts.reduce((sum, c) => sum + c.totalValue, 0) / 1000000).toFixed(1)}M</p>
+                    <small><i class="fas fa-arrow-up trend-positive"></i> +12% YTD</small>
+                </div>
+            </div>
+
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-users"></i> Stakeholder Types</h3>
+                </div>
+                <div class="card-body">
+                    <p>4</p>
+                    <small>
+                        Gov: ${contracts.filter(c => c.stakeholderType === 'government').length} | 
+                        Private: ${contracts.filter(c => c.stakeholderType === 'private').length} | 
+                        Landowners: ${contracts.filter(c => c.stakeholderType === 'landowner').length} |
+                        JV: ${contracts.filter(c => c.stakeholderType === 'joint-venture').length}
                     </small>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Contracts Registry Table -->
+        <div class="table-container">
+            <div class="section-header">
+                <h4>📋 Contract Registry</h4>
+                <div class="table-actions">
+                    <button class="btn btn-info btn-sm">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sort"></i> Sort
+                    </button>
+                    <button class="btn btn-warning btn-sm">
+                        <i class="fas fa-bell"></i> Alerts
+                    </button>
+                </div>
+            </div>
+            <table class="data-table" id="contracts-table">
+                <thead>
+                    <tr>
+                        <th>Contract ID</th>
+                        <th>Stakeholder</th>
+                        <th>Type</th>
+                        <th>Calculation Method</th>
+                        <th>Royalty Rate</th>
+                        <th>Payment Schedule</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${contracts.map(contract => `
+                        <tr>
+                            <td>${contract.id}</td>
+                            <td>${contract.stakeholder}</td>
+                            <td><span class="contract-type-badge ${contract.stakeholderType}">${contract.stakeholderType.charAt(0).toUpperCase() + contract.stakeholderType.slice(1)}</span></td>
+                            <td><span class="method-badge ${contract.calculationMethod}">${contract.calculationMethod.charAt(0).toUpperCase() + contract.calculationMethod.slice(1)}</span></td>
+                            <td>${contract.royaltyRate}</td>
+                            <td>${contract.paymentSchedule.charAt(0).toUpperCase() + contract.paymentSchedule.slice(1)}</td>
+                            <td>${contract.endDate}</td>
+                            <td><span class="status-badge ${contract.status.replace('-', '_')}">${contract.status.charAt(0).toUpperCase() + contract.status.slice(1).replace('-', ' ')}</span></td>
+                            <td>E ${(contract.totalValue / 1000000).toFixed(1)}M</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-info btn-sm" onclick="viewContractDetails('${contract.id}')"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-warning btn-sm" onclick="editContract('${contract.id}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-secondary btn-sm" onclick="downloadContract('${contract.id}')"><i class="fas fa-download"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contract Terms Analysis -->
+        <div class="charts-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Calculation Methods Distribution</h3>
+                </div>
+                <div class="card-body">
+                    <div class="method-distribution">
+                        ${getCalculationMethodsDistribution().map(method => `
+                            <div class="method-item">
+                                <span class="method-label">${method.name}</span>
+                                <div class="method-bar">
+                                    <div class="method-progress" style="width: ${method.percentage}%; background-color: ${method.color};"></div>
+                                </div>
+                                <span class="method-percentage">${method.percentage}%</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clock"></i> Contract Escalation Alerts</h3>
+                </div>
+                <div class="card-body">
+                    <div class="escalation-alerts">
+                        ${getEscalationAlerts().map(alert => `
+                            <div class="alert-item ${alert.type}">
+                                <div class="alert-icon">
+                                    <i class="fas fa-${alert.icon}"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <h6>${alert.title}</h6>
+                                    <p>${alert.message}</p>
+                                    <small>${alert.details}</small>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Schedules Overview -->
         <div class="card">
             <div class="card-header">
-                <h3>Quick Reports</h3>
+                <h3><i class="fas fa-calendar-check"></i> Payment Schedules & Conditions</h3>
             </div>
             <div class="card-body">
-                <div class="quick-reports-grid">
-                    <div class="report-card">
-                        <div class="report-icon">
-                            <i class="fas fa-chart-line"></i>
+                <div class="payment-schedules-grid">
+                    ${getPaymentSchedulesOverview().map(schedule => `
+                        <div class="schedule-card">
+                            <div class="schedule-header">
+                                <h6>${schedule.name}</h6>
+                                <span class="schedule-count">${schedule.count} contracts</span>
+                            </div>
+                            <div class="schedule-details">
+                                <p>Due: ${schedule.dueDate}</p>
+                                <p>Late fee: ${schedule.lateFee}</p>
+                                <p>Grace period: ${schedule.gracePeriod}</p>
+                            </div>
                         </div>
-                        <div class="report-info">
-                            <h5>Monthly Revenue Report</h5>
-                            <p>Detailed breakdown of monthly collections by entity and mineral type</p>
-                            <div class="report-meta">Last generated: ${new Date().toLocaleDateString()}</div>
-                        </div>
-                    </div>
-                    <div class="report-card">
-                        <div class="report-icon">
-                            <i class="fas fa-building"></i>
-                        </div>
-                        <div class="report-info">
-                            <h5>Entity Performance Report</h5>
-                            <p>Performance analysis by mining entity including compliance metrics</p>
-                            <div class="report-meta">Last generated: ${new Date().toLocaleDateString()}</div>
-                        </div>
-                    </div>
+                    `).join('')}
                 </div>
             </div>
         </div>
     `;
 }
 
-function loadGenericSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (!section) return;
+// Helper functions for contract management
+function getCalculationMethodsDistribution() {
+    const methods = {};
+    contracts.forEach(contract => {
+        methods[contract.calculationMethod] = (methods[contract.calculationMethod] || 0) + 1;
+    });
     
-    const title = sectionId.split('-').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    const total = contracts.length;
+    const colors = {
+        'ad-valorem': '#1a365d',
+        'profit-based': '#2563eb',
+        'quantity-based': '#059669',
+        'hybrid': '#d97706'
+    };
     
-    section.innerHTML = `
-        <div class="page-header">
-            <div class="page-title">
-                <h1>${title}</h1>
-                <p>This section is under development</p>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <h3>${title}</h3>
-                <p>The ${title.toLowerCase()} functionality will be available in a future update.</p>
-            </div>
-        </div>
-    `;
+    return Object.entries(methods).map(([method, count]) => ({
+        name: method.charAt(0).toUpperCase() + method.slice(1).replace('-', ' '),
+        percentage: Math.round((count / total) * 100),
+        color: colors[method] || '#6b7280'
+    }));
 }
+
+function getEscalationAlerts() {
+    const alerts = [];
+    const now = new Date();
+    
+    contracts.forEach(contract => {
+        if (contract.escalationClause?.enabled && contract.escalationClause.nextEscalation) {
+            const escalationDate = new Date(contract.escalationClause.nextEscalation);
+            const daysUntil = Math.ceil((escalationDate - now) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntil <= 90 && daysUntil > 0) {
+                alerts.push({
+                    type: daysUntil <= 30 ? 'urgent' : 'warning',
+                    icon: 'exclamation-triangle',
+                    title: `Rate Escalation Due - ${contract.id}`,
+                    message: `${contract.escalationClause.rate}% escalation clause triggers in ${daysUntil} days`,
+                    details: `${contract.contractType} | Due: ${contract.escalationClause.nextEscalation}`
+                });
+            }
+        }
+        
+        const endDate = new Date(contract.endDate);
+        const daysUntilExpiry = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilExpiry <= 90 && daysUntilExpiry > 0) {
+            alerts.push({
+                type: daysUntilExpiry <= 30 ? 'urgent' : 'warning',
+                icon: 'calendar-times',
+                title: `Contract Renewal Required - ${contract.id}`,
+                message: `${contract.contractType} expires in ${daysUntilExpiry} days`,
+                details: `${contract.stakeholder} | Expires: ${contract.endDate}`
+            });
+        }
+    });
+    
+    return alerts.slice(0, 3); // Show top 3 alerts
+}
+
+function getPaymentSchedulesOverview() {
+    const schedules = {};
+    
+    contracts.forEach(contract => {
+        const key = contract.paymentSchedule;
+        if (!schedules[key]) {
+            schedules[key] = {
+                count: 0,
+                lateFees: [],
+                gracePeriods: []
+            };
+        }
+        schedules[key].count++;
+        schedules[key].lateFees.push(contract.lateFeeRate);
+        schedules[key].gracePeriods.push(contract.gracePeriod);
+    });
+    
+    return Object.entries(schedules).map(([schedule, data]) => {
+        const avgLateFee = data.lateFees.reduce((a, b) => a + b, 0) / data.lateFees.length;
+        const avgGracePeriod = data.gracePeriods.reduce((a, b) => a + b, 0) / data.gracePeriods.length;
+        
+        return {
+            name: schedule.charAt(0).toUpperCase() + schedule.slice(1) + ' Payments',
+            count: data.count,
+            dueDate: schedule === 'monthly' ? '15th of each month' : 
+                    schedule === 'quarterly' ? 'End of quarter' : 
+                    'December 31st',
+            lateFee: `${avgLateFee.toFixed(1)}% after grace period`,
+            gracePeriod: `${Math.round(avgGracePeriod)} days`
+        };
+    });
+}
+
+// Contract action handlers
+function viewContractDetails(contractId) {
+    const contract = contracts.find(c => c.id === contractId);
+    if (!contract) return;
+    
+    const details = `
+Contract Details for ${contractId}:
+
+Stakeholder: ${contract.stakeholder}
+Type: ${contract.contractType}
+Calculation Method: ${contract.calculationMethod}
+Royalty Rate: ${contract.royaltyRate}
+Payment Schedule: ${contract.paymentSchedule}
+Contract Period: ${contract.startDate} to ${contract.endDate}
+Status: ${contract.status}
+Total Value: E ${(contract.totalValue / 1000000).toFixed(1)}M
+
+Escalation Clause: ${contract.escalationClause?.enabled ? 'Yes' : 'No'}
+${contract.escalationClause?.enabled ? `Next Escalation: ${contract.escalationClause.nextEscalation}` : ''}
+
+Conditions:
+${contract.conditions.map(condition => `• ${condition}`).join('\n')}
+
+Late Fee: ${contract.lateFeeRate}% after ${contract.gracePeriod} days
+Last Review: ${contract.lastReview}
+Next Review: ${contract.nextReview}
+    `;
+    
+    alert(details);
+}
+
+function editContract(contractId) {
+    showNotification(`Edit functionality for contract ${contractId} would open a comprehensive contract editing form`, 'info');
+}
+
+function downloadContract(contractId) {
+    showNotification(`Downloading contract ${contractId} as PDF`, 'success');
+}
+
+function renewContract(contractId) {
+    if (confirm(`Start renewal process for contract ${contractId}?`)) {
+        showNotification(`Renewal process initiated for contract ${contractId}`, 'success');
+    }
+}
+
+function showAddContractForm() {
+    showNotification('Add contract form would open with fields for all contract terms, stakeholder details, and calculation methods', 'info');
+}
+
+function showContractTemplates() {
+    showNotification('Contract templates library would show pre-configured templates for different stakeholder types', 'info');
+}
+
+function exportContracts() {
+    showNotification('Exporting all contracts with detailed terms and conditions', 'success');
+}
+
+// Make contract functions globally available
+window.viewContractDetails = viewContractDetails;
+window.editContract = editContract;
+window.downloadContract = downloadContract;
+window.renewContract = renewContract;
+window.showAddContractForm = showAddContractForm;
+window.showContractTemplates = showContractTemplates;
+window.exportContracts = exportContracts;
 
 // Action handlers
 function editUser(userId) {
