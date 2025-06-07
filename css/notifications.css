@@ -1,0 +1,185 @@
+/* Notification System Styles */
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--background-white);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 10000;
+  min-width: 300px;
+  max-width: 500px;
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.notification.notification-success {
+  border-left: 4px solid var(--success-color);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, var(--background-white) 100%);
+}
+
+.notification.notification-error {
+  border-left: 4px solid var(--danger-color);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, var(--background-white) 100%);
+}
+
+.notification.notification-info {
+  border-left: 4px solid var(--info-color);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, var(--background-white) 100%);
+}
+
+.notification.notification-warning {
+  border-left: 4px solid var(--warning-color);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, var(--background-white) 100%);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-content i {
+  font-size: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+.notification-success .notification-content i {
+  color: var(--success-color);
+}
+
+.notification-error .notification-content i {
+  color: var(--danger-color);
+}
+
+.notification-info .notification-content i {
+  color: var(--info-color);
+}
+
+.notification-warning .notification-content i {
+  color: var(--warning-color);
+}
+
+.notification-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: var(--transition);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-close:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* Alert Items */
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid;
+  transition: var(--transition);
+}
+
+.alert-item:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.alert-item.info {
+  background: rgba(59, 130, 246, 0.05);
+  border-left-color: var(--info-color);
+}
+
+.alert-item.warning {
+  background: rgba(245, 158, 11, 0.05);
+  border-left-color: var(--warning-color);
+}
+
+.alert-item.error,
+.alert-item.urgent {
+  background: rgba(239, 68, 68, 0.05);
+  border-left-color: var(--danger-color);
+}
+
+.alert-item.success {
+  background: rgba(16, 185, 129, 0.05);
+  border-left-color: var(--success-color);
+}
+
+.alert-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+
+.alert-item.urgent .alert-icon,
+.alert-item.error .alert-icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger-color);
+}
+
+.alert-item.warning .alert-icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning-color);
+}
+
+.alert-item.info .alert-icon {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--info-color);
+}
+
+.alert-item.success .alert-icon {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success-color);
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.alert-content p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.alert-content small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

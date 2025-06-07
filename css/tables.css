@@ -1,89 +1,125 @@
-/* Table styles */
+/* Table Styles */
 
+/* Table Container */
 .table-container {
-  background: var(--surface-color);
-  border-radius: 0.5rem;
+  background: var(--background-white);
+  border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--border-color);
+  margin-top: 1rem;
 }
 
+/* Data Table */
 .data-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.data-table thead {
-  background-color: #f8fafc;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.data-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-color);
-  border-bottom: 1px solid var(--border-color);
-  position: relative;
-}
-
-.data-table th[sortable] {
-  cursor: pointer;
-  user-select: none;
-}
-
-.data-table th[sortable]:hover {
-  background-color: #e2e8f0;
-}
-
-.data-table th[sortable]::after {
-  content: '↕';
-  position: absolute;
-  right: 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
-
+.data-table th,
 .data-table td {
   padding: 1rem;
+  text-align: left;
   border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
 }
 
-.data-table tbody tr:hover {
-  background-color: #f8fafc;
+.data-table th {
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+  position: relative;
 }
 
-.data-table tbody tr:last-child td {
+.data-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background: linear-gradient(135deg, var(--background-light) 0%, rgba(26, 54, 93, 0.03) 100%);
+  transform: translateX(2px);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: rgba(247, 250, 252, 0.5);
+}
+
+.data-table tbody tr:nth-child(even):hover {
+  background: linear-gradient(135deg, var(--background-light) 0%, rgba(26, 54, 93, 0.03) 100%);
+}
+
+/* Enhanced User Table */
+#users-table {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+#users-table th {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: var(--text-inverse);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
   border-bottom: none;
 }
 
-/* Action buttons in tables */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+#users-table th[sortable] {
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
 }
 
-.action-buttons .btn {
-  padding: 0.375rem;
-  min-width: auto;
+#users-table th[sortable]:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
 
-/* Table pagination */
+#users-table th[sortable].sorted-asc::after {
+  content: '↑';
+  position: absolute;
+  right: 0.5rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+#users-table th[sortable].sorted-desc::after {
+  content: '↓';
+  position: absolute;
+  right: 0.5rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+#users-table tbody tr {
+  transition: var(--transition);
+  border-bottom: 1px solid var(--border-color);
+}
+
+#users-table tbody tr:hover {
+  background: linear-gradient(135deg, var(--neutral-100) 0%, var(--background-light) 100%);
+  transform: translateX(2px);
+}
+
+/* Table Pagination */
 .table-pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background-color: #f8fafc;
+  background: var(--background-light);
   border-top: 1px solid var(--border-color);
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .pagination-info {
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
 .pagination-controls {
@@ -95,93 +131,103 @@
 .pagination-pages {
   display: flex;
   gap: 0.25rem;
+  margin: 0 0.5rem;
 }
 
-.pagination-page {
+.pagination-pages .page-btn {
   padding: 0.375rem 0.75rem;
   border: 1px solid var(--border-color);
-  background: var(--surface-color);
-  color: var(--text-color);
+  background: var(--background-white);
+  color: var(--text-primary);
   text-decoration: none;
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius-sm);
   transition: var(--transition);
+  min-width: 36px;
+  text-align: center;
 }
 
-.pagination-page:hover {
-  background-color: var(--background-color);
-}
-
-.pagination-page.active {
-  background-color: var(--primary-color);
-  color: white;
+.pagination-pages .page-btn:hover {
+  background: var(--primary-color);
+  color: var(--text-inverse);
   border-color: var(--primary-color);
 }
 
-/* Status badges in tables */
-.variance-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+.pagination-pages .page-btn.active {
+  background: var(--primary-color);
+  color: var(--text-inverse);
+  border-color: var(--primary-color);
+}
+
+/* Table Filters */
+.table-filters {
+  background: linear-gradient(135deg, var(--background-light) 0%, var(--neutral-100) 100%);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-filters h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* Filter Actions */
+.filter-actions .btn {
+  min-width: 120px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.filter-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* User Management Specific Styles */
+#user-management {
+  max-width: 100%;
+  width: 100%;
+  padding: 0.75rem;
+  overflow-x: hidden;
+}
+
+/* Enhanced Audit Log Table */
+#audit-log-table {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+#audit-log-table th {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--neutral-700) 100%);
+  color: var(--text-inverse);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-size: 0.75rem;
-  font-weight: 500;
 }
 
-.variance-badge.exact {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
+#audit-log-table tbody tr:hover {
+  background: linear-gradient(135deg, rgba(75, 85, 99, 0.1) 0%, var(--neutral-100) 100%);
 }
 
-.variance-badge.over {
-  background-color: rgba(6, 182, 212, 0.1);
-  color: var(--info-color);
+/* Contract Table Specific */
+#contracts-table th:nth-child(3),
+#contracts-table td:nth-child(3) {
+  min-width: 120px;
 }
 
-.variance-badge.under {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: var(--warning-color);
+#contracts-table th:nth-child(4),
+#contracts-table td:nth-child(4) {
+  min-width: 140px;
 }
 
-.compliance-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.compliance-badge.excellent {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
-}
-
-.compliance-badge.good {
-  background-color: rgba(6, 182, 212, 0.1);
-  color: var(--info-color);
-}
-
-.compliance-badge.warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: var(--warning-color);
-}
-
-.days-remaining {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.days-remaining.good {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
-}
-
-.days-remaining.warning {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: var(--warning-color);
-}
-
-.days-remaining.danger {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger-color);
+#contracts-table th:nth-child(5),
+#contracts-table td:nth-child(5) {
+  min-width: 150px;
 }
 
 /* Notification styles */

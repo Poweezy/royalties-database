@@ -1,204 +1,291 @@
-/* Main stylesheet - Extended styles for full application */
+/* Mining Royalties Manager - Main CSS Entry Point */
 
-/* CSS Variables */
-:root {
-  --primary-color: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-light: #3b82f6;
-  --secondary-color: #64748b;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --info-color: #06b6d4;
-  --background-color: #f8fafc;
-  --surface-color: #ffffff;
-  --text-color: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --transition: all 0.2s ease-in-out;
+/* Import all CSS modules in correct order */
+@import url('./variables.css');
+@import url('./base.css');
+@import url('./layout.css');
+@import url('./navigation.css');
+@import url('./components.css');
+@import url('./buttons.css');
+@import url('./forms.css');
+@import url('./tables.css');
+@import url('./badges.css');
+@import url('./notifications.css');
+@import url('./dashboard.css');
+@import url('./utilities.css');
+@import url('./responsive.css');
+
+/* Application-specific overrides and customizations */
+
+/* Enhanced brand styling */
+.brand-accent {
+  color: var(--accent-color);
 }
 
-/* Base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  line-height: 1.6;
-  font-size: 14px;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 280px;
-  background: var(--surface-color);
-  border-right: 1px solid var(--border-color);
-  height: 100vh;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.sidebar-logo {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary-color), var(--info-color));
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.sidebar h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.sidebar nav ul {
-  list-style: none;
-  padding: 1rem 0;
-}
-
-.sidebar nav li {
-  margin: 0.25rem 0;
-}
-
-.sidebar nav a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: var(--transition);
-  border-right: 3px solid transparent;
-}
-
-.sidebar nav a:hover,
-.sidebar nav a.active {
-  background-color: rgba(37, 99, 235, 0.1);
+.brand-primary {
   color: var(--primary-color);
-  border-right-color: var(--primary-color);
 }
 
-.sidebar nav a i {
-  width: 20px;
-  text-align: center;
+/* Mining industry specific styling */
+.mining-entity-card {
+  position: relative;
+  overflow: hidden;
 }
 
-/* Main Content */
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-  background-color: var(--background-color);
+.mining-entity-card::before {
+  content: '⛏️';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  opacity: 0.1;
 }
 
-/* Page Header */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  gap: 1rem;
+.quarry-card::before {
+  content: '🏔️';
 }
 
-.page-title h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--text-color);
+.mine-card::before {
+  content: '⛏️';
 }
 
-.page-title p {
-  color: var(--text-muted);
-  font-size: 0.875rem;
+/* Eswatini specific styling */
+.eswatini-flag-gradient {
+  background: linear-gradient(
+    to right,
+    #3b82f6 0%,
+    #fbbf24 33%,
+    #ef4444 66%,
+    #3b82f6 100%
+  );
+  height: 4px;
 }
 
-.page-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-/* Utility Classes */
-.text-success { color: var(--success-color); }
-.text-warning { color: var(--warning-color); }
-.text-danger { color: var(--danger-color); }
-.text-info { color: var(--info-color); }
-.text-muted { color: var(--text-muted); }
-
-.bg-success { background-color: var(--success-color); }
-.bg-warning { background-color: var(--warning-color); }
-.bg-danger { background-color: var(--danger-color); }
-.bg-info { background-color: var(--info-color); }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: fixed;
-    top: 0;
-    left: -100%;
-    z-index: 1000;
-    transition: left 0.3s ease;
-  }
-  
-  .sidebar.open {
-    left: 0;
-  }
-  
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .page-actions {
-    justify-content: flex-start;
-  }
-}
-
-/* Focus and accessibility */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
+/* Accessibility enhancements */
+.focus-visible:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-/* Print styles */
+/* High performance animations */
+.smooth-animation {
+  will-change: transform, opacity;
+}
+
+/* Custom properties for dynamic theming */
+.theme-corporate {
+  --theme-primary: var(--primary-color);
+  --theme-accent: var(--accent-color);
+  --theme-gradient: var(--gradient-corporate);
+}
+
+/* Error boundary styles */
+.error-boundary {
+  padding: 2rem;
+  text-align: center;
+  background: var(--background-white);
+  border: 2px solid var(--danger-color);
+  border-radius: var(--border-radius);
+  margin: 2rem;
+}
+
+.error-boundary h2 {
+  color: var(--danger-color);
+  margin-bottom: 1rem;
+}
+
+.error-boundary p {
+  color: var(--text-secondary);
+}
+
+/* Loading states for different components */
+.table-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.chart-loading {
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+/* Success states */
+.success-state {
+  border-left: 4px solid var(--success-color);
+  background: rgba(16, 185, 129, 0.05);
+  padding: 1rem;
+  border-radius: var(--border-radius-sm);
+}
+
+/* Empty states */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Data visualization enhancements */
+.metric-trend-up {
+  color: var(--success-color);
+}
+
+.metric-trend-down {
+  color: var(--danger-color);
+}
+
+.metric-trend-stable {
+  color: var(--text-muted);
+}
+
+/* Security indicators */
+.security-high {
+  color: var(--success-color);
+}
+
+.security-medium {
+  color: var(--warning-color);
+}
+
+.security-low {
+  color: var(--danger-color);
+}
+
+/* Performance monitoring */
+.performance-metric {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Development helpers (remove in production) */
+.dev-border {
+  border: 1px dashed red !important;
+}
+
+.dev-bg {
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Component-specific z-index management */
+.z-modal { z-index: 1050; }
+.z-dropdown { z-index: 1000; }
+.z-sticky { z-index: 1020; }
+.z-fixed { z-index: 1030; }
+.z-overlay { z-index: 1040; }
+.z-tooltip { z-index: 1070; }
+
+/* Grid system enhancements */
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.auto-grid-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.auto-grid-lg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Improved focus management */
+.focus-trap {
+  position: relative;
+}
+
+.focus-trap:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Content organization */
+.content-section {
+  margin-bottom: 2rem;
+}
+
+.content-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Progressive enhancement markers */
+.js-enhanced {
+  /* Styles that depend on JavaScript */
+}
+
+.no-js .js-enhanced {
+  display: none !important;
+}
+
+/* Print-specific layouts */
 @media print {
-  .sidebar,
-  .page-actions,
-  .btn {
-    display: none !important;
+  .print-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
   }
   
-  .main-content {
-    padding: 0;
+  .print-footer {
+    border-top: 1px solid #000;
+    padding-top: 1rem;
+    margin-top: 2rem;
+    font-size: 0.8rem;
+  }
+  
+  .print-page-break {
+    page-break-before: always;
+  }
+}
+
+/* Future-proofing for CSS Grid Level 2 */
+@supports (display: subgrid) {
+  .subgrid-container {
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+}
+
+/* Container queries (when supported) */
+@supports (container-type: inline-size) {
+  .responsive-container {
+    container-type: inline-size;
+  }
+  
+  @container (min-width: 400px) {
+    .container-responsive {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @container (min-width: 600px) {
+    .container-responsive {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 }
