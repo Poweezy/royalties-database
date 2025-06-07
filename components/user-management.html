@@ -1,0 +1,39 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>👥 User Management</h1>
+    <p>Comprehensive user administration with role-based access control, security monitoring, and audit trails</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="view-audit-btn" title="View detailed audit logs">
+      <i class="fas fa-shield-alt"></i> View Audit Log
+    </button>
+    <button class="btn btn-primary" id="export-report-btn" title="Export user management report">
+      <i class="fas fa-file-export"></i> Export Report
+    </button>
+    <button class="btn btn-success" id="add-user-btn" title="Add new user account">
+      <i class="fas fa-user-plus"></i> Add User
+    </button>
+  </div>
+</div>
+
+<!-- User Management Metrics Dashboard -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-users"></i> Active Users</h3>
+      <select class="metric-period">
+        <option>Current</option>
+        <option>Last 30 days</option>
+        <option>All time</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="active-users-count">3</p>
+      <small><i class="fas fa-circle text-success"></i> Currently active and logged in</small>
+    </div>
+  </div>
+  
+  <!-- ...existing metric cards... -->
+</div>
+
+<!-- ...existing user management forms and tables... -->
