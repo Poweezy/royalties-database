@@ -4,6 +4,42 @@ export class UserManager extends BaseModule {
   constructor(templateLoader) {
     super(templateLoader, 'user-management');
     this.notificationManager = null;
+    this.users = [
+      {
+        id: 1,
+        username: 'admin',
+        name: 'System Administrator',
+        email: 'admin@royalties.gov.sz',
+        role: 'administrator',
+        status: 'active',
+        lastLogin: new Date(),
+        createdAt: new Date('2024-01-01'),
+        permissions: ['read', 'write', 'admin', 'delete']
+      },
+      {
+        id: 2,
+        username: 'editor',
+        name: 'Data Editor',
+        email: 'editor@royalties.gov.sz',
+        role: 'editor',
+        status: 'active',
+        lastLogin: new Date(Date.now() - 86400000),
+        createdAt: new Date('2024-01-15'),
+        permissions: ['read', 'write']
+      },
+      {
+        id: 3,
+        username: 'viewer',
+        name: 'Report Viewer',
+        email: 'viewer@royalties.gov.sz',
+        role: 'viewer',
+        status: 'active',
+        lastLogin: new Date(Date.now() - 172800000),
+        createdAt: new Date('2024-02-01'),
+        permissions: ['read']
+      }
+    ];
+    this.nextId = 4;
   }
 
   setNotificationManager(notificationManager) {
@@ -143,5 +179,116 @@ export class UserManager extends BaseModule {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  getAllUsers() {
+    return this.users;
+  }
+
+  getUserById(id) {
+    return this.users.find(user => user.id === parseInt(id));
+  }
+
+  getUserByUsername(username) {
+    return this.users.find(user => user.username === username);
+  }
+
+  createUser(userData) {
+    const newUser = {
+      id: this.nextId++,
+      username: userData.username,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+      status: 'active',
+      lastLogin: null,
+      createdAt: new Date(),
+      permissions: this.getRolePermissions(userData.role)
+    };
+    
+    this.users.push(newUser);
+    return newUser;
+  }
+
+  updateUser(id, updateData) {
+    const userIndex = this.users.findIndex(user => user.id === parseInt(id));
+    if (userIndex !== -1) {
+      this.users[userIndex] = { ...this.users[userIndex], ...updateData };
+      return this.users[userIndex];
+    }
+    return null;
+  }
+
+  deleteUser(id) {
+    // Prevent deletion of admin user
+    if (parseInt(id) === 1) {
+      throw new Error('Cannot delete administrator account');
+    }
+    
+    const userIndex = this.users.findIndex(user => user.id === parseInt(id));
+    if (userIndex !== -1) {
+      return this.users.splice(userIndex, 1)[0];
+    }
+    return null;
+  }
+
+  getRolePermissions(role) {
+    const rolePermissions = {
+      'administrator': ['read', 'write', 'admin', 'delete'],
+      'editor': ['read', 'write'],
+      'viewer': ['read'],
+      'auditor': ['read', 'audit'],
+      'finance': ['read', 'write', 'finance']
+    };
+    
+    return rolePermissions[role] || ['read'];
+  }
+
+  validateUser(userData) {
+    const errors = [];
+    
+    if (!userData.username || userData.username.length < 3) {
+      errors.push('Username must be at least 3 characters long');
+    }
+    
+    if (this.getUserByUsername(userData.username)) {
+      errors.push('Username already exists');
+    }
+    
+    if (!userData.email || !this.isValidEmail(userData.email)) {
+      errors.push('Valid email address is required');
+    }
+    
+    if (!userData.name || userData.name.length < 2) {
+      errors.push('Name must be at least 2 characters long');
+    }
+    
+    if (!userData.role) {
+      errors.push('Role is required');
+    }
+    
+    return errors;
+  }
+
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  getActiveUserCount() {
+    return this.users.filter(user => user.status === 'active').length;
+  }
+
+  getUsersByRole(role) {
+    return this.users.filter(user => user.role === role);
+  }
+
+  searchUsers(query) {
+    const searchTerm = query.toLowerCase();
+    return this.users.filter(user => 
+      user.username.toLowerCase().includes(searchTerm) ||
+      user.name.toLowerCase().includes(searchTerm) ||
+      user.email.toLowerCase().includes(searchTerm)
+    );
   }
 }
