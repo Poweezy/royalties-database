@@ -3,12 +3,12 @@ export class SectionLoader {
     static async loadTemplate(templatePath) {
         try {
             const response = await fetch(templatePath);
-            if (!response.ok) {
-                throw new Error(`Failed to load template: ${response.status}`);
+            if (response.ok) {
+                return await response.text();
             }
-            return await response.text();
+            return null;
         } catch (error) {
-            console.warn(`Template loading failed for ${templatePath}:`, error);
+            console.log(`Failed to load template: ${templatePath}`);
             return null;
         }
     }
@@ -20,19 +20,38 @@ export class SectionLoader {
             'royalty-records': 'Royalty Records',
             'contract-management': 'Contract Management'
         };
-
+        
+        const sectionName = sectionNames[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ');
+        
         return `
             <div class="page-header">
                 <div class="page-title">
-                    <h1>${sectionNames[sectionId] || 'Section'}</h1>
-                    <p>Content loading...</p>
+                    <h1>${sectionName}</h1>
+                    <p>Loading ${sectionName.toLowerCase()} content...</p>
                 </div>
             </div>
             <div class="card">
                 <div class="card-body">
-                    <p>This section is being loaded...</p>
+                    <div class="loading-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading content...</p>
+                    </div>
                 </div>
             </div>
         `;
+    }
+
+    static async loadSectionContent(sectionId, container) {
+        const template = await this.loadTemplate(`templates/${sectionId}.html`);
+        
+        if (template && container) {
+            container.innerHTML = template;
+            return true;
+        } else if (container) {
+            container.innerHTML = this.createFallbackContent(sectionId);
+            return false;
+        }
+        
+        return false;
     }
 }

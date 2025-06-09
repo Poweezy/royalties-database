@@ -1,97 +1,77 @@
 export class ChartManager {
   constructor() {
     this.charts = new Map();
+    this.defaultOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    };
   }
 
-  async initializeCharts() {
+  createChart(canvasId, config) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof Chart === 'undefined') {
+      console.warn(`Cannot create chart: canvas ${canvasId} not found or Chart.js not loaded`);
+      this.showFallbackChart(canvasId);
+      return null;
+    }
+
+    // Destroy existing chart if it exists
+    if (this.charts.has(canvasId)) {
+      this.charts.get(canvasId).destroy();
+    }
+
+    // Merge with default options
+    const mergedConfig = {
+      ...config,
+      options: {
+        ...this.defaultOptions,
+        ...config.options
+      }
+    };
+
     try {
-      await Promise.all([
-        this.createRevenueChart(),
-        this.createProductionChart()
-      ]);
+      const chart = new Chart(canvas, mergedConfig);
+      this.charts.set(canvasId, chart);
+      return chart;
     } catch (error) {
-      console.warn('Chart initialization failed:', error);
-      this.showFallbackCharts();
+      console.error(`Error creating chart ${canvasId}:`, error);
+      this.showFallbackChart(canvasId);
+      return null;
     }
   }
 
-  async createRevenueChart() {
-    const canvas = document.getElementById('revenue-trends-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    const ctx = canvas.getContext('2d');
-    this.charts.get('revenue')?.destroy();
-    
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Revenue (E)',
-          data: [500000, 600000, 750000, 700000, 800000, 900000],
-          borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.2)',
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { callback: value => `E ${value.toLocaleString()}` }
-          },
-          x: { grid: { display: false } }
-        },
-        interaction: { intersect: false, mode: 'index' }
-      }
-    });
-    
-    this.charts.set('revenue', chart);
+  updateChart(canvasId, newData) {
+    const chart = this.charts.get(canvasId);
+    if (chart) {
+      chart.data = newData;
+      chart.update();
+    }
   }
 
-  async createProductionChart() {
-    const canvas = document.getElementById('production-by-entity-chart');
-    if (!canvas || typeof Chart === 'undefined') return;
+  destroyChart(canvasId) {
+    const chart = this.charts.get(canvasId);
+    if (chart) {
+      chart.destroy();
+      this.charts.delete(canvasId);
+    }
+  }
 
-    const ctx = canvas.getContext('2d');
-    this.charts.get('production')?.destroy();
-    
-    const chart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Malolotja Mine'],
-        datasets: [{
-          label: 'Production Volume (m³)',
-          data: [45000, 38000, 42000, 55000, 28000, 32000],
-          backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
-          borderColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true, position: 'bottom', labels: { padding: 20, usePointStyle: true, font: { size: 12 } } },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const { label, parsed } = context;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = ((parsed / total) * 100).toFixed(1);
-                return `${label}: ${parsed.toLocaleString()} m³ (${percentage}%)`;
-              }
-            }
-          }
-        }
+  showFallbackChart(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (canvas) {
+      const container = canvas.parentNode;
+      if (container) {
+        container.innerHTML = `
+          <div class="chart-fallback">
+            <i class="fas fa-chart-line"></i>
+            <p>Chart data will be loaded shortly...</p>
+          </div>
+        `;
       }
-    });
-    
-    this.charts.set('production', chart);
+    }
   }
 
   showFallbackCharts() {
@@ -107,5 +87,79 @@ export class ChartManager {
   destroyAll() {
     this.charts.forEach(chart => chart.destroy());
     this.charts.clear();
+  }
+
+  // Specific chart creation methods
+  createRevenueChart(canvasId, data) {
+    return this.createChart(canvasId, {
+      type: 'line',
+      data: {
+        labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Monthly Revenue (E)',
+          data: data.values || [45000, 52000, 48000, 61000, 55000, 67000],
+          borderColor: '#1a365d',
+          backgroundColor: 'rgba(26, 54, 93, 0.1)',
+          tension: 0.4,
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'E' + value.toLocaleString();
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  createProductionChart(canvasId, data) {
+    return this.createChart(canvasId, {
+      type: 'doughnut',
+      data: {
+        labels: data.labels || [],
+        datasets: [{
+          data: data.values || [],
+          backgroundColor: [
+            '#1a365d', '#2d5a88', '#4a90c2', 
+            '#7ba7cc', '#a8c5e2', '#d4af37'
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  updateChartType(canvasId, newType) {
+    const chart = this.charts.get(canvasId);
+    if (!chart) return;
+
+    chart.config.type = newType;
+    
+    if (newType === 'area') {
+      chart.data.datasets[0].fill = true;
+      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
+    } else if (newType === 'bar') {
+      chart.data.datasets[0].fill = false;
+      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
+    } else {
+      chart.data.datasets[0].fill = false;
+      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+    }
+    
+    chart.update();
   }
 }

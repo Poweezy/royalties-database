@@ -1,430 +1,790 @@
-// Import required modules - only import modules that exist
-import { TemplateLoader } from './modules/template-loader.js';
-import { AuthenticationModule } from './modules/authentication.js';
+// Mining Royalties Manager - Main Application Entry Point
 
-class MiningRoyaltiesApp {
-  constructor() {
-    this.templateLoader = new TemplateLoader();
-    this.auth = new AuthenticationModule();
-    this.navigationManager = null;
-    this.isInitialized = false;
-  }
+// Global application state
+let currentUser = null;
+let currentSection = 'dashboard';
 
-  async init() {
-    try {
-      console.log('Initializing Mining Royalties Application...');
-      
-      // Show loading screen
-      await this.showLoadingScreen();
-      
-      // Initialize navigation
-      const { NavigationManager } = await import('./ui/navigationManager.js');
-      this.navigationManager = new NavigationManager();
-      
-      // Setup event listeners
-      this.setupEventListeners();
-      
-      // Show login screen
-      this.showLoginScreen();
-      
-      this.isInitialized = true;
-      console.log('Application initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize application:', error);
-      this.showError('Failed to initialize application. Please refresh the page.');
+// Authentication Manager
+class AuthManager {
+    constructor() {
+        this.currentUser = null;
+        this.validCredentials = [
+            { username: 'admin', password: 'admin123', role: 'Administrator' },
+            { username: 'editor', password: 'editor123', role: 'Editor' },
+            { username: 'viewer', password: 'viewer123', role: 'Viewer' }
+        ];
     }
-  }
 
-  async showLoadingScreen() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-          loadingScreen.style.display = 'none';
+    authenticate(username, password) {
+        const user = this.validCredentials.find(cred => 
+            cred.username === username && cred.password === password
+        );
+
+        if (user) {
+            this.currentUser = {
+                username: user.username,
+                role: user.role,
+                department: user.role === 'Administrator' ? 'Management' : 
+                          user.role === 'Editor' ? 'Finance' : 'Audit',
+                lastLogin: new Date().toISOString()
+            };
+            return { success: true, user: this.currentUser };
         }
-        resolve();
-      }, 2000);
-    });
-  }
 
-  setupEventListeners() {
-    // Login form submission
-    document.addEventListener('submit', (e) => {
-      if (e.target.id === 'login-form') {
-        e.preventDefault();
-        this.handleLogin(e.target);
-      }
-    });
-
-    // Navigation clicks
-    document.addEventListener('click', (e) => {
-      if (e.target.matches('.nav-link') || e.target.closest('.nav-link')) {
-        e.preventDefault();
-        const link = e.target.closest('.nav-link');
-        const section = link.getAttribute('href').substring(1);
-        this.navigateToSection(section);
-      }
-    });
-
-    // Window resize handler
-    window.addEventListener('resize', () => {
-      if (this.currentModule && this.currentModule.handleResize) {
-        this.currentModule.handleResize();
-      }
-    });
-  }
-
-  async handleLogin(form) {
-    try {
-      const formData = new FormData(form);
-      const credentials = {
-        username: formData.get('username'),
-        password: formData.get('password')
-      };
-
-      const isAuthenticated = await this.auth.authenticate(credentials);
-      
-      if (isAuthenticated) {
-        await this.showMainApplication();
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      this.showLoginError(error.message);
-    }
-  }
-
-  async showMainApplication() {
-    // Hide login screen
-    const loginContainer = document.getElementById('login-section');
-    if (loginContainer) {
-      loginContainer.style.display = 'none';
+        return { success: false, error: 'Invalid credentials' };
     }
 
-    // Show main app
-    const appContainer = document.getElementById('app-container');
-    if (appContainer) {
-      appContainer.style.display = 'flex';
+    getCurrentUser() {
+        return this.currentUser;
     }
 
-    // Initialize navigation with data manager
-    await this.navigationManager.initialize(this.dataManager);
-  }
-
-  async navigateToSection(sectionId) {
-    try {
-      console.log(`Navigating to section: ${sectionId}`);
-
-      // Update navigation state
-      this.navigation.setActiveSection(sectionId);
-
-      // Unload current module
-      if (this.currentModule && this.currentModule.unload) {
-        await this.currentModule.unload();
-      }
-
-      // Load new module
-      const module = await this.getModule(sectionId);
-      if (module) {
-        await module.load();
-        this.currentModule = module;
-      }
-    } catch (error) {
-      console.error(`Failed to navigate to ${sectionId}:`, error);
-      this.showError(`Failed to load ${sectionId} section.`);
-    }
-  }
-
-  async getModule(sectionId) {
-    if (this.modules.has(sectionId)) {
-      return this.modules.get(sectionId);
+    logout() {
+        this.currentUser = null;
     }
 
-    let module;
-    switch (sectionId) {
-      case 'dashboard':
-        module = new DashboardModule(this.templateLoader);
-        break;
-      case 'user-management':
-        module = new UserManagementModule(this.templateLoader);
-        break;
-      case 'royalty-records':
-        module = new RoyaltyRecordsModule(this.templateLoader);
-        break;
-      case 'contract-management':
-        module = new ContractManagementModule(this.templateLoader);
-        break;
-      default:
-        console.warn(`Module not implemented: ${sectionId}`);
-        return null;
+    isAuthenticated() {
+        return this.currentUser !== null;
     }
 
-    if (module) {
-      await module.init();
-      this.modules.set(sectionId, module);
+    hasRole(role) {
+        return this.currentUser && this.currentUser.role === role;
+    }
+}
+
+// Notification Manager
+class NotificationManager {
+    constructor() {
+        this.container = this.createContainer();
+        this.activeNotifications = new Set();
     }
 
-    return module;
-  }
-
-  showLoginScreen() {
-    const loginContainer = document.getElementById('login-container');
-    if (loginContainer) {
-      loginContainer.style.display = 'flex';
-    }
-  }
-
-  showLoginError(message) {
-    // Implementation for showing login errors
-    console.error('Login error:', message);
-  }
-
-  showError(message) {
-    // Implementation for showing general errors
-    console.error('Application error:', message);
-  }
-
-  // Chart setup methods
-  setupAuditCharts() {
-    // Security Events Timeline Chart
-    const securityEventsCtx = document.getElementById('security-events-chart');
-    if (securityEventsCtx) {
-      new Chart(securityEventsCtx, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Security Events',
-            data: [12, 8, 15, 6, 10, 4],
-            borderColor: '#dc3545',
-            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          }
+    createContainer() {
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notification-container';
+            container.style.position = 'fixed';
+            container.style.top = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '10000';
+            document.body.appendChild(container);
         }
-      });
+        return container;
     }
 
-    // Event Types Distribution Chart
-    const eventTypesCtx = document.getElementById('event-types-chart');
-    if (eventTypesCtx) {
-      new Chart(eventTypesCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Login Success', 'Failed Login', 'Data Access', 'System Changes'],
-          datasets: [{
-            data: [45, 12, 28, 15],
-            backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-  }
-
-  setupReportingCharts() {
-    // Revenue by Entity Chart
-    const revenueEntityCtx = document.getElementById('revenue-entity-chart');
-    if (revenueEntityCtx) {
-      new Chart(revenueEntityCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Maloma Colliery', 'Ngwenya Mine', 'Kwalini Quarry', 'Others'],
-          datasets: [{
-            label: 'Revenue (E)',
-            data: [52500, 25200, 18750, 11200],
-            backgroundColor: ['#007bff', '#28a745', '#ffc107', '#6c757d']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-    }
-
-    // Monthly Trends Chart
-    const monthlyTrendsCtx = document.getElementById('monthly-trends-chart');
-    if (monthlyTrendsCtx) {
-      new Chart(monthlyTrendsCtx, {
-        type: 'line',
-        data: {
-          labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
-          datasets: [{
-            label: 'Revenue',
-            data: [95000, 102000, 98500, 107650, 95420],
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-  }
-
-  setupComplianceCharts() {
-    const complianceScoresCtx = document.getElementById('compliance-scores-chart');
-    if (complianceScoresCtx) {
-      new Chart(complianceScoresCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Maloma Colliery', 'Ngwenya Mine', 'Kwalini Quarry'],
-          datasets: [{
-            label: 'Compliance Score (%)',
-            data: [95, 68, 88],
-            backgroundColor: ['#28a745', '#dc3545', '#ffc107']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 100
+    show(message, type = 'info', duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        const iconMap = {
+            'success': 'check-circle',
+            'error': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${iconMap[type]}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        this.container.appendChild(notification);
+        this.activeNotifications.add(notification);
+        
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+                this.activeNotifications.delete(notification);
             }
-          }
-        }
-      });
+        }, duration);
+
+        return notification;
     }
-  }
 
-  // Action methods for new sections
-  exportAuditLog() {
-    console.log('Exporting audit log...');
-    // Implementation for audit log export
-  }
+    clear() {
+        this.activeNotifications.forEach(notification => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        });
+        this.activeNotifications.clear();
+    }
+}
 
-  generateSecurityReport() {
-    console.log('Generating security report...');
-    // Implementation for security report generation
-  }
+// Main Application Class
+class RoyaltiesApp {
+    constructor() {
+        this.dataManager = new DataManager();
+        this.authManager = new AuthManager();
+        this.notificationManager = new NotificationManager();
+        this.dashboardManager = null;
+        this.actionHandlers = {};
+        this.charts = {};
+    }
 
-  refreshAuditData() {
-    console.log('Refreshing audit data...');
-    // Implementation for audit data refresh
-  }
+    async initialize() {
+        console.log('DOM loaded - Starting application initialization...');
+        
+        // Initialize data
+        this.dataManager.initialize();
+        
+        // Start loading sequence
+        this.startLoadingSequence();
+    }
 
-  generateCustomReport() {
-    console.log('Generating custom report...');
-    // Implementation for custom report generation
-  }
+    startLoadingSequence() {
+        console.log('Starting loading simulation...');
+        
+        setTimeout(() => {
+            console.log('Loading complete - Showing login');
+            this.hideLoadingShowLogin();
+        }, 2000);
+    }
 
-  scheduleReport() {
-    console.log('Scheduling report...');
-    // Implementation for report scheduling
-  }
+    hideLoadingShowLogin() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const loginSection = document.getElementById('login-section');
+        
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+        }
+        
+        if (loginSection) {
+            loginSection.style.display = 'flex';
+            this.setupLoginForm();
+        }
+    }
 
-  exportAnalytics() {
-    console.log('Exporting analytics data...');
-    // Implementation for analytics export
-  }
+    setupLoginForm() {
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.querySelector('.password-toggle');
+        
+        // Password toggle
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        }
+        
+        // Form submission
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = usernameInput?.value;
+                const password = passwordInput?.value;
+                this.authenticateUser(username, password);
+            });
+        }
+        
+        // Enter key support
+        [usernameInput, passwordInput].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            }
+        });
+    }
 
-  composeMessage() {
-    console.log('Composing new message...');
-    // Implementation for message composition
-  }
+    authenticateUser(username, password) {
+        const result = this.authManager.authenticate(username, password);
+        
+        if (result.success) {
+            // Add login to audit log
+            this.dataManager.addAuditEntry({
+                user: username,
+                action: 'Login',
+                target: 'System',
+                ipAddress: '192.168.1.100',
+                status: 'Success',
+                details: `Successful login as ${result.user.role}`
+            });
+            
+            this.showMainApplication();
+        } else {
+            this.notificationManager.show('Invalid credentials. Try: admin/admin123, editor/editor123, or viewer/viewer123', 'error');
+            
+            // Add failed login to audit log
+            this.dataManager.addAuditEntry({
+                user: username || 'Unknown',
+                action: 'Failed Login',
+                target: 'System',
+                ipAddress: '192.168.1.100',
+                status: 'Failed',
+                details: 'Failed login attempt - invalid credentials'
+            });
+        }
+    }
 
-  manageTemplates() {
-    console.log('Managing message templates...');
-    // Implementation for template management
-  }
+    showMainApplication() {
+        const loginSection = document.getElementById('login-section');
+        const appContainer = document.getElementById('app-container');
+        
+        if (loginSection) loginSection.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'flex';
+        
+        this.initializeMainApplication();
+    }
 
-  sendBulkNotice() {
-    console.log('Sending bulk notice...');
-    // Implementation for bulk notice sending
-  }
+    initializeMainApplication() {
+        console.log('Initializing main application for user:', this.authManager.getCurrentUser());
+        
+        // Initialize managers and handlers
+        this.initializeManagers();
+        this.setupEventListeners();
+        
+        // Initialize navigation
+        this.setupNavigation();
+        
+        // Show dashboard by default
+        this.showSection('dashboard');
+        
+        // Show welcome notification
+        const currentUser = this.authManager.getCurrentUser();
+        this.notificationManager.show(`Welcome back, ${currentUser.username}!`, 'success');
+        
+        console.log('Main application initialized successfully');
+    }
 
-  markAllNotificationsRead() {
-    console.log('Marking all notifications as read...');
-    // Implementation for marking notifications as read
-  }
+    initializeManagers() {
+        // Initialize action handlers
+        this.actionHandlers = {
+            recordActions: new RecordActions(this.dataManager, this.notificationManager),
+            userActions: new UserActions(this.dataManager, this.notificationManager),
+            contractActions: new ContractActions(this.dataManager, this.notificationManager)
+        };
 
-  configureAlerts() {
-    console.log('Configuring alerts...');
-    // Implementation for alert configuration
-  }
+        // Make managers globally available
+        window.dataManager = this.dataManager;
+        window.notificationManager = this.notificationManager;
+        window.recordActions = this.actionHandlers.recordActions;
+        window.userActions = this.actionHandlers.userActions;
+        window.contractActions = this.actionHandlers.contractActions;
+    }
 
-  testNotifications() {
-    console.log('Testing notifications...');
-    // Implementation for notification testing
-  }
+    setupEventListeners() {
+        // Logout listener
+        document.addEventListener('logoutRequested', () => {
+            this.handleLogout();
+        });
 
-  scheduleAssessment() {
-    console.log('Scheduling compliance assessment...');
-    // Implementation for assessment scheduling
-  }
+        // Reload section listener
+        document.addEventListener('reloadSection', (e) => {
+            this.loadSectionContent(e.detail.sectionId);
+        });
+    }
 
-  generateComplianceReport() {
-    console.log('Generating compliance report...');
-    // Implementation for compliance report generation
-  }
+    setupNavigation() {
+        const navLinks = document.querySelectorAll('nav a');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('href').substring(1);
+                
+                if (sectionId === 'logout') {
+                    this.handleLogout();
+                } else {
+                    this.showSection(sectionId);
+                }
+            });
+        });
+    }
 
-  viewViolations() {
-    console.log('Viewing compliance violations...');
-    // Implementation for viewing violations
-  }
+    showSection(sectionId) {
+        // Hide all sections
+        const sections = document.querySelectorAll('main section');
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
 
-  addRegulation() {
-    console.log('Adding new regulation...');
-    // Implementation for adding regulation
-  }
+        // Show target section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            this.currentSection = sectionId;
+            
+            // Update navigation active state
+            this.updateNavigationState(sectionId);
+            
+            // Load section content
+            this.loadSectionContent(sectionId);
+        }
+    }
 
-  updateFramework() {
-    console.log('Updating regulatory framework...');
-    // Implementation for framework update
-  }
+    updateNavigationState(activeSection) {
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${activeSection}`) {
+                link.classList.add('active');
+            }
+        });
+    }
 
-  exportRegulatory() {
-    console.log('Exporting regulatory data...');
-    // Implementation for regulatory data export
-  }
+    loadSectionContent(sectionId) {
+        switch (sectionId) {
+            case 'dashboard':
+                this.loadDashboard();
+                break;
+            case 'user-management':
+                this.loadUserManagementSection();
+                break;
+            case 'royalty-records':
+                this.loadRoyaltyRecordsSection();
+                break;
+            case 'contract-management':
+                this.loadContractManagementSection();
+                break;
+            default:
+                this.loadGenericSection(sectionId);
+        }
+    }
 
-  changePassword() {
-    console.log('Changing password...');
-    // Implementation for password change
-  }
+    loadDashboard() {
+        const section = document.getElementById('dashboard');
+        if (!section) return;
 
-  enableTwoFactor() {
-    console.log('Enabling two-factor authentication...');
-    // Implementation for 2FA enablement
-  }
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📊 Executive Dashboard</h1>
+                    <p>Real-time mining royalties overview and analytics</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-info" id="refresh-dashboard-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
 
-  updateProfile() {
-    console.log('Updating profile...');
-    // Implementation for profile update
-  }
+            <!-- Key Performance Indicators -->
+            <div class="charts-grid" id="kpi-metrics">
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="total-royalties">E 0</p>
+                        <small id="royalties-trend" class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> +0%
+                        </small>
+                    </div>
+                </div>
 
-  toggle2FA() {
-    console.log('Toggling 2FA...');
-    // Implementation for 2FA toggle
-  }
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-industry"></i> Active Entities</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="active-entities">0</p>
+                        <small id="entities-trend" class="trend-positive">
+                            <i class="fas fa-plus"></i> +0 new entities
+                        </small>
+                    </div>
+                </div>
 
-  manageSessions() {
-    console.log('Managing active sessions...');
-    // Implementation for session management
-  }
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="compliance-rate">0%</p>
+                        <div class="mini-progress">
+                            <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Pending Approvals</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="pending-approvals">0</p>
+                        <small id="pending-text" class="trend-stable">
+                            <i class="fas fa-clock"></i> No pending items
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div id="recent-activity" class="activity-list">
+                        <!-- Activity items will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Initialize dashboard after content is loaded
+        setTimeout(() => {
+            this.updateDashboardMetrics();
+            this.updateRecentActivity();
+        }, 100);
+    }
+
+    updateDashboardMetrics() {
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const entities = this.dataManager.getEntities();
+        
+        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+        const activeEntities = entities.filter(e => e.status === 'Active').length;
+        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
+        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
+        
+        // Update main metrics
+        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
+        this.updateElement('active-entities', activeEntities);
+        this.updateElement('compliance-rate', `${complianceRate}%`);
+        this.updateElement('pending-approvals', pendingRecords);
+        
+        // Update progress bars
+        const complianceProgress = document.getElementById('compliance-progress');
+        if (complianceProgress) {
+            complianceProgress.style.width = `${complianceRate}%`;
+        }
+    }
+
+    updateElement(id, content) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = content;
+        }
+    }
+
+    updateRecentActivity() {
+        const activityContainer = document.getElementById('recent-activity');
+        if (!activityContainer) return;
+        
+        const auditLog = this.dataManager.getAuditLog();
+        const recentEntries = auditLog.slice(0, 5);
+        
+        if (recentEntries.length === 0) {
+            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
+            return;
+        }
+        
+        activityContainer.innerHTML = recentEntries.map(entry => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-${this.getActivityIcon(entry.action)}"></i>
+                </div>
+                <div class="activity-content">
+                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
+                    <small>${entry.timestamp}</small>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    getActivityIcon(action) {
+        const iconMap = {
+            'Login': 'sign-in-alt',
+            'Create User': 'user-plus',
+            'Modify User': 'user-edit',
+            'Delete User': 'user-minus',
+            'Data Access': 'eye',
+            'Failed Login': 'exclamation-triangle'
+        };
+        return iconMap[action] || 'circle';
+    }
+
+    loadUserManagementSection() {
+        const section = document.getElementById('user-management');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>👥 User Management</h1>
+                    <p>Manage system users and permissions</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>User management functionality will be implemented here.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    loadRoyaltyRecordsSection() {
+        const section = document.getElementById('royalty-records');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>💰 Royalty Records</h1>
+                    <p>Manage royalty payments and records</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Royalty records functionality will be implemented here.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    loadContractManagementSection() {
+        const section = document.getElementById('contract-management');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📋 Contract Management</h1>
+                    <p>Manage contracts and agreements</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Contract management functionality will be implemented here.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    loadGenericSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>📋 ${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
+                        <p>This section is under development</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <p>Content for ${sectionId} will be implemented here.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            const currentUser = this.authManager.getCurrentUser();
+            if (currentUser) {
+                this.dataManager.addAuditEntry({
+                    user: currentUser.username,
+                    action: 'Logout',
+                    target: 'System',
+                    ipAddress: '192.168.1.100',
+                    status: 'Success',
+                    details: 'User logged out successfully'
+                });
+            }
+            
+            this.authManager.logout();
+            
+            const loginSection = document.getElementById('login-section');
+            const appContainer = document.getElementById('app-container');
+            
+            if (appContainer) appContainer.style.display = 'none';
+            if (loginSection) loginSection.style.display = 'flex';
+            
+            // Clear login form
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            
+            this.notificationManager.show('Logged out successfully', 'info');
+        }
+    }
+}
+
+// Helper Classes
+class DataManager {
+    constructor() {
+        this.entities = [];
+        this.minerals = [];
+        this.royaltyRecords = [];
+        this.userAccounts = [];
+        this.auditLog = [];
+        this.contracts = [];
+    }
+
+    initialize() {
+        this.initializeEntities();
+        this.initializeRoyaltyRecords();
+        this.initializeUserAccounts();
+        this.initializeAuditLog();
+        this.initializeContracts();
+    }
+
+    initializeEntities() {
+        this.entities = [
+            { id: 1, name: 'Kwalini Quarry', type: 'Quarry', location: 'Kwaluseni', status: 'Active' },
+            { id: 2, name: 'Maloma Colliery', type: 'Mine', location: 'Maloma', status: 'Active' },
+            { id: 3, name: 'Ngwenya Mine', type: 'Mine', location: 'Ngwenya', status: 'Active' },
+            { id: 4, name: 'Mbabane Quarry', type: 'Quarry', location: 'Mbabane', status: 'Active' },
+            { id: 5, name: 'Sidvokodvo Quarry', type: 'Quarry', location: 'Sidvokodvo', status: 'Active' }
+        ];
+    }
+
+    initializeRoyaltyRecords() {
+        this.royaltyRecords = [
+            {
+                id: 1, entity: 'Kwalini Quarry', mineral: 'Quarried Stone', volume: 1250,
+                tariff: 15, royalties: 18750, date: '2024-01-15', status: 'Paid', referenceNumber: 'ROY-2024-001'
+            },
+            {
+                id: 2, entity: 'Maloma Colliery', mineral: 'Coal', volume: 850,
+                tariff: 12, royalties: 10200, date: '2024-01-20', status: 'Pending', referenceNumber: 'ROY-2024-002'
+            },
+            {
+                id: 3, entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 2100,
+                tariff: 25, royalties: 52500, date: '2024-01-25', status: 'Paid', referenceNumber: 'ROY-2024-003'
+            }
+        ];
+    }
+
+    initializeUserAccounts() {
+        this.userAccounts = [
+            {
+                id: 1, username: 'admin', email: 'admin@eswacaa.sz', role: 'Administrator',
+                department: 'Management', status: 'Active', lastLogin: '2024-02-10 09:15:00', created: '2023-01-15'
+            },
+            {
+                id: 2, username: 'editor', email: 'editor@eswacaa.sz', role: 'Editor',
+                department: 'Finance', status: 'Active', lastLogin: '2024-02-09 14:30:00', created: '2023-03-20'
+            }
+        ];
+    }
+
+    initializeAuditLog() {
+        this.auditLog = [
+            {
+                id: 1, timestamp: '2024-02-10 09:15:23', user: 'admin', action: 'Login',
+                target: 'System', ipAddress: '192.168.1.100', status: 'Success',
+                details: 'Successful login from administrative workstation'
+            }
+        ];
+    }
+
+    initializeContracts() {
+        this.contracts = [];
+    }
+
+    // Data access methods
+    getEntities() { return this.entities; }
+    getRoyaltyRecords() { return this.royaltyRecords; }
+    getUserAccounts() { return this.userAccounts; }
+    getAuditLog() { return this.auditLog; }
+    getContracts() { return this.contracts; }
+
+    addAuditEntry(entry) {
+        this.auditLog.unshift({
+            id: this.auditLog.length + 1,
+            timestamp: new Date().toLocaleString(),
+            ...entry
+        });
+    }
+}
+
+// Action Handler Classes
+class RecordActions {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+    }
+
+    viewRecord(recordId) {
+        this.notificationManager.show(`Viewing record: ${recordId}`, 'info');
+    }
+
+    editRecord(recordId) {
+        this.notificationManager.show(`Editing record: ${recordId}`, 'info');
+    }
+
+    deleteRecord(recordId) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            this.notificationManager.show('Record deleted successfully', 'success');
+        }
+    }
+
+    addRecord() {
+        this.notificationManager.show('Add new record functionality would open here', 'info');
+    }
+}
+
+class UserActions {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+    }
+
+    viewUser(userId) {
+        this.notificationManager.show(`Viewing user: ${userId}`, 'info');
+    }
+
+    editUser(userId) {
+        this.notificationManager.show(`Editing user: ${userId}`, 'info');
+    }
+
+    deleteUser(userId) {
+        if (confirm('Are you sure you want to delete this user?')) {
+            this.notificationManager.show('User deleted successfully', 'success');
+        }
+    }
+
+    addUser() {
+        this.notificationManager.show('Add new user functionality would open here', 'info');
+    }
+}
+
+class ContractActions {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+    }
+
+    viewContract(contractId) {
+        this.notificationManager.show(`Viewing contract: ${contractId}`, 'info');
+    }
+
+    editContract(contractId) {
+        this.notificationManager.show(`Editing contract: ${contractId}`, 'info');
+    }
+
+    deleteContract(contractId) {
+        if (confirm('Are you sure you want to delete this contract?')) {
+            this.notificationManager.show('Contract deleted successfully', 'success');
+        }
+    }
+
+    addContract() {
+        this.notificationManager.show('Add new contract functionality would open here', 'info');
+    }
 }
 
 // Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  const app = new MiningRoyaltiesApp();
-  app.init();
+    const app = new RoyaltiesApp();
+    app.initialize();
 });
-
-export { MiningRoyaltiesApp };

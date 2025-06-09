@@ -1,10 +1,12 @@
 export class NavigationManager {
   constructor() {
     this.currentSection = 'dashboard';
+    this.sectionManagers = new Map();
   }
 
   async init() {
     this.setupEventListeners();
+    this.loadInitialSection();
     console.log('Navigation manager initialized');
   }
 
@@ -23,56 +25,78 @@ export class NavigationManager {
       }
     });
 
-    // Handle mobile sidebar toggle
     this.setupMobileSidebar();
   }
 
-  setupMobileSidebar() {
-    // Add mobile menu toggle if needed
-    if (window.innerWidth <= 768) {
-      this.addMobileMenuToggle();
-    }
+  setActiveSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('main section').forEach(section => {
+      section.style.display = 'none';
+    });
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth <= 768) {
-        this.addMobileMenuToggle();
-      } else {
-        this.removeMobileMenuToggle();
+    // Show target section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+      targetSection.style.display = 'block';
+      this.currentSection = sectionId;
+      this.updateNavigationState(sectionId);
+      this.loadSectionContent(sectionId);
+    }
+  }
+
+  updateNavigationState(activeSection) {
+    document.querySelectorAll('nav a').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${activeSection}`) {
+        link.classList.add('active');
       }
     });
   }
 
-  addMobileMenuToggle() {
-    // Implementation for mobile menu toggle
-    console.log('Mobile menu setup');
+  loadSectionContent(sectionId) {
+    // Dispatch custom event for section loading
+    document.dispatchEvent(new CustomEvent('sectionChange', {
+      detail: { sectionId, timestamp: Date.now() }
+    }));
   }
 
-  removeMobileMenuToggle() {
-    // Implementation for removing mobile menu toggle
-    console.log('Mobile menu removed');
+  loadInitialSection() {
+    this.setActiveSection('dashboard');
   }
 
-  setActiveSection(sectionId) {
-    // Update active navigation link
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.remove('active');
-    });
-
-    const activeLink = document.querySelector(`[href="#${sectionId}"]`);
-    if (activeLink) {
-      activeLink.classList.add('active');
+  setupMobileSidebar() {
+    // Mobile menu toggle functionality
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'mobile-menu-toggle';
+    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+    
+    if (window.innerWidth <= 768) {
+      this.addMobileMenuToggle(toggleBtn);
     }
 
-    // Update current section
-    const previousSection = this.currentSection;
-    this.currentSection = sectionId;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 768) {
+        this.addMobileMenuToggle(toggleBtn);
+      } else {
+        this.removeMobileMenuToggle(toggleBtn);
+      }
+    });
+  }
 
-    // Dispatch section change event
-    window.dispatchEvent(new CustomEvent('sectionChanged', {
-      detail: { sectionId, previousSection }
-    }));
+  addMobileMenuToggle(toggle) {
+    const header = document.querySelector('.page-header');
+    if (header && !header.querySelector('.mobile-menu-toggle')) {
+      header.appendChild(toggle);
+      toggle.addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('active');
+      });
+    }
+  }
 
-    console.log(`Navigation: ${previousSection} -> ${sectionId}`);
+  removeMobileMenuToggle(toggle) {
+    if (toggle.parentElement) {
+      toggle.parentElement.removeChild(toggle);
+    }
   }
 
   getCurrentSection() {

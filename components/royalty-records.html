@@ -1,0 +1,126 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>💰 Royalty Records Management</h1>
+    <p>Comprehensive tracking and management of mining royalty payments, calculations, and compliance monitoring</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="import-records-btn" title="Import royalty records from spreadsheet">
+      <i class="fas fa-file-import"></i> Import Records
+    </button>
+    <button class="btn btn-secondary" id="export-records-btn" title="Export records to Excel or PDF">
+      <i class="fas fa-file-export"></i> Export Records
+    </button>
+    <button class="btn btn-success" id="add-record-btn" title="Add new royalty record">
+      <i class="fas fa-plus"></i> Add Record
+    </button>
+  </div>
+</div>
+
+<!-- Royalty Records Summary Cards -->
+<div class="charts-grid" id="royalty-metrics">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-coins"></i> Total Outstanding</h3>
+      <select class="metric-period">
+        <option>This Month</option>
+        <option>This Quarter</option>
+        <option>This Year</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="total-outstanding">E 0.00</p>
+      <small><i class="fas fa-exclamation-triangle text-warning"></i> Requires immediate attention</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-check-circle"></i> Payments Received</h3>
+    </div>
+    <div class="card-body">
+      <p id="payments-received">E 0.00</p>
+      <small><i class="fas fa-arrow-up text-success"></i> +15% from last month</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-hourglass-half"></i> Pending Approvals</h3>
+    </div>
+    <div class="card-body">
+      <p id="pending-approvals-count">0</p>
+      <small><i class="fas fa-clock"></i> Average processing: 3.2 days</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-calendar-times"></i> Overdue Payments</h3>
+    </div>
+    <div class="card-body">
+      <p id="overdue-payments">0</p>
+      <small><i class="fas fa-exclamation-circle text-danger"></i> Immediate action required</small>
+    </div>
+  </div>
+</div>
+
+<!-- Royalty Records Table Container -->
+<div id="royalty-records-table-container">
+  <div class="table-container">
+    <div class="section-header">
+      <h4><i class="fas fa-file-invoice-dollar"></i> Royalty Records Registry</h4>
+      <div class="table-actions">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="records-search" placeholder="Search records..." class="search-input">
+        </div>
+        <button class="btn btn-info btn-sm" id="filter-records-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-secondary btn-sm" id="sort-records-btn">
+          <i class="fas fa-sort"></i> Sort
+        </button>
+        <button class="btn btn-warning btn-sm" id="bulk-actions-btn">
+          <i class="fas fa-tasks"></i> Bulk Actions
+        </button>
+      </div>
+    </div>
+
+    <table class="data-table" id="royalty-records-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all-records" title="Select all records"></th>
+          <th sortable data-sort="referenceNumber">Reference #</th>
+          <th sortable data-sort="entity">Entity</th>
+          <th sortable data-sort="mineral">Mineral</th>
+          <th sortable data-sort="volume">Volume</th>
+          <th sortable data-sort="tariff">Tariff Rate</th>
+          <th sortable data-sort="royalties">Royalties Due</th>
+          <th sortable data-sort="date">Date</th>
+          <th sortable data-sort="status">Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="royalty-records-tbody">
+        <!-- Will be populated dynamically -->
+      </tbody>
+    </table>
+
+    <div class="table-pagination">
+      <div class="pagination-info">
+        Showing <span id="records-showing-start">1</span> to <span id="records-showing-end">6</span> of <span id="total-records">6</span> records
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-secondary" id="records-prev-page" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <div class="pagination-pages">
+          <a href="#" class="page-btn active">1</a>
+        </div>
+        <button class="btn btn-sm btn-secondary" id="records-next-page" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

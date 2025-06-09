@@ -467,236 +467,51 @@ export class DataManager {
 
     initializeComplianceData() {
         this.complianceData = {
-            reports: [
-                {
-                    id: 1,
-                    title: 'Environmental Impact Assessment',
-                    entity: 'Maloma Colliery',
-                    type: 'Environmental',
-                    status: 'Compliant',
-                    lastReview: '2024-01-15',
-                    nextReview: '2024-07-15',
-                    score: 95,
-                    priority: 'High'
-                },
-                {
-                    id: 2,
-                    title: 'Safety Standards Audit',
-                    entity: 'Ngwenya Mine',
-                    type: 'Safety',
-                    status: 'Non-Compliant',
-                    lastReview: '2024-02-01',
-                    nextReview: '2024-03-01',
-                    score: 68,
-                    priority: 'Critical'
-                },
-                {
-                    id: 3,
-                    title: 'Financial Reporting Compliance',
-                    entity: 'Kwalini Quarry',
-                    type: 'Financial',
-                    status: 'Compliant',
-                    lastReview: '2024-02-10',
-                    nextReview: '2024-05-10',
-                    score: 88,
-                    priority: 'Medium'
-                }
-            ],
-            regulations: [
-                {
-                    id: 1,
-                    name: 'Mining Act 2023',
-                    category: 'Mining Operations',
-                    effectiveDate: '2023-01-01',
-                    status: 'Active',
-                    compliance: 92
-                },
-                {
-                    id: 2,
-                    name: 'Environmental Protection Act',
-                    category: 'Environmental',
-                    effectiveDate: '2022-06-01',
-                    status: 'Active',
-                    compliance: 85
-                }
-            ]
+            overallScore: 92,
+            lastAssessment: '2024-02-01',
+            nextAssessment: '2024-05-01',
+            issues: [],
+            certifications: []
         };
     }
 
     initializeReportingData() {
         this.reportingData = {
-            monthlyReports: [
-                {
-                    id: 1,
-                    month: 'January 2024',
-                    totalRoyalties: 107650,
-                    entities: 6,
-                    compliance: 94,
-                    status: 'Published'
-                },
-                {
-                    id: 2,
-                    month: 'February 2024',
-                    totalRoyalties: 95420,
-                    entities: 6,
-                    compliance: 91,
-                    status: 'Draft'
-                }
-            ],
-            analytics: {
-                revenueByEntity: {
-                    'Maloma Colliery': 52500,
-                    'Ngwenya Mine': 25200,
-                    'Kwalini Quarry': 18750,
-                    'Others': 11200
-                },
-                complianceByType: {
-                    'Environmental': 85,
-                    'Safety': 78,
-                    'Financial': 95,
-                    'Operational': 88
-                }
-            }
+            reports: [],
+            templates: [],
+            scheduledReports: []
         };
     }
 
     initializeCommunicationData() {
         this.communicationData = {
-            messages: [
-                {
-                    id: 1,
-                    from: 'Ministry of Natural Resources',
-                    to: 'ESWACAA',
-                    subject: 'New Mining Regulation Update',
-                    date: '2024-02-10',
-                    status: 'Unread',
-                    priority: 'High',
-                    type: 'Official'
-                },
-                {
-                    id: 2,
-                    from: 'Maloma Colliery',
-                    to: 'ESWACAA',
-                    subject: 'Monthly Production Report Submission',
-                    date: '2024-02-08',
-                    status: 'Read',
-                    priority: 'Medium',
-                    type: 'Report'
-                }
-            ],
-            templates: [
-                {
-                    id: 1,
-                    name: 'Compliance Notice',
-                    category: 'Regulatory',
-                    usage: 45
-                },
-                {
-                    id: 2,
-                    name: 'Payment Reminder',
-                    category: 'Financial',
-                    usage: 32
-                }
-            ]
+            messages: [],
+            templates: [],
+            notifications: []
         };
     }
 
     initializeNotificationsData() {
         this.notificationsData = {
-            active: [
-                {
-                    id: 1,
-                    title: 'Payment Overdue',
-                    message: 'Mbabane Quarry payment is 5 days overdue',
-                    type: 'warning',
-                    date: '2024-02-10',
-                    entity: 'Mbabane Quarry',
-                    priority: 'High'
-                },
-                {
-                    id: 2,
-                    title: 'Compliance Review Due',
-                    message: 'Environmental assessment due for Ngwenya Mine',
-                    type: 'info',
-                    date: '2024-02-09',
-                    entity: 'Ngwenya Mine',
-                    priority: 'Medium'
-                },
-                {
-                    id: 3,
-                    title: 'Contract Expiring',
-                    message: 'Landowner agreement expires in 30 days',
-                    type: 'warning',
-                    date: '2024-02-08',
-                    entity: 'Piggs Peak Quarry',
-                    priority: 'High'
-                }
-            ],
-            settings: {
-                emailNotifications: true,
-                smsNotifications: false,
-                systemAlerts: true,
-                reminderFrequency: 'daily'
-            }
+            active: 3,
+            total: 25,
+            settings: {}
         };
     }
 
     initializeRegulatoryData() {
         this.regulatoryData = {
-            frameworks: [
-                {
-                    id: 1,
-                    name: 'National Mining Policy Framework',
-                    category: 'Policy',
-                    status: 'Active',
-                    lastUpdate: '2023-12-01',
-                    compliance: 88
-                },
-                {
-                    id: 2,
-                    name: 'Royalty Collection Standards',
-                    category: 'Financial',
-                    status: 'Under Review',
-                    lastUpdate: '2024-01-15',
-                    compliance: 92
-                }
-            ],
-            assessments: [
-                {
-                    id: 1,
-                    entity: 'Maloma Colliery',
-                    framework: 'Mining Operations Standard',
-                    score: 85,
-                    status: 'Compliant',
-                    lastAssessment: '2024-01-20'
-                }
-            ]
+            regulations: [],
+            compliance: {},
+            submissions: []
         };
     }
 
     initializeProfileData() {
         this.profileData = {
-            personalInfo: {
-                fullName: 'System Administrator',
-                email: 'admin@eswacaa.sz',
-                phone: '+268 2404 2000',
-                department: 'Management',
-                position: 'System Administrator',
-                employeeId: 'EMP001',
-                joinDate: '2023-01-15'
-            },
-            security: {
-                lastPasswordChange: '2024-01-01',
-                twoFactorEnabled: false,
-                loginSessions: 3,
-                lastLogin: '2024-02-10 09:15:00'
-            },
-            preferences: {
-                language: 'English',
-                timezone: 'Africa/Mbabane',
-                theme: 'Light',
-                notifications: true
-            }
+            user: null,
+            preferences: {},
+            settings: {}
         };
     }
 
@@ -718,7 +533,7 @@ export class DataManager {
     addAuditEntry(entry) {
         this.auditLog.unshift({
             id: this.auditLog.length + 1,
-            timestamp: new Date().toLocaleString(),
+            timestamp: new Date().toISOString(),
             ...entry
         });
     }

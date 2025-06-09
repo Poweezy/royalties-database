@@ -29,15 +29,21 @@ export class NavigationManager {
                 this.showSection(sectionId);
             }
         });
+
+        // Handle section change events
+        document.addEventListener('sectionChange', (e) => {
+            this.showSection(e.detail.sectionId);
+        });
+
+        // Mobile sidebar toggle
+        this.setupMobileSidebar();
     }
 
     showSection(sectionId) {
         // Hide all sections
         const sections = document.querySelectorAll('main section');
-        sections.forEach(section => {
-            section.style.display = 'none';
-        });
-
+        sections.forEach(section => section.style.display = 'none');
+        
         // Show target section
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
@@ -63,30 +69,64 @@ export class NavigationManager {
     }
 
     async loadSectionContent(sectionId) {
-        // Get or create section manager
-        let manager = this.sectionManagers.get(sectionId);
-        
-        if (!manager) {
-            switch (sectionId) {
-                case 'user-management':
-                    const { UserManagementManager } = await import('./sectionManagers.js');
-                    manager = new UserManagementManager(this.dataManager);
-                    break;
-                // Add other section managers as needed
-            }
-            
-            if (manager) {
-                this.sectionManagers.set(sectionId, manager);
-            }
+        const manager = this.getSectionManager(sectionId);
+        if (manager && typeof manager.loadSection === 'function') {
+            await manager.loadSection();
+        } else {
+            this.loadGenericSection(sectionId);
         }
+    }
+
+    getSectionManager(sectionId) {
+        return this.sectionManagers.get(sectionId);
+    }
+
+    registerSectionManager(sectionId, manager) {
+        this.sectionManagers.set(sectionId, manager);
+    }
+
+    loadGenericSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
         
-        if (manager && manager.loadSection) {
-            manager.loadSection();
-        }
+        const sectionNames = {
+            'audit-dashboard': 'Audit Dashboard',
+            'reporting-analytics': 'Reporting & Analytics',
+            'communication': 'Communication',
+            'notifications': 'Notifications',
+            'compliance': 'Compliance & Regulatory',
+            'regulatory-management': 'Regulatory Management',
+            'profile': 'Profile'
+        };
+        
+        const sectionName = sectionNames[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ');
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>${sectionName}</h1>
+                    <p>This section is under development</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Content for ${sectionName} will be implemented here.</p>
+                </div>
+            </div>
+        `;
     }
 
     loadInitialSection() {
         this.showSection('dashboard');
+    }
+
+    setupMobileSidebar() {
+        const sidebarClose = document.getElementById('sidebar-close');
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', () => {
+                document.getElementById('sidebar').classList.remove('active');
+            });
+        }
     }
 }
 

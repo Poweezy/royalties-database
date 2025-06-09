@@ -1,53 +1,585 @@
-// Section Managers Module
+import { SectionLoader } from '../section-loaders.js';
 
-export class UserManagementManager {
-    constructor(dataManager) {
+export class DashboardManager {
+    constructor(dataManager, notificationManager) {
         this.dataManager = dataManager;
-        this.currentFilters = {};
-        this.selectedUsers = new Set();
-        this.sortColumn = null;
-        this.sortDirection = 'asc';
-        this.currentPage = 1;
-        this.usersPerPage = 10;
+        this.notificationManager = notificationManager;
+        this.charts = {};
     }
 
-    loadSection() {
-        const section = document.getElementById('user-management');
+    async loadSection() {
+        const section = document.getElementById('dashboard');
         if (!section) return;
-        
-        // Load the template content from the HTML file
-        this.loadUserManagementTemplate(section);
-        this.setupEventListeners();
-        this.populateUserTable();
-        this.populateAuditLog();
-        this.updateMetrics();
-    }
-
-    async loadUserManagementTemplate(section) {
-        // If template is already loaded, don't reload
-        if (section.innerHTML.trim()) {
-            this.setupEventListeners();
-            this.populateUserTable();
-            this.populateAuditLog();
-            this.updateMetrics();
-            return;
-        }
 
         try {
-            const response = await fetch('templates/user-management.html');
-            if (response.ok) {
-                const html = await response.text();
-                section.innerHTML = html;
+            const template = await SectionLoader.loadTemplate('templates/dashboard.html');
+            if (template) {
+                section.innerHTML = template;
             } else {
-                throw new Error('Template not found');
+                this.loadFallbackContent(section);
             }
         } catch (error) {
-            console.log('Loading fallback user management content');
+            console.log('Loading dashboard template failed, using fallback');
             this.loadFallbackContent(section);
         }
+
+        this.updateMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.setupEventHandlers();
+        this.updateSystemAlerts();
     }
 
     loadFallbackContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📊 Executive Dashboard</h1>
+                    <p>Real-time mining royalties overview and analytics for comprehensive business intelligence</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-info" id="refresh-dashboard-btn" title="Refresh all dashboard data">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <button class="btn btn-secondary" id="export-dashboard-btn" title="Export dashboard report">
+                        <i class="fas fa-file-export"></i> Export Report
+                    </button>
+                    <button class="btn btn-primary" id="customize-dashboard-btn" title="Customize dashboard layout">
+                        <i class="fas fa-cog"></i> Customize
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key Performance Indicators -->
+            <div class="charts-grid" id="kpi-metrics">
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
+                        <select class="metric-period" id="royalties-period">
+                            <option value="current-month">This Month</option>
+                            <option value="current-year" selected>This Year</option>
+                            <option value="all-time">All Time</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <p id="total-royalties">E 0</p>
+                        <small id="royalties-trend" class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> +0%
+                        </small>
+                        <div class="mini-progress">
+                            <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-industry"></i> Active Entities</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="active-entities">0</p>
+                        <small id="entities-trend" class="trend-positive">
+                            <i class="fas fa-plus"></i> +0 new entities
+                        </small>
+                        <div class="entities-breakdown">
+                            <span class="entity-type">Mines: <strong id="mines-count">0</strong></span> • 
+                            <span class="entity-type">Quarries: <strong id="quarries-count">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="compliance-rate">0%</p>
+                        <small id="compliance-trend" class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> +0%
+                        </small>
+                        <div class="compliance-breakdown">
+                            <span class="entity-type text-success">Paid: <strong id="paid-count">0</strong></span> • 
+                            <span class="entity-type text-warning">Pending: <strong id="pending-count">0</strong></span> • 
+                            <span class="entity-type text-danger">Overdue: <strong id="overdue-count">0</strong></span>
+                        </div>
+                        <div class="mini-progress">
+                            <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Pending Approvals</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="pending-approvals">0</p>
+                        <small id="pending-text" class="trend-stable">
+                            <i class="fas fa-clock"></i> No pending items
+                        </small>
+                        <div class="urgency-indicator">
+                            <span class="urgent-badge" id="urgent-items" style="display: none;">
+                                <i class="fas fa-exclamation-circle"></i> Requires immediate attention
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Dashboard -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" data-action="show-section" data-target="royalty-records">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>View All Records</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="add-record">
+                            <i class="fas fa-plus"></i>
+                            <span>Add New Record</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="show-section" data-target="user-management">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="generate-report">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Monthly Report</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Charts -->
+            <div class="charts-grid">
+                <div class="analytics-chart card">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-line"></i> Revenue Trends</h5>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">Line</button>
+                            <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">Area</button>
+                            <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">Bar</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenue-trends-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-chart card">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-pie"></i> Production by Entity</h5>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" id="entity-chart-refresh">Refresh</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="production-by-entity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity and Alerts -->
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                        <button class="btn btn-sm btn-secondary" id="view-all-activity">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="recent-activity" class="activity-list">
+                            <!-- Activity items will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bell"></i> System Alerts</h5>
+                        <span class="alert-count" id="alert-count">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="system-alerts" class="alerts-container">
+                            <!-- Alerts will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    updateMetrics() {
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const entities = this.dataManager.getEntities();
+        
+        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+        const activeEntities = entities.filter(e => e.status === 'Active').length;
+        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
+        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
+        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
+        
+        // Update main metrics
+        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
+        this.updateElement('active-entities', activeEntities);
+        this.updateElement('compliance-rate', `${complianceRate}%`);
+        this.updateElement('pending-approvals', pendingRecords);
+        
+        // Update breakdowns
+        this.updateElement('mines-count', entities.filter(e => e.type === 'Mine').length);
+        this.updateElement('quarries-count', entities.filter(e => e.type === 'Quarry').length);
+        this.updateElement('paid-count', paidRecords);
+        this.updateElement('pending-count', pendingRecords);
+        this.updateElement('overdue-count', overdueRecords);
+        
+        // Update progress bars
+        const complianceProgress = document.getElementById('compliance-progress');
+        if (complianceProgress) {
+            complianceProgress.style.width = `${complianceRate}%`;
+        }
+        
+        const royaltiesProgress = document.getElementById('royalties-progress');
+        if (royaltiesProgress) {
+            const progressPercentage = Math.min((totalRoyalties / 200000) * 100, 100);
+            royaltiesProgress.style.width = `${progressPercentage}%`;
+        }
+        
+        // Update status text
+        this.updateElement('pending-text', pendingRecords > 0 ? 'Requires attention' : 'No pending items');
+        
+        // Show/hide urgent items
+        const urgentItems = document.getElementById('urgent-items');
+        if (urgentItems) {
+            urgentItems.style.display = overdueRecords > 0 ? 'block' : 'none';
+        }
+    }
+
+    updateElement(id, content) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = content;
+    }
+
+    setupCharts() {
+        // Destroy existing charts
+        Object.values(this.charts).forEach(chart => {
+            if (chart && typeof chart.destroy === 'function') chart.destroy();
+        });
+        this.charts = {};
+
+        this.setupRevenueChart();
+        this.setupProductionChart();
+        this.setupChartControls();
+    }
+
+    setupRevenueChart() {
+        const revenueCtx = document.getElementById('revenue-trends-chart');
+        if (revenueCtx && typeof Chart !== 'undefined') {
+            this.charts.revenueTrends = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Monthly Revenue (E)',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    setupProductionChart() {
+        const productionCtx = document.getElementById('production-by-entity-chart');
+        if (productionCtx && typeof Chart !== 'undefined') {
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            const entityData = royaltyRecords.reduce((acc, record) => {
+                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+                return acc;
+            }, {});
+            
+            this.charts.productionByEntity = new Chart(productionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(entityData),
+                    datasets: [{
+                        data: Object.values(entityData),
+                        backgroundColor: [
+                            '#1a365d', '#2d5a88', '#4a90c2', 
+                            '#7ba7cc', '#a8c5e2', '#d4af37'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+    }
+
+    setupChartControls() {
+        const chartButtons = document.querySelectorAll('.chart-btn');
+        chartButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const chartType = btn.dataset.chartType;
+                const chartId = btn.dataset.chartId;
+                
+                // Update active state
+                btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update chart if it exists
+                if (chartId === 'revenue-trends-chart' && this.charts.revenueTrends) {
+                    this.updateChartType(this.charts.revenueTrends, chartType);
+                }
+            });
+        });
+        
+        // Entity chart refresh
+        const refreshBtn = document.getElementById('entity-chart-refresh');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.setupProductionChart();
+                this.notificationManager.show('Production chart refreshed', 'success');
+            });
+        }
+    }
+
+    updateChartType(chart, type) {
+        if (type === 'area') {
+            chart.config.type = 'line';
+            chart.data.datasets[0].fill = true;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
+        } else if (type === 'bar') {
+            chart.config.type = 'bar';
+            chart.data.datasets[0].fill = false;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
+        } else {
+            chart.config.type = 'line';
+            chart.data.datasets[0].fill = false;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+        }
+        chart.update();
+    }
+
+    updateRecentActivity() {
+        const activityContainer = document.getElementById('recent-activity');
+        if (!activityContainer) return;
+        
+        const auditLog = this.dataManager.getAuditLog();
+        const recentEntries = auditLog.slice(0, 5);
+        
+        if (recentEntries.length === 0) {
+            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
+            return;
+        }
+        
+        activityContainer.innerHTML = recentEntries.map(entry => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-${this.getActivityIcon(entry.action)}"></i>
+                </div>
+                <div class="activity-content">
+                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
+                    <small>${entry.timestamp}</small>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    getActivityIcon(action) {
+        const iconMap = {
+            'Login': 'sign-in-alt',
+            'Create User': 'user-plus',
+            'Modify User': 'user-edit',
+            'Delete User': 'user-minus',
+            'Data Access': 'eye',
+            'Failed Login': 'exclamation-triangle'
+        };
+        return iconMap[action] || 'circle';
+    }
+
+    setupEventHandlers() {
+        // Dashboard action buttons
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshDashboard();
+            });
+        }
+        
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportDashboard();
+            });
+        }
+        
+        const customizeBtn = document.getElementById('customize-dashboard-btn');
+        if (customizeBtn) {
+            customizeBtn.addEventListener('click', () => {
+                this.notificationManager.show('Dashboard customization options would be available here', 'info');
+            });
+        }
+        
+        // Quick action buttons
+        const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+        quickActionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const target = btn.dataset.target;
+                
+                switch(action) {
+                    case 'show-section':
+                        document.dispatchEvent(new CustomEvent('sectionChange', {
+                            detail: { sectionId: target }
+                        }));
+                        break;
+                    case 'add-record':
+                        this.notificationManager.show('Add record form would open here', 'info');
+                        break;
+                    case 'generate-report':
+                        this.generateMonthlyReport();
+                        break;
+                }
+            });
+        });
+        
+        // View all activity button
+        const viewAllBtn = document.getElementById('view-all-activity');
+        if (viewAllBtn) {
+            viewAllBtn.addEventListener('click', () => {
+                document.dispatchEvent(new CustomEvent('sectionChange', {
+                    detail: { sectionId: 'audit-dashboard' }
+                }));
+            });
+        }
+        
+        // Period selector
+        const periodSelector = document.getElementById('royalties-period');
+        if (periodSelector) {
+            periodSelector.addEventListener('change', () => {
+                this.updateMetrics();
+                this.notificationManager.show('Dashboard updated for selected period', 'success');
+            });
+        }
+    }
+
+    refreshDashboard() {
+        this.updateMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard report...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard report exported successfully', 'success');
+        }, 2000);
+    }
+
+    generateMonthlyReport() {
+        this.notificationManager.show('Generating monthly report...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Monthly report generated successfully', 'success');
+        }, 2000);
+    }
+
+    updateSystemAlerts() {
+        const alertsContainer = document.getElementById('system-alerts');
+        const alertCount = document.getElementById('alert-count');
+        
+        if (!alertsContainer || !alertCount) return;
+        
+        const alerts = [
+            {
+                type: 'warning',
+                title: 'Payment Overdue',
+                message: 'Ngwenya Mine payment is 5 days overdue',
+                time: '2 hours ago'
+            },
+            {
+                type: 'info',
+                title: 'Monthly Report Ready',
+                message: 'January royalties report is available for review',
+                time: '4 hours ago'
+            }
+        ];
+        
+        alertCount.textContent = alerts.length;
+        
+        alertsContainer.innerHTML = alerts.map(alert => `
+            <div class="alert-item ${alert.type}">
+                <div class="alert-icon">
+                    <i class="fas fa-${alert.type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                </div>
+                <div class="alert-content">
+                    <h6>${alert.title}</h6>
+                    <p>${alert.message}</p>
+                    <small>${alert.time}</small>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    destroy() {
+        Object.values(this.charts).forEach(chart => {
+            if (chart && typeof chart.destroy === 'function') chart.destroy();
+        });
+        this.charts = {};
+    }
+}
+
+export class UserManagementManager {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+    }
+
+    async loadSection() {
+        const section = document.getElementById('user-management');
+        if (!section) return;
+
+        const template = await SectionLoader.loadTemplate('templates/user-management.html');
+        if (template) {
+            section.innerHTML = template;
+        } else {
+            this.loadFallbackContent();
+        }
+
+        this.populateData();
+        this.setupEventHandlers();
+    }
+
+    loadFallbackContent() {
+        const section = document.getElementById('user-management');
         const userAccounts = this.dataManager.getUserAccounts();
         
         section.innerHTML = `
@@ -57,1126 +589,126 @@ export class UserManagementManager {
                     <p>Comprehensive user administration with role-based access control</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-info" id="view-audit-btn">
-                        <i class="fas fa-shield-alt"></i> View Audit Log
-                    </button>
-                    <button class="btn btn-primary" id="export-report-btn">
-                        <i class="fas fa-file-export"></i> Export Report
-                    </button>
                     <button class="btn btn-success" id="add-user-btn">
                         <i class="fas fa-user-plus"></i> Add User
                     </button>
                 </div>
             </div>
-            
-            <!-- Metrics Dashboard -->
-            <div class="charts-grid">
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-users"></i> Active Users</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="active-users-count">${userAccounts.filter(u => u.status === 'Active').length}</p>
-                        <small><i class="fas fa-circle" style="color: #38a169;"></i> Currently active</small>
-                    </div>
-                </div>
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-user-shield"></i> Administrators</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="admin-count">${userAccounts.filter(u => u.role === 'Administrator').length}</p>
-                        <small><i class="fas fa-shield-alt"></i> System administrators</small>
-                    </div>
-                </div>
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Failed Logins</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="failed-logins-count">${userAccounts.reduce((sum, u) => sum + (u.failedAttempts || 0), 0)}</p>
-                        <small><i class="fas fa-clock"></i> Last 24 hours</small>
-                    </div>
-                </div>
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-calendar-times"></i> Account Expiry</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="expiring-accounts">${userAccounts.filter(u => u.expires && new Date(u.expires) < new Date(Date.now() + 90*24*60*60*1000)).length}</p>
-                        <small><i class="fas fa-warning"></i> Expiring within 90 days</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <h3>User Accounts</h3>
                 </div>
                 <div class="card-body">
-                    <div class="quick-actions-grid">
-                        <button class="quick-action-btn" onclick="this.showBulkUserUpload()">
-                            <i class="fas fa-upload"></i>
-                            <span>Bulk Import Users</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="this.resetAllPasswords()">
-                            <i class="fas fa-key"></i>
-                            <span>Reset Passwords</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="this.auditUserActivity()">
-                            <i class="fas fa-search"></i>
-                            <span>Audit Activity</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="this.generateUserReport()">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Generate Report</span>
-                        </button>
-                    </div>
+                    <p>User management interface would be implemented here.</p>
                 </div>
-            </div>
-
-            <!-- Users Table -->
-            <div class="table-container">
-                <div class="section-header">
-                    <h4><i class="fas fa-users"></i> User Accounts Registry</h4>
-                    <div class="table-actions">
-                        <button class="btn btn-info btn-sm" id="filter-users-btn">
-                            <i class="fas fa-filter"></i> Filter
-                        </button>
-                        <button class="btn btn-secondary btn-sm" id="sort-users-btn">
-                            <i class="fas fa-sort"></i> Sort
-                        </button>
-                        <button class="btn btn-warning btn-sm" id="bulk-actions-btn">
-                            <i class="fas fa-tasks"></i> Bulk Actions
-                        </button>
-                    </div>
-                </div>
-
-                <table class="data-table" id="users-table">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="select-all-users"></th>
-                            <th sortable data-sort="username">Username</th>
-                            <th sortable data-sort="email">Email</th>
-                            <th sortable data-sort="role">Role</th>
-                            <th sortable data-sort="department">Department</th>
-                            <th sortable data-sort="status">Status</th>
-                            <th sortable data-sort="lastLogin">Last Login</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-tbody">
-                        ${this.generateUserTableRows(userAccounts)}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Audit Log -->
-            <div class="card audit-log-section">
-                <div class="card-header">
-                    <h3><i class="fas fa-shield-alt"></i> Security Audit Log</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-info btn-sm" id="export-audit-btn">
-                            <i class="fas fa-download"></i> Export Log
-                        </button>
-                        <button class="btn btn-primary btn-sm" id="refresh-audit-btn">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="data-table" id="audit-log-table">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>User</th>
-                                <th>Action</th>
-                                <th>Target</th>
-                                <th>IP Address</th>
-                                <th>Status</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody id="audit-log-tbody">
-                            ${this.generateAuditLogRows()}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Add User Form (hidden by default) -->
-            <div id="add-user-form-container" style="display: none;">
-                ${this.generateAddUserForm()}
             </div>
         `;
     }
 
-    generateUserTableRows(users = null) {
-        const userAccounts = users || this.dataManager.getUserAccounts();
-        
-        return userAccounts.map(user => `
-            <tr data-user-id="${user.id}">
-                <td><input type="checkbox" class="user-select" value="${user.id}"></td>
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-                <td>${user.department}</td>
-                <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-                <td>${user.lastLogin || 'Never'}</td>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})" title="Edit user">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-info" onclick="this.viewUserDetails(${user.id})" title="View details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning" onclick="this.resetUserPassword(${user.id})" title="Reset password">
-                            <i class="fas fa-key"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})" title="Delete user">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+    populateData() {
+        // Implementation for populating user data
     }
 
-    generateAuditLogRows() {
-        const auditLog = this.dataManager.getAuditLog();
-        
-        return auditLog.slice(0, 10).map(entry => `
-            <tr>
-                <td>${entry.timestamp}</td>
-                <td>${entry.user}</td>
-                <td><span class="action-badge ${entry.action.toLowerCase().replace(' ', '-')}">${entry.action}</span></td>
-                <td>${entry.target}</td>
-                <td>${entry.ipAddress}</td>
-                <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
-                <td title="${entry.details}">${entry.details.substring(0, 50)}${entry.details.length > 50 ? '...' : ''}</td>
-            </tr>
-        `).join('');
+    setupEventHandlers() {
+        // Implementation for setting up event handlers
     }
-
-    generateAddUserForm() {
-        return `
-            <div class="user-form-container">
-                <div class="section-header">
-                    <h4><i class="fas fa-user-plus"></i> Add New User Account</h4>
-                    <button class="btn btn-secondary btn-sm" id="close-add-user-form">
-                        <i class="fas fa-times"></i> Close
-                    </button>
-                </div>
-                
-                <form id="add-user-form" novalidate>
-                    <div class="grid-4">
-                        <div class="form-group">
-                            <label for="new-username"><i class="fas fa-user"></i> Username *</label>
-                            <input type="text" id="new-username" name="username" placeholder="Enter username" required>
-                            <small class="form-help">3-50 characters, letters, numbers, dots, dashes only</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-fullname"><i class="fas fa-id-card"></i> Full Name *</label>
-                            <input type="text" id="new-fullname" name="fullname" placeholder="Enter full name" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-email"><i class="fas fa-envelope"></i> Email *</label>
-                            <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-role"><i class="fas fa-user-tag"></i> Role *</label>
-                            <select id="new-role" name="role" required>
-                                <option value="">Select role</option>
-                                <option value="Administrator">Administrator</option>
-                                <option value="Editor">Editor</option>
-                                <option value="Viewer">Viewer</option>
-                                <option value="Auditor">Auditor</option>
-                                <option value="Finance">Finance Manager</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-department"><i class="fas fa-building"></i> Department *</label>
-                            <select id="new-department" name="department" required>
-                                <option value="">Select department</option>
-                                <option value="Management">Management</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Audit">Audit</option>
-                                <option value="Legal">Legal</option>
-                                <option value="Operations">Operations</option>
-                                <option value="IT">Information Technology</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-password"><i class="fas fa-lock"></i> Password *</label>
-                            <div class="password-input-container">
-                                <input type="password" id="new-password" name="password" placeholder="Enter password" required>
-                                <button type="button" class="password-toggle-btn" id="toggle-new-password">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-password-confirm"><i class="fas fa-lock"></i> Confirm Password *</label>
-                            <input type="password" id="new-password-confirm" name="password_confirm" placeholder="Confirm password" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-expires"><i class="fas fa-calendar-alt"></i> Expires (Optional)</label>
-                            <input type="date" id="new-expires" name="expires">
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="cancel-add-user">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                        <button type="button" class="btn btn-warning" id="reset-form">
-                            <i class="fas fa-undo"></i> Reset
-                        </button>
-                        <button type="submit" class="btn btn-success" id="create-user-btn">
-                            <i class="fas fa-user-plus"></i> Create User
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-    }
-
-    setupEventListeners() {
-        // Main action buttons
-        this.setupMainButtons();
-        
-        // Form handling
-        this.setupFormHandling();
-        
-        // Table interactions
-        this.setupTableInteractions();
-        
-        // Audit log interactions
-        this.setupAuditLogHandlers();
-    }
-
-    setupMainButtons() {
-        const addUserBtn = document.getElementById('add-user-btn');
-        if (addUserBtn) {
-            addUserBtn.addEventListener('click', () => this.showAddUserForm());
-        }
-
-        const viewAuditBtn = document.getElementById('view-audit-btn');
-        if (viewAuditBtn) {
-            viewAuditBtn.addEventListener('click', () => this.scrollToAuditLog());
-        }
-
-        const exportReportBtn = document.getElementById('export-report-btn');
-        if (exportReportBtn) {
-            exportReportBtn.addEventListener('click', () => this.exportUserReport());
-        }
-
-        const filterUsersBtn = document.getElementById('filter-users-btn');
-        if (filterUsersBtn) {
-            filterUsersBtn.addEventListener('click', () => this.toggleUserFilters());
-        }
-    }
-
-    setupFormHandling() {
-        const closeFormBtn = document.getElementById('close-add-user-form');
-        if (closeFormBtn) {
-            closeFormBtn.addEventListener('click', () => this.hideAddUserForm());
-        }
-
-        const cancelBtn = document.getElementById('cancel-add-user');
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => this.hideAddUserForm());
-        }
-
-        const resetBtn = document.getElementById('reset-form');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => this.resetAddUserForm());
-        }
-
-        const addUserForm = document.getElementById('add-user-form');
-        if (addUserForm) {
-            addUserForm.addEventListener('submit', (e) => this.handleAddUserSubmit(e));
-        }
-
-        // Password toggle
-        const passwordToggle = document.getElementById('toggle-new-password');
-        if (passwordToggle) {
-            passwordToggle.addEventListener('click', () => this.togglePasswordVisibility());
-        }
-
-        // Real-time validation
-        this.setupFormValidation();
-    }
-
-    setupTableInteractions() {
-        // Select all checkbox
-        const selectAllCheckbox = document.getElementById('select-all-users');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => this.handleSelectAll(e));
-        }
-
-        // Individual user selection
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('user-select')) {
-                this.handleUserSelect(e);
-            }
-        });
-
-        // Column sorting
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('th[sortable]')) {
-                this.handleColumnSort(e);
-            }
-        });
-    }
-
-    setupAuditLogHandlers() {
-        const exportAuditBtn = document.getElementById('export-audit-btn');
-        if (exportAuditBtn) {
-            exportAuditBtn.addEventListener('click', () => this.exportAuditLog());
-        }
-
-        const refreshAuditBtn = document.getElementById('refresh-audit-btn');
-        if (refreshAuditBtn) {
-            refreshAuditBtn.addEventListener('click', () => this.refreshAuditLog());
-        }
-    }
-
-    setupFormValidation() {
-        const usernameField = document.getElementById('new-username');
-        const emailField = document.getElementById('new-email');
-        const passwordField = document.getElementById('new-password');
-        const confirmPasswordField = document.getElementById('new-password-confirm');
-
-        if (usernameField) {
-            usernameField.addEventListener('input', () => this.validateUsername());
-            usernameField.addEventListener('blur', () => this.checkUsernameAvailability());
-        }
-
-        if (emailField) {
-            emailField.addEventListener('input', () => this.validateEmail());
-        }
-
-        if (passwordField) {
-            passwordField.addEventListener('input', () => this.validatePassword());
-        }
-
-        if (confirmPasswordField) {
-            confirmPasswordField.addEventListener('input', () => this.validatePasswordMatch());
-        }
-
-        // Form-wide validation
-        const form = document.getElementById('add-user-form');
-        if (form) {
-            form.addEventListener('input', () => this.validateForm());
-        }
-    }
-
-    // UI Action Methods
-    showAddUserForm() {
-        const formContainer = document.getElementById('add-user-form-container');
-        if (formContainer) {
-            formContainer.style.display = 'block';
-            formContainer.scrollIntoView({ behavior: 'smooth' });
-            
-            // Set minimum date for expiry to today
-            const expiryField = document.getElementById('new-expires');
-            if (expiryField) {
-                expiryField.min = new Date().toISOString().split('T')[0];
-            }
-        }
-    }
-
-    hideAddUserForm() {
-        const formContainer = document.getElementById('add-user-form-container');
-        if (formContainer) {
-            formContainer.style.display = 'none';
-            this.resetAddUserForm();
-        }
-    }
-
-    resetAddUserForm() {
-        const form = document.getElementById('add-user-form');
-        if (form) {
-            form.reset();
-            this.clearValidationMessages();
-            this.updateCreateButton();
-        }
-    }
-
-    scrollToAuditLog() {
-        const auditSection = document.querySelector('.audit-log-section');
-        if (auditSection) {
-            auditSection.scrollIntoView({ behavior: 'smooth' });
-            // Highlight the section briefly
-            auditSection.style.backgroundColor = 'rgba(37, 99, 235, 0.1)';
-            setTimeout(() => {
-                auditSection.style.backgroundColor = '';
-            }, 2000);
-        }
-    }
-
-    togglePasswordVisibility() {
-        const passwordField = document.getElementById('new-password');
-        const toggleButton = document.getElementById('toggle-new-password');
-        const icon = toggleButton?.querySelector('i');
-        
-        if (passwordField && icon) {
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    }
-
-    // ...existing code...
 }
 
 export class RoyaltyRecordsManager {
-    constructor(dataManager) {
+    constructor(dataManager, notificationManager) {
         this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
     }
 
-    loadSection() {
+    async loadSection() {
         const section = document.getElementById('royalty-records');
         if (!section) return;
-        
-        const royaltyRecords = this.dataManager.getRoyaltyRecords();
-        const entities = this.dataManager.getEntities();
-        const minerals = this.dataManager.getMinerals();
-        
+
+        const template = await SectionLoader.loadTemplate('templates/royalty-records.html');
+        if (template) {
+            section.innerHTML = template;
+        } else {
+            this.loadFallbackContent();
+        }
+
+        this.populateData();
+        this.setupEventHandlers();
+    }
+
+    loadFallbackContent() {
+        const section = document.getElementById('royalty-records');
         section.innerHTML = `
             <div class="page-header">
                 <div class="page-title">
-                    <h1>💰 Royalty Records Management</h1>
-                    <p>Comprehensive tracking and management of mining royalty payments, calculations, and compliance monitoring</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-info" id="bulk-calculate-btn" title="Bulk calculate royalties">
-                        <i class="fas fa-calculator"></i> Bulk Calculate
-                    </button>
-                    <button class="btn btn-warning" id="generate-invoices-btn" title="Generate invoices">
-                        <i class="fas fa-file-invoice"></i> Generate Invoices
-                    </button>
-                    <button class="btn btn-secondary" id="export-records-btn" title="Export records">
-                        <i class="fas fa-download"></i> Export Records
-                    </button>
-                    <button class="btn btn-success" id="add-record-btn" title="Add new royalty record">
-                        <i class="fas fa-plus"></i> Add Record
-                    </button>
+                    <h1>💰 Royalty Records</h1>
+                    <p>Manage royalty payments and records</p>
                 </div>
             </div>
-
-            <!-- Royalty Metrics Dashboard -->
-            <div class="charts-grid" id="royalty-metrics">
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties (YTD)</h3>
-                        <select class="metric-period" id="royalties-period">
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="all">All Time</option>
-                        </select>
-                    </div>
-                    <div class="card-body">
-                        <p id="total-royalties-amount">E ${royaltyRecords.reduce((sum, r) => sum + r.royalties, 0).toLocaleString()}</p>
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up"></i> +12.5% from last year
-                        </small>
-                        <div class="mini-progress mt-2">
-                            <div class="progress-bar bg-success" style="width: 75%;"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-check-circle"></i> Payment Compliance</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="compliance-percentage">${Math.round((royaltyRecords.filter(r => r.status === 'Paid').length / royaltyRecords.length) * 100)}%</p>
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up"></i> +2.1% this month
-                        </small>
-                        <div class="entities-breakdown mt-2">
-                            <span class="entity-type text-success">Paid: ${royaltyRecords.filter(r => r.status === 'Paid').length}</span> • 
-                            <span class="entity-type text-warning">Pending: ${royaltyRecords.filter(r => r.status === 'Pending').length}</span> • 
-                            <span class="entity-type text-danger">Overdue: ${royaltyRecords.filter(r => r.status === 'Overdue').length}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Outstanding Payments</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="outstanding-amount">E ${royaltyRecords.filter(r => r.status !== 'Paid').reduce((sum, r) => sum + r.royalties, 0).toLocaleString()}</p>
-                        <small class="text-danger">
-                            <i class="fas fa-clock"></i> ${royaltyRecords.filter(r => r.status === 'Overdue').length} overdue payments
-                        </small>
-                        <div class="urgency-indicator mt-2">
-                            <span class="urgent-badge">
-                                <i class="fas fa-exclamation-circle"></i> Requires immediate attention
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-chart-line"></i> Monthly Growth</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="monthly-growth">+8.7%</p>
-                        <small class="text-success">
-                            <i class="fas fa-trending-up"></i> Compared to last month
-                        </small>
-                        <div class="chart-summary mt-2">
-                            Average monthly royalties: <strong>E ${Math.round(royaltyRecords.reduce((sum, r) => sum + r.royalties, 0) / 12).toLocaleString()}</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions & Filters -->
             <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Actions & Smart Filters</h3>
-                </div>
                 <div class="card-body">
-                    <div class="quick-actions-grid">
-                        <button class="quick-action-btn" onclick="filterByStatus('Overdue')">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>View Overdue (${royaltyRecords.filter(r => r.status === 'Overdue').length})</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="filterByStatus('Pending')">
-                            <i class="fas fa-clock"></i>
-                            <span>View Pending (${royaltyRecords.filter(r => r.status === 'Pending').length})</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="filterByThisMonth()">
-                            <i class="fas fa-calendar"></i>
-                            <span>This Month's Records</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="showPaymentReminders()">
-                            <i class="fas fa-bell"></i>
-                            <span>Send Payment Reminders</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Advanced Filters -->
-            <div class="table-filters" id="royalty-filters" style="display: none;">
-                <h6><i class="fas fa-filter"></i> Advanced Filters</h6>
-                <div class="grid-4">
-                    <div class="form-group">
-                        <label for="filter-entity">Entity</label>
-                        <select id="filter-entity">
-                            <option value="">All Entities</option>
-                            ${entities.map(entity => `<option value="${entity.name}">${entity.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filter-mineral">Mineral</label>
-                        <select id="filter-mineral">
-                            <option value="">All Minerals</option>
-                            ${minerals.map(mineral => `<option value="${mineral.name}">${mineral.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filter-status">Payment Status</label>
-                        <select id="filter-status">
-                            <option value="">All Statuses</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Overdue">Overdue</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filter-date-range">Date Range</label>
-                        <select id="filter-date-range">
-                            <option value="">All Dates</option>
-                            <option value="today">Today</option>
-                            <option value="this-week">This Week</option>
-                            <option value="this-month">This Month</option>
-                            <option value="last-month">Last Month</option>
-                            <option value="this-quarter">This Quarter</option>
-                            <option value="this-year">This Year</option>
-                            <option value="custom">Custom Range</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="filter-actions">
-                    <button class="btn btn-primary" id="apply-filters-btn">
-                        <i class="fas fa-search"></i> Apply Filters
-                    </button>
-                    <button class="btn btn-secondary" id="clear-filters-btn">
-                        <i class="fas fa-eraser"></i> Clear All
-                    </button>
-                </div>
-            </div>
-
-            <!-- Royalty Records Table -->
-            <div id="royalty-table-container">
-                <div class="table-container">
-                    <div class="section-header">
-                        <h4><i class="fas fa-table"></i> Royalty Records Registry</h4>
-                        <div class="table-actions">
-                            <button class="btn btn-info btn-sm" id="toggle-filters-btn">
-                                <i class="fas fa-filter"></i> Filters
-                            </button>
-                            <button class="btn btn-secondary btn-sm" id="sort-records-btn">
-                                <i class="fas fa-sort"></i> Sort
-                            </button>
-                            <button class="btn btn-warning btn-sm" id="bulk-actions-btn">
-                                <i class="fas fa-tasks"></i> Bulk Actions
-                            </button>
-                            <button class="btn btn-success btn-sm" id="refresh-records-btn">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-
-                    <table class="data-table" id="royalty-records-table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="select-all-records" title="Select all records"></th>
-                                <th sortable data-sort="referenceNumber">Reference #</th>
-                                <th sortable data-sort="entity">Entity</th>
-                                <th sortable data-sort="mineral">Mineral</th>
-                                <th sortable data-sort="volume">Volume</th>
-                                <th sortable data-sort="tariff">Tariff Rate</th>
-                                <th sortable data-sort="royalties">Royalties Due</th>
-                                <th sortable data-sort="date">Date</th>
-                                <th sortable data-sort="status">Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="royalty-records-tbody">
-                            ${royaltyRecords.map(record => `
-                                <tr data-record-id="${record.id}">
-                                    <td><input type="checkbox" class="record-checkbox" value="${record.id}"></td>
-                                    <td>
-                                        <strong>${record.referenceNumber}</strong>
-                                    </td>
-                                    <td>
-                                        <div class="entity-info">
-                                            <strong>${record.entity}</strong>
-                                            <small>Mining Operation</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="mineral-badge ${record.mineral.toLowerCase().replace(/\s+/g, '-')}">${record.mineral}</span>
-                                    </td>
-                                    <td>
-                                        <strong>${record.volume.toLocaleString()}</strong>
-                                        <small>${record.mineral.includes('Stone') || record.mineral.includes('Sand') || record.mineral.includes('Gravel') ? 'm³' : 'tonnes'}</small>
-                                    </td>
-                                    <td>
-                                        <strong>E ${record.tariff}</strong>
-                                        <small>per ${record.mineral.includes('Stone') || record.mineral.includes('Sand') || record.mineral.includes('Gravel') ? 'm³' : 'tonne'}</small>
-                                    </td>
-                                    <td>
-                                        <strong class="royalty-amount">E ${record.royalties.toLocaleString()}</strong>
-                                    </td>
-                                    <td>
-                                        <span class="date-badge">${new Date(record.date).toLocaleDateString('en-GB')}</span>
-                                        <small>${this.getTimeAgo(record.date)}</small>
-                                    </td>
-                                    <td>
-                                        <span class="status-badge ${record.status.toLowerCase()}">${record.status}</span>
-                                        ${record.status === 'Overdue' ? '<small class="overdue-days">5 days overdue</small>' : ''}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info" onclick="window.recordActions.viewRecord(${record.id})" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-secondary" onclick="window.recordActions.editRecord(${record.id})" title="Edit Record">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-success" onclick="window.recordActions.markAsPaid(${record.id})" title="Mark as Paid" ${record.status === 'Paid' ? 'disabled' : ''}>
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-warning" onclick="window.recordActions.generateInvoice(${record.id})" title="Generate Invoice">
-                                                <i class="fas fa-file-invoice"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-
-                    <div class="table-pagination">
-                        <div class="pagination-info">
-                            Showing <span id="showing-start">1</span> to <span id="showing-end">${royaltyRecords.length}</span> of <span id="total-records">${royaltyRecords.length}</span> records
-                        </div>
-                        <div class="pagination-controls">
-                            <button class="btn btn-sm btn-secondary" id="prev-page" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                            <div class="pagination-pages">
-                                <a href="#" class="page-btn active">1</a>
-                            </div>
-                            <button class="btn btn-sm btn-secondary" id="next-page" disabled>
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Summary Cards -->
-            <div class="charts-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-chart-pie"></i> Payment Status Distribution</h5>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="payment-status-chart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-chart-bar"></i> Royalties by Entity</h5>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="royalties-by-entity-chart"></canvas>
-                    </div>
+                    <p>Royalty records interface would be implemented here.</p>
                 </div>
             </div>
         `;
+    }
 
-        // Setup event handlers
+    populateData() {
+        // Implementation for populating royalty data
+    }
+
+    setupEventHandlers() {
+        // Implementation for setting up event handlers
+    }
+}
+
+export class ContractManagementManager {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+    }
+
+    async loadSection() {
+        const section = document.getElementById('contract-management');
+        if (!section) return;
+
+        const template = await SectionLoader.loadTemplate('templates/contract-management.html');
+        if (template) {
+            section.innerHTML = template;
+        } else {
+            this.loadFallbackContent();
+        }
+
+        this.populateData();
         this.setupEventHandlers();
         this.initializeCharts();
     }
 
-    getTimeAgo(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) return '1 day ago';
-        if (diffDays < 7) return `${diffDays} days ago`;
-        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-        return `${Math.floor(diffDays / 30)} months ago`;
+    loadFallbackContent() {
+        const section = document.getElementById('contract-management');
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📋 Contract Management</h1>
+                    <p>Manage mining contracts and agreements</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <p>Contract management interface would be implemented here.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    populateData() {
+        // Implementation for populating contract data
     }
 
     setupEventHandlers() {
-        // Toggle filters
-        const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
-        const filtersSection = document.getElementById('royalty-filters');
-        
-        if (toggleFiltersBtn) {
-            toggleFiltersBtn.addEventListener('click', () => {
-                const isVisible = filtersSection.style.display !== 'none';
-                filtersSection.style.display = isVisible ? 'none' : 'block';
-                toggleFiltersBtn.innerHTML = isVisible ? 
-                    '<i class="fas fa-filter"></i> Show Filters' : 
-                    '<i class="fas fa-filter"></i> Hide Filters';
-            });
-        }
-
-        // Select all records
-        const selectAllCheckbox = document.getElementById('select-all-records');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => {
-                const recordCheckboxes = document.querySelectorAll('.record-checkbox');
-                recordCheckboxes.forEach(checkbox => {
-                    checkbox.checked = e.target.checked;
-                });
-            });
-        }
-
-        // Apply filters
-        const applyFiltersBtn = document.getElementById('apply-filters-btn');
-        if (applyFiltersBtn) {
-            applyFiltersBtn.addEventListener('click', () => {
-                this.applyFilters();
-            });
-        }
-
-        // Clear filters
-        const clearFiltersBtn = document.getElementById('clear-filters-btn');
-        if (clearFiltersBtn) {
-            clearFiltersBtn.addEventListener('click', () => {
-                this.clearFilters();
-            });
-        }
-
-        // Add record button
-        const addRecordBtn = document.getElementById('add-record-btn');
-        if (addRecordBtn) {
-            addRecordBtn.addEventListener('click', () => {
-                window.recordActions.showAddRecordForm();
-            });
-        }
-
-        // Export records
-        const exportBtn = document.getElementById('export-records-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                window.recordActions.exportRecords();
-            });
-        }
-
-        // Bulk calculate
-        const bulkCalculateBtn = document.getElementById('bulk-calculate-btn');
-        if (bulkCalculateBtn) {
-            bulkCalculateBtn.addEventListener('click', () => {
-                this.bulkCalculateRoyalties();
-            });
-        }
-
-        // Generate invoices
-        const generateInvoicesBtn = document.getElementById('generate-invoices-btn');
-        if (generateInvoicesBtn) {
-            generateInvoicesBtn.addEventListener('click', () => {
-                this.generateBulkInvoices();
-            });
-        }
-    }
-
-    applyFilters() {
-        // Get filter values
-        const entityFilter = document.getElementById('filter-entity').value;
-        const mineralFilter = document.getElementById('filter-mineral').value;
-        const statusFilter = document.getElementById('filter-status').value;
-        const dateRangeFilter = document.getElementById('filter-date-range').value;
-
-        // Apply filters to table rows
-        const rows = document.querySelectorAll('#royalty-records-tbody tr');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            let showRow = true;
-
-            // Apply entity filter
-            if (entityFilter) {
-                const entityCell = row.children[2].textContent.trim();
-                if (!entityCell.includes(entityFilter)) showRow = false;
-            }
-
-            // Apply mineral filter
-            if (mineralFilter) {
-                const mineralCell = row.children[3].textContent.trim();
-                if (!mineralCell.includes(mineralFilter)) showRow = false;
-            }
-
-            // Apply status filter
-            if (statusFilter) {
-                const statusCell = row.children[8].textContent.trim();
-                if (!statusCell.includes(statusFilter)) showRow = false;
-            }
-
-            // Apply date range filter
-            if (dateRangeFilter && dateRangeFilter !== 'custom') {
-                // Implement date filtering logic
-                const dateCell = row.children[7].querySelector('.date-badge').textContent;
-                const recordDate = new Date(dateCell.split('/').reverse().join('-'));
-                const today = new Date();
-                
-                let dateMatch = true;
-                switch (dateRangeFilter) {
-                    case 'today':
-                        dateMatch = recordDate.toDateString() === today.toDateString();
-                        break;
-                    case 'this-week':
-                        const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
-                        dateMatch = recordDate >= weekStart;
-                        break;
-                    case 'this-month':
-                        dateMatch = recordDate.getMonth() === today.getMonth() && recordDate.getFullYear() === today.getFullYear();
-                        break;
-                    // Add more date range cases as needed
-                }
-                if (!dateMatch) showRow = false;
-            }
-
-            row.style.display = showRow ? '' : 'none';
-            if (showRow) visibleCount++;
-        });
-
-        // Update pagination info
-        document.getElementById('showing-end').textContent = visibleCount;
-        document.getElementById('total-records').textContent = visibleCount;
-
-        // Show filter applied notification
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.show(`Filters applied. Showing ${visibleCount} records.`, 'info');
-        }
-    }
-
-    clearFilters() {
-        // Reset all filter dropdowns
-        document.getElementById('filter-entity').value = '';
-        document.getElementById('filter-mineral').value = '';
-        document.getElementById('filter-status').value = '';
-        document.getElementById('filter-date-range').value = '';
-
-        // Show all rows
-        const rows = document.querySelectorAll('#royalty-records-tbody tr');
-        rows.forEach(row => {
-            row.style.display = '';
-        });
-
-        // Reset pagination info
-        const totalRecords = rows.length;
-        document.getElementById('showing-end').textContent = totalRecords;
-        document.getElementById('total-records').textContent = totalRecords;
-
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.show('All filters cleared', 'info');
-        }
-    }
-
-    bulkCalculateRoyalties() {
-        const selectedRecords = document.querySelectorAll('.record-checkbox:checked');
-        
-        if (selectedRecords.length === 0) {
-            if (typeof notificationManager !== 'undefined') {
-                notificationManager.show('Please select records to recalculate', 'warning');
-            }
-            return;
-        }
-
-        if (confirm(`Recalculate royalties for ${selectedRecords.length} selected records?`)) {
-            // Simulate bulk calculation
-            setTimeout(() => {
-                if (typeof notificationManager !== 'undefined') {
-                    notificationManager.show(`Successfully recalculated royalties for ${selectedRecords.length} records`, 'success');
-                }
-            }, 1000);
-        }
-    }
-
-    generateBulkInvoices() {
-        const pendingRecords = document.querySelectorAll('#royalty-records-tbody tr[data-record-id]');
-        const unpaidCount = Array.from(pendingRecords).filter(row => 
-            row.children[8].textContent.includes('Pending') || row.children[8].textContent.includes('Overdue')
-        ).length;
-
-        if (unpaidCount === 0) {
-            if (typeof notificationManager !== 'undefined') {
-                notificationManager.show('No unpaid records found to generate invoices', 'info');
-            }
-            return;
-        }
-
-        if (confirm(`Generate invoices for ${unpaidCount} unpaid records?`)) {
-            // Simulate invoice generation
-            setTimeout(() => {
-                if (typeof notificationManager !== 'undefined') {
-                    notificationManager.show(`Successfully generated ${unpaidCount} invoices`, 'success');
-                }
-            }, 2000);
-        }
+        // Implementation for setting up event handlers
     }
 
     initializeCharts() {
-        this.initializePaymentStatusChart();
-        this.initializeRoyaltiesByEntityChart();
-    }
-
-    initializePaymentStatusChart() {
-        const ctx = document.getElementById('payment-status-chart');
-        if (!ctx || typeof Chart === 'undefined') return;
-
-        const records = this.dataManager.getRoyaltyRecords();
-        const statusCounts = records.reduce((acc, record) => {
-            acc[record.status] = (acc[record.status] || 0) + 1;
-            return acc;
-        }, {});
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(statusCounts),
-                datasets: [{
-                    data: Object.values(statusCounts),
-                    backgroundColor: [
-                        '#38a169', // Paid - Green
-                        '#d69e2e', // Pending - Yellow
-                        '#e53e3e', // Overdue - Red
-                        '#718096'  // Others - Gray
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
-
-    initializeRoyaltiesByEntityChart() {
-        const ctx = document.getElementById('royalties-by-entity-chart');
-        if (!ctx || typeof Chart === 'undefined') return;
-
-        const records = this.dataManager.getRoyaltyRecords();
-        const entityTotals = records.reduce((acc, record) => {
-            acc[record.entity] = (acc[record.entity] || 0) + record.royalties;
-            return acc;
-        }, {});
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(entityTotals),
-                datasets: [{
-                    label: 'Total Royalties (E)',
-                    data: Object.values(entityTotals),
-                    backgroundColor: '#1a365d',
-                    borderColor: '#2d5282',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'E ' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+        // Implementation for contract charts
     }
 }
-
-// ...existing code...

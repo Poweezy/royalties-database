@@ -1,11 +1,11 @@
 import { BaseModule } from './base-module.js';
 
 export class DashboardModule extends BaseModule {
-  constructor(templateLoader) {
-    super(templateLoader, 'dashboard');
-    this.charts = new Map();
+  constructor(dataManager) {
+    super();
+    this.dataManager = dataManager;
+    this.charts = {};
     this.refreshInterval = null;
-    this.mockData = this.generateMockData();
   }
 
   async onLoad() {
@@ -159,34 +159,8 @@ export class DashboardModule extends BaseModule {
               <h3><i class="fas fa-history"></i> Recent Activity</h3>
             </div>
             <div class="card-body">
-              <div class="activity-list">
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <i class="fas fa-file-invoice" style="color: var(--info-color);"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>New royalty payment submitted by Maloma Colliery</p>
-                    <small>2 hours ago</small>
-                  </div>
-                </div>
-                <div class="activity-item warning">
-                  <div class="activity-icon">
-                    <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>Payment deadline approaching for Ngwenya Iron Ore</p>
-                    <small>5 hours ago</small>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <i class="fas fa-user-check" style="color: var(--success-color);"></i>
-                  </div>
-                  <div class="activity-content">
-                    <p>Compliance review completed for Pigg's Peak Quarry</p>
-                    <small>1 day ago</small>
-                  </div>
-                </div>
+              <div class="activity-list" id="recent-activity">
+                <!-- Recent activity items will be populated here by JavaScript -->
               </div>
             </div>
           </div>
@@ -278,63 +252,74 @@ export class DashboardModule extends BaseModule {
     this.container.innerHTML = dashboardHTML;
   }
 
-  generateMockData() {
-    return {
-      totalRoyalties: 'E 1,245,890.50',
-      activeEntities: 6,
-      complianceRate: 94.8,
-      pendingApprovals: 3,
-      revenueData: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Revenue (E)',
-          data: [120000, 135000, 148000, 162000, 155000, 178000],
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
-          fill: true
-        }]
-      },
-      entityData: {
-        labels: ['Mines', 'Quarries', 'Processing Plants'],
-        datasets: [{
-          data: [4, 2, 1],
-          backgroundColor: ['#2563eb', '#06b6d4', '#10b981'],
-          borderWidth: 2
-        }]
-      }
-    };
-  }
-
   async loadDashboardData() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Update dashboard elements with mock data
-    this.updateDashboard(this.mockData);
+    // Update dashboard elements with data manager
+    this.updateDashboardMetrics();
+    this.updateRecentActivity();
   }
 
-  updateDashboard(data) {
-    // Update KPI values
-    const elements = {
-      'total-royalties': data.totalRoyalties,
-      'active-entities': data.activeEntities,
-      'compliance-rate': `${data.complianceRate}%`,
-      'pending-approvals': data.pendingApprovals,
-      'mines-count': 4,
-      'quarries-count': 2
-    };
-
-    for (const [id, value] of Object.entries(elements)) {
-      const element = document.getElementById(id);
-      if (element) {
-        element.textContent = value;
-      }
-    }
-
+  updateDashboardMetrics() {
+    console.log('Updating dashboard metrics...');
+    
+    const royaltyRecords = this.dataManager.getRoyaltyRecords();
+    const entities = this.dataManager.getEntities();
+    
+    const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+    const activeEntities = entities.filter(e => e.status === 'Active').length;
+    const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
+    const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+    const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
+    const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
+    
+    // Update main metrics
+    this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
+    this.updateElement('active-entities', activeEntities);
+    this.updateElement('compliance-rate', `${complianceRate}%`);
+    this.updateElement('pending-approvals', pendingRecords);
+    
+    // Update breakdowns
+    this.updateElement('mines-count', entities.filter(e => e.type === 'Mine').length);
+    this.updateElement('quarries-count', entities.filter(e => e.type === 'Quarry').length);
+    this.updateElement('paid-count', paidRecords);
+    this.updateElement('pending-count', pendingRecords);
+    this.updateElement('overdue-count', overdueRecords);
+    
     // Update progress bars
-    const progressBar = document.getElementById('royalties-progress');
-    if (progressBar) {
-      progressBar.style.width = '75%';
+    const complianceProgress = document.getElementById('compliance-progress');
+    if (complianceProgress) {
+      complianceProgress.style.width = `${complianceRate}%`;
+    }
+    
+    const royaltiesProgress = document.getElementById('royalties-progress');
+    if (royaltiesProgress) {
+      const progressPercentage = Math.min((totalRoyalties / 200000) * 100, 100);
+      royaltiesProgress.style.width = `${progressPercentage}%`;
+    }
+    
+    // Update trend indicators
+    this.updateElement('royalties-trend', '+12.5%');
+    this.updateElement('entities-trend', '+2 new entities');
+    this.updateElement('compliance-trend', '+2.1%');
+    this.updateElement('pending-text', pendingRecords > 0 ? 'Requires attention' : 'No pending items');
+    
+    // Show/hide urgent items
+    const urgentItems = document.getElementById('urgent-items');
+    if (urgentItems) {
+      urgentItems.style.display = overdueRecords > 0 ? 'block' : 'none';
+    }
+    
+    console.log('Dashboard metrics updated successfully');
+  }
+
+  updateElement(id, content) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = content;
+    } else {
+      console.warn(`Element with id '${id}' not found`);
     }
   }
 
@@ -345,7 +330,17 @@ export class DashboardModule extends BaseModule {
       if (revenueCtx) {
         this.charts.set('revenue-trends', new Chart(revenueCtx, {
           type: 'line',
-          data: this.mockData.revenueData,
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Monthly Revenue (E)',
+              data: [45000, 52000, 48000, 61000, 55000, 67000],
+              borderColor: '#1a365d',
+              backgroundColor: 'rgba(26, 54, 93, 0.1)',
+              tension: 0.4,
+              fill: false
+            }]
+          },
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -359,7 +354,7 @@ export class DashboardModule extends BaseModule {
                 beginAtZero: true,
                 ticks: {
                   callback: function(value) {
-                    return 'E ' + value.toLocaleString();
+                    return 'E' + value.toLocaleString();
                   }
                 }
               }
@@ -371,9 +366,24 @@ export class DashboardModule extends BaseModule {
       // Entity distribution chart
       const entityCtx = document.getElementById('entity-distribution-chart');
       if (entityCtx) {
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const entityData = royaltyRecords.reduce((acc, record) => {
+          acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+          return acc;
+        }, {});
+        
         this.charts.set('entity-distribution', new Chart(entityCtx, {
           type: 'doughnut',
-          data: this.mockData.entityData,
+          data: {
+            labels: Object.keys(entityData),
+            datasets: [{
+              data: Object.values(entityData),
+              backgroundColor: [
+                '#1a365d', '#2d5a88', '#4a90c2', 
+                '#7ba7cc', '#a8c5e2', '#d4af37'
+              ]
+            }]
+          },
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -393,8 +403,7 @@ export class DashboardModule extends BaseModule {
   setupEventListeners() {
     // Refresh button
     this.addEventListener('refresh-dashboard', 'click', () => {
-      this.loadDashboardData();
-      this.showNotification('Dashboard refreshed', 'success');
+      this.refreshDashboard();
     });
 
     // Chart period buttons

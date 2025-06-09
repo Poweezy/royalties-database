@@ -685,126 +685,6 @@ class RoyaltiesApp {
         console.log('Main application initialized successfully');
     }
 
-    loadRoyaltyRecordsSection() {
-        const section = document.getElementById('royalty-records');
-        if (!section) return;
-
-        // Create section manager if it doesn't exist
-        if (!this.sectionManagers.royaltyRecords) {
-            // Import and create the manager
-            import('./js/ui/sectionManagers.js').then(module => {
-                this.sectionManagers.royaltyRecords = new module.RoyaltyRecordsManager(dataManager);
-                this.sectionManagers.royaltyRecords.loadSection();
-            }).catch(() => {
-                // Fallback if module loading fails
-                this.loadRoyaltyRecordsFallback();
-            });
-        } else {
-            this.sectionManagers.royaltyRecords.loadSection();
-        }
-        
-        console.log('Royalty Records section loaded successfully');
-    }
-
-    loadRoyaltyRecordsFallback() {
-        const section = document.getElementById('royalty-records');
-        if (!section) return;
-        
-        const royaltyRecords = dataManager.getRoyaltyRecords();
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>💰 Royalty Records</h1>
-                    <p>Manage royalty payments and records</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-primary" onclick="window.recordActions.showAddRecordForm()">
-                        <i class="fas fa-plus"></i> Add Record
-                    </button>
-                    <button class="btn btn-info" onclick="window.recordActions.exportRecords()">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3>Royalty Records</h3>
-                </div>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Reference</th>
-                                <th>Entity</th>
-                                <th>Mineral</th>
-                                <th>Volume</th>
-                                <th>Tariff</th>
-                                <th>Royalties</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${royaltyRecords.map(record => `
-                                <tr>
-                                    <td>${record.referenceNumber}</td>
-                                    <td>${record.entity}</td>
-                                    <td>${record.mineral}</td>
-                                    <td>${record.volume.toLocaleString()}</td>
-                                    <td>E${record.tariff}</td>
-                                    <td>E${record.royalties.toLocaleString()}</td>
-                                    <td>${record.date}</td>
-                                    <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info" onclick="window.recordActions.viewRecord(${record.id})" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-secondary" onclick="window.recordActions.editRecord(${record.id})" title="Edit Record">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-success" onclick="window.recordActions.markAsPaid(${record.id})" title="Mark as Paid">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    }
-
-    loadContractManagementSection() {
-        const section = document.getElementById('contract-management');
-        if (!section) return;
-        
-        // Placeholder for contract management - will be enhanced later
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📋 Contract Management</h1>
-                    <p>Manage mining contracts, agreements, and compliance</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-primary" onclick="window.contractActions.showAddContractForm()">
-                        <i class="fas fa-plus"></i> Add Contract
-                    </button>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p>Contract management features will be implemented here.</p>
-                </div>
-            </div>
-        `;
-    }
-
     initializeManagers() {
         // Initialize action handlers with dynamic imports
         Promise.all([
@@ -915,6 +795,25 @@ class RoyaltiesApp {
         }
     }
 
+    loadGenericSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>📋 ${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
+                        <p>This section is under development</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <p>Content for ${sectionId} will be implemented here.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
     handleLogout() {
         if (confirm('Are you sure you want to logout?')) {
             // Cleanup charts before logout
@@ -955,57 +854,190 @@ class RoyaltiesApp {
     }
 
     initializeDashboard() {
-        this.updateDashboardMetrics();
-        this.setupCharts();
-        this.updateRecentActivity();
+        const section = document.getElementById('dashboard');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📊 Dashboard</h1>
+                    <p>Mining royalties overview and key performance metrics</p>
+                </div>
+                <div class="user-info">
+                    <span id="user-name"></span>
+                </div>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="charts-grid">
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-dollar-sign"></i> Total Royalties</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="total-royalties">E 0.00</p>
+                        <small class="trend-positive" id="royalties-trend">
+                            <i class="fas fa-arrow-up"></i> +12.5%
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-industry"></i> Active Entities</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="active-entities">0</p>
+                        <small class="trend-positive" id="entities-trend">
+                            <i class="fas fa-plus"></i> +2
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Compliance Rate</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="compliance-rate">0%</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="compliance-progress"></div>
+                        </div>
+                        <small class="trend-positive" id="compliance-trend">
+                            <i class="fas fa-arrow-up"></i> +2.1%
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> Pending Approvals</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="pending-approvals">0</p>
+                        <small id="pending-text">No pending items</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Revenue Trends</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">
+                                <i class="fas fa-chart-line"></i> Line
+                            </button>
+                            <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">
+                                <i class="fas fa-chart-area"></i> Area
+                            </button>
+                            <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">
+                                <i class="fas fa-chart-bar"></i> Bar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenue-trends-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Production by Entity</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="production-by-entity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    <div id="recent-activity">
+                        <!-- Activity items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            this.updateDashboardMetrics();
+            this.setupCharts();
+            this.updateRecentActivity();
+        }, 100);
     }
 
     updateDashboardMetrics() {
+        console.log('Updating dashboard metrics...');
+        
         const royaltyRecords = dataManager.getRoyaltyRecords();
         const entities = dataManager.getEntities();
         
         const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
         const activeEntities = entities.filter(e => e.status === 'Active').length;
         const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
-        const complianceRate = Math.round((paidRecords / royaltyRecords.length) * 100);
-        const pendingApprovals = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
+        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
         
-        // Update displays
+        // Update main metrics
         this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
         this.updateElement('active-entities', activeEntities);
         this.updateElement('compliance-rate', `${complianceRate}%`);
-        this.updateElement('pending-approvals', pendingApprovals);
+        this.updateElement('pending-approvals', pendingRecords);
         
-        // Update progress bar
-        const progressBar = document.getElementById('compliance-progress');
-        if (progressBar) {
-            progressBar.style.width = `${complianceRate}%`;
+        // Update progress bars
+        const complianceProgress = document.getElementById('compliance-progress');
+        if (complianceProgress) {
+            complianceProgress.style.width = `${complianceRate}%`;
         }
         
         // Update trend indicators
         this.updateElement('royalties-trend', '+12.5%');
-        this.updateElement('entities-trend', '+2');
+        this.updateElement('entities-trend', '+2 new entities');
         this.updateElement('compliance-trend', '+2.1%');
-        this.updateElement('pending-text', pendingApprovals > 0 ? 'Requires attention' : 'No pending items');
+        this.updateElement('pending-text', pendingRecords > 0 ? 'Requires attention' : 'No pending items');
+        
+        console.log('Dashboard metrics updated successfully');
     }
 
     updateElement(id, content) {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = content;
+        } else {
+            console.warn(`Element with id '${id}' not found`);
         }
     }
 
     setupCharts() {
-        // Destroy existing charts
+        console.log('Setting up charts...');
+        
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded');
+            return;
+        }
+
+        // Destroy existing charts before creating new ones
         Object.values(this.charts).forEach(chart => {
-            if (chart) chart.destroy();
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
         });
         this.charts = {};
 
         this.setupRevenueChart();
         this.setupProductionChart();
         this.setupChartControls();
+        
+        console.log('Charts setup completed');
     }
 
     setupRevenueChart() {
@@ -1027,7 +1059,9 @@ class RoyaltiesApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -1040,6 +1074,9 @@ class RoyaltiesApp {
                     }
                 }
             });
+            console.log('Revenue chart created');
+        } else {
+            console.warn('Revenue chart canvas not found or Chart.js not available');
         }
     }
 
@@ -1067,9 +1104,14 @@ class RoyaltiesApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
                 }
             });
+            console.log('Production chart created');
+        } else {
+            console.warn('Production chart canvas not found or Chart.js not available');
         }
     }
 
@@ -1110,11 +1152,21 @@ class RoyaltiesApp {
     }
 
     updateRecentActivity() {
+        console.log('Updating recent activity...');
+        
         const activityContainer = document.getElementById('recent-activity');
-        if (!activityContainer) return;
+        if (!activityContainer) {
+            console.warn('Recent activity container not found');
+            return;
+        }
         
         const auditLog = dataManager.getAuditLog();
         const recentEntries = auditLog.slice(0, 5);
+        
+        if (recentEntries.length === 0) {
+            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
+            return;
+        }
         
         activityContainer.innerHTML = recentEntries.map(entry => `
             <div class="activity-item">
@@ -1127,6 +1179,8 @@ class RoyaltiesApp {
                 </div>
             </div>
         `).join('');
+        
+        console.log('Recent activity updated');
     }
 
     getActivityIcon(action) {
@@ -1141,532 +1195,336 @@ class RoyaltiesApp {
         return iconMap[action] || 'circle';
     }
 
-    async loadUserManagementSection() {
+    // User Management Section
+    loadUserManagementSection() {
         const section = document.getElementById('user-management');
         if (!section) return;
-        
-        try {
-            // Load the user management template
-            const response = await fetch('components/user-management.html');
-            if (response.ok) {
-                const templateContent = await response.text();
-                section.innerHTML = templateContent;
-            } else {
-                // Fallback to inline content if template fails to load
-                this.loadUserManagementFallback(section);
-            }
-        } catch (error) {
-            console.log('Loading user management template from components failed, using fallback');
-            this.loadUserManagementFallback(section);
-        }
-        
-        // Populate with data and setup event handlers
-        this.populateUserManagementData();
-        this.setupUserManagementEventHandlers();
-    }
-
-    loadUserManagementFallback(section) {
-        const userAccounts = dataManager.getUserAccounts();
         
         section.innerHTML = `
             <div class="page-header">
                 <div class="page-title">
                     <h1>👥 User Management</h1>
-                    <p>Comprehensive user administration with role-based access control, security monitoring, and audit trails</p>
+                    <p>Manage system users, roles, and permissions</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-info" id="view-audit-btn" title="View detailed audit logs">
-                        <i class="fas fa-shield-alt"></i> View Audit Log
-                    </button>
-                    <button class="btn btn-primary" id="export-report-btn" title="Export user management report">
-                        <i class="fas fa-file-export"></i> Export Report
-                    </button>
-                    <button class="btn btn-success" id="add-user-btn" title="Add new user account">
+                    <button class="btn btn-success" id="add-user-btn">
                         <i class="fas fa-user-plus"></i> Add User
                     </button>
-                </div>
-            </div>
-            
-            <!-- User Management Metrics Dashboard -->
-            <div class="charts-grid" id="user-metrics">
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-users"></i> Active Users</h3>
-                        <select class="metric-period">
-                            <option>Current</option>
-                            <option>Last 30 days</option>
-                            <option>All time</option>
-                        </select>
-                    </div>
-                    <div class="card-body">
-                        <p id="active-users-count">${userAccounts.filter(u => u.status === 'Active').length}</p>
-                        <small><i class="fas fa-circle text-success"></i> Currently active and logged in</small>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-user-shield"></i> Administrators</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="admin-count">${userAccounts.filter(u => u.role === 'Administrator').length}</p>
-                        <small><i class="fas fa-shield-alt"></i> System administrators</small>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Failed Logins</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="failed-logins-count">${userAccounts.reduce((sum, u) => sum + (u.failedAttempts || 0), 0)}</p>
-                        <small><i class="fas fa-clock"></i> Last 24 hours</small>
-                    </div>
-                </div>
-                
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-calendar-times"></i> Account Expiry</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="expiring-accounts">2</p>
-                        <small><i class="fas fa-warning"></i> Expiring within 90 days</small>
-                    </div>
+                    <button class="btn btn-secondary" id="export-report-btn">
+                        <i class="fas fa-file-export"></i> Export Report
+                    </button>
+                    <button class="btn btn-info" id="view-audit-btn">
+                        <i class="fas fa-shield-alt"></i> View Audit Log
+                    </button>
                 </div>
             </div>
 
-            <!-- Quick User Actions -->
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-                </div>
-                <div class="card-body">
-                    <div class="quick-actions-grid">
-                        <button class="quick-action-btn" onclick="showBulkUserUpload()">
-                            <i class="fas fa-upload"></i>
-                            <span>Bulk Import Users</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="resetAllPasswords()">
-                            <i class="fas fa-key"></i>
-                            <span>Reset Passwords</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="auditUserActivity()">
-                            <i class="fas fa-search"></i>
-                            <span>Audit Activity</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="generateUserReport()">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Generate Report</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- User Management Table Container -->
-            <div id="user-table-container">
-                <div class="table-container">
-                    <div class="section-header">
-                        <h4><i class="fas fa-users"></i> User Accounts Registry</h4>
-                        <div class="table-actions">
-                            <button class="btn btn-info btn-sm" id="filter-users-btn">
-                                <i class="fas fa-filter"></i> Filter
-                            </button>
-                            <button class="btn btn-secondary btn-sm" id="sort-users-btn">
-                                <i class="fas fa-sort"></i> Sort
-                            </button>
-                            <button class="btn btn-warning btn-sm" id="bulk-actions-btn">
-                                <i class="fas fa-tasks"></i> Bulk Actions
-                            </button>
-                        </div>
-                    </div>
-
-                    <table class="data-table" id="users-table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="select-all-users" title="Select all users"></th>
-                                <th sortable data-sort="username">Username</th>
-                                <th sortable data-sort="email">Email</th>
-                                <th sortable data-sort="role">Role</th>
-                                <th sortable data-sort="department">Department</th>
-                                <th sortable data-sort="status">Status</th>
-                                <th sortable data-sort="lastLogin">Last Login</th>
-                                <th sortable data-sort="created">Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-tbody">
-                            ${userAccounts.map(user => `
-                                <tr>
-                                    <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
-                                    <td>${user.username}</td>
-                                    <td>${user.email}</td>
-                                    <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-                                    <td>${user.department}</td>
-                                    <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-                                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
-                                    <td>${new Date(user.created).toLocaleDateString()}</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info" onclick="window.userActions.viewUserDetails(${user.id})" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})" title="Edit User">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-warning" onclick="window.userActions.resetUserPassword(${user.id})" title="Reset Password">
-                                                <i class="fas fa-key"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})" title="Delete User">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-
-                    <div class="table-pagination">
-                        <div class="pagination-info">
-                            Showing <span id="showing-start">1</span> to <span id="showing-end">${userAccounts.length}</span> of <span id="total-users">${userAccounts.length}</span> users
-                        </div>
-                        <div class="pagination-controls">
-                            <button class="btn btn-sm btn-secondary" id="prev-page" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                            <div class="pagination-pages">
-                                <a href="#" class="page-btn active">1</a>
-                            </div>
-                            <button class="btn btn-sm btn-secondary" id="next-page" disabled>
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <!-- User Management Table -->
+            <div class="table-container">
+                <table class="data-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-users"></th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-tbody">
+                        <!-- Content will be populated dynamically -->
+                    </tbody>
+                </table>
             </div>
         `;
+
+        this.populateUsersTable();
+        this.setupUserManagementEvents();
     }
 
-    populateUserManagementData() {
-        const userAccounts = dataManager.getUserAccounts();
-        
-        // Update metrics
-        const activeUsersElement = document.getElementById('active-users-count');
-        if (activeUsersElement) {
-            activeUsersElement.textContent = userAccounts.filter(u => u.status === 'Active').length;
-        }
-        
-        const adminCountElement = document.getElementById('admin-count');
-        if (adminCountElement) {
-            adminCountElement.textContent = userAccounts.filter(u => u.role === 'Administrator').length;
-        }
-        
-        const failedLoginsElement = document.getElementById('failed-logins-count');
-        if (failedLoginsElement) {
-            failedLoginsElement.textContent = userAccounts.reduce((sum, u) => sum + (u.failedAttempts || 0), 0);
-        }
-        
-        // Populate user table
+    populateUsersTable() {
         const tbody = document.getElementById('users-table-tbody');
-        if (tbody) {
-            tbody.innerHTML = userAccounts.map(user => `
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
-                    <td>${user.username}</td>
-                    <td>${user.email}</td>
-                    <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-                    <td>${user.department}</td>
-                    <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
-                    <td>${new Date(user.created).toLocaleDateString()}</td>
-                    <td>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-info" onclick="window.userActions.viewUserDetails(${user.id})" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-secondary" onclick="window.userActions.editUser(${user.id})" title="Edit User">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="window.userActions.resetUserPassword(${user.id})" title="Reset Password">
-                                <i class="fas fa-key"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="window.userActions.deleteUser(${user.id})" title="Delete User">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-    }
-
-    setupUserManagementEventHandlers() {
-        // Add User button
-        const addUserBtn = document.getElementById('add-user-btn');
-        if (addUserBtn) {
-            addUserBtn.addEventListener('click', () => {
-                this.showAddUserModal();
-            });
-        }
-        
-        // View Audit Log button
-        const viewAuditBtn = document.getElementById('view-audit-btn');
-        if (viewAuditBtn) {
-            viewAuditBtn.addEventListener('click', () => {
-                this.toggleAuditLogSection();
-            });
-        }
-        
-        // Export Report button
-        const exportReportBtn = document.getElementById('export-report-btn');
-        if (exportReportBtn) {
-            exportReportBtn.addEventListener('click', () => {
-                notificationManager.show('Exporting user management report...', 'info');
-            });
-        }
-        
-        // Select all users checkbox
-        const selectAllCheckbox = document.getElementById('select-all-users');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => {
-                const userCheckboxes = document.querySelectorAll('.user-checkbox');
-                userCheckboxes.forEach(checkbox => {
-                    checkbox.checked = e.target.checked;
-                });
-            });
-        }
-    }
-
-    showAddUserModal() {
-        // Check if modal exists, if not create it
-        let modal = document.getElementById('add-user-modal');
-        if (!modal) {
-            modal = this.createAddUserModal();
-            document.body.appendChild(modal);
-        }
-        
-        modal.style.display = 'flex';
-        this.setupAddUserModalEventHandlers(modal);
-    }
-
-    createAddUserModal() {
-        const modal = document.createElement('div');
-        modal.id = 'add-user-modal';
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-container">
-                <div class="modal-header">
-                    <h3><i class="fas fa-user-plus"></i> Add New User Account</h3>
-                    <button class="modal-close" type="button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-user-form">
-                        <div class="grid-4">
-                            <div class="form-group">
-                                <label for="new-username">
-                                    <i class="fas fa-user"></i> Username *
-                                </label>
-                                <input type="text" id="new-username" name="username" placeholder="Enter unique username" required>
-                                <small class="form-help">3-50 characters, letters, numbers, dots, dashes, underscores only</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="new-email">
-                                    <i class="fas fa-envelope"></i> Email Address *
-                                </label>
-                                <input type="email" id="new-email" name="email" placeholder="user@eswacaa.sz" required>
-                                <small class="form-help">Official organization email address</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="new-role">
-                                    <i class="fas fa-user-tag"></i> Role *
-                                </label>
-                                <select id="new-role" name="role" required>
-                                    <option value="">Select user role</option>
-                                    <option value="Administrator">Administrator</option>
-                                    <option value="Editor">Editor</option>
-                                    <option value="Viewer">Viewer</option>
-                                    <option value="Auditor">Auditor</option>
-                                    <option value="Finance">Finance Manager</option>
-                                </select>
-                                <small class="form-help">Determines system access permissions</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="new-department">
-                                    <i class="fas fa-building"></i> Department *
-                                </label>
-                                <select id="new-department" name="department" required>
-                                    <option value="">Select department</option>
-                                    <option value="Management">Management</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Audit">Audit</option>
-                                    <option value="Legal">Legal</option>
-                                    <option value="Operations">Operations</option>
-                                    <option value="IT">Information Technology</option>
-                                </select>
-                                <small class="form-help">User's organizational department</small>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="create-user-btn">
-                        <i class="fas fa-user-plus"></i> Create User Account
-                    </button>
-                </div>
-            </div>
-        `;
-        return modal;
-    }
-
-    setupAddUserModalEventHandlers(modal) {
-        // Close modal handlers
-        const closeBtn = modal.querySelector('.modal-close');
-        const cancelBtn = modal.querySelector('.modal-cancel');
-        
-        [closeBtn, cancelBtn].forEach(btn => {
-            btn.addEventListener('click', () => {
-                modal.style.display = 'none';
-            });
-        });
-
-        // Create user handler
-        const createBtn = modal.querySelector('#create-user-btn');
-        createBtn.addEventListener('click', () => {
-            this.handleCreateUser(modal);
-        });
-
-        // Click outside to close
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    }
-
-    handleCreateUser(modal) {
-        const form = modal.querySelector('#add-user-form');
-        const formData = new FormData(form);
-        
-        const newUser = {
-            username: formData.get('username'),
-            email: formData.get('email'),
-            role: formData.get('role'),
-            department: formData.get('department'),
-            status: 'Active',
-            created: new Date().toISOString().split('T')[0],
-            lastLogin: null,
-            failedAttempts: 0
-        };
-
-        // Simple validation
-        if (!newUser.username || !newUser.email || !newUser.role || !newUser.department) {
-            notificationManager.show('Please fill in all required fields', 'error');
-            return;
-        }
-
-        // Add to data manager
-        dataManager.userAccounts.push({
-            id: dataManager.userAccounts.length + 1,
-            ...newUser
-        });
-
-        // Add audit entry
-        dataManager.addAuditEntry({
-            user: authManager.getCurrentUser()?.username || 'admin',
-            action: 'Create User',
-            target: newUser.username,
-            ipAddress: '192.168.1.100',
-            status: 'Success',
-            details: `Created new user account for ${newUser.username}`
-        });
-
-        notificationManager.show(`User ${newUser.username} created successfully`, 'success');
-        modal.style.display = 'none';
-
-        // Reload the section
-        this.loadSectionContent('user-management');
-    }
-
-    toggleAuditLogSection() {
-        const auditContainer = document.getElementById('security-audit-container');
-        if (!auditContainer) return;
-        
-        if (auditContainer.style.display === 'none') {
-            auditContainer.style.display = 'block';
-            this.populateAuditLog();
-        } else {
-            auditContainer.style.display = 'none';
-        }
-    }
-
-    populateAuditLog() {
-        const tbody = document.getElementById('audit-log-tbody');
         if (!tbody) return;
+
+        const users = dataManager.getUserAccounts();
         
-        const auditLog = dataManager.getAuditLog();
-        
-        tbody.innerHTML = auditLog.map(entry => `
+        tbody.innerHTML = users.map(user => `
             <tr>
-                <td>${entry.timestamp}</td>
-                <td>${entry.user}</td>
-                <td><span class="action-badge ${entry.action.toLowerCase().replace(' ', '-')}">${entry.action}</span></td>
-                <td>${entry.target}</td>
-                <td>${entry.ipAddress}</td>
-                <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
-                <td>${entry.details}</td>
+                <td><input type="checkbox" value="${user.id}"></td>
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+                <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
+                <td>${user.department}</td>
+                <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
+                <td>${user.lastLogin}</td>
+                <td>${user.created}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="userActions.viewUser(${user.id})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="userActions.editUser(${user.id})" title="Edit User">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="userActions.deleteUser(${user.id})" title="Delete User">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
             </tr>
         `).join('');
     }
 
-    // ...existing code...
+    setupUserManagementEvents() {
+        const addUserBtn = document.getElementById('add-user-btn');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => {
+                notificationManager.show('Add user functionality would open here', 'info');
+            });
+        }
+
+        const exportBtn = document.getElementById('export-report-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                notificationManager.show('Exporting user report...', 'info');
+            });
+        }
+
+        const auditBtn = document.getElementById('view-audit-btn');
+        if (auditBtn) {
+            auditBtn.addEventListener('click', () => {
+                notificationManager.show('Audit log would open here', 'info');
+            });
+        }
+    }
+
+    // Royalty Records Section
+    loadRoyaltyRecordsSection() {
+        const section = document.getElementById('royalty-records');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>💰 Royalty Records</h1>
+                    <p>Manage royalty payments and compliance tracking</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-success" id="add-record-btn">
+                        <i class="fas fa-plus"></i> Add Record
+                    </button>
+                    <button class="btn btn-secondary" id="export-records-btn">
+                        <i class="fas fa-file-export"></i> Export Records
+                    </button>
+                </div>
+            </div>
+
+            <!-- Royalty Records Table -->
+            <div class="table-container">
+                <table class="data-table" id="royalty-records-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-records"></th>
+                            <th>Reference #</th>
+                            <th>Entity</th>
+                            <th>Mineral</th>
+                            <th>Volume</th>
+                            <th>Tariff Rate</th>
+                            <th>Royalties Due</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="royalty-records-tbody">
+                        <!-- Content will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        this.populateRoyaltyRecordsTable();
+        this.setupRoyaltyRecordsEvents();
+    }
+
+    populateRoyaltyRecordsTable() {
+        const tbody = document.getElementById('royalty-records-tbody');
+        if (!tbody) return;
+
+        const records = dataManager.getRoyaltyRecords();
+        
+        tbody.innerHTML = records.map(record => `
+            <tr>
+                <td><input type="checkbox" value="${record.id}"></td>
+                <td>${record.referenceNumber}</td>
+                <td>${record.entity}</td>
+                <td>${record.mineral}</td>
+                <td>${record.volume.toLocaleString()}</td>
+                <td>E ${record.tariff}</td>
+                <td>E ${record.royalties.toLocaleString()}</td>
+                <td>${record.date}</td>
+                <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="recordActions.viewRecord(${record.id})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="recordActions.editRecord(${record.id})" title="Edit Record">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="recordActions.deleteRecord(${record.id})" title="Delete Record">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    setupRoyaltyRecordsEvents() {
+        const addRecordBtn = document.getElementById('add-record-btn');
+        if (addRecordBtn) {
+            addRecordBtn.addEventListener('click', () => {
+                notificationManager.show('Add record functionality would open here', 'info');
+            });
+        }
+    }
+
+    // Contract Management Section
+    loadContractManagementSection() {
+        const section = document.getElementById('contract-management');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>📋 Contract Management</h1>
+                    <p>Manage mining contracts and agreements</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-success" id="add-contract-btn">
+                        <i class="fas fa-plus"></i> Add Contract
+                    </button>
+                    <button class="btn btn-secondary" id="export-contracts-btn">
+                        <i class="fas fa-file-export"></i> Export Contracts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contracts Table -->
+            <div class="table-container">
+                <table class="data-table" id="contracts-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-contracts"></th>
+                            <th>Contract ID</th>
+                            <th>Stakeholder</th>
+                            <th>Entity</th>
+                            <th>Type</th>
+                            <th>Royalty Rate</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contracts-tbody">
+                        <!-- Content will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        this.populateContractsTable();
+        this.setupContractManagementEvents();
+    }
+
+    populateContractsTable() {
+        const tbody = document.getElementById('contracts-tbody');
+        if (!tbody) return;
+
+        const contracts = dataManager.getContracts();
+        
+        tbody.innerHTML = contracts.map(contract => `
+            <tr>
+                <td><input type="checkbox" value="${contract.id}"></td>
+                <td>${contract.id}</td>
+                <td>${contract.stakeholder}</td>
+                <td>${contract.entity}</td>
+                <td>${contract.contractType}</td>
+                <td>${contract.royaltyRate}</td>
+                <td>${contract.startDate}</td>
+                <td>${contract.endDate}</td>
+                <td><span class="status-badge ${contract.status}">${contract.status}</span></td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="contractActions.viewContract('${contract.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="contractActions.editContract('${contract.id}')" title="Edit Contract">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="contractActions.deleteContract('${contract.id}')" title="Delete Contract">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    setupContractManagementEvents() {
+        const addContractBtn = document.getElementById('add-contract-btn');
+        if (addContractBtn) {
+            addContractBtn.addEventListener('click', () => {
+                notificationManager.show('Add contract functionality would open here', 'info');
+            });
+        }
+    }
 }
 
-// Action Handlers
+// Action Handler Classes
 class UserActions {
     constructor(dataManager, notificationManager) {
         this.dataManager = dataManager;
         this.notificationManager = notificationManager;
     }
 
+    viewUser(userId) {
+        const user = this.dataManager.findUserById(userId);
+        if (!user) {
+            this.notificationManager.show('User not found', 'error');
+            return;
+        }
+        this.notificationManager.show(`Viewing user: ${user.username}`, 'info');
+    }
+
     editUser(userId) {
         const user = this.dataManager.findUserById(userId);
-        if (user) {
-            this.notificationManager.show(`Edit functionality for ${user.username} would be implemented here`, 'info');
+        if (!user) {
+            this.notificationManager.show('User not found', 'error');
+            return;
         }
+        this.notificationManager.show(`Editing user: ${user.username}`, 'info');
     }
 
     deleteUser(userId) {
-        const user = this.dataManager.findUserById(userId);
-        if (!user) return;
-        
-        if (confirm(`Delete user "${user.username}"? This cannot be undone.`)) {
+        if (confirm('Are you sure you want to delete this user?')) {
             const deletedUser = this.dataManager.deleteUser(userId);
-            
             if (deletedUser) {
-                // Add audit entry
-                this.dataManager.addAuditEntry({
-                    user: 'currentUser',
-                    action: 'Delete User',
-                    target: user.username,
-                    ipAddress: '192.168.1.100',
-                    status: 'Success',
-                    details: `User ${user.username} deleted`
-                });
-                
-                this.notificationManager.show(`User "${user.username}" deleted successfully`, 'success');
-                
-                // Reload section
-                document.dispatchEvent(new CustomEvent('reloadSection', {
-                    detail: { sectionId: 'user-management' }
-                }));
+                this.notificationManager.show('User deleted successfully', 'success');
+                // Refresh the table
+                document.dispatchEvent(new CustomEvent('reloadSection', { detail: { sectionId: 'user-management' } }));
             }
         }
+    }
+
+    addUser() {
+        this.notificationManager.show('Add new user functionality would open here', 'info');
     }
 }
 
@@ -1678,21 +1536,30 @@ class RecordActions {
 
     viewRecord(recordId) {
         const record = this.dataManager.findRecordById(recordId);
-        if (record) {
-            alert(`Record: ${record.referenceNumber}\nEntity: ${record.entity}\nMineral: ${record.mineral}\nVolume: ${record.volume}\nRoyalties: E${record.royalties}\nStatus: ${record.status}`);
+        if (!record) {
+            this.notificationManager.show('Record not found', 'error');
+            return;
         }
+        this.notificationManager.show(`Viewing record: ${record.referenceNumber}`, 'info');
     }
 
     editRecord(recordId) {
-        this.notificationManager.show(`Edit functionality for record ${recordId} would be implemented here`, 'info');
+        const record = this.dataManager.findRecordById(recordId);
+        if (!record) {
+            this.notificationManager.show('Record not found', 'error');
+            return;
+        }
+        this.notificationManager.show(`Editing record: ${record.referenceNumber}`, 'info');
     }
 
-    showAddRecordForm() {
-        this.notificationManager.show('Add record form would be implemented here', 'info');
+    deleteRecord(recordId) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            this.notificationManager.show('Record deleted successfully', 'success');
+        }
     }
 
-    exportRecords() {
-        this.notificationManager.show('Export functionality would be implemented here', 'info');
+    addRecord() {
+        this.notificationManager.show('Add new record functionality would open here', 'info');
     }
 }
 
@@ -1702,63 +1569,38 @@ class ContractActions {
         this.notificationManager = notificationManager;
     }
 
-    viewContractDetails(contractId) {
+    viewContract(contractId) {
         const contract = this.dataManager.findContractById(contractId);
-        if (!contract) return;
-        
-        const details = `
-Contract Details for ${contractId}:
-
-Stakeholder: ${contract.stakeholder}
-Type: ${contract.contractType}
-Calculation Method: ${contract.calculationMethod}
-Royalty Rate: ${contract.royaltyRate}
-Payment Schedule: ${contract.paymentSchedule}
-Contract Period: ${contract.startDate} to ${contract.endDate}
-Status: ${contract.status}
-Total Value: E ${(contract.totalValue / 1000000).toFixed(1)}M
-
-Escalation Clause: ${contract.escalationClause?.enabled ? 'Yes' : 'No'}
-${contract.escalationClause?.enabled ? `Next Escalation: ${contract.escalationClause.nextEscalation}` : ''}
-
-Conditions:
-${contract.conditions.map(condition => `• ${condition}`).join('\n')}
-
-Late Fee: ${contract.lateFeeRate}% after ${contract.gracePeriod} days
-Last Review: ${contract.lastReview}
-Next Review: ${contract.nextReview}
-        `;
-        
-        alert(details);
+        if (!contract) {
+            this.notificationManager.show('Contract not found', 'error');
+            return;
+        }
+        this.notificationManager.show(`Viewing contract: ${contract.id}`, 'info');
     }
 
     editContract(contractId) {
-        this.notificationManager.show(`Edit functionality for contract ${contractId} would open a comprehensive contract editing form`, 'info');
+        const contract = this.dataManager.findContractById(contractId);
+        if (!contract) {
+            this.notificationManager.show('Contract not found', 'error');
+            return;
+        }
+        this.notificationManager.show(`Editing contract: ${contract.id}`, 'info');
     }
 
-    downloadContract(contractId) {
-        this.notificationManager.show(`Downloading contract ${contractId} as PDF`, 'success');
+    deleteContract(contractId) {
+        if (confirm('Are you sure you want to delete this contract?')) {
+            this.notificationManager.show('Contract deleted successfully', 'success');
+        }
     }
 
-    showAddContractForm() {
-        this.notificationManager.show('Add contract form would open with fields for all contract terms, stakeholder details, and calculation methods', 'info');
-    }
-
-    showContractTemplates() {
-        this.notificationManager.show('Contract templates library would show pre-configured templates for different stakeholder types', 'info');
-    }
-
-    exportContracts() {
-        this.notificationManager.show('Exporting all contracts with detailed terms and conditions', 'success');
+    addContract() {
+        this.notificationManager.show('Add new contract functionality would open here', 'info');
     }
 }
 
-// Initialize application
-const app = new RoyaltiesApp();
-
-// Start application when DOM is ready
+// Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - Initializing app...');
+    const app = new RoyaltiesApp();
     app.initialize();
 });
-
-console.log('Mining Royalties Manager application loaded successfully');

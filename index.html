@@ -14,8 +14,8 @@
     <!-- Chart.js for charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Custom scripts -->
-    <script src="js/app.js" defer></script>
+    <!-- Custom scripts - Load the correct app.js file -->
+    <script src="app.js" defer></script>
 </head>
 <body>
     <!-- Loading Screen -->
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Login Section -->
-    <div class="login-section" id="login-section">
+    <div class="login-section" id="login-section" style="display: none;">
         <div class="login-container">
             <div class="login-header">
                 <div class="login-logo">
@@ -55,13 +55,13 @@
                 </div>
             </form>
             <div class="login-footer">
-                <p>Forgot your password? <a href="#" id="reset-password-link">Reset it here</a></p>
+                <p>Demo credentials: <strong>admin/admin123</strong> | <strong>editor/editor123</strong> | <strong>viewer/viewer123</strong></p>
             </div>
         </div>
     </div>
 
     <!-- Main Application Container -->
-    <div class="app-container" id="app-container">
+    <div class="app-container" id="app-container" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
