@@ -68,4 +68,60 @@ export class FileManager {
     this.xlsxFileLookup.clear();
     this.isXlsx = false;
   }
+
+  async exportToCSV(data, filename) {
+    try {
+      const csvContent = this.convertToCSV(data);
+      this.downloadFile(csvContent, filename + '.csv', 'text/csv');
+    } catch (error) {
+      console.error('CSV export error:', error);
+      throw error;
+    }
+  }
+
+  async exportToExcel(data, filename) {
+    try {
+      if (typeof XLSX === 'undefined') {
+        throw new Error('XLSX library not loaded');
+      }
+      
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+      XLSX.writeFile(workbook, filename + '.xlsx');
+    } catch (error) {
+      console.error('Excel export error:', error);
+      throw error;
+    }
+  }
+
+  convertToCSV(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+      return '';
+    }
+
+    const headers = Object.keys(data[0]);
+    const csvHeaders = headers.join(',');
+    
+    const csvRows = data.map(row => {
+      return headers.map(header => {
+        const value = row[header];
+        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
+      }).join(',');
+    });
+
+    return [csvHeaders, ...csvRows].join('\n');
+  }
+
+  downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 }

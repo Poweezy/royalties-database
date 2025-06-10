@@ -12,56 +12,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <!-- Local CSS Files -->
-  <link rel="stylesheet" href="royalties.css">
+  <link rel="stylesheet" href="css/main.css">
   
   <!-- Critical CSS for immediate loading -->
   <style>
-    /* Critical CSS - Loading and basic layout - FIXED */
+    /* Critical CSS - Loading and basic layout */
     :root {
       --primary-color: #1a365d;
-      --primary-dark: #153450;
-      --primary-light: #2d5282;
-      --accent-color: #d4af37;
-      --secondary-color: #4a5568;
-      --success-color: #38a169;
-      --warning-color: #d69e2e;
-      --danger-color: #e53e3e;
-      --info-color: #3182ce;
-      --background-light: #f7fafc;
-      --background-white: #ffffff;
-      --text-primary: #1a202c;
-      --text-secondary: #4a5568;
-      --text-muted: #718096;
-      --text-inverse: #ffffff;
-      --border-color: #e2e8f0;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 3px 5px -1px rgb(0 0 0 / 0.08);
-      --shadow-lg: 0 7px 10px -2px rgb(0 0 0 / 0.06);
-      --border-radius: 8px;
-      --border-radius-sm: 6px;
-      --border-radius-lg: 12px;
       --gradient-primary: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
+      --text-inverse: #ffffff;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --font-sans: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background-color: var(--background-light);
-      color: var(--text-primary);
-      line-height: 1.6;
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* Loading Screen - FIXED */
     .loading-screen {
       position: fixed;
       top: 0;
@@ -90,259 +52,13 @@
       margin: 0 auto 1.5rem;
     }
 
-    .loading-content p {
-      color: var(--text-inverse);
-      font-size: 1.2rem;
-      margin-top: 1rem;
-      font-weight: 500;
-    }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
 
-    /* Login Section - FIXED */
-    .login-section {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: var(--gradient-primary);
-      padding: 2rem;
-    }
-
-    .login-container {
-      background: var(--background-white);
-      padding: 3rem;
-      border-radius: var(--border-radius-lg);
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 450px;
-    }
-
-    .login-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .login-logo {
-      width: 80px;
-      height: 80px;
-      background: var(--gradient-primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.5rem;
-      color: var(--text-inverse);
-      font-size: 2rem;
-      font-weight: bold;
-    }
-
-    .login-header h2 {
-      color: var(--text-primary);
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .login-header p {
-      color: var(--text-secondary);
-      font-size: 1rem;
-    }
-
-    .login-form .input-group {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    .login-form .input-group i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-      z-index: 2;
-    }
-
-    .login-form input {
-      width: 100%;
-      padding: 0.875rem 1rem 0.875rem 3rem;
-      border: 2px solid var(--border-color);
-      border-radius: var(--border-radius-sm);
-      font-size: 1rem;
-      background: var(--background-white);
-      color: var(--text-primary);
-      transition: var(--transition);
-    }
-
-    .login-form input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgb(26 54 93 / 0.1);
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      z-index: 2;
-      padding: 0.5rem;
-    }
-
-    .password-toggle:hover {
-      color: var(--primary-color);
-    }
-
-    .login-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-color);
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    /* App Container */
-    .app-container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    .main-content {
-      flex: 1;
-      margin-left: 280px;
-      padding: 2rem;
-      overflow-y: auto;
-      transition: var(--transition);
-    }
-
-    @media (max-width: 768px) {
-      .main-content {
-        margin-left: 0;
-      }
-    }
-
-    /* Sidebar Basic Styles */
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, var(--background-white) 0%, #f7fafc 100%);
-      border-right: 2px solid var(--border-color);
-      box-shadow: var(--shadow-lg);
-      position: fixed;
-      height: 100vh;
-      z-index: 1000;
-      transition: var(--transition);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar-header {
-      padding: 2rem 1.5rem 1.5rem;
-      border-bottom: 2px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .sidebar-logo {
-      width: 48px;
-      height: 48px;
-      background: var(--gradient-primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-inverse);
-      font-size: 1.5rem;
-      font-weight: bold;
-      box-shadow: var(--shadow-md);
-      border: 3px solid var(--accent-color);
-    }
-
-    .sidebar-header h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary-color);
-    }
-
-    /* Basic button styles */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border: 2px solid transparent;
-      border-radius: var(--border-radius-sm);
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-      box-shadow: var(--shadow-sm);
-      white-space: nowrap;
-    }
-
-    .btn-primary {
-      background: var(--gradient-primary);
-      color: var(--text-inverse);
-      border: 2px solid var(--primary-color);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn-large {
-      width: 100%;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      min-height: 48px;
-    }
-
-    /* Navigation Styles */
-    nav ul {
-      list-style: none;
-      padding: 1.5rem;
-    }
-
-    nav ul li {
-      margin-bottom: 0.5rem;
-    }
-
-    nav ul li a {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      color: var(--text-primary);
-      text-decoration: none;
-      border-radius: var(--border-radius-sm);
-      transition: var(--transition);
-    }
-
-    nav ul li a:hover {
-      background: #edf2f7;
-      color: var(--primary-color);
-    }
-
-    nav ul li a.active {
-      background: var(--primary-color);
-      color: var(--text-inverse);
-    }
-
-    /* Hide containers by default - IMPORTANT */
-    #login-container {
+    /* Hide containers by default */
+    #login-section {
       display: none;
     }
 
@@ -350,47 +66,72 @@
       display: none;
     }
 
-    /* Error container styles */
-    .error-container {
+    /* Fix for notification styling */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 10000;
+      min-width: 300px;
+      max-width: 500px;
+      animation: slideInFromRight 0.3s ease-out;
+    }
+
+    .notification-success {
+      border-left: 4px solid #38a169;
+      background: linear-gradient(135deg, rgba(56, 161, 105, 0.05) 0%, white 100%);
+    }
+
+    .notification-error {
+      border-left: 4px solid #e53e3e;
+      background: linear-gradient(135deg, rgba(229, 62, 62, 0.05) 0%, white 100%);
+    }
+
+    .notification-info {
+      border-left: 4px solid #3182ce;
+      background: linear-gradient(135deg, rgba(49, 130, 206, 0.05) 0%, white 100%);
+    }
+
+    .notification-warning {
+      border-left: 4px solid #d69e2e;
+      background: linear-gradient(135deg, rgba(214, 158, 46, 0.05) 0%, white 100%);
+    }
+
+    .notification-content {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 50vh;
-      text-align: center;
-      color: var(--text-muted);
+      gap: 0.75rem;
     }
 
-    .error-container i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: var(--danger-color);
+    .notification-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0.25rem;
     }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .login-container {
-        padding: 2rem;
-        margin: 1rem;
-      }
+    .notification-close:hover {
+      color: #333;
+    }
 
-      .login-header h2 {
-        font-size: 1.25rem;
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
       }
-
-      .login-logo {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-      }
-
-      .sidebar {
-        width: 100%;
-        transform: translateX(-100%);
-      }
-
-      .sidebar.active {
+      to {
         transform: translateX(0);
+        opacity: 1;
       }
     }
   </style>
@@ -400,12 +141,12 @@
   <div class="loading-screen" id="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
-      <p>Loading your workspace...</p>
+      <p>Loading Mining Royalties Manager...</p>
     </div>
   </div>
 
   <!-- Login Section -->
-  <section class="login-section" id="login-section" style="display: none;">
+  <section class="login-section" id="login-section">
     <div class="login-container">
       <div class="login-header">
         <div class="login-logo">MR</div>
@@ -416,7 +157,6 @@
         <div class="input-group">
           <i class="fas fa-user"></i>
           <input type="text" id="username" name="username" placeholder="Username" required>
-          <div id="username-error" class="validation-error" style="display: none;">Username is required</div>
         </div>
         <div class="input-group">
           <i class="fas fa-lock"></i>
@@ -424,7 +164,6 @@
           <button type="button" class="password-toggle">
             <i class="fas fa-eye"></i>
           </button>
-          <div id="password-error" class="validation-error" style="display: none;">Password is required</div>
         </div>
         <button type="submit" class="btn btn-primary btn-large">Sign In</button>
       </form>
@@ -435,160 +174,68 @@
   </section>
 
   <!-- Main App Container -->
-  <div class="app-container" id="app-container" style="display: none;">
+  <div class="app-container" id="app-container">
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">MR</div>
-        <h2>Royalties Manager</h2>
-        <button class="sidebar-close" id="sidebar-close">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <nav>
-        <ul>
-          <li><a href="#dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="#user-management"><i class="fas fa-users"></i> User Management</a></li>
-          <li><a href="#royalty-records"><i class="fas fa-file-invoice"></i> Royalty Records</a></li>
-          <li><a href="#contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
-          <li><a href="#audit-dashboard"><i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
-          <li><a href="#reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
-          <li><a href="#communication"><i class="fas fa-envelope"></i> Communication</a></li>
-          <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span>3</span></a></li>
-          <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
-          <li><a href="#regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
-          <li><a href="#profile"><i class="fas fa-user"></i> My Profile</a></li>
-          <li><a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-      </nav>
+      <!-- Sidebar content will be loaded dynamically -->
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Header -->
-      <div class="page-header">
-        <div class="page-title">
-          <h1>Welcome</h1>
-          <p>Hello, <span id="user-name">User</span></p>
-        </div>
-        <div class="page-actions">
-          <button class="btn btn-info" onclick="location.reload()">
-            <i class="fas fa-sync-alt"></i> Refresh
-          </button>
-        </div>
-      </div>
-
       <!-- Dashboard Section -->
       <section id="dashboard">
-        <!-- KPI Cards -->
-        <div class="charts-grid">
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-coins"></i> Total Royalties (YTD)</h3>
-            </div>
-            <div class="card-body">
-              <p id="total-royalties">E 0.00</p>
-              <small class="trend-positive">
-                <i class="fas fa-arrow-up"></i> <span id="royalties-trend">+0%</span> from last year
-              </small>
-            </div>
-          </div>
-
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-industry"></i> Active Entities</h3>
-            </div>
-            <div class="card-body">
-              <p id="active-entities">0</p>
-              <small class="trend-positive">
-                <i class="fas fa-arrow-up"></i> <span id="entities-trend">+0</span> new entities
-              </small>
-            </div>
-          </div>
-
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-shield-alt"></i> Compliance Rate</h3>
-            </div>
-            <div class="card-body">
-              <p id="compliance-rate">0%</p>
-              <div class="mini-progress">
-                <div class="progress-bar" id="compliance-progress"></div>
-              </div>
-              <small class="trend-positive">
-                <i class="fas fa-arrow-up"></i> <span id="compliance-trend">+0%</span> this month
-              </small>
-            </div>
-          </div>
-
-          <div class="metric-card card">
-            <div class="card-header">
-              <h3><i class="fas fa-clock"></i> Pending Approvals</h3>
-            </div>
-            <div class="card-body">
-              <p id="pending-approvals">0</p>
-              <small class="trend-negative">
-                <i class="fas fa-exclamation-triangle"></i> <span id="pending-text">No pending items</span>
-              </small>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Charts Section -->
-        <div class="charts-grid">
-          <div class="card analytics-chart">
-            <div class="chart-header">
-              <h5>Revenue Trends</h5>
-              <div class="chart-controls">
-                <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">Line</button>
-                <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">Bar</button>
-                <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">Area</button>
-              </div>
-            </div>
-            <div class="chart-container">
-              <canvas id="revenue-trends-chart"></canvas>
-            </div>
-          </div>
-
-          <div class="card analytics-chart">
-            <div class="chart-header">
-              <h5>Production by Entity</h5>
-            </div>
-            <div class="chart-container">
-              <canvas id="production-by-entity-chart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="card">
-          <div class="card-header">
-            <h3>Recent Activity</h3>
-          </div>
-          <div class="card-body">
-            <div class="activity-list" id="recent-activity">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
-        </div>
+        <!-- Dashboard content will be loaded dynamically -->
       </section>
 
       <!-- User Management Section -->
       <section id="user-management" style="display: none;">
-        <!-- ...existing user management content... -->
+        <!-- User management content will be loaded dynamically -->
       </section>
 
-      <!-- Other sections will be dynamically populated -->
-      <section id="royalty-records" style="display: none;"></section>
-      <section id="contract-management" style="display: none;"></section>
-      <section id="audit-dashboard" style="display: none;"></section>
-      <section id="reporting-analytics" style="display: none;"></section>
-      <section id="communication" style="display: none;"></section>
-      <section id="notifications" style="display: none;"></section>
-      <section id="compliance" style="display: none;"></section>
-      <section id="regulatory-management" style="display: none;"></section>
-      <section id="profile" style="display: none;"></section>
-      <section id="logout" style="display: none;"></section>
+      <!-- Royalty Records Section -->
+      <section id="royalty-records" style="display: none;">
+        <!-- Royalty records content will be loaded dynamically -->
+      </section>
+
+      <!-- Contract Management Section -->
+      <section id="contract-management" style="display: none;">
+        <!-- Contract management content will be loaded dynamically -->
+      </section>
+
+      <!-- Audit Dashboard Section -->
+      <section id="audit-dashboard" style="display: none;">
+        <!-- Audit dashboard content will be loaded dynamically -->
+      </section>
+
+      <!-- Reporting & Analytics Section -->
+      <section id="reporting-analytics" style="display: none;">
+        <!-- Reporting analytics content will be loaded dynamically from components/reporting-analytics.html -->
+      </section>
+
+      <!-- Communication Section -->
+      <section id="communication" style="display: none;">
+        <!-- Communication content will be loaded dynamically -->
+      </section>
+
+      <!-- Notifications Section -->
+      <section id="notifications" style="display: none;">
+        <!-- Notifications content will be loaded dynamically -->
+      </section>
+
+      <!-- Compliance Section -->
+      <section id="compliance" style="display: none;">
+        <!-- Compliance content will be loaded dynamically -->
+      </section>
+
+      <!-- Regulatory Management Section -->
+      <section id="regulatory-management" style="display: none;">
+        <!-- Regulatory management content will be loaded dynamically -->
+      </section>
+
+      <!-- Profile Section -->
+      <section id="profile" style="display: none;">
+        <!-- Profile content will be loaded dynamically -->
+      </section>
     </main>
   </div>
 

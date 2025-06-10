@@ -1,0 +1,342 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>🛡️ Security Audit Logs</h1>
+    <p>Comprehensive system activity monitoring and security audit trail</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="real-time-toggle" title="Toggle real-time monitoring">
+      <i class="fas fa-play"></i> Real-time Monitoring
+    </button>
+    <button class="btn btn-secondary" id="export-audit-log-btn" title="Export audit log">
+      <i class="fas fa-file-export"></i> Export Log
+    </button>
+    <button class="btn btn-primary" id="security-report-btn" title="Generate security report">
+      <i class="fas fa-shield-alt"></i> Security Report
+    </button>
+  </div>
+</div>
+
+<!-- Audit Dashboard Metrics -->
+<div class="charts-grid" id="audit-metrics">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-eye"></i> Total Activities</h3>
+      <select class="metric-period" id="activity-period">
+        <option value="today">Today</option>
+        <option value="week" selected>This Week</option>
+        <option value="month">This Month</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="total-activities">0</p>
+      <small><i class="fas fa-clock"></i> Last updated: <span id="last-update">--</span></small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Security Events</h3>
+    </div>
+    <div class="card-body">
+      <p id="security-events">0</p>
+      <small id="security-trend" class="trend-positive">
+        <i class="fas fa-shield-check"></i> No critical alerts
+      </small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-user-shield"></i> Active Sessions</h3>
+    </div>
+    <div class="card-body">
+      <p id="active-sessions">1</p>
+      <small><i class="fas fa-users"></i> Current authenticated users</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-ban"></i> Failed Attempts</h3>
+    </div>
+    <div class="card-body">
+      <p id="failed-attempts">0</p>
+      <small id="failed-trend">
+        <i class="fas fa-check-circle text-success"></i> No recent failures
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Security Actions -->
+<div class="card">
+  <div class="card-header">
+    <h3><i class="fas fa-bolt"></i> Quick Security Actions</h3>
+  </div>
+  <div class="card-body">
+    <div class="quick-actions-grid">
+      <button class="quick-action-btn" onclick="auditActions.viewLoginAttempts()">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Login Attempts</span>
+      </button>
+      <button class="quick-action-btn" onclick="auditActions.viewUserActivity()">
+        <i class="fas fa-user-clock"></i>
+        <span>User Activity</span>
+      </button>
+      <button class="quick-action-btn" onclick="auditActions.viewDataAccess()">
+        <i class="fas fa-database"></i>
+        <span>Data Access</span>
+      </button>
+      <button class="quick-action-btn" onclick="auditActions.viewSystemChanges()">
+        <i class="fas fa-cogs"></i>
+        <span>System Changes</span>
+      </button>
+      <button class="quick-action-btn" onclick="auditActions.viewFailedOperations()">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Failed Operations</span>
+      </button>
+      <button class="quick-action-btn" onclick="auditActions.generateComplianceReport()">
+        <i class="fas fa-file-shield"></i>
+        <span>Compliance Report</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Filters -->
+<div class="card">
+  <div class="card-header">
+    <h3><i class="fas fa-filter"></i> Advanced Audit Filters</h3>
+    <button class="btn btn-sm btn-secondary" id="toggle-filters">
+      <i class="fas fa-chevron-down"></i> Show Filters
+    </button>
+  </div>
+  <div class="card-body filter-section" id="audit-filters" style="display: none;">
+    <div class="grid-4">
+      <div class="form-group">
+        <label for="filter-user">
+          <i class="fas fa-user"></i> User
+        </label>
+        <select id="filter-user" name="user">
+          <option value="">All Users</option>
+          <option value="admin">admin</option>
+          <option value="editor">editor</option>
+          <option value="viewer">viewer</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-action">
+          <i class="fas fa-bolt"></i> Action Type
+        </label>
+        <select id="filter-action" name="action">
+          <option value="">All Actions</option>
+          <option value="Login">Login</option>
+          <option value="Logout">Logout</option>
+          <option value="Create User">Create User</option>
+          <option value="Modify User">Modify User</option>
+          <option value="Delete User">Delete User</option>
+          <option value="Data Access">Data Access</option>
+          <option value="Failed Login">Failed Login</option>
+          <option value="System Change">System Change</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-status">
+          <i class="fas fa-flag"></i> Status
+        </label>
+        <select id="filter-status" name="status">
+          <option value="">All Status</option>
+          <option value="Success">Success</option>
+          <option value="Failed">Failed</option>
+          <option value="Warning">Warning</option>
+          <option value="Info">Info</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-date-range">
+          <i class="fas fa-calendar"></i> Date Range
+        </label>
+        <select id="filter-date-range" name="dateRange">
+          <option value="">All Dates</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="last-7-days">Last 7 Days</option>
+          <option value="last-30-days">Last 30 Days</option>
+          <option value="this-month">This Month</option>
+          <option value="last-month">Last Month</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-ip">
+          <i class="fas fa-network-wired"></i> IP Address
+        </label>
+        <input type="text" id="filter-ip" name="ipAddress" placeholder="e.g., 192.168.1.100">
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-severity">
+          <i class="fas fa-exclamation-triangle"></i> Severity
+        </label>
+        <select id="filter-severity" name="severity">
+          <option value="">All Severities</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+          <option value="Info">Info</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="filter-search">
+          <i class="fas fa-search"></i> Search Terms
+        </label>
+        <input type="text" id="filter-search" name="search" placeholder="Search in details...">
+      </div>
+      
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <div class="filter-actions">
+          <button class="btn btn-primary" id="apply-audit-filters">
+            <i class="fas fa-filter"></i> Apply Filters
+          </button>
+          <button class="btn btn-secondary" id="clear-audit-filters">
+            <i class="fas fa-times"></i> Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Log Table -->
+<div class="card">
+  <div class="card-header">
+    <h3><i class="fas fa-list"></i> Audit Log Entries</h3>
+    <div class="table-actions">
+      <button class="btn btn-info btn-sm" id="auto-refresh-toggle" title="Toggle auto-refresh">
+        <i class="fas fa-sync-alt"></i> Auto-refresh: OFF
+      </button>
+      <button class="btn btn-secondary btn-sm" id="bulk-archive-btn" title="Archive selected entries">
+        <i class="fas fa-archive"></i> Archive Selected
+      </button>
+      <button class="btn btn-primary btn-sm" id="refresh-audit-log">
+        <i class="fas fa-refresh"></i> Refresh
+      </button>
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="data-table" id="audit-log-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all-audit" title="Select all entries"></th>
+          <th sortable data-sort="timestamp">
+            <i class="fas fa-clock"></i> Timestamp
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="user">
+            <i class="fas fa-user"></i> User
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="action">
+            <i class="fas fa-bolt"></i> Action
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="target">
+            <i class="fas fa-bullseye"></i> Target
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="ipAddress">
+            <i class="fas fa-network-wired"></i> IP Address
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="status">
+            <i class="fas fa-flag"></i> Status
+            <span class="sort-indicator"></span>
+          </th>
+          <th sortable data-sort="severity">
+            <i class="fas fa-exclamation-triangle"></i> Severity
+            <span class="sort-indicator"></span>
+          </th>
+          <th>
+            <i class="fas fa-info-circle"></i> Details
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="audit-log-tbody">
+        <!-- Audit entries will be populated dynamically -->
+      </tbody>
+    </table>
+
+    <div class="table-pagination">
+      <div class="pagination-info">
+        Showing <span id="audit-showing-start">1</span> to <span id="audit-showing-end">0</span> of <span id="audit-total-entries">0</span> entries
+        <span id="audit-filtered-info" style="display: none;">
+          (filtered from <span id="audit-total-unfiltered">0</span> total entries)
+        </span>
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-secondary" id="audit-prev-page" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <div class="pagination-pages" id="audit-pagination-pages">
+          <!-- Page numbers will be generated -->
+        </div>
+        <button class="btn btn-sm btn-secondary" id="audit-next-page" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Real-time Activity Feed -->
+<div class="card" id="realtime-feed" style="display: none;">
+  <div class="card-header">
+    <h3><i class="fas fa-satellite-dish"></i> Real-time Activity Feed</h3>
+    <div class="realtime-status">
+      <span class="status-indicator" id="realtime-status">
+        <i class="fas fa-circle text-success"></i> Live
+      </span>
+    </div>
+  </div>
+  <div class="card-body">
+    <div id="realtime-activity-list" class="activity-feed">
+      <!-- Real-time activities will appear here -->
+    </div>
+  </div>
+</div>
+
+<!-- Audit Entry Details Modal (Hidden by default) -->
+<div id="audit-details-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-container modal-large">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> Audit Entry Details</h3>
+      <button class="modal-close" type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="audit-details-content">
+        <!-- Details will be populated dynamically -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="flag-entry-btn">
+        <i class="fas fa-flag"></i> Flag Entry
+      </button>
+      <button type="button" class="btn btn-warning" id="investigate-btn">
+        <i class="fas fa-search"></i> Investigate
+      </button>
+      <button type="button" class="btn btn-primary modal-close">
+        <i class="fas fa-check"></i> Close
+      </button>
+    </div>
+  </div>
+</div>

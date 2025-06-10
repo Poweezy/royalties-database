@@ -1,36 +1,6 @@
 // Utilities Module - Common utility functions and helpers
 
-export class Utils {
-    static showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        
-        const iconMap = {
-            'success': 'check-circle',
-            'error': 'exclamation-circle',
-            'warning': 'exclamation-triangle',
-            'info': 'info-circle'
-        };
-        
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${iconMap[type]}"></i>
-                <span>${message}</span>
-            </div>
-            <button class="notification-close" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
+class Utils {
     static suppressNonCriticalErrors() {
         const originalError = console.error;
         console.error = function(...args) {
@@ -64,17 +34,24 @@ export class Utils {
         return date.toLocaleString();
     }
 
-    static debounce(func, wait, immediate) {
+    static validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    static generateId(prefix = '') {
+        return prefix + Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    static debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
             const later = () => {
-                timeout = null;
-                if (!immediate) func(...args);
+                clearTimeout(timeout);
+                func(...args);
             };
-            const callNow = immediate && !timeout;
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
-            if (callNow) func(...args);
         };
     }
 
@@ -89,20 +66,6 @@ export class Utils {
                 setTimeout(() => inThrottle = false, limit);
             }
         };
-    }
-
-    static generateId() {
-        return Math.random().toString(36).substr(2, 9);
-    }
-
-    static validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    }
-
-    static validateUsername(username) {
-        const re = /^[a-zA-Z0-9_]{3,20}$/;
-        return re.test(username);
     }
 
     static deepClone(obj) {

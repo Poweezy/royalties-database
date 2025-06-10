@@ -1,0 +1,169 @@
+<div class="page-header">
+    <div class="page-title">
+        <h1>👤 My Profile</h1>
+        <p>Manage your account settings and preferences</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-primary" id="edit-profile-btn">
+            ✏️ Edit Profile
+        </button>
+        <button class="btn btn-warning" id="change-password-btn">
+            🔒 Change Password
+        </button>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="card">
+        <div class="card-header">
+            <h5>👤 Personal Information</h5>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Username:</strong>
+                    <span id="profile-username">admin</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Email:</strong>
+                    <span id="profile-email">admin@eswacaa.sz</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Role:</strong>
+                    <span id="profile-role" class="status-badge administrator">Administrator</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Department:</strong>
+                    <span id="profile-department">Management</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>🔐 Security Settings</h5>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Two-Factor Authentication:</span>
+                    <button class="btn btn-sm btn-secondary">Enable</button>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Last Login:</strong>
+                    <span id="profile-last-login">Today at 14:32</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Login Sessions:</strong>
+                    <span style="color: var(--success-color);">1 Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>⚙️ Preferences</h5>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem;">Language:</label>
+                    <select style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="en" selected>English</option>
+                        <option value="ss">siSwati</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem;">Date Format:</label>
+                    <select style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                        <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                        <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="email-notifications" checked>
+                    <label for="email-notifications">Email Notifications</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>📊 Activity Summary</h5>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center;">
+                <div>
+                    <h3 style="color: var(--primary-color); margin: 0;">47</h3>
+                    <small>Total Logins</small>
+                </div>
+                <div>
+                    <h3 style="color: var(--success-color); margin: 0;">15</h3>
+                    <small>Actions Today</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>📋 Recent Activity</h5>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                <span>Logged into system</span>
+                <small style="color: #666;">Today at 14:32</small>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                <span>Viewed dashboard analytics</span>
+                <small style="color: #666;">Today at 14:30</small>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                <span>Generated monthly report</span>
+                <small style="color: #666;">Yesterday at 16:45</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    
+    // Update profile information with current user data
+    if (window.royaltiesApp && window.royaltiesApp.authManager) {
+        const currentUser = window.royaltiesApp.authManager.getCurrentUser();
+        if (currentUser) {
+            document.getElementById('profile-username').textContent = currentUser.username;
+            document.getElementById('profile-role').textContent = currentUser.role;
+            document.getElementById('profile-department').textContent = currentUser.department;
+            
+            const lastLogin = new Date(currentUser.lastLogin);
+            document.getElementById('profile-last-login').textContent = lastLogin.toLocaleString();
+        }
+    }
+    
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            if (window.notificationManager) {
+                window.notificationManager.show('Profile editing functionality would open here', 'info');
+            }
+        });
+    }
+    
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', function() {
+            if (window.notificationManager) {
+                window.notificationManager.show('Password change form would open here', 'info');
+            }
+        });
+    }
+});
+</script>

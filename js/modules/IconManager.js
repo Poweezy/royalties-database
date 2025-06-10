@@ -1,16 +1,15 @@
 export class IconManager {
   constructor() {
-    this.iconMap = new Map([
-      ['fa-home', '🏠'], ['fa-user', '👤'], ['fa-users', '👥'],
-      ['fa-file-invoice', '📄'], ['fa-file-contract', '📋'],
-      ['fa-shield-alt', '🛡️'], ['fa-chart-bar', '📊'],
-      ['fa-envelope', '✉️'], ['fa-bell', '🔔'],
-      ['fa-check-circle', '✅'], ['fa-sign-out-alt', '🚪'],
-      ['fa-lock', '🔒'], ['fa-eye', '👁️'], ['fa-clock', '🕐'],
-      ['fa-filter', '🔽'], ['fa-gavel', '⚖️']
-    ]);
-    
-    this.init();
+    this.iconMap = {
+      'dashboard': '📊',
+      'users': '👥',
+      'records': '💰',
+      'contracts': '📋',
+      'audit': '🛡️',
+      'reports': '📊',
+      'settings': '⚙️',
+      'logout': '🚪'
+    };
   }
 
   async init() {
@@ -31,200 +30,98 @@ export class IconManager {
   }
 
   suppressExtensionErrors() {
+    // Suppress font awesome and extension errors
     const originalError = console.error;
-    const originalWarn = console.warn;
-    
-    console.error = (...args) => {
+    console.error = function(...args) {
       const message = args.join(' ').toLowerCase();
-      if (!this.shouldSuppressMessage(message)) {
+      if (!message.includes('fontawesome') && !message.includes('extension')) {
         originalError.apply(console, args);
       }
     };
-
-    console.warn = (...args) => {
-      const message = args.join(' ').toLowerCase();
-      if (!this.shouldSuppressMessage(message)) {
-        originalWarn.apply(console, args);
-      }
-    };
-
-    window.addEventListener('unhandledrejection', (event) => {
-      this.handleError(event);
-    });
-
-    window.addEventListener('error', (event) => {
-      this.handleError(event);
-    });
-  }
-
-  shouldSuppressMessage(message) {
-    const suppressPatterns = [
-      'fontawesome', 'extension', 'chrome-extension', 'intervention',
-      'listener indicated', 'message channel', 'runtime'
-    ];
-    return suppressPatterns.some(pattern => message.includes(pattern));
-  }
-
-  handleError(event) {
-    const errorMessage = event.reason?.message || event.message || '';
-    if (this.shouldSuppressMessage(errorMessage.toLowerCase())) {
-      event.preventDefault();
-      return false;
-    }
-  }
-
-  replaceIcons() {
-    const elements = document.querySelectorAll('[class*="fa-"]');
-    elements.forEach(element => {
-      this.replaceElementIcon(element);
-    });
-  }
-
-  replaceElementIcon(element) {
-    const classList = Array.from(element.classList);
-    let iconReplaced = false;
-    
-    for (const className of classList) {
-      if (this.iconMap.has(className)) {
-        this.applyIcon(element, this.iconMap.get(className));
-        iconReplaced = true;
-        break;
-      }
-    }
-    
-    if (!iconReplaced && classList.some(c => c.startsWith('fa-'))) {
-      this.applyIcon(element, '📋');
-    }
-  }
-
-  applyIcon(element, icon) {
-    // Remove FontAwesome classes
-    const classesToRemove = [];
-    element.classList.forEach(cls => {
-      if (cls.startsWith('fa')) {
-        classesToRemove.push(cls);
-      }
-    });
-    
-    classesToRemove.forEach(cls => {
-      element.classList.remove(cls);
-    });
-    
-    // Add emoji icon if element is empty or minimal content
-    if (!element.textContent.trim() || element.textContent.trim().length <= 2) {
-      element.textContent = icon;
-      element.classList.add('emoji-icon');
-    }
-  }
-
-  addMobileMenuToggle() {
-    if (document.querySelector('.mobile-menu-toggle')) return;
-    
-    const toggle = document.createElement('button');
-    toggle.className = 'mobile-menu-toggle';
-    toggle.innerHTML = '☰';
-    toggle.setAttribute('aria-label', 'Toggle Menu');
-    
-    toggle.onclick = () => {
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebar) {
-        sidebar.classList.toggle('active');
-      }
-    };
-    
-    document.body.appendChild(toggle);
   }
 
   addStyles() {
-    if (document.querySelector('#modern-icon-styles')) return;
-    
     const style = document.createElement('style');
-    style.id = 'modern-icon-styles';
     style.textContent = `
       .emoji-icon {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-        font-style: normal !important;
-        font-weight: normal !important;
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        text-align: center;
-        vertical-align: middle;
+        font-style: normal;
+        font-size: 1.2em;
+        margin-right: 0.5rem;
       }
-
       .mobile-menu-toggle {
         display: none;
         position: fixed;
         top: 1rem;
         left: 1rem;
         z-index: 1001;
-        background: #1a365d;
+        background: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 6px;
         padding: 0.75rem;
+        border-radius: 50%;
         cursor: pointer;
-        font-size: 1.2rem;
-        width: 48px;
-        height: 48px;
-        align-items: center;
-        justify-content: center;
       }
-
       @media (max-width: 768px) {
-        .mobile-menu-toggle { 
-          display: flex !important; 
-        }
-        .sidebar { 
-          transform: translateX(-100%); 
-          transition: transform 0.3s ease; 
-        }
-        .sidebar.active { 
-          transform: translateX(0); 
+        .mobile-menu-toggle {
+          display: block;
         }
       }
     `;
     document.head.appendChild(style);
   }
 
-  observeChanges() {
-    if (!window.MutationObserver) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      let shouldReplace = false;
+  replaceIcons() {
+    // Replace FontAwesome icons with emojis as fallback
+    const icons = document.querySelectorAll('i[class*="fa-"]');
+    icons.forEach(icon => {
+      const classes = icon.className;
+      let emoji = '📄'; // Default emoji
       
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === 1 && this.hasFontAwesomeClasses(node)) {
-              shouldReplace = true;
-            }
-          });
-        }
-      });
+      if (classes.includes('fa-tachometer') || classes.includes('fa-dashboard')) emoji = '📊';
+      else if (classes.includes('fa-users') || classes.includes('fa-user')) emoji = '👥';
+      else if (classes.includes('fa-dollar') || classes.includes('fa-money')) emoji = '💰';
+      else if (classes.includes('fa-file') || classes.includes('fa-contract')) emoji = '📋';
+      else if (classes.includes('fa-shield') || classes.includes('fa-security')) emoji = '🛡️';
+      else if (classes.includes('fa-chart') || classes.includes('fa-analytics')) emoji = '📈';
+      else if (classes.includes('fa-cog') || classes.includes('fa-settings')) emoji = '⚙️';
+      else if (classes.includes('fa-sign-out') || classes.includes('fa-logout')) emoji = '🚪';
+      else if (classes.includes('fa-plus')) emoji = '➕';
+      else if (classes.includes('fa-edit')) emoji = '✏️';
+      else if (classes.includes('fa-trash')) emoji = '🗑️';
+      else if (classes.includes('fa-eye')) emoji = '👁️';
+      else if (classes.includes('fa-download')) emoji = '⬇️';
       
-      if (shouldReplace) {
-        setTimeout(() => this.replaceIcons(), 50);
+      if (!icon.textContent.trim()) {
+        icon.textContent = emoji;
+        icon.className = 'emoji-icon';
       }
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  hasFontAwesomeClasses(node) {
-    if (!node.classList) return false;
-    return Array.from(node.classList).some(c => c.startsWith('fa-'));
-  }
-
-  destroy() {
-    const style = document.querySelector('#modern-icon-styles');
-    if (style) {
-      style.remove();
-    }
+  addMobileMenuToggle() {
+    if (document.getElementById('mobile-menu-toggle')) return;
     
-    const toggle = document.querySelector('.mobile-menu-toggle');
-    if (toggle) {
-      toggle.remove();
-    }
+    const toggle = document.createElement('button');
+    toggle.id = 'mobile-menu-toggle';
+    toggle.className = 'mobile-menu-toggle';
+    toggle.innerHTML = '☰';
+    toggle.addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('active');
+      }
+    });
+    document.body.appendChild(toggle);
+  }
+
+  observeChanges() {
+    const observer = new MutationObserver(() => {
+      this.replaceIcons();
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
 }
