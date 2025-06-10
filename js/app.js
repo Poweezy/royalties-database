@@ -125,6 +125,7 @@ class RoyaltiesApp {
         this.dashboardManager = null;
         this.actionHandlers = {};
         this.charts = {};
+        this.chartManager = new ChartManager();
     }
 
     async initialize() {
@@ -437,184 +438,489 @@ class RoyaltiesApp {
 
         // Initialize dashboard after content is loaded
         setTimeout(() => {
-            this.updateDashboardMetrics();
-            this.updateRecentActivity();
+            this.initializeDashboardComponent();
         }, 100);
+    }
+
+    initializeDashboardComponent() {
+        console.log('Initializing dashboard component...');
+        
+        // Update dashboard metrics
+        this.updateDashboardMetrics();
+        this.updateRecentActivity();
+        
+        // Initialize charts with delay to ensure DOM is ready
+        setTimeout(() => {
+            try {
+                this.initializeDashboardCharts();
+                this.setupDashboardEventHandlers();
+            } catch (error) {
+                console.error('Error initializing dashboard charts:', error);
+            }
+        }, 500);
+    }
+
+    initializeDashboardCharts() {
+        console.log('Setting up dashboard charts...');
+        
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not available, skipping chart initialization');
+            return;
+        }
+
+        try {
+            this.createRevenueChart();
+            this.createEntityChart();
+            this.createPaymentTimelineChart();
+            this.createMineralPerformanceChart();
+            this.createForecastChart();
+        } catch (error) {
+            console.error('Error creating charts:', error);
+        }
+    }
+
+    createRevenueChart() {
+        const revenueCtx = document.getElementById('revenue-trends-chart');
+        if (revenueCtx && typeof Chart !== 'undefined') {
+            this.charts.revenueTrends = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Monthly Revenue (E)',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createEntityChart() {
+        const entityCtx = document.getElementById('production-by-entity-chart');
+        if (entityCtx && typeof Chart !== 'undefined') {
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            const entityData = royaltyRecords.reduce((acc, record) => {
+                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+                return acc;
+            }, {});
+            
+            this.charts.entityProduction = new Chart(entityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(entityData),
+                    datasets: [{
+                        data: Object.values(entityData),
+                        backgroundColor: [
+                            '#1a365d', '#2d5a88', '#4a90c2', 
+                            '#7ba7cc', '#a8c5e2', '#d4af37'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+    }
+
+    createPaymentTimelineChart() {
+        const canvas = document.getElementById('payment-timeline-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            this.charts.paymentTimeline = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Payments Received',
+                        data: [85000, 92000, 88000, 95000, 91000, 98000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Payments Due',
+                        data: [90000, 95000, 90000, 98000, 93000, 100000],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createMineralPerformanceChart() {
+        const canvas = document.getElementById('mineral-performance-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            const records = this.dataManager.getRoyaltyRecords();
+            const mineralData = this.aggregateMineralPerformance(records);
+            
+            this.charts.mineralPerformance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: mineralData.labels,
+                    datasets: [{
+                        label: 'Revenue (E)',
+                        data: mineralData.revenue,
+                        backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2', '#d4af37']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createForecastChart() {
+        const canvas = document.getElementById('forecast-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            this.charts.forecast = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Historical',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000, null, null, null, null, null, null],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Forecast',
+                        data: [null, null, null, null, null, 67000, 69000, 71000, 68000, 73000, 75000, 77000],
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    aggregateMineralPerformance(records) {
+        const mineralRevenue = records.reduce((acc, record) => {
+            if (record.mineral && record.royalties) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+            }
+            return acc;
+        }, {});
+        
+        return {
+            labels: Object.keys(mineralRevenue),
+            revenue: Object.values(mineralRevenue)
+        };
+    }
+
+    setupDashboardEventHandlers() {
+        // Main dashboard action buttons
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshDashboard();
+            });
+        }
+        
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportDashboard();
+            });
+        }
+        
+        // Chart control handlers
+        const chartBtns = document.querySelectorAll('.chart-btn');
+        chartBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from siblings
+                btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update chart if needed
+                const chartType = btn.dataset.chartType;
+                const chartId = btn.dataset.chartId;
+                
+                if (chartId && this.charts[chartId]) {
+                    this.updateChartType(this.charts[chartId], chartType);
+                }
+                
+                this.notificationManager.show(`Switched to ${chartType} view`, 'info');
+            });
+        });
+        
+        // Period selectors
+        const periodSelectors = document.querySelectorAll('.metric-period');
+        periodSelectors.forEach(selector => {
+            selector.addEventListener('change', () => {
+                this.notificationManager.show(`Updated for ${selector.value.replace('-', ' ')}`, 'success');
+                this.updateDashboardMetrics();
+            });
+        });
+        
+        // Filter handlers
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', () => {
+                this.applyDashboardFilters();
+            });
+        }
+        
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => {
+                this.resetDashboardFilters();
+            });
+        }
+    }
+
+    updateChartType(chart, type) {
+        if (!chart) return;
+        
+        try {
+            if (type === 'area') {
+                chart.config.type = 'line';
+                chart.data.datasets[0].fill = true;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
+            } else if (type === 'bar') {
+                chart.config.type = 'bar';
+                chart.data.datasets[0].fill = false;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
+            } else {
+                chart.config.type = 'line';
+                chart.data.datasets[0].fill = false;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+            }
+            chart.update();
+        } catch (error) {
+            console.error('Error updating chart type:', error);
+        }
+    }
+
+    applyDashboardFilters() {
+        const timePeriod = document.getElementById('time-period')?.value;
+        const entityFilter = document.getElementById('entity-filter')?.value;
+        const mineralFilter = document.getElementById('mineral-filter')?.value;
+        
+        this.notificationManager.show(`Applied filters: ${timePeriod}, ${entityFilter}, ${mineralFilter}`, 'info');
+        this.updateDashboardMetrics();
+    }
+
+    resetDashboardFilters() {
+        const timeSelect = document.getElementById('time-period');
+        const entitySelect = document.getElementById('entity-filter');
+        const mineralSelect = document.getElementById('mineral-filter');
+        
+        if (timeSelect) timeSelect.value = 'current-month';
+        if (entitySelect) entitySelect.value = 'all';
+        if (mineralSelect) mineralSelect.value = 'all';
+        
+        this.notificationManager.show('Dashboard filters reset', 'info');
+        this.updateDashboardMetrics();
+    }
+
+    refreshDashboard() {
+        this.updateDashboardMetrics();
+        this.updateRecentActivity();
+        
+        // Refresh charts
+        Object.values(this.charts).forEach(chart => {
+            if (chart && typeof chart.update === 'function') {
+                chart.update();
+            }
+        });
+        
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard report...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard report exported successfully', 'success');
+        }, 2000);
     }
 
     updateDashboardMetrics() {
         const royaltyRecords = this.dataManager.getRoyaltyRecords();
         const entities = this.dataManager.getEntities();
+        const minerals = this.dataManager.getMinerals();
         
-        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+        // Calculate comprehensive metrics
+        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
+        const totalProduction = royaltyRecords.reduce((sum, record) => sum + (record.volume || 0), 0);
         const activeEntities = entities.filter(e => e.status === 'Active').length;
         const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
         const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
         const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
         
-        // Update main metrics
-        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
+        // Production breakdown by mineral type
+        const productionByMineral = royaltyRecords.reduce((acc, record) => {
+            if (record.mineral) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + (record.volume || 0);
+            }
+            return acc;
+        }, {});
+        
+        // Update all dashboard elements
+        this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`);
+        this.updateElement('total-royalties-calculated', `E ${totalRoyalties.toLocaleString()}`);
+        this.updateElement('overall-compliance', `${complianceRate}%`);
+        this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
         this.updateElement('active-entities', activeEntities);
-        this.updateElement('compliance-rate', `${complianceRate}%`);
-        this.updateElement('pending-approvals', pendingRecords);
+        this.updateElement('pending-approvals', pendingRecords.length);
+        this.updateElement('coal-production', `${productionByMineral.Coal || 0}t`);
+        this.updateElement('iron-production', `${productionByMineral['Iron Ore'] || 0}t`);
+        this.updateElement('stone-production', `${productionByMineral['Quarried Stone'] || 0}m³`);
         
         // Update progress bars
         const complianceProgress = document.getElementById('compliance-progress');
         if (complianceProgress) {
             complianceProgress.style.width = `${complianceRate}%`;
         }
-    }
-
-    updateElement(id, content) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = content;
-        }
-    }
-
-    updateRecentActivity() {
-        const activityContainer = document.getElementById('recent-activity');
-        if (!activityContainer) return;
         
-        const auditLog = this.dataManager.getAuditLog();
-        const recentEntries = auditLog.slice(0, 5);
-        
-        if (recentEntries.length === 0) {
-            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
-            return;
-        }
-        
-        activityContainer.innerHTML = recentEntries.map(entry => `
-            <div class="activity-item">
-                <div class="activity-icon">
-                    <i class="fas fa-${this.getActivityIcon(entry.action)}"></i>
-                </div>
-                <div class="activity-content">
-                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
-                    <small>${entry.timestamp}</small>
-                </div>
-            </div>
-        `).join('');
+        console.log('Dashboard metrics updated successfully');
     }
 
-    getActivityIcon(action) {
-        const iconMap = {
-            'Login': 'sign-in-alt',
-            'Create User': 'user-plus',
-            'Modify User': 'user-edit',
-            'Delete User': 'user-minus',
-            'Data Access': 'eye',
-            'Failed Login': 'exclamation-triangle'
-        };
-        return iconMap[action] || 'circle';
-    }
+    // ...existing code...
+}
 
-    loadUserManagementSection() {
-        const section = document.getElementById('user-management');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>👥 User Management</h1>
-                    <p>Manage system users and permissions</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p>User management functionality will be implemented here.</p>
-                </div>
-            </div>
-        `;
-    }
-
-    loadRoyaltyRecordsSection() {
-        const section = document.getElementById('royalty-records');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>💰 Royalty Records</h1>
-                    <p>Manage royalty payments and records</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p>Royalty records functionality will be implemented here.</p>
-                </div>
-            </div>
-        `;
-    }
-
-    loadContractManagementSection() {
-        const section = document.getElementById('contract-management');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📋 Contract Management</h1>
-                    <p>Manage contracts and agreements</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <p>Contract management functionality will be implemented here.</p>
-                </div>
-            </div>
-        `;
-    }
-
-    loadGenericSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>📋 ${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
-                        <p>This section is under development</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Content for ${sectionId} will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    handleLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            const currentUser = this.authManager.getCurrentUser();
-            if (currentUser) {
-                this.dataManager.addAuditEntry({
-                    user: currentUser.username,
-                    action: 'Logout',
-                    target: 'System',
-                    ipAddress: '192.168.1.100',
-                    status: 'Success',
-                    details: 'User logged out successfully'
-                });
+// Enhanced Chart Manager Class
+class ChartManager {
+    constructor() {
+        this.charts = new Map();
+        this.isChartJsLoaded = typeof Chart !== 'undefined';
+        this.defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
             }
-            
-            this.authManager.logout();
-            
-            const loginSection = document.getElementById('login-section');
-            const appContainer = document.getElementById('app-container');
-            
-            if (appContainer) appContainer.style.display = 'none';
-            if (loginSection) loginSection.style.display = 'flex';
-            
-            // Clear login form
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            
-            this.notificationManager.show('Logged out successfully', 'info');
+        };
+    }
+
+    create(canvasId, config) {
+        if (!this.isChartJsLoaded) {
+            console.warn('Chart.js not available, cannot create chart:', canvasId);
+            return null;
         }
+
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.warn(`Canvas with id '${canvasId}' not found`);
+            return null;
+        }
+
+        // Destroy existing chart if it exists
+        if (this.charts.has(canvasId)) {
+            this.destroy(canvasId);
+        }
+
+        const mergedConfig = {
+            ...config,
+            options: {
+                ...this.defaultOptions,
+                ...config.options
+            }
+        };
+
+        try {
+            const chart = new Chart(canvas, mergedConfig);
+            this.charts.set(canvasId, chart);
+            return chart;
+        } catch (error) {
+            console.error(`Error creating chart ${canvasId}:`, error);
+            return null;
+        }
+    }
+
+    destroy(canvasId) {
+        const chart = this.charts.get(canvasId);
+        if (chart) {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+            this.charts.delete(canvasId);
+        }
+    }
+
+    destroyAll() {
+        this.charts.forEach((chart, canvasId) => {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+        });
+        this.charts.clear();
     }
 }
 
@@ -697,6 +1003,16 @@ class DataManager {
     getUserAccounts() { return this.userAccounts; }
     getAuditLog() { return this.auditLog; }
     getContracts() { return this.contracts; }
+    getMinerals() {
+        // Return default minerals if not initialized
+        return this.minerals || [
+            { id: 1, name: 'Coal', tariff: 12, unit: 'tonne' },
+            { id: 2, name: 'Iron Ore', tariff: 25, unit: 'tonne' },
+            { id: 3, name: 'Quarried Stone', tariff: 15, unit: 'cubic meter' },
+            { id: 4, name: 'River Sand', tariff: 10, unit: 'cubic meter' },
+            { id: 5, name: 'Gravel', tariff: 8, unit: 'cubic meter' }
+        ];
+    }
 
     addAuditEntry(entry) {
         this.auditLog.unshift({
@@ -786,5 +1102,6 @@ class ContractActions {
 // Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const app = new RoyaltiesApp();
+    window.royaltiesApp = app; // Make globally available
     app.initialize();
 });

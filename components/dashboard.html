@@ -1,178 +1,928 @@
 <div class="page-header">
   <div class="page-title">
-      <h1>📊 Executive Dashboard</h1>
-      <p>Real-time mining royalties overview and analytics for comprehensive business intelligence</p>
+    <h1>📊 Mining Royalties Dashboard</h1>
+    <p>Comprehensive overview of production, payments, compliance, and financial performance</p>
   </div>
   <div class="page-actions">
-      <button class="btn btn-info" id="refresh-dashboard-btn" title="Refresh all dashboard data">
-          <i class="fas fa-sync-alt"></i> Refresh Data
-      </button>
-      <button class="btn btn-secondary" id="export-dashboard-btn" title="Export dashboard report">
-          <i class="fas fa-file-export"></i> Export Report
-      </button>
-      <button class="btn btn-primary" id="customize-dashboard-btn" title="Customize dashboard layout">
-          <i class="fas fa-cog"></i> Customize
-      </button>
+    <button class="btn btn-info" id="refresh-dashboard-btn">
+      <i class="fas fa-sync-alt"></i> Refresh Data
+    </button>
+    <button class="btn btn-success" id="export-dashboard-btn">
+      <i class="fas fa-download"></i> Export Report
+    </button>
+    <button class="btn btn-secondary" id="customize-dashboard-btn">
+      <i class="fas fa-cog"></i> Customize View
+    </button>
+    <button class="btn btn-warning" id="forecast-btn">
+      <i class="fas fa-chart-line"></i> Forecast
+    </button>
   </div>
 </div>
 
-<!-- Key Performance Indicators -->
-<div class="charts-grid" id="kpi-metrics">
-  <div class="metric-card card">
-      <div class="card-header">
-          <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
-          <select class="metric-period" id="royalties-period">
-              <option value="current-month">This Month</option>
-              <option value="current-year" selected>This Year</option>
-              <option value="all-time">All Time</option>
-          </select>
-      </div>
-      <div class="card-body">
-          <p id="total-royalties">E 0</p>
-          <small id="royalties-trend" class="trend-positive">
-              <i class="fas fa-arrow-up"></i> +0%
-          </small>
-          <div class="mini-progress">
-              <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
-          </div>
-      </div>
-  </div>
-
-  <div class="metric-card card">
-      <div class="card-header">
-          <h3><i class="fas fa-industry"></i> Active Entities</h3>
-      </div>
-      <div class="card-body">
-          <p id="active-entities">0</p>
-          <small id="entities-trend" class="trend-positive">
-              <i class="fas fa-plus"></i> +0 new entities
-          </small>
-          <div class="entities-breakdown">
-              <span class="entity-type">Mines: <strong id="mines-count">0</strong></span> • 
-              <span class="entity-type">Quarries: <strong id="quarries-count">0</strong></span>
-          </div>
-      </div>
-  </div>
-
-  <div class="metric-card card">
-      <div class="card-header">
-          <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
-      </div>
-      <div class="card-body">
-          <p id="compliance-rate">0%</p>
-          <small id="compliance-trend" class="trend-positive">
-              <i class="fas fa-arrow-up"></i> +0%
-          </small>
-          <div class="compliance-breakdown">
-              <span class="entity-type text-success">Paid: <strong id="paid-count">0</strong></span> • 
-              <span class="entity-type text-warning">Pending: <strong id="pending-count">0</strong></span> • 
-              <span class="entity-type text-danger">Overdue: <strong id="overdue-count">0</strong></span>
-          </div>
-          <div class="mini-progress">
-              <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
-          </div>
-      </div>
-  </div>
-
-  <div class="metric-card card">
-      <div class="card-header">
-          <h3><i class="fas fa-exclamation-triangle"></i> Pending Approvals</h3>
-      </div>
-      <div class="card-body">
-          <p id="pending-approvals">0</p>
-          <small id="pending-text" class="trend-stable">
-              <i class="fas fa-clock"></i> No pending items
-          </small>
-          <div class="urgency-indicator">
-              <span class="urgent-badge" id="urgent-items" style="display: none;">
-                  <i class="fas fa-exclamation-circle"></i> Requires immediate attention
-              </span>
-          </div>
-      </div>
-  </div>
-</div>
-
-<!-- Quick Actions Dashboard -->
-<div class="card">
-  <div class="card-header">
-      <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-  </div>
+<!-- Time Period Selector -->
+<div class="card dashboard-filters">
   <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="time-period">Time Period:</label>
+        <select id="time-period" class="metric-period">
+          <option value="current-month">Current Month</option>
+          <option value="last-month">Last Month</option>
+          <option value="quarter">Current Quarter</option>
+          <option value="year">Current Year</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="entity-filter">Entity Filter:</label>
+        <select id="entity-filter">
+          <option value="all">All Entities</option>
+          <option value="mines">Mines Only</option>
+          <option value="quarries">Quarries Only</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="mineral-filter">Mineral Type:</label>
+        <select id="mineral-filter">
+          <option value="all">All Minerals</option>
+          <option value="coal">Coal</option>
+          <option value="iron-ore">Iron Ore</option>
+          <option value="stone">Quarried Stone</option>
+          <option value="sand">River Sand</option>
+          <option value="gravel">Gravel</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="apply-filters">Apply Filters</button>
+        <button class="btn btn-secondary btn-sm" id="reset-filters">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 1. PRODUCTION TRACKING & KPIs -->
+<div class="dashboard-section">
+  <h3 class="section-title"><i class="fas fa-industry"></i> Production Tracking & Key Performance Indicators</h3>
+  
+  <div class="charts-grid">
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-weight"></i> Total Production Volume</h3>
+      </div>
+      <div class="card-body">
+        <p id="total-production">0 tonnes</p>
+        <small id="production-trend" class="trend-positive">
+          <i class="fas fa-arrow-up"></i> +12% vs last period
+        </small>
+        <div class="production-breakdown">
+          <span>Coal: <strong id="coal-production">0t</strong></span>
+          <span>Iron Ore: <strong id="iron-production">0t</strong></span>
+          <span>Stone: <strong id="stone-production">0m³</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-chart-line"></i> Average Ore Grade</h3>
+      </div>
+      <div class="card-body">
+        <p id="avg-ore-grade">0%</p>
+        <small id="grade-trend" class="trend-stable">
+          <i class="fas fa-equals"></i> Consistent quality
+        </small>
+        <div class="grade-range">
+          <span>Range: <strong id="grade-range">0% - 0%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-dollar-sign"></i> Production Cost per Unit</h3>
+      </div>
+      <div class="card-body">
+        <p id="cost-per-unit">E 0</p>
+        <small id="cost-trend" class="trend-negative">
+          <i class="fas fa-arrow-down"></i> -5% cost reduction
+        </small>
+        <div class="cost-breakdown">
+          <span>Labor: <strong id="labor-cost">E 0</strong></span>
+          <span>Equipment: <strong id="equipment-cost">E 0</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-percentage"></i> Current Royalty Rate</h3>
+      </div>
+      <div class="card-body">
+        <p id="current-royalty-rate">0%</p>
+        <small class="trend-stable">
+          <i class="fas fa-info-circle"></i> Weighted average
+        </small>
+        <div class="rate-breakdown">
+          <span>Base Rate: <strong id="base-rate">0%</strong></span>
+          <span>Adjustments: <strong id="adjustments">E 0</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ROYALTY CALCULATION & PAYMENT TRACKING -->
+<div class="dashboard-section">
+  <h3 class="section-title"><i class="fas fa-calculator"></i> Royalty Calculation & Payment Tracking</h3>
+  
+  <div class="charts-grid">
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties Calculated</h3>
+      </div>
+      <div class="card-body">
+        <p id="total-royalties-calculated">E 0</p>
+        <small id="calculated-trend" class="trend-positive">
+          <i class="fas fa-arrow-up"></i> +8% this period
+        </small>
+        <div class="calculation-details">
+          <button class="btn btn-sm btn-info" onclick="showCalculationDetails()">
+            <i class="fas fa-eye"></i> View Calculation Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-check-circle"></i> Payments Received</h3>
+      </div>
+      <div class="card-body">
+        <p id="payments-received">E 0</p>
+        <small id="received-percentage" class="trend-positive">
+          <i class="fas fa-percentage"></i> 95% of calculated
+        </small>
+        <div class="payment-details">
+          <span>On Time: <strong id="ontime-payments">0</strong></span>
+          <span>Late: <strong id="late-payments">0</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Outstanding Payments</h3>
+      </div>
+      <div class="card-body">
+        <p id="outstanding-payments">E 0</p>
+        <small id="outstanding-count" class="trend-warning">
+          <i class="fas fa-clock"></i> 3 overdue payments
+        </small>
+        <div class="outstanding-actions">
+          <button class="btn btn-sm btn-warning" onclick="showOutstandingDetails()">
+            <i class="fas fa-list"></i> View Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-balance-scale"></i> Reconciliation Status</h3>
+      </div>
+      <div class="card-body">
+        <p id="reconciliation-status">98%</p>
+        <small class="trend-positive">
+          <i class="fas fa-check"></i> Reconciled
+        </small>
+        <div class="reconciliation-actions">
+          <button class="btn btn-sm btn-success" onclick="runReconciliation()">
+            <i class="fas fa-sync"></i> Run Reconciliation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Timeline Chart -->
+  <div class="card analytics-chart">
+    <div class="chart-header">
+      <h5><i class="fas fa-timeline"></i> Payment Timeline</h5>
+      <div class="chart-controls">
+        <select class="metric-period" id="payment-timeline-period">
+          <option value="6-months">Last 6 Months</option>
+          <option value="12-months">Last 12 Months</option>
+          <option value="24-months">Last 24 Months</option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="payment-timeline-chart"></canvas>
+    </div>
+    <div class="chart-summary">
+      <strong>Average Payment Time:</strong> <span id="avg-payment-time">15 days</span> | 
+      <strong>Payment Success Rate:</strong> <span id="payment-success-rate">95%</span>
+    </div>
+  </div>
+</div>
+
+<!-- 3. COMPLIANCE MONITORING -->
+<div class="dashboard-section">
+  <h3 class="section-title"><i class="fas fa-shield-alt"></i> Compliance Monitoring</h3>
+  
+  <div class="charts-grid">
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-percentage"></i> Overall Compliance Rate</h3>
+      </div>
+      <div class="card-body">
+        <p id="overall-compliance">92%</p>
+        <div class="mini-progress">
+          <div class="progress-bar" id="compliance-progress" style="width: 92%;"></div>
+        </div>
+        <div class="compliance-breakdown">
+          <span>Reporting: <strong id="reporting-compliance">95%</strong></span>
+          <span>Payment: <strong id="payment-compliance">89%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-bell"></i> Active Alerts</h3>
+      </div>
+      <div class="card-body">
+        <p id="active-alerts">5</p>
+        <small class="trend-warning">
+          <i class="fas fa-exclamation-triangle"></i> 2 high priority
+        </small>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-warning" onclick="showComplianceAlerts()">
+            <i class="fas fa-eye"></i> View Alerts
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-calendar-times"></i> Overdue Reports</h3>
+      </div>
+      <div class="card-body">
+        <p id="overdue-reports">2</p>
+        <small class="trend-negative">
+          <i class="fas fa-clock"></i> Due this week
+        </small>
+        <div class="report-actions">
+          <button class="btn btn-sm btn-danger" onclick="showOverdueReports()">
+            <i class="fas fa-file-alt"></i> View Reports
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-gavel"></i> Regulatory Updates</h3>
+      </div>
+      <div class="card-body">
+        <p id="regulatory-updates">3</p>
+        <small class="trend-info">
+          <i class="fas fa-info-circle"></i> New this month
+        </small>
+        <div class="regulatory-actions">
+          <button class="btn btn-sm btn-info" onclick="showRegulatoryUpdates()">
+            <i class="fas fa-book"></i> View Updates
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance Alerts -->
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-exclamation-triangle"></i> Compliance Alerts</h5>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-info" onclick="refreshComplianceAlerts()">
+          <i class="fas fa-sync"></i> Refresh
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="compliance-alerts" class="alerts-container">
+        <div class="alert-item urgent">
+          <div class="alert-icon">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <div class="alert-content">
+            <h6>Overdue Payment - Maloma Colliery</h6>
+            <p>Payment for ROY-2024-002 is 5 days overdue. Amount: E 10,200</p>
+            <small>Due Date: 2024-02-15 | Entity: Maloma Colliery</small>
+          </div>
+          <div class="alert-actions">
+            <button class="btn btn-sm btn-warning">Send Reminder</button>
+            <button class="btn btn-sm btn-info">View Details</button>
+          </div>
+        </div>
+        
+        <div class="alert-item warning">
+          <div class="alert-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="alert-content">
+            <h6>Missing Production Report</h6>
+            <p>Monthly production report not submitted by Ngwenya Mine</p>
+            <small>Due Date: 2024-02-28 | Status: 2 days overdue</small>
+          </div>
+          <div class="alert-actions">
+            <button class="btn btn-sm btn-warning">Request Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. FINANCIAL PERFORMANCE -->
+<div class="dashboard-section">
+  <h3 class="section-title"><i class="fas fa-chart-line"></i> Financial Performance Analysis</h3>
+  
+  <div class="charts-grid">
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-coins"></i> Total Royalty Revenue</h3>
+      </div>
+      <div class="card-body">
+        <p id="total-royalty-revenue">E 2,450,000</p>
+        <small id="revenue-trend" class="trend-positive">
+          <i class="fas fa-arrow-up"></i> +15% YoY growth
+        </small>
+        <div class="revenue-comparison">
+          <span>Target: <strong id="revenue-target">E 2,500,000</strong></span>
+          <span>Achievement: <strong id="revenue-achievement">98%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-chart-pie"></i> Revenue vs Production</h3>
+      </div>
+      <div class="card-body">
+        <p id="revenue-per-unit">E 15.2</p>
+        <small class="trend-stable">per tonne average</small>
+        <div class="efficiency-metrics">
+          <span>Efficiency: <strong id="revenue-efficiency">High</strong></span>
+          <span>Margin: <strong id="profit-margin">23%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-calendar-alt"></i> Monthly Performance</h3>
+      </div>
+      <div class="card-body">
+        <p id="monthly-performance">E 204,167</p>
+        <small id="monthly-vs-target" class="trend-positive">
+          <i class="fas fa-target"></i> 102% of monthly target
+        </small>
+        <div class="monthly-breakdown">
+          <span>Best Month: <strong id="best-month">January</strong></span>
+          <span>Growth Rate: <strong id="growth-rate">+8%</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-crystal-ball"></i> Forecast Accuracy</h3>
+      </div>
+      <div class="card-body">
+        <p id="forecast-accuracy">94%</p>
+        <small class="trend-positive">
+          <i class="fas fa-check"></i> Highly accurate
+        </small>
+        <div class="forecast-actions">
+          <button class="btn btn-sm btn-info" onclick="showForecastDetails()">
+            <i class="fas fa-chart-line"></i> View Forecast
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Performance Charts -->
+  <div class="charts-grid">
+    <div class="card analytics-chart">
+      <div class="chart-header">
+        <h5><i class="fas fa-chart-area"></i> Revenue Trends Over Time</h5>
+        <div class="chart-controls">
+          <button class="chart-btn active" data-chart-type="line">Monthly</button>
+          <button class="chart-btn" data-chart-type="bar">Quarterly</button>
+          <button class="chart-btn" data-chart-type="area">Yearly</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="revenue-trends-chart"></canvas>
+      </div>
+      <div class="chart-summary">
+        <strong>12-Month Total:</strong> E <span id="twelve-month-total">2,450,000</span> | 
+        <strong>Avg Monthly:</strong> E <span id="monthly-average">204,167</span>
+      </div>
+    </div>
+
+    <div class="card analytics-chart">
+      <div class="chart-header">
+        <h5><i class="fas fa-chart-pie"></i> Revenue by Entity</h5>
+        <div class="chart-controls">
+          <select class="metric-period">
+            <option value="current-month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="revenue-by-entity-chart"></canvas>
+      </div>
+      <div class="chart-summary">
+        <strong>Top Contributor:</strong> <span id="top-revenue-entity">Ngwenya Mine</span> | 
+        <strong>Contribution:</strong> <span id="top-contribution">35%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forecasting Tool -->
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-crystal-ball"></i> Royalty Revenue Forecasting</h5>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-primary" onclick="generateForecast()">
+          <i class="fas fa-play"></i> Generate Forecast
+        </button>
+        <button class="btn btn-sm btn-info" onclick="adjustForecastParameters()">
+          <i class="fas fa-cog"></i> Adjust Parameters
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="forecast-parameters">
+        <div class="parameter-group">
+          <label>Production Growth Rate:</label>
+          <input type="range" id="production-growth" min="-10" max="20" value="5">
+          <span id="production-growth-value">5%</span>
+        </div>
+        <div class="parameter-group">
+          <label>Price Adjustment:</label>
+          <input type="range" id="price-adjustment" min="-15" max="15" value="0">
+          <span id="price-adjustment-value">0%</span>
+        </div>
+        <div class="parameter-group">
+          <label>Forecast Period:</label>
+          <select id="forecast-period">
+            <option value="3">3 Months</option>
+            <option value="6">6 Months</option>
+            <option value="12" selected>12 Months</option>
+            <option value="24">24 Months</option>
+          </select>
+        </div>
+      </div>
+      <div class="forecast-results">
+        <div class="forecast-summary">
+          <h6>Projected Revenue (Next 12 Months)</h6>
+          <p class="forecast-amount">E <span id="forecast-amount">2,574,000</span></p>
+          <small class="forecast-confidence">Confidence Level: <strong id="confidence-level">85%</strong></small>
+        </div>
+        <div class="chart-container forecast-chart">
+          <canvas id="forecast-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Production vs Royalty Correlation -->
+<div class="charts-grid">
+  <div class="card analytics-chart">
+    <div class="chart-header">
+      <h5><i class="fas fa-chart-scatter"></i> Production vs Royalty Correlation</h5>
+    </div>
+    <div class="chart-container">
+      <canvas id="production-royalty-correlation"></canvas>
+    </div>
+  </div>
+
+  <div class="card analytics-chart">
+    <div class="chart-header">
+      <h5><i class="fas fa-chart-bar"></i> Mineral Performance Comparison</h5>
+    </div>
+    <div class="chart-container">
+      <canvas id="mineral-performance-chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity & Quick Actions -->
+<div class="charts-grid">
+  <!-- Recent Activity -->
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-history"></i> Recent Activity</h5>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-secondary" onclick="refreshRecentActivity()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="recent-activity" class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <div class="activity-content">
+            <p>Loading recent activity...</p>
+            <small>Please wait</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+    </div>
+    <div class="card-body">
       <div class="quick-actions-grid">
-          <button class="quick-action-btn" data-action="show-section" data-target="royalty-records">
-              <i class="fas fa-file-invoice-dollar"></i>
-              <span>View All Records</span>
-          </button>
-          <button class="quick-action-btn" data-action="add-record">
-              <i class="fas fa-plus"></i>
-              <span>Add New Record</span>
-          </button>
-          <button class="quick-action-btn" data-action="show-section" data-target="user-management">
-              <i class="fas fa-users"></i>
-              <span>Manage Users</span>
-          </button>
-          <button class="quick-action-btn" data-action="generate-report">
-              <i class="fas fa-chart-bar"></i>
-              <span>Monthly Report</span>
-          </button>
+        <button class="btn btn-primary quick-action-btn" onclick="addNewRecord()">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add Royalty Record</span>
+        </button>
+        <button class="btn btn-info quick-action-btn" onclick="runComplianceCheck()">
+          <i class="fas fa-shield-check"></i>
+          <span>Compliance Check</span>
+        </button>
+        <button class="btn btn-warning quick-action-btn" onclick="sendPaymentReminders()">
+          <i class="fas fa-envelope"></i>
+          <span>Send Reminders</span>
+        </button>
+        <button class="btn btn-success quick-action-btn" onclick="generateFinancialReport()">
+          <i class="fas fa-file-invoice-dollar"></i>
+          <span>Financial Report</span>
+        </button>
+        <button class="btn btn-secondary quick-action-btn" onclick="reconcilePayments()">
+          <i class="fas fa-balance-scale"></i>
+          <span>Reconcile Payments</span>
+        </button>
+        <button class="btn btn-dark quick-action-btn" onclick="viewRegulations()">
+          <i class="fas fa-book-open"></i>
+          <span>View Regulations</span>
+        </button>
       </div>
+    </div>
   </div>
 </div>
 
-<!-- Analytics Charts -->
-<div class="charts-grid">
-  <div class="analytics-chart card">
-      <div class="chart-header">
-          <h5><i class="fas fa-chart-line"></i> Revenue Trends</h5>
-          <div class="chart-controls">
-              <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">Line</button>
-              <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">Area</button>
-              <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">Bar</button>
-          </div>
-      </div>
-      <div class="chart-container">
-          <canvas id="revenue-trends-chart"></canvas>
-      </div>
-  </div>
+<!-- Dashboard Scripts -->
+<script>
+// Global functions for dashboard interactions
+function showOverduePayments() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Filtering to show overdue payments...', 'info');
+  }
+  setTimeout(() => {
+    if (window.royaltiesApp) {
+      window.royaltiesApp.showSection('royalty-records');
+    }
+  }, 1000);
+}
 
-  <div class="analytics-chart card">
-      <div class="chart-header">
-          <h5><i class="fas fa-chart-pie"></i> Production by Entity</h5>
-          <div class="chart-controls">
-              <button class="chart-btn active" id="entity-chart-refresh">Refresh</button>
-          </div>
-      </div>
-      <div class="chart-container">
-          <canvas id="production-by-entity-chart"></canvas>
-      </div>
-  </div>
-</div>
+function refreshRecentActivity() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Refreshing recent activity...', 'info');
+  }
+  if (window.royaltiesApp) {
+    window.royaltiesApp.updateRecentActivity();
+  }
+}
 
-<!-- Recent Activity and Alerts -->
-<div class="charts-grid">
-  <div class="card">
-      <div class="card-header">
-          <h5><i class="fas fa-history"></i> Recent Activity</h5>
-          <button class="btn btn-sm btn-secondary" id="view-all-activity">
-              View All <i class="fas fa-arrow-right"></i>
-          </button>
-      </div>
-      <div class="card-body">
-          <div id="recent-activity" class="activity-list">
-              <!-- Activity items will be populated dynamically -->
-          </div>
-      </div>
-  </div>
+// Update last system check time
+function updateSystemCheck() {
+  const element = document.getElementById('last-system-check');
+  if (element) {
+    element.textContent = new Date().toLocaleTimeString();
+  }
+}
 
-  <div class="card">
-      <div class="card-header">
-          <h5><i class="fas fa-bell"></i> System Alerts</h5>
-          <span class="alert-count" id="alert-count">0</span>
-      </div>
-      <div class="card-body">
-          <div id="system-alerts" class="alerts-container">
-              <!-- Alerts will be populated dynamically -->
-          </div>
-      </div>
-  </div>
-</div>
+// Initialize dashboard-specific features
+document.addEventListener('DOMContentLoaded', function() {
+  // Update system check time every minute
+  setInterval(updateSystemCheck, 60000);
+  updateSystemCheck();
+  
+  // Setup chart control handlers
+  const chartBtns = document.querySelectorAll('.chart-btn');
+  chartBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active class from siblings
+      this.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+      // Add active class to clicked button
+      this.classList.add('active');
+      
+      // Trigger chart update if needed
+      const chartId = this.dataset.chartId;
+      const chartType = this.dataset.chartType;
+      
+      if (window.notificationManager) {
+        window.notificationManager.show(`Switching to ${chartType} chart view`, 'info');
+      }
+    });
+  });
+  
+  // Setup period selector handlers
+  const periodSelectors = document.querySelectorAll('.metric-period');
+  periodSelectors.forEach(selector => {
+    selector.addEventListener('change', function() {
+      if (window.notificationManager) {
+        window.notificationManager.show(`Updating chart for ${this.value.replace('-', ' ')}`, 'info');
+      }
+    });
+  });
+  
+  // Forecast parameter sliders
+  const productionGrowth = document.getElementById('production-growth');
+  const priceAdjustment = document.getElementById('price-adjustment');
+  
+  if (productionGrowth) {
+    productionGrowth.addEventListener('input', function() {
+      document.getElementById('production-growth-value').textContent = this.value + '%';
+    });
+  }
+  
+  if (priceAdjustment) {
+    priceAdjustment.addEventListener('input', function() {
+      document.getElementById('price-adjustment-value').textContent = this.value + '%';
+    });
+  }
+  
+  // Filter application
+  document.getElementById('apply-filters')?.addEventListener('click', function() {
+    if (window.notificationManager) {
+      window.notificationManager.show('Applying dashboard filters...', 'info');
+    }
+  });
+  
+  document.getElementById('reset-filters')?.addEventListener('click', function() {
+    // Reset all filter controls
+    document.getElementById('time-period').value = 'current-month';
+    document.getElementById('entity-filter').value = 'all';
+    document.getElementById('mineral-filter').value = 'all';
+    
+    if (window.notificationManager) {
+      window.notificationManager.show('Dashboard filters reset', 'info');
+    }
+  });
+});
+
+// Enhanced dashboard functions
+function showCalculationDetails() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Opening royalty calculation breakdown...', 'info');
+  }
+}
+
+function showOutstandingDetails() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Displaying outstanding payments details...', 'info');
+  }
+}
+
+function runReconciliation() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Running payment reconciliation...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Reconciliation completed successfully', 'success');
+    }, 3000);
+  }
+}
+
+function showComplianceAlerts() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Loading compliance alerts...', 'info');
+  }
+}
+
+function showOverdueReports() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Displaying overdue reports...', 'warning');
+  }
+}
+
+function showRegulatoryUpdates() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Loading latest regulatory updates...', 'info');
+  }
+}
+
+function generateForecast() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Generating revenue forecast...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Forecast generated successfully', 'success');
+    }, 2000);
+  }
+}
+
+function adjustForecastParameters() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Forecast parameters updated', 'info');
+  }
+}
+
+function addNewRecord() {
+  if (window.royaltiesApp) {
+    window.royaltiesApp.showSection('royalty-records');
+  }
+}
+
+function runComplianceCheck() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Running compliance check...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Compliance check completed - 2 issues found', 'warning');
+    }, 2000);
+  }
+}
+
+function sendPaymentReminders() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Sending payment reminders to 3 entities...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Payment reminders sent successfully', 'success');
+    }, 1500);
+  }
+}
+
+function generateFinancialReport() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Generating comprehensive financial report...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Financial report generated and ready for download', 'success');
+    }, 3000);
+  }
+}
+
+function reconcilePayments() {
+  runReconciliation();
+}
+
+function viewRegulations() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Opening mining regulations database...', 'info');
+  }
+}
+
+// Enhanced dashboard functions with error handling
+function showOverduePayments() {
+  try {
+    if (window.notificationManager) {
+      window.notificationManager.show('Filtering to show overdue payments...', 'info');
+    }
+    setTimeout(() => {
+      if (window.royaltiesApp && typeof window.royaltiesApp.showSection === 'function') {
+        window.royaltiesApp.showSection('royalty-records');
+      }
+    }, 1000);
+  } catch (error) {
+    console.error('Error showing overdue payments:', error);
+  }
+}
+
+function refreshRecentActivity() {
+  try {
+    if (window.notificationManager) {
+      window.notificationManager.show('Refreshing recent activity...', 'info');
+    }
+    if (window.royaltiesApp && typeof window.royaltiesApp.updateRecentActivity === 'function') {
+      window.royaltiesApp.updateRecentActivity();
+    }
+  } catch (error) {
+    console.error('Error refreshing activity:', error);
+  }
+}
+
+// Initialize dashboard-specific features with error handling
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    // Setup chart control handlers
+    const chartBtns = document.querySelectorAll('.chart-btn');
+    chartBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        try {
+          // Remove active class from siblings
+          this.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Trigger chart update if needed
+          const chartId = this.dataset.chartId;
+          const chartType = this.dataset.chartType;
+          
+          if (window.notificationManager) {
+            window.notificationManager.show(`Switching to ${chartType} chart view`, 'info');
+          }
+        } catch (error) {
+          console.error('Error handling chart button click:', error);
+        }
+      });
+    });
+    
+    // Setup period selector handlers
+    const periodSelectors = document.querySelectorAll('.metric-period');
+    periodSelectors.forEach(selector => {
+      selector.addEventListener('change', function() {
+        try {
+          if (window.notificationManager) {
+            window.notificationManager.show(`Updating chart for ${this.value.replace('-', ' ')}`, 'info');
+          }
+        } catch (error) {
+          console.error('Error handling period selector change:', error);
+        }
+      });
+    });
+    
+    // Forecast parameter sliders
+    const productionGrowth = document.getElementById('production-growth');
+    const priceAdjustment = document.getElementById('price-adjustment');
+    
+    if (productionGrowth) {
+      productionGrowth.addEventListener('input', function() {
+        try {
+          const valueElement = document.getElementById('production-growth-value');
+          if (valueElement) {
+            valueElement.textContent = this.value + '%';
+          }
+        } catch (error) {
+          console.error('Error updating production growth value:', error);
+        }
+      });
+    }
+    
+    if (priceAdjustment) {
+      priceAdjustment.addEventListener('input', function() {
+        try {
+          const valueElement = document.getElementById('price-adjustment-value');
+          if (valueElement) {
+            valueElement.textContent = this.value + '%';
+          }
+        } catch (error) {
+          console.error('Error updating price adjustment value:', error);
+        }
+      });
+    }
+    
+    // Filter application with error handling
+    const applyFiltersBtn = document.getElementById('apply-filters');
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', function() {
+        try {
+          if (window.notificationManager) {
+            window.notificationManager.show('Applying dashboard filters...', 'info');
+          }
+        } catch (error) {
+          console.error('Error applying filters:', error);
+        }
+      });
+    }
+    
+    const resetFiltersBtn = document.getElementById('reset-filters');
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', function() {
+        try {
+          // Reset all filter controls
+          const timePeriod = document.getElementById('time-period');
+          const entityFilter = document.getElementById('entity-filter');
+          const mineralFilter = document.getElementById('mineral-filter');
+          
+          if (timePeriod) timePeriod.value = 'current-month';
+          if (entityFilter) entityFilter.value = 'all';
+          if (mineralFilter) mineralFilter.value = 'all';
+          
+          if (window.notificationManager) {
+            window.notificationManager.show('Dashboard filters reset', 'info');
+          }
+        } catch (error) {
+          console.error('Error resetting filters:', error);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error initializing dashboard:', error);
+  }
+});
+
+// ...existing enhanced dashboard functions with error handling...

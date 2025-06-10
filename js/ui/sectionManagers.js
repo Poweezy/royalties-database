@@ -5,6 +5,7 @@ export class DashboardManager {
         this.dataManager = dataManager;
         this.notificationManager = notificationManager;
         this.charts = {};
+        this.isInitialized = false;
     }
 
     async loadSection() {
@@ -12,150 +13,103 @@ export class DashboardManager {
         if (!section) return;
 
         try {
-            const template = await SectionLoader.loadTemplate('templates/dashboard.html');
-            if (template) {
+            // Try to load the comprehensive dashboard component first
+            const response = await fetch('components/dashboard.html');
+            if (response.ok) {
+                const template = await response.text();
                 section.innerHTML = template;
+                console.log('Loaded comprehensive dashboard component');
             } else {
+                console.log('Dashboard component not found, using fallback');
                 this.loadFallbackContent(section);
             }
         } catch (error) {
-            console.log('Loading dashboard template failed, using fallback');
+            console.log('Loading dashboard template failed, using fallback:', error);
             this.loadFallbackContent(section);
         }
 
-        this.updateMetrics();
-        this.setupCharts();
-        this.updateRecentActivity();
-        this.setupEventHandlers();
-        this.updateSystemAlerts();
+        // Initialize dashboard functionality
+        await this.initializeDashboard();
     }
 
     loadFallbackContent(section) {
         section.innerHTML = `
             <div class="page-header">
                 <div class="page-title">
-                    <h1>📊 Executive Dashboard</h1>
-                    <p>Real-time mining royalties overview and analytics for comprehensive business intelligence</p>
+                    <h1>📊 Mining Royalties Dashboard</h1>
+                    <p>Comprehensive overview of production, payments, compliance, and financial performance</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-info" id="refresh-dashboard-btn" title="Refresh all dashboard data">
+                    <button class="btn btn-info" id="refresh-dashboard-btn">
                         <i class="fas fa-sync-alt"></i> Refresh Data
                     </button>
-                    <button class="btn btn-secondary" id="export-dashboard-btn" title="Export dashboard report">
-                        <i class="fas fa-file-export"></i> Export Report
+                    <button class="btn btn-success" id="export-dashboard-btn">
+                        <i class="fas fa-download"></i> Export Report
                     </button>
-                    <button class="btn btn-primary" id="customize-dashboard-btn" title="Customize dashboard layout">
-                        <i class="fas fa-cog"></i> Customize
+                    <button class="btn btn-secondary" id="customize-dashboard-btn">
+                        <i class="fas fa-cog"></i> Customize View
                     </button>
                 </div>
             </div>
 
-            <!-- Key Performance Indicators -->
-            <div class="charts-grid" id="kpi-metrics">
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
-                        <select class="metric-period" id="royalties-period">
-                            <option value="current-month">This Month</option>
-                            <option value="current-year" selected>This Year</option>
-                            <option value="all-time">All Time</option>
-                        </select>
-                    </div>
-                    <div class="card-body">
-                        <p id="total-royalties">E 0</p>
-                        <small id="royalties-trend" class="trend-positive">
-                            <i class="fas fa-arrow-up"></i> +0%
-                        </small>
-                        <div class="mini-progress">
-                            <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
+            <!-- Production Tracking KPIs -->
+            <div class="dashboard-section">
+                <h3 class="section-title"><i class="fas fa-industry"></i> Production Tracking & Key Performance Indicators</h3>
+                
+                <div class="charts-grid">
+                    <div class="metric-card card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-weight"></i> Total Production Volume</h3>
+                        </div>
+                        <div class="card-body">
+                            <p id="total-production">0 tonnes</p>
+                            <small id="production-trend" class="trend-positive">
+                                <i class="fas fa-arrow-up"></i> +12% vs last period
+                            </small>
                         </div>
                     </div>
-                </div>
 
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-industry"></i> Active Entities</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="active-entities">0</p>
-                        <small id="entities-trend" class="trend-positive">
-                            <i class="fas fa-plus"></i> +0 new entities
-                        </small>
-                        <div class="entities-breakdown">
-                            <span class="entity-type">Mines: <strong id="mines-count">0</strong></span> • 
-                            <span class="entity-type">Quarries: <strong id="quarries-count">0</strong></span>
+                    <div class="metric-card card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-money-bill-wave"></i> Total Royalties Calculated</h3>
+                        </div>
+                        <div class="card-body">
+                            <p id="total-royalties-calculated">E 0</p>
+                            <small id="calculated-trend" class="trend-positive">
+                                <i class="fas fa-arrow-up"></i> +8% this period
+                            </small>
                         </div>
                     </div>
-                </div>
 
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="compliance-rate">0%</p>
-                        <small id="compliance-trend" class="trend-positive">
-                            <i class="fas fa-arrow-up"></i> +0%
-                        </small>
-                        <div class="compliance-breakdown">
-                            <span class="entity-type text-success">Paid: <strong id="paid-count">0</strong></span> • 
-                            <span class="entity-type text-warning">Pending: <strong id="pending-count">0</strong></span> • 
-                            <span class="entity-type text-danger">Overdue: <strong id="overdue-count">0</strong></span>
+                    <div class="metric-card card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-percentage"></i> Overall Compliance Rate</h3>
                         </div>
-                        <div class="mini-progress">
-                            <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
+                        <div class="card-body">
+                            <p id="overall-compliance">92%</p>
+                            <div class="mini-progress">
+                                <div class="progress-bar" id="compliance-progress" style="width: 92%;"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="metric-card card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Pending Approvals</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="pending-approvals">0</p>
-                        <small id="pending-text" class="trend-stable">
-                            <i class="fas fa-clock"></i> No pending items
-                        </small>
-                        <div class="urgency-indicator">
-                            <span class="urgent-badge" id="urgent-items" style="display: none;">
-                                <i class="fas fa-exclamation-circle"></i> Requires immediate attention
-                            </span>
+                    <div class="metric-card card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-coins"></i> Total Royalty Revenue</h3>
+                        </div>
+                        <div class="card-body">
+                            <p id="total-royalty-revenue">E 0</p>
+                            <small id="revenue-trend" class="trend-positive">
+                                <i class="fas fa-arrow-up"></i> +15% YoY growth
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions Dashboard -->
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-                </div>
-                <div class="card-body">
-                    <div class="quick-actions-grid">
-                        <button class="quick-action-btn" data-action="show-section" data-target="royalty-records">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>View All Records</span>
-                        </button>
-                        <button class="quick-action-btn" data-action="add-record">
-                            <i class="fas fa-plus"></i>
-                            <span>Add New Record</span>
-                        </button>
-                        <button class="quick-action-btn" data-action="show-section" data-target="user-management">
-                            <i class="fas fa-users"></i>
-                            <span>Manage Users</span>
-                        </button>
-                        <button class="quick-action-btn" data-action="generate-report">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Monthly Report</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analytics Charts -->
+            <!-- Charts Section -->
             <div class="charts-grid">
-                <div class="analytics-chart card">
+                <div class="card analytics-chart">
                     <div class="chart-header">
                         <h5><i class="fas fa-chart-line"></i> Revenue Trends</h5>
                         <div class="chart-controls">
@@ -169,12 +123,9 @@ export class DashboardManager {
                     </div>
                 </div>
 
-                <div class="analytics-chart card">
+                <div class="card analytics-chart">
                     <div class="chart-header">
                         <h5><i class="fas fa-chart-pie"></i> Production by Entity</h5>
-                        <div class="chart-controls">
-                            <button class="chart-btn active" id="entity-chart-refresh">Refresh</button>
-                        </div>
                     </div>
                     <div class="chart-container">
                         <canvas id="production-by-entity-chart"></canvas>
@@ -182,30 +133,21 @@ export class DashboardManager {
                 </div>
             </div>
 
-            <!-- Recent Activity and Alerts -->
-            <div class="charts-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-history"></i> Recent Activity</h5>
-                        <button class="btn btn-sm btn-secondary" id="view-all-activity">
-                            View All <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="recent-activity" class="activity-list">
-                            <!-- Activity items will be populated dynamically -->
-                        </div>
-                    </div>
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Activity</h5>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-bell"></i> System Alerts</h5>
-                        <span class="alert-count" id="alert-count">0</span>
-                    </div>
-                    <div class="card-body">
-                        <div id="system-alerts" class="alerts-container">
-                            <!-- Alerts will be populated dynamically -->
+                <div class="card-body">
+                    <div id="recent-activity" class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Loading recent activity...</p>
+                                <small>Please wait</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -213,55 +155,144 @@ export class DashboardManager {
         `;
     }
 
-    updateMetrics() {
+    async initializeDashboard() {
+        // Wait a moment for DOM to be ready
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Update all metrics and data
+        this.updateComprehensiveMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.setupEventHandlers();
+        this.setupComplianceAlerts();
+        this.setupForecastingTool();
+        
+        this.isInitialized = true;
+        console.log('Comprehensive dashboard initialized successfully');
+    }
+
+    updateComprehensiveMetrics() {
+        console.log('Updating comprehensive dashboard metrics...');
+        
         const royaltyRecords = this.dataManager.getRoyaltyRecords();
         const entities = this.dataManager.getEntities();
+        const minerals = this.dataManager.getMinerals();
         
-        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+        // Calculate comprehensive metrics
+        const metrics = this.calculateDashboardMetrics(royaltyRecords, entities, minerals);
+        
+        // Update all sections
+        this.updateProductionMetrics(metrics);
+        this.updateRoyaltyMetrics(metrics);
+        this.updateComplianceMetrics(metrics);
+        this.updateFinancialMetrics(metrics);
+        
+        console.log('Comprehensive metrics updated successfully');
+    }
+
+    calculateDashboardMetrics(records, entities, minerals) {
+        const totalRoyalties = records.reduce((sum, record) => sum + (record.royalties || 0), 0);
+        const totalProduction = records.reduce((sum, record) => sum + (record.volume || 0), 0);
         const activeEntities = entities.filter(e => e.status === 'Active').length;
-        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
-        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
-        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
-        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
+        const paidRecords = records.filter(r => r.status === 'Paid').length;
+        const pendingRecords = records.filter(r => r.status === 'Pending').length;
+        const overdueRecords = records.filter(r => r.status === 'Overdue').length;
+        const complianceRate = records.length > 0 ? Math.round((paidRecords / records.length) * 100) : 0;
         
-        // Update main metrics
-        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
-        this.updateElement('active-entities', activeEntities);
-        this.updateElement('compliance-rate', `${complianceRate}%`);
-        this.updateElement('pending-approvals', pendingRecords);
+        // Production breakdown by mineral type
+        const productionByMineral = records.reduce((acc, record) => {
+            if (record.mineral) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + (record.volume || 0);
+            }
+            return acc;
+        }, {});
         
-        // Update breakdowns
-        this.updateElement('mines-count', entities.filter(e => e.type === 'Mine').length);
-        this.updateElement('quarries-count', entities.filter(e => e.type === 'Quarry').length);
-        this.updateElement('paid-count', paidRecords);
-        this.updateElement('pending-count', pendingRecords);
-        this.updateElement('overdue-count', overdueRecords);
+        // Payment metrics
+        const paymentsReceived = records.filter(r => r.status === 'Paid')
+            .reduce((sum, record) => sum + (record.royalties || 0), 0);
+        const outstandingPayments = records.filter(r => r.status === 'Pending' || r.status === 'Overdue')
+            .reduce((sum, record) => sum + (record.royalties || 0), 0);
         
-        // Update progress bars
+        // Average metrics
+        const avgTariff = minerals.length > 0 ? 
+            minerals.reduce((sum, m) => sum + m.tariff, 0) / minerals.length : 0;
+        
+        return {
+            totalRoyalties,
+            totalProduction,
+            activeEntities,
+            paidRecords: paidRecords.length,
+            pendingRecords: pendingRecords.length,
+            overdueRecords: overdueRecords.length,
+            complianceRate,
+            productionByMineral,
+            paymentsReceived,
+            outstandingPayments,
+            avgTariff,
+            entities,
+            minerals
+        };
+    }
+
+    updateProductionMetrics(metrics) {
+        this.updateElement('total-production', `${metrics.totalProduction.toLocaleString()} tonnes`);
+        this.updateElement('coal-production', `${metrics.productionByMineral.Coal || 0}t`);
+        this.updateElement('iron-production', `${metrics.productionByMineral['Iron Ore'] || 0}t`);
+        this.updateElement('stone-production', `${metrics.productionByMineral['Quarried Stone'] || 0}m³`);
+        this.updateElement('avg-ore-grade', '78.5%');
+        this.updateElement('grade-range', '65% - 85%');
+        this.updateElement('cost-per-unit', `E ${(metrics.totalRoyalties / Math.max(metrics.totalProduction, 1) * 0.3).toFixed(2)}`);
+        this.updateElement('current-royalty-rate', `${metrics.avgTariff.toFixed(1)}%`);
+        this.updateElement('base-rate', `${metrics.avgTariff.toFixed(1)}%`);
+    }
+
+    updateRoyaltyMetrics(metrics) {
+        this.updateElement('total-royalties-calculated', `E ${metrics.totalRoyalties.toLocaleString()}`);
+        this.updateElement('payments-received', `E ${metrics.paymentsReceived.toLocaleString()}`);
+        this.updateElement('outstanding-payments', `E ${metrics.outstandingPayments.toLocaleString()}`);
+        this.updateElement('reconciliation-status', '98%');
+        this.updateElement('ontime-payments', metrics.paidRecords);
+        this.updateElement('late-payments', metrics.overdueRecords);
+        this.updateElement('outstanding-count', `${metrics.pendingRecords + metrics.overdueRecords} overdue payments`);
+        
+        if (metrics.totalRoyalties > 0) {
+            const receivedPercentage = Math.round((metrics.paymentsReceived / metrics.totalRoyalties) * 100);
+            this.updateElement('received-percentage', `${receivedPercentage}% of calculated`);
+        }
+    }
+
+    updateComplianceMetrics(metrics) {
+        this.updateElement('overall-compliance', `${metrics.complianceRate}%`);
+        this.updateElement('reporting-compliance', '95%');
+        this.updateElement('payment-compliance', `${metrics.complianceRate}%`);
+        this.updateElement('active-alerts', '5');
+        this.updateElement('overdue-reports', '2');
+        this.updateElement('regulatory-updates', '3');
+        
         const complianceProgress = document.getElementById('compliance-progress');
         if (complianceProgress) {
-            complianceProgress.style.width = `${complianceRate}%`;
+            complianceProgress.style.width = `${metrics.complianceRate}%`;
         }
+    }
+
+    updateFinancialMetrics(metrics) {
+        this.updateElement('total-royalty-revenue', `E ${metrics.totalRoyalties.toLocaleString()}`);
+        this.updateElement('revenue-per-unit', `E ${(metrics.totalRoyalties / Math.max(metrics.totalProduction, 1)).toFixed(2)}`);
+        this.updateElement('monthly-performance', `E ${Math.round(metrics.totalRoyalties / 12).toLocaleString()}`);
+        this.updateElement('forecast-accuracy', '94%');
         
-        const royaltiesProgress = document.getElementById('royalties-progress');
-        if (royaltiesProgress) {
-            const progressPercentage = Math.min((totalRoyalties / 200000) * 100, 100);
-            royaltiesProgress.style.width = `${progressPercentage}%`;
-        }
-        
-        // Update status text
-        this.updateElement('pending-text', pendingRecords > 0 ? 'Requires attention' : 'No pending items');
-        
-        // Show/hide urgent items
-        const urgentItems = document.getElementById('urgent-items');
-        if (urgentItems) {
-            urgentItems.style.display = overdueRecords > 0 ? 'block' : 'none';
-        }
+        const target = metrics.totalRoyalties * 1.02;
+        this.updateElement('revenue-target', `E ${target.toLocaleString()}`);
+        this.updateElement('revenue-achievement', `${Math.round((metrics.totalRoyalties / target) * 100)}%`);
+        this.updateElement('forecast-amount', (metrics.totalRoyalties * 1.05).toLocaleString());
+        this.updateElement('confidence-level', '85%');
     }
 
     updateElement(id, content) {
         const element = document.getElementById(id);
-        if (element) element.textContent = content;
+        if (element) {
+            element.textContent = content;
+        }
     }
 
     setupCharts() {
@@ -271,14 +302,23 @@ export class DashboardManager {
         });
         this.charts = {};
 
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not available, skipping chart initialization');
+            return;
+        }
+
         this.setupRevenueChart();
         this.setupProductionChart();
+        this.setupPaymentTimelineChart();
+        this.setupMineralPerformanceChart();
+        this.setupForecastChart();
         this.setupChartControls();
     }
 
     setupRevenueChart() {
         const revenueCtx = document.getElementById('revenue-trends-chart');
-        if (revenueCtx && typeof Chart !== 'undefined') {
+        if (revenueCtx) {
             this.charts.revenueTrends = new Chart(revenueCtx, {
                 type: 'line',
                 data: {
@@ -313,7 +353,7 @@ export class DashboardManager {
 
     setupProductionChart() {
         const productionCtx = document.getElementById('production-by-entity-chart');
-        if (productionCtx && typeof Chart !== 'undefined') {
+        if (productionCtx) {
             const royaltyRecords = this.dataManager.getRoyaltyRecords();
             const entityData = royaltyRecords.reduce((acc, record) => {
                 acc[record.entity] = (acc[record.entity] || 0) + record.volume;
@@ -341,6 +381,138 @@ export class DashboardManager {
         }
     }
 
+    setupPaymentTimelineChart() {
+        const canvas = document.getElementById('payment-timeline-chart');
+        if (canvas) {
+            this.charts.paymentTimeline = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Payments Received',
+                        data: [85000, 92000, 88000, 95000, 91000, 98000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Payments Due',
+                        data: [90000, 95000, 90000, 98000, 93000, 100000],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    setupMineralPerformanceChart() {
+        const canvas = document.getElementById('mineral-performance-chart');
+        if (canvas) {
+            const records = this.dataManager.getRoyaltyRecords();
+            const mineralData = this.aggregateMineralPerformance(records);
+            
+            this.charts.mineralPerformance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: mineralData.labels,
+                    datasets: [{
+                        label: 'Revenue (E)',
+                        data: mineralData.revenue,
+                        backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2', '#d4af37']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    setupForecastChart() {
+        const canvas = document.getElementById('forecast-chart');
+        if (canvas) {
+            this.charts.forecast = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Historical',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000, null, null, null, null, null, null],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Forecast',
+                        data: [null, null, null, null, null, 67000, 69000, 71000, 68000, 73000, 75000, 77000],
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    aggregateMineralPerformance(records) {
+        const mineralRevenue = records.reduce((acc, record) => {
+            if (record.mineral && record.royalties) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+            }
+            return acc;
+        }, {});
+        
+        return {
+            labels: Object.keys(mineralRevenue),
+            revenue: Object.values(mineralRevenue)
+        };
+    }
+
     setupChartControls() {
         const chartButtons = document.querySelectorAll('.chart-btn');
         chartButtons.forEach(btn => {
@@ -358,15 +530,6 @@ export class DashboardManager {
                 }
             });
         });
-        
-        // Entity chart refresh
-        const refreshBtn = document.getElementById('entity-chart-refresh');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                this.setupProductionChart();
-                this.notificationManager.show('Production chart refreshed', 'success');
-            });
-        }
     }
 
     updateChartType(chart, type) {
@@ -386,6 +549,177 @@ export class DashboardManager {
         chart.update();
     }
 
+    setupComplianceAlerts() {
+        const alertsContainer = document.getElementById('compliance-alerts');
+        if (!alertsContainer) return;
+        
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue');
+        
+        if (overdueRecords.length > 0) {
+            let alertsHTML = overdueRecords.map(record => `
+                <div class="alert-item urgent">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h6>Overdue Payment - ${record.entity}</h6>
+                        <p>Payment for ${record.referenceNumber} is overdue. Amount: E ${record.royalties.toLocaleString()}</p>
+                        <small>Due Date: ${record.date} | Entity: ${record.entity}</small>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-warning">Send Reminder</button>
+                        <button class="btn btn-sm btn-info">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            alertsContainer.innerHTML = alertsHTML;
+        } else {
+            alertsContainer.innerHTML = `
+                <div class="alert-item info">
+                    <div class="alert-content">
+                        <p>No compliance alerts at this time</p>
+                        <small>All payments are current and compliant</small>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    setupForecastingTool() {
+        const productionGrowth = document.getElementById('production-growth');
+        const priceAdjustment = document.getElementById('price-adjustment');
+        
+        if (productionGrowth) {
+            productionGrowth.addEventListener('input', () => {
+                this.updateForecast();
+            });
+        }
+        
+        if (priceAdjustment) {
+            priceAdjustment.addEventListener('input', () => {
+                this.updateForecast();
+            });
+        }
+        
+        this.updateForecast();
+    }
+
+    updateForecast() {
+        const productionGrowth = document.getElementById('production-growth')?.value || 5;
+        const priceAdjustment = document.getElementById('price-adjustment')?.value || 0;
+        const forecastPeriod = document.getElementById('forecast-period')?.value || 12;
+        
+        const currentRevenue = this.dataManager.getRoyaltyRecords()
+            .reduce((sum, record) => sum + (record.royalties || 0), 0);
+        
+        const growthFactor = (100 + parseFloat(productionGrowth)) / 100;
+        const priceFactor = (100 + parseFloat(priceAdjustment)) / 100;
+        const periodFactor = parseInt(forecastPeriod) / 12;
+        
+        const forecastAmount = Math.round(currentRevenue * growthFactor * priceFactor * periodFactor);
+        
+        this.updateElement('forecast-amount', forecastAmount.toLocaleString());
+        
+        const volatility = Math.abs(parseFloat(productionGrowth)) + Math.abs(parseFloat(priceAdjustment));
+        const confidence = Math.max(60, 95 - volatility * 2);
+        this.updateElement('confidence-level', `${Math.round(confidence)}%`);
+    }
+
+    setupEventHandlers() {
+        this.setupActionButtons();
+        this.setupFilterHandlers();
+        
+        const periodSelectors = document.querySelectorAll('.metric-period');
+        periodSelectors.forEach(selector => {
+            selector.addEventListener('change', () => {
+                this.updateComprehensiveMetrics();
+                this.notificationManager.show(`Updated for ${selector.value.replace('-', ' ')}`, 'success');
+            });
+        });
+    }
+
+    setupActionButtons() {
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshDashboard();
+            });
+        }
+        
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportDashboard();
+            });
+        }
+        
+        const customizeBtn = document.getElementById('customize-dashboard-btn');
+        if (customizeBtn) {
+            customizeBtn.addEventListener('click', () => {
+                this.notificationManager.show('Dashboard customization panel would open here', 'info');
+            });
+        }
+    }
+
+    setupFilterHandlers() {
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', () => {
+                this.applyDashboardFilters();
+            });
+        }
+        
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => {
+                this.resetDashboardFilters();
+            });
+        }
+    }
+
+    applyDashboardFilters() {
+        const timePeriod = document.getElementById('time-period')?.value;
+        const entityFilter = document.getElementById('entity-filter')?.value;
+        const mineralFilter = document.getElementById('mineral-filter')?.value;
+        
+        this.notificationManager.show(`Applied filters: ${timePeriod}, ${entityFilter}, ${mineralFilter}`, 'info');
+        this.updateComprehensiveMetrics();
+        this.setupCharts();
+    }
+
+    resetDashboardFilters() {
+        const timeSelect = document.getElementById('time-period');
+        const entitySelect = document.getElementById('entity-filter');
+        const mineralSelect = document.getElementById('mineral-filter');
+        
+        if (timeSelect) timeSelect.value = 'current-month';
+        if (entitySelect) entitySelect.value = 'all';
+        if (mineralSelect) mineralSelect.value = 'all';
+        
+        this.notificationManager.show('Dashboard filters reset', 'info');
+        this.updateComprehensiveMetrics();
+        this.setupCharts();
+    }
+
+    refreshDashboard() {
+        this.updateComprehensiveMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.setupComplianceAlerts();
+        this.notificationManager.show('Comprehensive dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting comprehensive dashboard report...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard report exported successfully with all sections', 'success');
+        }, 2000);
+    }
+
     updateRecentActivity() {
         const activityContainer = document.getElementById('recent-activity');
         if (!activityContainer) return;
@@ -394,7 +728,17 @@ export class DashboardManager {
         const recentEntries = auditLog.slice(0, 5);
         
         if (recentEntries.length === 0) {
-            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
+            activityContainer.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>No recent activity to display</p>
+                        <small>System activity will appear here</small>
+                    </div>
+                </div>
+            `;
             return;
         }
         
@@ -423,137 +767,12 @@ export class DashboardManager {
         return iconMap[action] || 'circle';
     }
 
-    setupEventHandlers() {
-        // Dashboard action buttons
-        const refreshBtn = document.getElementById('refresh-dashboard-btn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                this.refreshDashboard();
-            });
-        }
-        
-        const exportBtn = document.getElementById('export-dashboard-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportDashboard();
-            });
-        }
-        
-        const customizeBtn = document.getElementById('customize-dashboard-btn');
-        if (customizeBtn) {
-            customizeBtn.addEventListener('click', () => {
-                this.notificationManager.show('Dashboard customization options would be available here', 'info');
-            });
-        }
-        
-        // Quick action buttons
-        const quickActionBtns = document.querySelectorAll('.quick-action-btn');
-        quickActionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const action = btn.dataset.action;
-                const target = btn.dataset.target;
-                
-                switch(action) {
-                    case 'show-section':
-                        document.dispatchEvent(new CustomEvent('sectionChange', {
-                            detail: { sectionId: target }
-                        }));
-                        break;
-                    case 'add-record':
-                        this.notificationManager.show('Add record form would open here', 'info');
-                        break;
-                    case 'generate-report':
-                        this.generateMonthlyReport();
-                        break;
-                }
-            });
-        });
-        
-        // View all activity button
-        const viewAllBtn = document.getElementById('view-all-activity');
-        if (viewAllBtn) {
-            viewAllBtn.addEventListener('click', () => {
-                document.dispatchEvent(new CustomEvent('sectionChange', {
-                    detail: { sectionId: 'audit-dashboard' }
-                }));
-            });
-        }
-        
-        // Period selector
-        const periodSelector = document.getElementById('royalties-period');
-        if (periodSelector) {
-            periodSelector.addEventListener('change', () => {
-                this.updateMetrics();
-                this.notificationManager.show('Dashboard updated for selected period', 'success');
-            });
-        }
-    }
-
-    refreshDashboard() {
-        this.updateMetrics();
-        this.setupCharts();
-        this.updateRecentActivity();
-        this.notificationManager.show('Dashboard refreshed successfully', 'success');
-    }
-
-    exportDashboard() {
-        this.notificationManager.show('Exporting dashboard report...', 'info');
-        
-        setTimeout(() => {
-            this.notificationManager.show('Dashboard report exported successfully', 'success');
-        }, 2000);
-    }
-
-    generateMonthlyReport() {
-        this.notificationManager.show('Generating monthly report...', 'info');
-        
-        setTimeout(() => {
-            this.notificationManager.show('Monthly report generated successfully', 'success');
-        }, 2000);
-    }
-
-    updateSystemAlerts() {
-        const alertsContainer = document.getElementById('system-alerts');
-        const alertCount = document.getElementById('alert-count');
-        
-        if (!alertsContainer || !alertCount) return;
-        
-        const alerts = [
-            {
-                type: 'warning',
-                title: 'Payment Overdue',
-                message: 'Ngwenya Mine payment is 5 days overdue',
-                time: '2 hours ago'
-            },
-            {
-                type: 'info',
-                title: 'Monthly Report Ready',
-                message: 'January royalties report is available for review',
-                time: '4 hours ago'
-            }
-        ];
-        
-        alertCount.textContent = alerts.length;
-        
-        alertsContainer.innerHTML = alerts.map(alert => `
-            <div class="alert-item ${alert.type}">
-                <div class="alert-icon">
-                    <i class="fas fa-${alert.type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                </div>
-                <div class="alert-content">
-                    <h6>${alert.title}</h6>
-                    <p>${alert.message}</p>
-                    <small>${alert.time}</small>
-                </div>
-            </div>
-        `).join('');
-    }
-
     destroy() {
         Object.values(this.charts).forEach(chart => {
             if (chart && typeof chart.destroy === 'function') chart.destroy();
         });
         this.charts = {};
+        this.isInitialized = false;
     }
 }
 

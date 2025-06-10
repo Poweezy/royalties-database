@@ -6,9 +6,24 @@ export class SectionLoader {
             if (response.ok) {
                 return await response.text();
             }
+            console.warn(`Template not found: ${templatePath}`);
             return null;
         } catch (error) {
-            console.log(`Failed to load template: ${templatePath}`);
+            console.error(`Error loading template ${templatePath}:`, error);
+            return null;
+        }
+    }
+
+    static async loadComponent(componentPath) {
+        try {
+            const response = await fetch(componentPath);
+            if (response.ok) {
+                return await response.text();
+            }
+            console.warn(`Component not found: ${componentPath}`);
+            return null;
+        } catch (error) {
+            console.error(`Error loading component ${componentPath}:`, error);
             return null;
         }
     }

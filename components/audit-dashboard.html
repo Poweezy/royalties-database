@@ -1,0 +1,436 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>🛡️ Audit Dashboard</h1>
+    <p>Comprehensive audit trail and security monitoring for the mining royalties system</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="refresh-audit-btn">
+      <i class="fas fa-sync-alt"></i> Refresh Data
+    </button>
+    <button class="btn btn-success" id="export-audit-btn">
+      <i class="fas fa-download"></i> Export Audit Log
+    </button>
+    <button class="btn btn-warning" id="security-scan-btn">
+      <i class="fas fa-shield-alt"></i> Security Scan
+    </button>
+  </div>
+</div>
+
+<!-- Audit Filters -->
+<div class="card dashboard-filters">
+  <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="audit-date-range">Date Range:</label>
+        <select id="audit-date-range">
+          <option value="today">Today</option>
+          <option value="week">Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="quarter">Last Quarter</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="audit-user-filter">User Filter:</label>
+        <select id="audit-user-filter">
+          <option value="all">All Users</option>
+          <option value="admin">Administrators</option>
+          <option value="editor">Editors</option>
+          <option value="viewer">Viewers</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="audit-action-filter">Action Type:</label>
+        <select id="audit-action-filter">
+          <option value="all">All Actions</option>
+          <option value="login">Login/Logout</option>
+          <option value="create">Create Records</option>
+          <option value="update">Update Records</option>
+          <option value="delete">Delete Records</option>
+          <option value="export">Data Export</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="apply-audit-filters">Apply Filters</button>
+        <button class="btn btn-secondary btn-sm" id="reset-audit-filters">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Summary Metrics -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-users"></i> Active Users (24h)</h3>
+    </div>
+    <div class="card-body">
+      <p id="active-users-24h">12</p>
+      <small class="trend-positive">
+        <i class="fas fa-arrow-up"></i> +3 from yesterday
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-sign-in-alt"></i> Login Attempts</h3>
+    </div>
+    <div class="card-body">
+      <p id="login-attempts">45</p>
+      <small class="trend-stable">
+        <i class="fas fa-check-circle"></i> 43 successful, 2 failed
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-database"></i> Data Access Events</h3>
+    </div>
+    <div class="card-body">
+      <p id="data-access-events">156</p>
+      <small class="trend-info">
+        <i class="fas fa-eye"></i> View: 120, Edit: 25, Export: 11
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Security Alerts</h3>
+    </div>
+    <div class="card-body">
+      <p id="security-alerts">3</p>
+      <small class="trend-warning">
+        <i class="fas fa-shield-alt"></i> 1 high, 2 medium priority
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Security Status Overview -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-shield-check"></i> Security Status Overview</h5>
+    <div class="card-actions">
+      <button class="btn btn-sm btn-info" onclick="runSecurityScan()">
+        <i class="fas fa-search"></i> Run Security Scan
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="charts-grid">
+      <div class="security-metric">
+        <h6>System Integrity</h6>
+        <div class="mini-progress">
+          <div class="progress-bar" style="width: 98%; background: var(--success-color);"></div>
+        </div>
+        <small>98% - Excellent</small>
+      </div>
+      <div class="security-metric">
+        <h6>Access Control</h6>
+        <div class="mini-progress">
+          <div class="progress-bar" style="width: 95%; background: var(--success-color);"></div>
+        </div>
+        <small>95% - Very Good</small>
+      </div>
+      <div class="security-metric">
+        <h6>Data Protection</h6>
+        <div class="mini-progress">
+          <div class="progress-bar" style="width: 92%; background: var(--warning-color);"></div>
+        </div>
+        <small>92% - Good</small>
+      </div>
+      <div class="security-metric">
+        <h6>Compliance Score</h6>
+        <div class="mini-progress">
+          <div class="progress-bar" style="width: 88%; background: var(--warning-color);"></div>
+        </div>
+        <small>88% - Needs Attention</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Audit Events -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-history"></i> Recent Audit Events</h5>
+    <div class="card-actions">
+      <button class="btn btn-sm btn-secondary" onclick="refreshAuditEvents()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>IP Address</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="audit-events-table">
+          <tr>
+            <td>2024-02-10 15:30:25</td>
+            <td>admin</td>
+            <td>Login</td>
+            <td>System</td>
+            <td>192.168.1.100</td>
+            <td><span class="status-badge paid">Success</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(1)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>2024-02-10 15:28:12</td>
+            <td>editor</td>
+            <td>Update Record</td>
+            <td>ROY-2024-002</td>
+            <td>192.168.1.101</td>
+            <td><span class="status-badge paid">Success</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(2)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>2024-02-10 15:25:45</td>
+            <td>unknown</td>
+            <td>Failed Login</td>
+            <td>System</td>
+            <td>203.45.67.89</td>
+            <td><span class="status-badge overdue">Failed</span></td>
+            <td>
+              <button class="btn btn-sm btn-warning" onclick="investigateFailedLogin(3)">
+                <i class="fas fa-search"></i>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>2024-02-10 15:20:33</td>
+            <td>viewer</td>
+            <td>Export Data</td>
+            <td>Royalty Records</td>
+            <td>192.168.1.102</td>
+            <td><span class="status-badge paid">Success</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(4)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>2024-02-10 15:18:17</td>
+            <td>admin</td>
+            <td>Create User</td>
+            <td>newuser</td>
+            <td>192.168.1.100</td>
+            <td><span class="status-badge paid">Success</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(5)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Security Alerts -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-exclamation-triangle"></i> Security Alerts</h5>
+    <div class="card-actions">
+      <button class="btn btn-sm btn-warning" onclick="acknowledgeAllAlerts()">
+        <i class="fas fa-check"></i> Acknowledge All
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="alerts-container">
+      <div class="alert-item urgent">
+        <div class="alert-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Multiple Failed Login Attempts</h6>
+          <p>5 consecutive failed login attempts detected from IP 203.45.67.89</p>
+          <small>Detected: 2024-02-10 15:25:45 | Risk Level: High</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-danger" onclick="blockIpAddress('203.45.67.89')">Block IP</button>
+          <button class="btn btn-sm btn-info" onclick="investigateIp('203.45.67.89')">Investigate</button>
+        </div>
+      </div>
+      
+      <div class="alert-item warning">
+        <div class="alert-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Unusual Access Pattern</h6>
+          <p>User 'viewer' accessed system outside normal hours (02:30 AM)</p>
+          <small>Detected: 2024-02-10 02:30:15 | Risk Level: Medium</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-warning" onclick="contactUser('viewer')">Contact User</button>
+          <button class="btn btn-sm btn-info" onclick="reviewUserActivity('viewer')">Review Activity</button>
+        </div>
+      </div>
+      
+      <div class="alert-item warning">
+        <div class="alert-icon">
+          <i class="fas fa-download"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Large Data Export</h6>
+          <p>User 'editor' exported 500+ records in single operation</p>
+          <small>Detected: 2024-02-10 14:45:20 | Risk Level: Medium</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-info" onclick="reviewExport('editor', 'export-001')">Review Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Configuration -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-cogs"></i> Audit Configuration</h5>
+  </div>
+  <div class="card-body">
+    <div class="charts-grid">
+      <div class="config-section">
+        <h6>Retention Policy</h6>
+        <p>Audit logs are retained for <strong>365 days</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Alert Thresholds</h6>
+        <p>Failed logins: <strong>3 attempts</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Monitoring Level</h6>
+        <p>Current level: <strong>Comprehensive</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Backup Status</h6>
+        <p>Last backup: <strong>2024-02-10 00:00:00</strong></p>
+        <button class="btn btn-sm btn-success">Backup Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Audit Dashboard Functions
+function runSecurityScan() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Running comprehensive security scan...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Security scan completed - 2 issues found', 'warning');
+    }, 3000);
+  }
+}
+
+function refreshAuditEvents() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Refreshing audit events...', 'info');
+  }
+}
+
+function viewAuditDetails(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Viewing details for audit event ${eventId}`, 'info');
+  }
+}
+
+function investigateFailedLogin(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Investigating failed login attempt ${eventId}`, 'warning');
+  }
+}
+
+function blockIpAddress(ip) {
+  if (confirm(`Are you sure you want to block IP address ${ip}?`)) {
+    if (window.notificationManager) {
+      window.notificationManager.show(`IP address ${ip} has been blocked`, 'success');
+    }
+  }
+}
+
+function investigateIp(ip) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Opening investigation for IP ${ip}`, 'info');
+  }
+}
+
+function contactUser(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Contacting user ${username}...`, 'info');
+  }
+}
+
+function reviewUserActivity(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing activity for user ${username}`, 'info');
+  }
+}
+
+function reviewExport(username, exportId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing export ${exportId} by ${username}`, 'info');
+  }
+}
+
+function acknowledgeAllAlerts() {
+  if (confirm('Are you sure you want to acknowledge all security alerts?')) {
+    if (window.notificationManager) {
+      window.notificationManager.show('All security alerts acknowledged', 'success');
+    }
+  }
+}
+
+// Initialize audit dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  // Setup filter handlers
+  const applyFiltersBtn = document.getElementById('apply-audit-filters');
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', function() {
+      if (window.notificationManager) {
+        window.notificationManager.show('Applying audit filters...', 'info');
+      }
+    });
+  }
+  
+  const resetFiltersBtn = document.getElementById('reset-audit-filters');
+  if (resetFiltersBtn) {
+    resetFiltersBtn.addEventListener('click', function() {
+      document.getElementById('audit-date-range').value = 'week';
+      document.getElementById('audit-user-filter').value = 'all';
+      document.getElementById('audit-action-filter').value = 'all';
+      
+      if (window.notificationManager) {
+        window.notificationManager.show('Audit filters reset', 'info');
+      }
+    });
+  }
+});
+</script>

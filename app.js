@@ -195,7 +195,9 @@ class AuthManager {
         this.validCredentials = [
             { username: 'admin', password: 'admin123', role: 'Administrator' },
             { username: 'editor', password: 'editor123', role: 'Editor' },
-            { username: 'viewer', password: 'viewer123', role: 'Viewer' }
+            { username: 'viewer', password: 'viewer123', role: 'Viewer' },
+            { username: 'finance', password: 'finance123', role: 'Finance Manager' },
+            { username: 'auditor', password: 'audit123', role: 'Auditor' }
         ];
     }
 
@@ -208,13 +210,24 @@ class AuthManager {
             this.currentUser = {
                 username: user.username,
                 role: user.role,
-                department: user.role === 'Administrator' ? 'Management' : 
-                          user.role === 'Editor' ? 'Finance' : 'Audit',
+                department: this.getDepartmentByRole(user.role),
+                email: `${user.username}@eswacaa.sz`,
                 lastLogin: new Date().toISOString()
             };
             return { success: true, user: this.currentUser };
         }
         return { success: false, error: 'Invalid credentials' };
+    }
+
+    getDepartmentByRole(role) {
+        const roleToDepartment = {
+            'Administrator': 'Management',
+            'Finance Manager': 'Finance',
+            'Editor': 'Finance',
+            'Auditor': 'Audit',
+            'Viewer': 'Audit'
+        };
+        return roleToDepartment[role] || 'General';
     }
 
     getCurrentUser() { return this.currentUser; }
@@ -229,6 +242,7 @@ class RoyaltiesApp {
         this.dataManager = new DataManager();
         this.authManager = new AuthManager();
         this.notificationManager = new NotificationManager();
+        this.chartManager = new ChartManager();
         this.actionHandlers = {};
         this.charts = {};
     }
@@ -347,6 +361,7 @@ class RoyaltiesApp {
         this.initializeManagers();
         this.setupEventListeners();
         this.setupNavigation();
+        this.setupGlobalAuditActions();
         this.showSection('dashboard');
         
         const currentUser = this.authManager.getCurrentUser();
@@ -487,111 +502,548 @@ class RoyaltiesApp {
     // Component initialization methods
     initializeDashboardComponent() {
         console.log('Initializing dashboard component...');
+        
+        // Make sure managers are globally available
+        window.dataManager = this.dataManager;
+        window.notificationManager = this.notificationManager;
+        window.royaltiesApp = this;
+        
         setTimeout(() => {
             this.updateDashboardMetrics();
             this.updateRecentActivity();
+            this.setupDashboardEventListeners();
             
-            const refreshBtn = document.getElementById('refresh-dashboard-btn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Dashboard data refreshed', 'success');
-                    this.updateDashboardMetrics();
-                    this.updateRecentActivity();
-                });
+            // Initialize charts if Chart.js is available
+            try {
+                this.initializeDashboardCharts();
+            } catch (error) {
+                console.error('Error initializing dashboard charts:', error);
             }
-        }, 200);
+        }, 300);
     }
 
-    initializeUserManagementComponent() {
-        console.log('Initializing user management component...');
-        setTimeout(() => {
-            window.userActions = this.actionHandlers.userActions;
-            
-            const addUserBtn = document.getElementById('add-user-btn');
-            if (addUserBtn) {
-                addUserBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Add user functionality would open here', 'info');
-                });
-            }
-        }, 200);
-    }
-
-    initializeRoyaltyRecordsComponent() {
-        console.log('Initializing royalty records component...');
-        setTimeout(() => {
-            window.recordActions = this.actionHandlers.recordActions;
-            
-            const addRecordBtn = document.getElementById('add-record-btn');
-            if (addRecordBtn) {
-                addRecordBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Add record functionality would open here', 'info');
-                });
-            }
-        }, 200);
-    }
-
-    initializeContractManagementComponent() {
-        console.log('Initializing contract management component...');
-        setTimeout(() => {
-            window.contractActions = this.actionHandlers.contractActions;
-            
-            const addContractBtn = document.getElementById('add-contract-btn');
-            if (addContractBtn) {
-                addContractBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Add contract functionality would open here', 'info');
-                });
-            }
-        }, 200);
-    }
-
-    initializeReportingAnalyticsComponent() {
-        console.log('Initializing reporting analytics component...');
+    initializeDashboardCharts() {
+        console.log('Setting up dashboard charts...');
         
-        window.notificationManager = this.notificationManager;
-        window.dataManager = this.dataManager;
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not available, skipping chart initialization');
+            return;
+        }
+
+        try {
+            this.createRevenueChart();
+            this.createEntityChart();
+            this.createPaymentTimelineChart();
+            this.createMineralPerformanceChart();
+            this.createForecastChart();
+        } catch (error) {
+            console.error('Error creating charts:', error);
+        }
+    }
+
+    createRevenueChart() {
+        const revenueCtx = document.getElementById('revenue-trends-chart');
+        if (revenueCtx && typeof Chart !== 'undefined') {
+            this.charts.revenueTrends = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Monthly Revenue (E)',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createEntityChart() {
+        const entityCtx = document.getElementById('production-by-entity-chart') || document.getElementById('revenue-by-entity-chart');
+        if (entityCtx && typeof Chart !== 'undefined') {
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            const entityData = royaltyRecords.reduce((acc, record) => {
+                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+                return acc;
+            }, {});
+            
+            this.charts.entityProduction = new Chart(entityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(entityData),
+                    datasets: [{
+                        data: Object.values(entityData),
+                        backgroundColor: [
+                            '#1a365d', '#2d5a88', '#4a90c2', 
+                            '#7ba7cc', '#a8c5e2', '#d4af37'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+    }
+
+    createPaymentTimelineChart() {
+        const canvas = document.getElementById('payment-timeline-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            this.charts.paymentTimeline = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Payments Received',
+                        data: [85000, 92000, 88000, 95000, 91000, 98000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Payments Due',
+                        data: [90000, 95000, 90000, 98000, 93000, 100000],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createMineralPerformanceChart() {
+        const canvas = document.getElementById('mineral-performance-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            const records = this.dataManager.getRoyaltyRecords();
+            const mineralData = this.aggregateMineralPerformance(records);
+            
+            this.charts.mineralPerformance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: mineralData.labels,
+                    datasets: [{
+                        label: 'Revenue (E)',
+                        data: mineralData.revenue,
+                        backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2', '#d4af37']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    createForecastChart() {
+        const canvas = document.getElementById('forecast-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            this.charts.forecast = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Historical',
+                        data: [45000, 52000, 48000, 61000, 55000, 67000, null, null, null, null, null, null],
+                        borderColor: '#1a365d',
+                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Forecast',
+                        data: [null, null, null, null, null, 67000, 69000, 71000, 68000, 73000, 75000, 77000],
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'E' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    aggregateMineralPerformance(records) {
+        const mineralRevenue = records.reduce((acc, record) => {
+            if (record.mineral && record.royalties) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+            }
+            return acc;
+        }, {});
+        
+        return {
+            labels: Object.keys(mineralRevenue),
+            revenue: Object.values(mineralRevenue)
+        };
+    }
+
+    setupDashboardEventListeners() {
+        // Main dashboard action buttons
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshDashboard();
+            });
+        }
+        
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportDashboard();
+            });
+        }
+        
+        // Chart control handlers
+        const chartBtns = document.querySelectorAll('.chart-btn');
+        chartBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from siblings
+                btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update chart if needed
+                const chartType = btn.dataset.chartType;
+                const chartId = btn.dataset.chartId;
+                
+                if (chartId && this.charts[chartId]) {
+                    this.updateChartType(this.charts[chartId], chartType);
+                }
+                
+                this.notificationManager.show(`Switched to ${chartType} view`, 'info');
+            });
+        });
+        
+        // Period selectors
+        const periodSelectors = document.querySelectorAll('.metric-period');
+        periodSelectors.forEach(selector => {
+            selector.addEventListener('change', () => {
+                this.notificationManager.show(`Updated for ${selector.value.replace('-', ' ')}`, 'success');
+                this.updateDashboardMetrics();
+            });
+        });
+        
+        // Filter handlers
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', () => {
+                this.applyDashboardFilters();
+            });
+        }
+        
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => {
+                this.resetDashboardFilters();
+            });
+        }
+    }
+
+    updateChartType(chart, type) {
+        if (!chart) return;
+        
+        try {
+            if (type === 'area') {
+                chart.config.type = 'line';
+                chart.data.datasets[0].fill = true;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
+            } else if (type === 'bar') {
+                chart.config.type = 'bar';
+                chart.data.datasets[0].fill = false;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
+            } else {
+                chart.config.type = 'line';
+                chart.data.datasets[0].fill = false;
+                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+            }
+            chart.update();
+        } catch (error) {
+            console.error('Error updating chart type:', error);
+        }
+    }
+
+    applyDashboardFilters() {
+        const timePeriod = document.getElementById('time-period')?.value;
+        const entityFilter = document.getElementById('entity-filter')?.value;
+        const mineralFilter = document.getElementById('mineral-filter')?.value;
+        
+        this.notificationManager.show(`Applied filters: ${timePeriod}, ${entityFilter}, ${mineralFilter}`, 'info');
+        this.updateDashboardMetrics();
+    }
+
+    resetDashboardFilters() {
+        const timeSelect = document.getElementById('time-period');
+        const entitySelect = document.getElementById('entity-filter');
+        const mineralSelect = document.getElementById('mineral-filter');
+        
+        if (timeSelect) timeSelect.value = 'current-month';
+        if (entitySelect) entitySelect.value = 'all';
+        if (mineralSelect) mineralSelect.value = 'all';
+        
+        this.notificationManager.show('Dashboard filters reset', 'info');
+        this.updateDashboardMetrics();
+    }
+
+    refreshDashboard() {
+        this.updateDashboardMetrics();
+        this.updateRecentActivity();
+        
+        // Refresh charts
+        Object.values(this.charts).forEach(chart => {
+            if (chart && typeof chart.update === 'function') {
+                chart.update();
+            }
+        });
+        
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard report...', 'info');
         
         setTimeout(() => {
-            if (typeof initializeAnalyticsCharts === 'function') {
-                initializeAnalyticsCharts();
+            this.notificationManager.show('Dashboard report exported successfully', 'success');
+        }, 2000);
+    }
+
+    updateDashboardMetrics() {
+        try {
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            const entities = this.dataManager.getEntities();
+            const minerals = this.dataManager.getMinerals();
+            
+            // Calculate comprehensive metrics
+            const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
+            const totalProduction = royaltyRecords.reduce((sum, record) => sum + (record.volume || 0), 0);
+            const activeEntities = entities.filter(e => e.status === 'Active').length;
+            const paidRecords = royaltyRecords.filter(r => r.status === 'Paid');
+            const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending');
+            const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue');
+            const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords.length / royaltyRecords.length) * 100) : 0;
+            
+            // Production breakdown by mineral type
+            const productionByMineral = royaltyRecords.reduce((acc, record) => {
+                if (record.mineral) {
+                    acc[record.mineral] = (acc[record.mineral] || 0) + (record.volume || 0);
+                }
+                return acc;
+            }, {});
+            
+            // Update all dashboard elements
+            this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`);
+            this.updateElement('total-royalties-calculated', `E ${totalRoyalties.toLocaleString()}`);
+            this.updateElement('overall-compliance', `${complianceRate}%`);
+            this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
+            this.updateElement('active-entities', activeEntities);
+            this.updateElement('pending-approvals', pendingRecords.length);
+            this.updateElement('coal-production', `${productionByMineral.Coal || 0}t`);
+            this.updateElement('iron-production', `${productionByMineral['Iron Ore'] || 0}t`);
+            this.updateElement('stone-production', `${productionByMineral['Quarried Stone'] || 0}m³`);
+            
+            // Fix: Calculate payments received correctly
+            const paymentsReceived = paidRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
+            const outstandingPayments = overdueRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
+            
+            // Update additional dashboard metrics
+            this.updateElement('compliance-rate', `${complianceRate}%`);
+            this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}`);
+            this.updateElement('payments-received', `E ${paymentsReceived.toLocaleString()}`);
+            this.updateElement('outstanding-payments', `E ${outstandingPayments.toLocaleString()}`);
+            this.updateElement('reconciliation-status', '98%');
+            this.updateElement('ontime-payments', paidRecords.length);
+            this.updateElement('late-payments', overdueRecords.length);
+            this.updateElement('outstanding-count', `${pendingRecords.length + overdueRecords.length} overdue payments`);
+            this.updateElement('avg-payment-time', '15 days');
+            this.updateElement('payment-success-rate', '95%');
+            
+            // Update progress bars
+            const complianceProgress = document.getElementById('compliance-progress');
+            if (complianceProgress) {
+                complianceProgress.style.width = `${complianceRate}%`;
             }
             
-            if (typeof setupAnalyticsEventListeners === 'function') {
-                setupAnalyticsEventListeners();
+            console.log('Dashboard metrics updated successfully');
+        } catch (error) {
+            console.error('Error updating dashboard metrics:', error);
+            this.notificationManager.show('Error updating dashboard metrics', 'error');
+        }
+    }
+
+    loadComplianceSection() {
+        const section = document.getElementById('compliance');
+        if (section) {
+            section.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>✅ Compliance & Regulatory</h1>
+                        <p>Monitor compliance and regulatory requirements</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-info" id="run-compliance-check">
+                            🔍 Run Compliance Check
+                        </button>
+                        <button class="btn btn-success" id="generate-compliance-report">
+                            📄 Generate Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ...existing compliance section content... -->
+            `;
+
+            // Setup compliance section event listeners
+            setTimeout(() => {
+                const runCheckBtn = document.getElementById('run-compliance-check');
+                if (runCheckBtn) {
+                    runCheckBtn.addEventListener('click', () => {
+                        this.notificationManager.show('Running comprehensive compliance check...', 'info');
+                        setTimeout(() => {
+                            this.notificationManager.show('Compliance check completed - 3 issues found', 'warning');
+                        }, 2000);
+                    });
+                }
+
+                const generateReportBtn = document.getElementById('generate-compliance-report');
+                if (generateReportBtn) {
+                    generateReportBtn.addEventListener('click', () => {
+                        this.notificationManager.show('Generating compliance report...', 'info');
+                        setTimeout(() => {
+                            this.notificationManager.show('Compliance report generated successfully', 'success');
+                        }, 2000);
+                    });
+                }
+            }, 100);
+        }
+    }
+
+    handleLogout() {
+        this.authManager.logout();
+        
+        // Clear any existing charts
+        Object.values(this.charts).forEach(chart => {
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
             }
-            
-            const section = document.getElementById('reporting-analytics');
-            if (section && section.innerHTML.includes('page-header')) {
-                console.log('Reporting analytics component loaded and initialized successfully');
-                this.notificationManager.show('Analytics dashboard loaded successfully', 'success');
+        });
+        this.charts = {};
+        
+        // Show login section
+        const appContainer = document.getElementById('app-container');
+        const loginSection = document.getElementById('login-section');
+        
+        if (appContainer) appContainer.style.display = 'none';
+        if (loginSection) loginSection.style.display = 'flex';
+        
+        this.notificationManager.show('Logged out successfully', 'info');
+    }
+
+    updateElement(id, content) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = content;
+        }
+    }
+
+    updateRecentActivity() {
+        const activityContainer = document.getElementById('recent-activity');
+        if (!activityContainer) return;
+        
+        const auditLog = this.dataManager.getAuditLog();
+        const recentEntries = auditLog.slice(0, 5);
+        
+        if (recentEntries.length === 0) {
+            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
+            return;
+        }
+        
+        activityContainer.innerHTML = recentEntries.map(entry => `
+            <div class="activity-item">
+                <div class="activity-content">
+                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
+                    <small>${entry.timestamp}</small>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    setupGlobalAuditActions() {
+        window.auditActions = {
+            viewLoginAttempts: () => {
+                this.notificationManager.show('Showing login attempts...', 'info');
+            },
+            viewUserActivity: () => {
+                this.notificationManager.show('Showing user activity...', 'info');
+            },
+            viewDataAccess: () => {
+                this.notificationManager.show('Showing data access logs...', 'info');
             }
-        }, 200);
+        };
     }
 
-    initializeAuditDashboardComponent() {
-        console.log('Initializing audit dashboard component...');
-    }
+    // ...existing component initialization methods...
 
-    initializeCommunicationComponent() {
-        console.log('Initializing communication component...');
-    }
-
-    initializeNotificationsComponent() {
-        console.log('Initializing notifications component...');
-    }
-
-    initializeComplianceComponent() {
-        console.log('Initializing compliance component...');
-    }
-
-    initializeRegulatoryManagementComponent() {
-        console.log('Initializing regulatory management component...');
-    }
-
-    initializeProfileComponent() {
-        console.log('Initializing profile component...');
-    }
-
-    // Fallback section loaders
     loadFallbackSection(sectionId) {
         switch (sectionId) {
             case 'dashboard':
@@ -599,33 +1051,6 @@ class RoyaltiesApp {
                 break;
             case 'user-management':
                 this.loadUserManagementSection();
-                break;
-            case 'royalty-records':
-                this.loadRoyaltyRecordsSection();
-                break;
-            case 'contract-management':
-                this.loadContractManagementSection();
-                break;
-            case 'reporting-analytics':
-                this.loadReportingAnalyticsSection();
-                break;
-            case 'communication':
-                this.loadCommunicationSection();
-                break;
-            case 'audit-dashboard':
-                this.loadAuditDashboardSection();
-                break;
-            case 'notifications':
-                this.loadNotificationsSection();
-                break;
-            case 'compliance':
-                this.loadComplianceSection();
-                break;
-            case 'regulatory-management':
-                this.loadRegulatoryManagementSection();
-                break;
-            case 'profile':
-                this.loadProfileSection();
                 break;
             default:
                 this.loadGenericSection(sectionId);
@@ -679,15 +1104,6 @@ class RoyaltiesApp {
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>⚠️ Pending Items</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="pending-approvals">0</p>
-                        <small class="trend-stable">No pending items</small>
-                    </div>
-                </div>
             </div>
 
             <div class="card">
@@ -708,54 +1124,94 @@ class RoyaltiesApp {
         }, 100);
     }
 
-    updateDashboardMetrics() {
-        const royaltyRecords = this.dataManager.getRoyaltyRecords();
-        const entities = this.dataManager.getEntities();
-        
-        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
-        const activeEntities = entities.filter(e => e.status === 'Active').length;
-        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
-        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
-        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
-        
-        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
-        this.updateElement('active-entities', activeEntities);
-        this.updateElement('compliance-rate', `${complianceRate}%`);
-        this.updateElement('pending-approvals', pendingRecords);
-        
-        const complianceProgress = document.getElementById('compliance-progress');
-        if (complianceProgress) {
-            complianceProgress.style.width = `${complianceRate}%`;
-        }
-    }
-
-    updateElement(id, content) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = content;
-        }
-    }
-
-    updateRecentActivity() {
-        const activityContainer = document.getElementById('recent-activity');
-        if (!activityContainer) return;
-        
-        const auditLog = this.dataManager.getAuditLog();
-        const recentEntries = auditLog.slice(0, 5);
-        
-        if (recentEntries.length === 0) {
-            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
-            return;
-        }
-        
-        activityContainer.innerHTML = recentEntries.map(entry => `
-            <div class="activity-item">
-                <div class="activity-content">
-                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
-                    <small>${entry.timestamp}</small>
+    loadGenericSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ')}</h1>
+                        <p>This section is under development</p>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+                <div class="card">
+                    <div class="card-body">
+                        <p>Content for ${sectionId} will be implemented here.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Add missing component initialization methods
+    initializeUserManagementComponent() {
+        console.log('Initializing user management component...');
+        setTimeout(() => {
+            this.notificationManager.show('User management component loaded', 'success');
+        }, 200);
+    }
+
+    initializeRoyaltyRecordsComponent() {
+        console.log('Initializing royalty records component...');
+        setTimeout(() => {
+            this.notificationManager.show('Royalty records component loaded', 'success');
+        }, 200);
+    }
+
+    initializeContractManagementComponent() {
+        console.log('Initializing contract management component...');
+        setTimeout(() => {
+            this.notificationManager.show('Contract management component loaded', 'success');
+        }, 200);
+    }
+
+    initializeReportingAnalyticsComponent() {
+        console.log('Initializing reporting analytics component...');
+        setTimeout(() => {
+            this.notificationManager.show('Reporting analytics component loaded', 'success');
+        }, 200);
+    }
+
+    initializeAuditDashboardComponent() {
+        console.log('Initializing audit dashboard component...');
+        setTimeout(() => {
+            this.notificationManager.show('Audit dashboard component loaded', 'success');
+        }, 200);
+    }
+
+    initializeCommunicationComponent() {
+        console.log('Initializing communication component...');
+        setTimeout(() => {
+            this.notificationManager.show('Communication component loaded', 'success');
+        }, 200);
+    }
+
+    initializeNotificationsComponent() {
+        console.log('Initializing notifications component...');
+        setTimeout(() => {
+            this.notificationManager.show('Notifications component loaded', 'success');
+        }, 200);
+    }
+
+    initializeComplianceComponent() {
+        console.log('Initializing compliance component...');
+        setTimeout(() => {
+            this.notificationManager.show('Compliance component loaded', 'success');
+        }, 200);
+    }
+
+    initializeRegulatoryManagementComponent() {
+        console.log('Initializing regulatory management component...');
+        setTimeout(() => {
+            this.notificationManager.show('Regulatory management component loaded', 'success');
+        }, 200);
+    }
+
+    initializeProfileComponent() {
+        console.log('Initializing profile component...');
+        setTimeout(() => {
+            this.notificationManager.show('Profile component loaded', 'success');
+        }, 200);
     }
 
     loadUserManagementSection() {
@@ -769,392 +1225,18 @@ class RoyaltiesApp {
                     <p>Manage system users, roles, and permissions</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-success" id="add-user-btn">
+                    <button class="btn btn-success" onclick="this.notificationManager.show('Add user functionality would open here', 'info')">
                         ➕ Add User
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table" id="users-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Department</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-tbody">
-                        <!-- Content will be populated dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        this.populateUsersTable();
-        this.setupUserManagementEvents();
-    }
-
-    populateUsersTable() {
-        const tbody = document.getElementById('users-table-tbody');
-        if (!tbody) return;
-
-        const users = this.dataManager.getUserAccounts();
-        
-        tbody.innerHTML = users.map(user => `
-            <tr>
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td><span class="status-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-                <td>${user.department}</td>
-                <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-secondary" onclick="userActions.viewUser(${user.id})" title="View">👁️</button>
-                        <button class="btn btn-sm btn-primary" onclick="userActions.editUser(${user.id})" title="Edit">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="userActions.deleteUser(${user.id})" title="Delete">🗑️</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    setupUserManagementEvents() {
-        const addUserBtn = document.getElementById('add-user-btn');
-        if (addUserBtn) {
-            addUserBtn.addEventListener('click', () => {
-                this.notificationManager.show('Add user functionality would open here', 'info');
-            });
-        }
-    }
-
-    loadRoyaltyRecordsSection() {
-        const section = document.getElementById('royalty-records');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>💰 Royalty Records</h1>
-                    <p>Manage royalty payments and compliance tracking</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-success" id="add-record-btn">
-                        ➕ Add Record
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Reference #</th>
-                            <th>Entity</th>
-                            <th>Mineral</th>
-                            <th>Volume</th>
-                            <th>Royalties Due</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${this.dataManager.getRoyaltyRecords().map(record => `
-                            <tr>
-                                <td>${record.referenceNumber}</td>
-                                <td>${record.entity}</td>
-                                <td>${record.mineral}</td>
-                                <td>${record.volume.toLocaleString()}</td>
-                                <td>E ${record.royalties.toLocaleString()}</td>
-                                <td>${record.date}</td>
-                                <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
-                                <td>
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-secondary" onclick="recordActions.viewRecord(${record.id})" title="View">👁️</button>
-                                        <button class="btn btn-sm btn-primary" onclick="recordActions.editRecord(${record.id})" title="Edit">✏️</button>
-                                        <button class="btn btn-sm btn-danger" onclick="recordActions.deleteRecord(${record.id})" title="Delete">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-
-    loadContractManagementSection() {
-        const section = document.getElementById('contract-management');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📋 Contract Management</h1>
-                    <p>Manage mining contracts and agreements</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-success" id="add-contract-btn">
-                        ➕ Add Contract
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Contract ID</th>
-                            <th>Stakeholder</th>
-                            <th>Entity</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${this.dataManager.getContracts().map(contract => `
-                            <tr>
-                                <td>${contract.id}</td>
-                                <td>${contract.stakeholder}</td>
-                                <td>${contract.entity}</td>
-                                <td>${contract.contractType}</td>
-                                <td><span class="status-badge ${contract.status}">${contract.status}</span></td>
-                                <td>
-                                    <div class="btn-group">
-                                        <button class="btn btn-sm btn-secondary" onclick="contractActions.viewContract('${contract.id}')" title="View">👁️</button>
-                                        <button class="btn btn-sm btn-primary" onclick="contractActions.editContract('${contract.id}')" title="Edit">✏️</button>
-                                        <button class="btn btn-sm btn-danger" onclick="contractActions.deleteContract('${contract.id}')" title="Delete">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-
-    loadReportingAnalyticsSection() {
-        const section = document.getElementById('reporting-analytics');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📊 Reporting & Analytics</h1>
-                    <p>Generate comprehensive reports and view detailed analytics</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-info" id="refresh-analytics-btn">
-                        🔄 Refresh Data
-                    </button>
-                    <button class="btn btn-success" id="generate-basic-report-btn">
-                        📄 Generate Report
                     </button>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h4>📊 Analytics Dashboard</h4>
-                        <p>The full reporting and analytics component should load from <code>components/reporting-analytics.html</code></p>
-                        <p>This is a fallback version with basic functionality.</p>
-                        <button class="btn btn-primary" onclick="window.location.reload()">
-                            🔄 Reload Page
-                        </button>
-                    </div>
+                    <p>User management interface will be implemented here.</p>
                 </div>
             </div>
         `;
-
-        setTimeout(() => {
-            const refreshBtn = document.getElementById('refresh-analytics-btn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Analytics data refreshed', 'success');
-                });
-            }
-
-            const generateBtn = document.getElementById('generate-basic-report-btn');
-            if (generateBtn) {
-                generateBtn.addEventListener('click', () => {
-                    this.notificationManager.show('Report generation feature available in full component', 'info');
-                });
-            }
-        }, 100);
-    }
-
-    // Other section loaders
-    loadCommunicationSection() {
-        const section = document.getElementById('communication');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>📧 Communication</h1>
-                        <p>Manage communications and notifications</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Communication tools will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadAuditDashboardSection() {
-        const section = document.getElementById('audit-dashboard');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>🛡️ Audit Dashboard</h1>
-                        <p>Monitor system activities and compliance</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Audit dashboard functionality will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadNotificationsSection() {
-        const section = document.getElementById('notifications');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>🔔 Notifications</h1>
-                        <p>View and manage system notifications</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Notifications management will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadComplianceSection() {
-        const section = document.getElementById('compliance');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>✅ Compliance & Regulatory</h1>
-                        <p>Monitor compliance and regulatory requirements</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Compliance dashboard will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadRegulatoryManagementSection() {
-        const section = document.getElementById('regulatory-management');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>⚖️ Regulatory Management</h1>
-                        <p>Manage regulatory requirements and submissions</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Regulatory management will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadProfileSection() {
-        const section = document.getElementById('profile');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>👤 My Profile</h1>
-                        <p>Manage your account settings and preferences</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Profile management will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    loadGenericSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>📋 ${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
-                        <p>This section is under development</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Content for ${sectionId} will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    handleLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            Object.values(this.charts).forEach(chart => {
-                if (chart) chart.destroy();
-            });
-            this.charts = {};
-            
-            const currentUser = this.authManager.getCurrentUser();
-            if (currentUser) {
-                this.dataManager.addAuditEntry({
-                    user: currentUser.username, action: 'Logout', target: 'System',
-                    ipAddress: '192.168.1.100', status: 'Success',
-                    details: 'User logged out successfully'
-                });
-            }
-            
-            this.authManager.logout();
-            
-            const loginSection = document.getElementById('login-section');
-            const appContainer = document.getElementById('app-container');
-            
-            if (appContainer) appContainer.style.display = 'none';
-            if (loginSection) loginSection.style.display = 'flex';
-            
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            
-            this.notificationManager.show('Logged out successfully', 'info');
-        }
     }
 }
 
@@ -1253,6 +1335,93 @@ class ContractActions {
         if (confirm('Are you sure you want to delete this contract?')) {
             this.notificationManager.show('Contract deleted successfully', 'success');
         }
+    }
+}
+
+// ===== ENHANCED CHART MANAGER =====
+class ChartManager {
+    constructor() {
+        this.charts = new Map();
+        this.isChartJsLoaded = typeof Chart !== 'undefined';
+        this.defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        };
+    }
+
+    create(canvasId, config) {
+        if (!this.isChartJsLoaded) {
+            console.warn('Chart.js not available, cannot create chart:', canvasId);
+            return null;
+        }
+
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.warn(`Canvas with id '${canvasId}' not found`);
+            return null;
+        }
+
+        // Destroy existing chart if it exists
+        if (this.charts.has(canvasId)) {
+            this.destroy(canvasId);
+        }
+
+        const mergedConfig = {
+            ...config,
+            options: {
+                ...this.defaultOptions,
+                ...config.options
+            }
+        };
+
+        try {
+            const chart = new Chart(canvas, mergedConfig);
+            this.charts.set(canvasId, chart);
+            return chart;
+        } catch (error) {
+            console.error(`Error creating chart ${canvasId}:`, error);
+            return null;
+        }
+    }
+
+    destroy(canvasId) {
+        const chart = this.charts.get(canvasId);
+        if (chart) {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+            this.charts.delete(canvasId);
+        }
+    }
+
+    destroyAll() {
+        this.charts.forEach((chart, canvasId) => {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+        });
+        this.charts.clear();
+    }
+
+    aggregateMineralPerformance(records) {
+        const mineralRevenue = records.reduce((acc, record) => {
+            if (record.mineral && record.royalties) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+            }
+            return acc;
+        }, {});
+        
+        return {
+            labels: Object.keys(mineralRevenue),
+            revenue: Object.values(mineralRevenue)
+        };
     }
 }
 

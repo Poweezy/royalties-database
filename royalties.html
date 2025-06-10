@@ -13,6 +13,7 @@
   
   <!-- Local CSS Files -->
   <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="royalties.css">
   
   <!-- Critical CSS for immediate loading -->
   <style>
@@ -239,7 +240,20 @@
     </main>
   </div>
 
-  <!-- Load Main Application Script -->
+  <!-- Scripts -->
   <script src="app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js')
+              .then(registration => {
+                  console.log('SW registered: ', registration);
+              })
+              .catch(registrationError => {
+                  console.log('SW registration failed: ', registrationError);
+              });
+      }
+  </script>
 </body>
 </html>
