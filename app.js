@@ -362,6 +362,7 @@ class RoyaltiesApp {
         this.setupEventListeners();
         this.setupNavigation();
         this.setupGlobalAuditActions();
+        this.mobileNav = new MobileNavigationManager(); // Add this line
         this.showSection('dashboard');
         
         const currentUser = this.authManager.getCurrentUser();
@@ -396,6 +397,11 @@ class RoyaltiesApp {
             if (navLink) {
                 e.preventDefault();
                 const section = navLink.dataset.section;
+                
+                // Close mobile menu on navigation
+                if (this.mobileNav) {
+                    this.mobileNav.closeSidebar();
+                }
                 
                 if (section === 'logout') {
                     this.handleLogout();
@@ -1436,3 +1442,110 @@ document.addEventListener('DOMContentLoaded', () => {
     window.royaltiesApp = app;
     app.initialize();
 });
+
+// Add missing mobile navigation handler
+class MobileNavigationManager {
+    constructor() {
+        this.isOpen = false;
+        this.setupMobileToggle();
+    }
+
+    setupMobileToggle() {
+        // Create mobile toggle button
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'mobile-menu-toggle';
+        toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+        toggleButton.addEventListener('click', () => this.toggleSidebar());
+        document.body.appendChild(toggleButton);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                this.closeSidebar();
+            }
+        });
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            this.isOpen = !this.isOpen;
+            sidebar.classList.toggle('mobile-open', this.isOpen);
+            
+            // Update toggle icon
+            const toggle = document.querySelector('.mobile-menu-toggle i');
+            toggle.className = this.isOpen ? 'fas fa-times' : 'fas fa-bars';
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            this.isOpen = false;
+            sidebar.classList.remove('mobile-open');
+            
+            const toggle = document.querySelector('.mobile-menu-toggle i');
+            if (toggle) toggle.className = 'fas fa-bars';
+        }
+    }
+}
+
+// Enhanced RoyaltiesApp class additions
+class RoyaltiesApp {
+    // ...existing code...
+
+    initializeMainApplication() {
+        console.log('Initializing main application for user:', this.authManager.getCurrentUser());
+        
+        this.initializeManagers();
+        this.setupEventListeners();
+        this.setupNavigation();
+        this.setupGlobalAuditActions();
+        this.mobileNav = new MobileNavigationManager(); // Add this line
+        this.showSection('dashboard');
+        
+        const currentUser = this.authManager.getCurrentUser();
+        this.notificationManager.show(`Welcome back, ${currentUser.username}!`, 'success');
+        
+        console.log('Main application initialized successfully');
+    }
+
+    // Enhanced error handling
+    setupGlobalErrorHandling() {
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            this.notificationManager.show('An unexpected error occurred', 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            this.notificationManager.show('System error - please refresh the page', 'error');
+        });
+    }
+
+    // Enhanced navigation with mobile support
+    setupNavigation() {
+        document.addEventListener('click', (e) => {
+            const navLink = e.target.closest('.nav-link');
+            if (navLink) {
+                e.preventDefault();
+                const section = navLink.dataset.section;
+                
+                // Close mobile menu on navigation
+                if (this.mobileNav) {
+                    this.mobileNav.closeSidebar();
+                }
+                
+                if (section === 'logout') {
+                    this.handleLogout();
+                } else {
+                    this.showSection(section);
+                }
+            }
+        });
+    }
+
+    // ...existing code...
+}
+
+// ...existing code...
