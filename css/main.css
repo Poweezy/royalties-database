@@ -1092,6 +1092,7 @@ nav ul li a span {
   background: var(--neutral-300);
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .parameter-group input[type="range"]::-webkit-slider-thumb {
