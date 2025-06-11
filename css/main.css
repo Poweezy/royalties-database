@@ -1347,6 +1347,47 @@ nav ul li a span {
   margin-left: 0.5rem;
 }
 
+/* ===== MOBILE NAVIGATION STYLES ===== */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--primary-color);
+  color: var(--text-inverse);
+  border: none;
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.mobile-menu-toggle:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* ===== ENHANCED RESPONSIVE DESIGN ===== */
 @media (max-width: 1200px) {
   .forecast-results {
@@ -1360,16 +1401,40 @@ nav ul li a span {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
+  .mobile-menu-toggle {
+    display: block !important;
   }
   
-  .sidebar.open {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.mobile-open {
     transform: translateX(0);
   }
   
   .main-content {
     margin-left: 0;
+    padding: 1rem;
+    padding-top: 4rem; /* Account for mobile toggle */
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+  }
+  
+  .page-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   .filter-row {
@@ -1381,58 +1446,28 @@ nav ul li a span {
     min-width: unset;
   }
   
-  .filter-actions {
-    flex-direction: column;
-  }
-  
-  .forecast-parameters {
-    grid-template-columns: 1fr;
-  }
-  
-  .quick-actions-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .alert-item {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .alert-actions {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .dashboard-section {
-    margin-bottom: 2rem;
-  }
-  
-  .section-title {
-    font-size: 1.25rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .metric-card .card-body p {
-    font-size: 1.5rem;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .page-actions {
-    width: 100%;
-    justify-content: flex-start;
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .quick-actions-grid {
-    grid-template-columns: 1fr;
+  .main-content {
+    padding: 0.5rem;
+    padding-top: 3.5rem;
+  }
+  
+  .page-header {
+    padding: 1rem;
+  }
+  
+  .metric-card .card-body {
+    padding: 1rem;
+  }
+  
+  .metric-card .card-body p {
+    font-size: 1.5rem;
   }
   
   .dashboard-section {
@@ -1441,29 +1476,9 @@ nav ul li a span {
   
   .section-title {
     font-size: 1.125rem;
-  }
-  
-  .forecast-parameters {
-    padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .alert-item {
-    padding: 0.75rem;
-  }
-  
-  .metric-card .card-body {
-    padding: 1rem;
-  }
-  
-  .btn {
-    font-size: 0.75rem;
-    padding: 0.5rem 1rem;
-  }
-  
-  .charts-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }
 

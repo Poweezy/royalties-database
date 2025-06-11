@@ -6,6 +6,117 @@ let currentUser = null;
 let currentSection = 'dashboard';
 let charts = {};
 
+// ===== MOBILE NAVIGATION MANAGER =====
+class MobileNavigationManager {
+    constructor() {
+        this.isOpen = false;
+        this.setupMobileToggle();
+    }
+
+    setupMobileToggle() {
+        // Create mobile toggle button if it doesn't exist
+        let toggleButton = document.querySelector('.mobile-menu-toggle');
+        if (!toggleButton) {
+            toggleButton = document.createElement('button');
+            toggleButton.className = 'mobile-menu-toggle';
+            toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+            toggleButton.style.cssText = `
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 0.75rem;
+                border-radius: 6px;
+                font-size: 1rem;
+                cursor: pointer;
+                display: none;
+            `;
+            document.body.appendChild(toggleButton);
+        }
+        
+        toggleButton.addEventListener('click', () => this.toggleSidebar());
+
+        // Show toggle on mobile
+        this.updateToggleVisibility();
+        window.addEventListener('resize', () => {
+            this.updateToggleVisibility();
+            if (window.innerWidth > 768) {
+                this.closeSidebar();
+            }
+        });
+    }
+
+    updateToggleVisibility() {
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        if (toggle) {
+            toggle.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+        }
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            this.isOpen = !this.isOpen;
+            sidebar.classList.toggle('mobile-open', this.isOpen);
+            
+            // Update toggle icon
+            const toggle = document.querySelector('.mobile-menu-toggle i');
+            if (toggle) {
+                toggle.className = this.isOpen ? 'fas fa-times' : 'fas fa-bars';
+            }
+            
+            // Add/remove overlay
+            this.toggleOverlay();
+        }
+    }
+
+    toggleOverlay() {
+        let overlay = document.querySelector('.mobile-overlay');
+        if (this.isOpen) {
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'mobile-overlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                `;
+                overlay.addEventListener('click', () => this.closeSidebar());
+                document.body.appendChild(overlay);
+            }
+            overlay.classList.add('active');
+        } else if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.remove(), 300);
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            this.isOpen = false;
+            sidebar.classList.remove('mobile-open');
+            
+            const toggle = document.querySelector('.mobile-menu-toggle i');
+            if (toggle) toggle.className = 'fas fa-bars';
+            
+            // Remove overlay
+            const overlay = document.querySelector('.mobile-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.remove(), 300);
+            }
+        }
+    }
+}
+
 // ===== NOTIFICATION MANAGER =====
 class NotificationManager {
     constructor() {
@@ -245,12 +356,37 @@ class RoyaltiesApp {
         this.chartManager = new ChartManager();
         this.actionHandlers = {};
         this.charts = {};
+        this.mobileNav = null;
+        this.isInitialized = false;
     }
 
     async initialize() {
+        if (this.isInitialized) {
+            console.warn('Application already initialized');
+            return;
+        }
+        
         console.log('DOM loaded - Starting application initialization...');
         this.dataManager.initialize();
+        this.setupGlobalErrorHandling();
         this.startLoadingSequence();
+        this.isInitialized = true;
+    }
+
+    setupGlobalErrorHandling() {
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            if (this.notificationManager) {
+                this.notificationManager.show('An unexpected error occurred', 'error');
+            }
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            if (this.notificationManager) {
+                this.notificationManager.show('System error - please refresh the page', 'error');
+            }
+        });
     }
 
     startLoadingSequence() {
@@ -362,7 +498,10 @@ class RoyaltiesApp {
         this.setupEventListeners();
         this.setupNavigation();
         this.setupGlobalAuditActions();
-        this.mobileNav = new MobileNavigationManager(); // Add this line
+        
+        // Initialize mobile navigation
+        this.mobileNav = new MobileNavigationManager();
+        
         this.showSection('dashboard');
         
         const currentUser = this.authManager.getCurrentUser();
@@ -387,15 +526,31 @@ class RoyaltiesApp {
     }
 
     setupEventListeners() {
-        document.addEventListener('logoutRequested', () => this.handleLogout());
-        document.addEventListener('reloadSection', (e) => this.loadSectionContent(e.detail.sectionId));
+        // Remove existing listeners to prevent duplicates
+        document.removeEventListener('logoutRequested', this.handleLogout);
+        document.removeEventListener('reloadSection', this.handleReloadSection);
+        
+        // Add fresh listeners
+        this.handleLogout = () => this.performLogout();
+        this.handleReloadSection = (e) => this.loadSectionContent(e.detail.sectionId);
+        
+        document.addEventListener('logoutRequested', this.handleLogout);
+        document.addEventListener('reloadSection', this.handleReloadSection);
     }
 
     setupNavigation() {
-        document.addEventListener('click', (e) => {
+        // Remove existing navigation listener to prevent duplicates
+        if (this.navigationHandler) {
+            document.removeEventListener('click', this.navigationHandler);
+        }
+        
+        // Create new navigation handler
+        this.navigationHandler = (e) => {
             const navLink = e.target.closest('.nav-link');
             if (navLink) {
                 e.preventDefault();
+                e.stopPropagation();
+                
                 const section = navLink.dataset.section;
                 
                 // Close mobile menu on navigation
@@ -404,12 +559,14 @@ class RoyaltiesApp {
                 }
                 
                 if (section === 'logout') {
-                    this.handleLogout();
+                    this.performLogout();
                 } else {
                     this.showSection(section);
                 }
             }
-        });
+        };
+        
+        document.addEventListener('click', this.navigationHandler);
     }
 
     showSection(sectionId) {
@@ -746,25 +903,27 @@ class RoyaltiesApp {
     }
 
     setupDashboardEventListeners() {
+        // Remove existing listeners first
+        this.removeDashboardListeners();
+        
         // Main dashboard action buttons
         const refreshBtn = document.getElementById('refresh-dashboard-btn');
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                this.refreshDashboard();
-            });
+            this.refreshDashboardHandler = () => this.refreshDashboard();
+            refreshBtn.addEventListener('click', this.refreshDashboardHandler);
         }
         
         const exportBtn = document.getElementById('export-dashboard-btn');
         if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-                this.exportDashboard();
-            });
+            this.exportDashboardHandler = () => this.exportDashboard();
+            exportBtn.addEventListener('click', this.exportDashboardHandler);
         }
         
         // Chart control handlers
         const chartBtns = document.querySelectorAll('.chart-btn');
-        chartBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+        this.chartBtnHandlers = [];
+        chartBtns.forEach((btn, index) => {
+            const handler = () => {
                 // Remove active class from siblings
                 btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
                 // Add active class to clicked button
@@ -779,471 +938,154 @@ class RoyaltiesApp {
                 }
                 
                 this.notificationManager.show(`Switched to ${chartType} view`, 'info');
-            });
+            };
+            
+            this.chartBtnHandlers[index] = handler;
+            btn.addEventListener('click', handler);
         });
         
         // Period selectors
         const periodSelectors = document.querySelectorAll('.metric-period');
-        periodSelectors.forEach(selector => {
-            selector.addEventListener('change', () => {
+        this.periodSelectorHandlers = [];
+        periodSelectors.forEach((selector, index) => {
+            const handler = () => {
                 this.notificationManager.show(`Updated for ${selector.value.replace('-', ' ')}`, 'success');
                 this.updateDashboardMetrics();
-            });
+            };
+            
+            this.periodSelectorHandlers[index] = handler;
+            selector.addEventListener('change', handler);
         });
         
         // Filter handlers
         const applyFiltersBtn = document.getElementById('apply-filters');
         if (applyFiltersBtn) {
-            applyFiltersBtn.addEventListener('click', () => {
-                this.applyDashboardFilters();
-            });
+            this.applyFiltersHandler = () => this.applyDashboardFilters();
+            applyFiltersBtn.addEventListener('click', this.applyFiltersHandler);
         }
         
         const resetFiltersBtn = document.getElementById('reset-filters');
         if (resetFiltersBtn) {
-            resetFiltersBtn.addEventListener('click', () => {
-                this.resetDashboardFilters();
+            this.resetFiltersHandler = () => this.resetDashboardFilters();
+            resetFiltersBtn.addEventListener('click', this.resetFiltersHandler);
+        }
+    }
+
+    removeDashboardListeners() {
+        // Remove refresh button listener
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn && this.refreshDashboardHandler) {
+            refreshBtn.removeEventListener('click', this.refreshDashboardHandler);
+        }
+        
+        // Remove export button listener
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn && this.exportDashboardHandler) {
+            exportBtn.removeEventListener('click', this.exportDashboardHandler);
+        }
+        
+        // Remove chart button listeners
+        const chartBtns = document.querySelectorAll('.chart-btn');
+        if (this.chartBtnHandlers) {
+            chartBtns.forEach((btn, index) => {
+                if (this.chartBtnHandlers[index]) {
+                    btn.removeEventListener('click', this.chartBtnHandlers[index]);
+                }
             });
         }
+        
+        // Remove period selector listeners
+        const periodSelectors = document.querySelectorAll('.metric-period');
+        if (this.periodSelectorHandlers) {
+            periodSelectors.forEach((selector, index) => {
+                if (this.periodSelectorHandlers[index]) {
+                    selector.removeEventListener('change', this.periodSelectorHandlers[index]);
+                }
+            });
+        }
+        
+        // Remove filter button listeners
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        if (applyFiltersBtn && this.applyFiltersHandler) {
+            applyFiltersBtn.removeEventListener('click', this.applyFiltersHandler);
+        }
+        
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        if (resetFiltersBtn && this.resetFiltersHandler) {
+            resetFiltersBtn.removeEventListener('click', this.resetFiltersHandler);
+        }
     }
 
-    updateChartType(chart, type) {
-        if (!chart) return;
-        
+    performLogout() {
         try {
-            if (type === 'area') {
-                chart.config.type = 'line';
-                chart.data.datasets[0].fill = true;
-                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
-            } else if (type === 'bar') {
-                chart.config.type = 'bar';
-                chart.data.datasets[0].fill = false;
-                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
-            } else {
-                chart.config.type = 'line';
-                chart.data.datasets[0].fill = false;
-                chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
-            }
-            chart.update();
+            this.authManager.logout();
+            
+            // Clean up event listeners
+            this.cleanup();
+            
+            // Clear any existing charts
+            Object.values(this.charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    try {
+                        chart.destroy();
+                    } catch (error) {
+                        console.warn('Error destroying chart:', error);
+                    }
+                }
+            });
+            this.charts = {};
+            
+            // Show login section
+            const appContainer = document.getElementById('app-container');
+            const loginSection = document.getElementById('login-section');
+            
+            if (appContainer) appContainer.style.display = 'none';
+            if (loginSection) loginSection.style.display = 'flex';
+            
+            this.notificationManager.show('Logged out successfully', 'info');
         } catch (error) {
-            console.error('Error updating chart type:', error);
+            console.error('Error during logout:', error);
+            this.notificationManager.show('Error during logout', 'error');
         }
     }
 
-    applyDashboardFilters() {
-        const timePeriod = document.getElementById('time-period')?.value;
-        const entityFilter = document.getElementById('entity-filter')?.value;
-        const mineralFilter = document.getElementById('mineral-filter')?.value;
+    cleanup() {
+        // Remove global event listeners
+        if (this.navigationHandler) {
+            document.removeEventListener('click', this.navigationHandler);
+        }
         
-        this.notificationManager.show(`Applied filters: ${timePeriod}, ${entityFilter}, ${mineralFilter}`, 'info');
-        this.updateDashboardMetrics();
-    }
-
-    resetDashboardFilters() {
-        const timeSelect = document.getElementById('time-period');
-        const entitySelect = document.getElementById('entity-filter');
-        const mineralSelect = document.getElementById('mineral-filter');
+        if (this.handleLogout) {
+            document.removeEventListener('logoutRequested', this.handleLogout);
+        }
         
-        if (timeSelect) timeSelect.value = 'current-month';
-        if (entitySelect) entitySelect.value = 'all';
-        if (mineralSelect) mineralSelect.value = 'all';
+        if (this.handleReloadSection) {
+            document.removeEventListener('reloadSection', this.handleReloadSection);
+        }
         
-        this.notificationManager.show('Dashboard filters reset', 'info');
-        this.updateDashboardMetrics();
-    }
-
-    refreshDashboard() {
-        this.updateDashboardMetrics();
-        this.updateRecentActivity();
+        // Remove dashboard listeners
+        this.removeDashboardListeners();
         
-        // Refresh charts
-        Object.values(this.charts).forEach(chart => {
-            if (chart && typeof chart.update === 'function') {
-                chart.update();
-            }
-        });
-        
-        this.notificationManager.show('Dashboard refreshed successfully', 'success');
-    }
-
-    exportDashboard() {
-        this.notificationManager.show('Exporting dashboard report...', 'info');
-        
-        setTimeout(() => {
-            this.notificationManager.show('Dashboard report exported successfully', 'success');
-        }, 2000);
-    }
-
-    updateDashboardMetrics() {
-        try {
-            const royaltyRecords = this.dataManager.getRoyaltyRecords();
-            const entities = this.dataManager.getEntities();
-            const minerals = this.dataManager.getMinerals();
-            
-            // Calculate comprehensive metrics
-            const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
-            const totalProduction = royaltyRecords.reduce((sum, record) => sum + (record.volume || 0), 0);
-            const activeEntities = entities.filter(e => e.status === 'Active').length;
-            const paidRecords = royaltyRecords.filter(r => r.status === 'Paid');
-            const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending');
-            const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue');
-            const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords.length / royaltyRecords.length) * 100) : 0;
-            
-            // Production breakdown by mineral type
-            const productionByMineral = royaltyRecords.reduce((acc, record) => {
-                if (record.mineral) {
-                    acc[record.mineral] = (acc[record.mineral] || 0) + (record.volume || 0);
-                }
-                return acc;
-            }, {});
-            
-            // Update all dashboard elements
-            this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`);
-            this.updateElement('total-royalties-calculated', `E ${totalRoyalties.toLocaleString()}`);
-            this.updateElement('overall-compliance', `${complianceRate}%`);
-            this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
-            this.updateElement('active-entities', activeEntities);
-            this.updateElement('pending-approvals', pendingRecords.length);
-            this.updateElement('coal-production', `${productionByMineral.Coal || 0}t`);
-            this.updateElement('iron-production', `${productionByMineral['Iron Ore'] || 0}t`);
-            this.updateElement('stone-production', `${productionByMineral['Quarried Stone'] || 0}m³`);
-            
-            // Fix: Calculate payments received correctly
-            const paymentsReceived = paidRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
-            const outstandingPayments = overdueRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
-            
-            // Update additional dashboard metrics
-            this.updateElement('compliance-rate', `${complianceRate}%`);
-            this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}`);
-            this.updateElement('payments-received', `E ${paymentsReceived.toLocaleString()}`);
-            this.updateElement('outstanding-payments', `E ${outstandingPayments.toLocaleString()}`);
-            this.updateElement('reconciliation-status', '98%');
-            this.updateElement('ontime-payments', paidRecords.length);
-            this.updateElement('late-payments', overdueRecords.length);
-            this.updateElement('outstanding-count', `${pendingRecords.length + overdueRecords.length} overdue payments`);
-            this.updateElement('avg-payment-time', '15 days');
-            this.updateElement('payment-success-rate', '95%');
-            
-            // Update progress bars
-            const complianceProgress = document.getElementById('compliance-progress');
-            if (complianceProgress) {
-                complianceProgress.style.width = `${complianceRate}%`;
+        // Clean up mobile navigation
+        if (this.mobileNav) {
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            if (toggleButton) {
+                toggleButton.remove();
             }
             
-            console.log('Dashboard metrics updated successfully');
-        } catch (error) {
-            console.error('Error updating dashboard metrics:', error);
-            this.notificationManager.show('Error updating dashboard metrics', 'error');
+            const overlay = document.querySelector('.mobile-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
         }
     }
 
-    loadComplianceSection() {
-        const section = document.getElementById('compliance');
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>✅ Compliance & Regulatory</h1>
-                        <p>Monitor compliance and regulatory requirements</p>
-                    </div>
-                    <div class="page-actions">
-                        <button class="btn btn-info" id="run-compliance-check">
-                            🔍 Run Compliance Check
-                        </button>
-                        <button class="btn btn-success" id="generate-compliance-report">
-                            📄 Generate Report
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ...existing compliance section content... -->
-            `;
-
-            // Setup compliance section event listeners
-            setTimeout(() => {
-                const runCheckBtn = document.getElementById('run-compliance-check');
-                if (runCheckBtn) {
-                    runCheckBtn.addEventListener('click', () => {
-                        this.notificationManager.show('Running comprehensive compliance check...', 'info');
-                        setTimeout(() => {
-                            this.notificationManager.show('Compliance check completed - 3 issues found', 'warning');
-                        }, 2000);
-                    });
-                }
-
-                const generateReportBtn = document.getElementById('generate-compliance-report');
-                if (generateReportBtn) {
-                    generateReportBtn.addEventListener('click', () => {
-                        this.notificationManager.show('Generating compliance report...', 'info');
-                        setTimeout(() => {
-                            this.notificationManager.show('Compliance report generated successfully', 'success');
-                        }, 2000);
-                    });
-                }
-            }, 100);
-        }
-    }
-
+    // Enhanced handleLogout method name change to avoid conflicts
     handleLogout() {
-        this.authManager.logout();
-        
-        // Clear any existing charts
-        Object.values(this.charts).forEach(chart => {
-            if (chart && typeof chart.destroy === 'function') {
-                chart.destroy();
-            }
-        });
-        this.charts = {};
-        
-        // Show login section
-        const appContainer = document.getElementById('app-container');
-        const loginSection = document.getElementById('login-section');
-        
-        if (appContainer) appContainer.style.display = 'none';
-        if (loginSection) loginSection.style.display = 'flex';
-        
-        this.notificationManager.show('Logged out successfully', 'info');
+        this.performLogout();
     }
 
-    updateElement(id, content) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = content;
-        }
-    }
-
-    updateRecentActivity() {
-        const activityContainer = document.getElementById('recent-activity');
-        if (!activityContainer) return;
-        
-        const auditLog = this.dataManager.getAuditLog();
-        const recentEntries = auditLog.slice(0, 5);
-        
-        if (recentEntries.length === 0) {
-            activityContainer.innerHTML = '<p class="no-activity">No recent activity to display</p>';
-            return;
-        }
-        
-        activityContainer.innerHTML = recentEntries.map(entry => `
-            <div class="activity-item">
-                <div class="activity-content">
-                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
-                    <small>${entry.timestamp}</small>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    setupGlobalAuditActions() {
-        window.auditActions = {
-            viewLoginAttempts: () => {
-                this.notificationManager.show('Showing login attempts...', 'info');
-            },
-            viewUserActivity: () => {
-                this.notificationManager.show('Showing user activity...', 'info');
-            },
-            viewDataAccess: () => {
-                this.notificationManager.show('Showing data access logs...', 'info');
-            }
-        };
-    }
-
-    // ...existing component initialization methods...
-
-    loadFallbackSection(sectionId) {
-        switch (sectionId) {
-            case 'dashboard':
-                this.loadDashboardSection();
-                break;
-            case 'user-management':
-                this.loadUserManagementSection();
-                break;
-            default:
-                this.loadGenericSection(sectionId);
-        }
-    }
-
-    loadDashboardSection() {
-        const section = document.getElementById('dashboard');
-        if (!section) return;
-
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📊 Executive Dashboard</h1>
-                    <p>Real-time mining royalties overview and analytics</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-info" id="refresh-dashboard-btn">
-                        🔄 Refresh Data
-                    </button>
-                </div>
-            </div>
-
-            <div class="charts-grid" id="kpi-metrics">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>💰 Total Royalties</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="total-royalties">E 0</p>
-                        <small class="trend-positive">+0%</small>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>🏭 Active Entities</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="active-entities">0</p>
-                        <small class="trend-positive">+0 new</small>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>📋 Compliance Rate</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="compliance-rate">0%</p>
-                        <div class="mini-progress">
-                            <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h5>📈 Recent Activity</h5>
-                </div>
-                <div class="card-body">
-                    <div id="recent-activity" class="activity-list">
-                        <!-- Activity items will be populated dynamically -->
-                    </div>
-                </div>
-            </div>
-        `;
-
-        setTimeout(() => {
-            this.updateDashboardMetrics();
-            this.updateRecentActivity();
-        }, 100);
-    }
-
-    loadGenericSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.innerHTML = `
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>${sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ')}</h1>
-                        <p>This section is under development</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <p>Content for ${sectionId} will be implemented here.</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    // Add missing component initialization methods
-    initializeUserManagementComponent() {
-        console.log('Initializing user management component...');
-        setTimeout(() => {
-            this.notificationManager.show('User management component loaded', 'success');
-        }, 200);
-    }
-
-    initializeRoyaltyRecordsComponent() {
-        console.log('Initializing royalty records component...');
-        setTimeout(() => {
-            this.notificationManager.show('Royalty records component loaded', 'success');
-        }, 200);
-    }
-
-    initializeContractManagementComponent() {
-        console.log('Initializing contract management component...');
-        setTimeout(() => {
-            this.notificationManager.show('Contract management component loaded', 'success');
-        }, 200);
-    }
-
-    initializeReportingAnalyticsComponent() {
-        console.log('Initializing reporting analytics component...');
-        setTimeout(() => {
-            this.notificationManager.show('Reporting analytics component loaded', 'success');
-        }, 200);
-    }
-
-    initializeAuditDashboardComponent() {
-        console.log('Initializing audit dashboard component...');
-        setTimeout(() => {
-            this.notificationManager.show('Audit dashboard component loaded', 'success');
-        }, 200);
-    }
-
-    initializeCommunicationComponent() {
-        console.log('Initializing communication component...');
-        setTimeout(() => {
-            this.notificationManager.show('Communication component loaded', 'success');
-        }, 200);
-    }
-
-    initializeNotificationsComponent() {
-        console.log('Initializing notifications component...');
-        setTimeout(() => {
-            this.notificationManager.show('Notifications component loaded', 'success');
-        }, 200);
-    }
-
-    initializeComplianceComponent() {
-        console.log('Initializing compliance component...');
-        setTimeout(() => {
-            this.notificationManager.show('Compliance component loaded', 'success');
-        }, 200);
-    }
-
-    initializeRegulatoryManagementComponent() {
-        console.log('Initializing regulatory management component...');
-        setTimeout(() => {
-            this.notificationManager.show('Regulatory management component loaded', 'success');
-        }, 200);
-    }
-
-    initializeProfileComponent() {
-        console.log('Initializing profile component...');
-        setTimeout(() => {
-            this.notificationManager.show('Profile component loaded', 'success');
-        }, 200);
-    }
-
-    loadUserManagementSection() {
-        const section = document.getElementById('user-management');
-        if (!section) return;
-        
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>👥 User Management</h1>
-                    <p>Manage system users, roles, and permissions</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-success" onclick="this.notificationManager.show('Add user functionality would open here', 'info')">
-                        ➕ Add User
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <p>User management interface will be implemented here.</p>
-                </div>
-            </div>
-        `;
-    }
+    // ...existing methods...
 }
 
 // ===== ACTION HANDLER CLASSES =====
@@ -1431,121 +1273,54 @@ class ChartManager {
     }
 }
 
-// Global instances
-const notificationManager = new NotificationManager();
-const dataManager = new DataManager();
+// Global instances - ensure clean initialization
+let notificationManager, dataManager, royaltiesApp;
+
+// Clean up any existing instances
+if (window.royaltiesApp) {
+    try {
+        window.royaltiesApp.cleanup();
+    } catch (error) {
+        console.warn('Error cleaning up existing app instance:', error);
+    }
+}
+
+try {
+    notificationManager = new NotificationManager();
+    dataManager = new DataManager();
+} catch (error) {
+    console.error('Error initializing global instances:', error);
+}
 
 // Initialize application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded - Initializing app...');
-    const app = new RoyaltiesApp();
-    window.royaltiesApp = app;
-    app.initialize();
+    try {
+        console.log('DOM Content Loaded - Initializing app...');
+        royaltiesApp = new RoyaltiesApp();
+        window.royaltiesApp = royaltiesApp;
+        royaltiesApp.initialize();
+    } catch (error) {
+        console.error('Error during application initialization:', error);
+        if (notificationManager) {
+            notificationManager.show('Application failed to initialize', 'error');
+        }
+    }
 });
 
-// Add missing mobile navigation handler
-class MobileNavigationManager {
-    constructor() {
-        this.isOpen = false;
-        this.setupMobileToggle();
-    }
-
-    setupMobileToggle() {
-        // Create mobile toggle button
-        const toggleButton = document.createElement('button');
-        toggleButton.className = 'mobile-menu-toggle';
-        toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
-        toggleButton.addEventListener('click', () => this.toggleSidebar());
-        document.body.appendChild(toggleButton);
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                this.closeSidebar();
-            }
-        });
-    }
-
-    toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            this.isOpen = !this.isOpen;
-            sidebar.classList.toggle('mobile-open', this.isOpen);
-            
-            // Update toggle icon
-            const toggle = document.querySelector('.mobile-menu-toggle i');
-            toggle.className = this.isOpen ? 'fas fa-times' : 'fas fa-bars';
-        }
-    }
-
-    closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            this.isOpen = false;
-            sidebar.classList.remove('mobile-open');
-            
-            const toggle = document.querySelector('.mobile-menu-toggle i');
-            if (toggle) toggle.className = 'fas fa-bars';
+// Prevent multiple initializations
+if (document.readyState === 'loading') {
+    // DOM is still loading
+    console.log('Waiting for DOM to load...');
+} else {
+    // DOM is already loaded
+    console.log('DOM already loaded, initializing immediately...');
+    if (!window.royaltiesApp) {
+        try {
+            royaltiesApp = new RoyaltiesApp();
+            window.royaltiesApp = royaltiesApp;
+            royaltiesApp.initialize();
+        } catch (error) {
+            console.error('Error during immediate initialization:', error);
         }
     }
 }
-
-// Enhanced RoyaltiesApp class additions
-class RoyaltiesApp {
-    // ...existing code...
-
-    initializeMainApplication() {
-        console.log('Initializing main application for user:', this.authManager.getCurrentUser());
-        
-        this.initializeManagers();
-        this.setupEventListeners();
-        this.setupNavigation();
-        this.setupGlobalAuditActions();
-        this.mobileNav = new MobileNavigationManager(); // Add this line
-        this.showSection('dashboard');
-        
-        const currentUser = this.authManager.getCurrentUser();
-        this.notificationManager.show(`Welcome back, ${currentUser.username}!`, 'success');
-        
-        console.log('Main application initialized successfully');
-    }
-
-    // Enhanced error handling
-    setupGlobalErrorHandling() {
-        window.addEventListener('error', (event) => {
-            console.error('Global error:', event.error);
-            this.notificationManager.show('An unexpected error occurred', 'error');
-        });
-
-        window.addEventListener('unhandledrejection', (event) => {
-            console.error('Unhandled promise rejection:', event.reason);
-            this.notificationManager.show('System error - please refresh the page', 'error');
-        });
-    }
-
-    // Enhanced navigation with mobile support
-    setupNavigation() {
-        document.addEventListener('click', (e) => {
-            const navLink = e.target.closest('.nav-link');
-            if (navLink) {
-                e.preventDefault();
-                const section = navLink.dataset.section;
-                
-                // Close mobile menu on navigation
-                if (this.mobileNav) {
-                    this.mobileNav.closeSidebar();
-                }
-                
-                if (section === 'logout') {
-                    this.handleLogout();
-                } else {
-                    this.showSection(section);
-                }
-            }
-        });
-    }
-
-    // ...existing code...
-}
-
-// ...existing code...
