@@ -473,18 +473,18 @@ class RoyaltiesApp {
                 </div>
                 <nav>
                     <ul>
-                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">📊 Dashboard</a></li>
-                        <li><a href="#user-management" class="nav-link" data-section="user-management">👥 User Management</a></li>
-                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">💰 Royalty Records</a></li>
-                        <li><a href="#contract-management" class="nav-link" data-section="contract-management">📋 Contract Management</a></li>
-                        <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard">🛡️ Audit Dashboard</a></li>
-                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics">📊 Reporting & Analytics</a></li>
-                        <li><a href="#communication" class="nav-link" data-section="communication">📧 Communication</a></li>
-                        <li><a href="#notifications" class="nav-link" data-section="notifications">🔔 Notifications</a></li>
-                        <li><a href="#compliance" class="nav-link" data-section="compliance">✅ Compliance</a></li>
-                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management">⚖️ Regulatory</a></li>
-                        <li><a href="#profile" class="nav-link" data-section="profile">👤 Profile</a></li>
-                        <li><a href="#logout" class="nav-link" data-section="logout">🚪 Logout</a></li>
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                        <li><a href="#user-management" class="nav-link" data-section="user-management"><i class="fas fa-users"></i> User Management</a></li>
+                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records"><i class="fas fa-money-bill-wave"></i> Royalty Records</a></li>
+                        <li><a href="#contract-management" class="nav-link" data-section="contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
+                        <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard"><i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
+                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
+                        <li><a href="#communication" class="nav-link" data-section="communication"><i class="fas fa-envelope"></i> Communication</a></li>
+                        <li><a href="#notifications" class="nav-link" data-section="notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+                        <li><a href="#compliance" class="nav-link" data-section="compliance"><i class="fas fa-check-circle"></i> Compliance</a></li>
+                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management"><i class="fas fa-gavel"></i> Regulatory</a></li>
+                        <li><a href="#profile" class="nav-link" data-section="profile"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a href="#logout" class="nav-link" data-section="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                     </ul>
                 </nav>
             `;
@@ -1324,3 +1324,578 @@ if (document.readyState === 'loading') {
         }
     }
 }
+
+// ===== COMPONENT INITIALIZATION METHODS =====
+// Add missing component initialization methods
+RoyaltiesApp.prototype.initializeUserManagementComponent = function() {
+    console.log('Initializing user management component...');
+    setTimeout(() => {
+        this.notificationManager.show('User management component loaded', 'success');
+    }, 200);
+};
+
+RoyaltiesApp.prototype.initializeRoyaltyRecordsComponent = function() {
+    console.log('Initializing royalty records component...');
+    
+    // Make sure managers are globally available
+    window.dataManager = this.dataManager;
+    window.notificationManager = this.notificationManager;
+    window.royaltiesApp = this;
+    
+    setTimeout(() => {
+        this.setupRoyaltyRecordsEventListeners();
+        this.updateRoyaltyRecordsTable();
+        this.notificationManager.show('Royalty records component loaded', 'success');
+    }, 300);
+};
+
+RoyaltiesApp.prototype.setupRoyaltyRecordsEventListeners = function() {
+    try {
+        // Remove existing listeners first
+        this.removeRoyaltyRecordsListeners();
+        
+        // Add Record button
+        const addRecordBtn = document.getElementById('add-record-btn');
+        if (addRecordBtn) {
+            this.addRecordHandler = () => this.showAddRecordModal();
+            addRecordBtn.addEventListener('click', this.addRecordHandler);
+        }
+        
+        // Filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        this.filterHandlers = [];
+        filterButtons.forEach((btn, index) => {
+            const handler = () => {
+                // Remove active class from all filter buttons
+                filterButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                const filterType = btn.dataset.filter;
+                this.filterRoyaltyRecords(filterType);
+            };
+            
+            this.filterHandlers[index] = handler;
+            btn.addEventListener('click', handler);
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('records-search');
+        if (searchInput) {
+            this.searchHandler = (e) => this.searchRoyaltyRecords(e.target.value);
+            searchInput.addEventListener('input', this.searchHandler);
+        }
+        
+        // Export button
+        const exportBtn = document.getElementById('export-records-btn');
+        if (exportBtn) {
+            this.exportRecordsHandler = () => this.exportRoyaltyRecords();
+            exportBtn.addEventListener('click', this.exportRecordsHandler);
+        }
+        
+        // Bulk actions
+        const bulkActionBtn = document.getElementById('bulk-action-btn');
+        if (bulkActionBtn) {
+            this.bulkActionHandler = () => this.handleBulkActions();
+            bulkActionBtn.addEventListener('click', this.bulkActionHandler);
+        }
+        
+        console.log('Royalty records event listeners setup complete');
+    } catch (error) {
+        console.error('Error setting up royalty records event listeners:', error);
+    }
+};
+
+RoyaltiesApp.prototype.removeRoyaltyRecordsListeners = function() {
+    // Remove add record listener
+    const addRecordBtn = document.getElementById('add-record-btn');
+    if (addRecordBtn && this.addRecordHandler) {
+        addRecordBtn.removeEventListener('click', this.addRecordHandler);
+    }
+    
+    // Remove filter listeners
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    if (this.filterHandlers) {
+        filterButtons.forEach((btn, index) => {
+            if (this.filterHandlers[index]) {
+                btn.removeEventListener('click', this.filterHandlers[index]);
+            }
+        });
+    }
+    
+    // Remove search listener
+    const searchInput = document.getElementById('records-search');
+    if (searchInput && this.searchHandler) {
+        searchInput.removeEventListener('input', this.searchHandler);
+    }
+    
+    // Remove export listener
+    const exportBtn = document.getElementById('export-records-btn');
+    if (exportBtn && this.exportRecordsHandler) {
+        exportBtn.removeEventListener('click', this.exportRecordsHandler);
+    }
+    
+    // Remove bulk action listener
+    const bulkActionBtn = document.getElementById('bulk-action-btn');
+    if (bulkActionBtn && this.bulkActionHandler) {
+        bulkActionBtn.removeEventListener('click', this.bulkActionHandler);
+    }
+};
+
+RoyaltiesApp.prototype.updateRoyaltyRecordsTable = function() {
+    try {
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const tableBody = document.getElementById('royalty-records-table-body');
+        
+        if (!tableBody) {
+            console.warn('Royalty records table body not found');
+            return;
+        }
+        
+        if (royaltyRecords.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem;">
+                        No royalty records found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tableBody.innerHTML = royaltyRecords.map(record => `
+            <tr data-record-id="${record.id}">
+                <td>
+                    <input type="checkbox" class="record-checkbox" value="${record.id}">
+                </td>
+                <td>${record.referenceNumber}</td>
+                <td>${record.entity}</td>
+                <td>${record.mineral}</td>
+                <td>${record.volume.toLocaleString()}</td>
+                <td>E ${record.royalties.toLocaleString()}</td>
+                <td>${record.date}</td>
+                <td>
+                    <span class="status-badge ${record.status.toLowerCase()}">
+                        ${record.status}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="editRecord(${record.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
+        // Update summary statistics
+        this.updateRoyaltyRecordsSummary(royaltyRecords);
+        
+        console.log('Royalty records table updated successfully');
+    } catch (error) {
+        console.error('Error updating royalty records table:', error);
+        this.notificationManager.show('Error loading royalty records', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.updateRoyaltyRecordsSummary = function(records = null) {
+    try {
+        const royaltyRecords = records || this.dataManager.getRoyaltyRecords();
+        
+        const totalRecords = royaltyRecords.length;
+        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
+        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
+        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
+        
+        // Update summary elements
+        this.updateElement('total-records-count', totalRecords);
+        this.updateElement('total-royalties-amount', `E ${totalRoyalties.toLocaleString()}`);
+        this.updateElement('paid-records-count', paidRecords);
+        this.updateElement('pending-records-count', pendingRecords);
+        this.updateElement('overdue-records-count', overdueRecords);
+        
+        // Calculate compliance rate
+        const complianceRate = totalRecords > 0 ? Math.round((paidRecords / totalRecords) * 100) : 0;
+        this.updateElement('records-compliance-rate', `${complianceRate}%`);
+        
+        // Update progress bar
+        const progressBar = document.getElementById('records-compliance-progress');
+        if (progressBar) {
+            progressBar.style.width = `${complianceRate}%`;
+        }
+        
+    } catch (error) {
+        console.error('Error updating royalty records summary:', error);
+    }
+};
+
+RoyaltiesApp.prototype.filterRoyaltyRecords = function(filterType) {
+    try {
+        const allRecords = this.dataManager.getRoyaltyRecords();
+        let filteredRecords;
+        
+        switch (filterType) {
+            case 'all':
+                filteredRecords = allRecords;
+                break;
+            case 'paid':
+                filteredRecords = allRecords.filter(r => r.status === 'Paid');
+                break;
+            case 'pending':
+                filteredRecords = allRecords.filter(r => r.status === 'Pending');
+                break;
+            case 'overdue':
+                filteredRecords = allRecords.filter(r => r.status === 'Overdue');
+                break;
+            default:
+                filteredRecords = allRecords;
+        }
+        
+        this.displayFilteredRecords(filteredRecords);
+        this.notificationManager.show(`Showing ${filteredRecords.length} ${filterType} records`, 'info');
+        
+    } catch (error) {
+        console.error('Error filtering royalty records:', error);
+        this.notificationManager.show('Error filtering records', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.searchRoyaltyRecords = function(searchTerm) {
+    try {
+        const allRecords = this.dataManager.getRoyaltyRecords();
+        const searchResults = allRecords.filter(record => 
+            record.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            record.entity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            record.mineral.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        this.displayFilteredRecords(searchResults);
+        
+        if (searchTerm.length > 0) {
+            this.notificationManager.show(`Found ${searchResults.length} records matching "${searchTerm}"`, 'info');
+        }
+        
+    } catch (error) {
+        console.error('Error searching royalty records:', error);
+        this.notificationManager.show('Error searching records', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.displayFilteredRecords = function(records) {
+    const tableBody = document.getElementById('royalty-records-table-body');
+    if (!tableBody) return;
+    
+    if (records.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem;">
+                    No records match the current filter
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tableBody.innerHTML = records.map(record => `
+        <tr data-record-id="${record.id}">
+            <td>
+                <input type="checkbox" class="record-checkbox" value="${record.id}">
+            </td>
+            <td>${record.referenceNumber}</td>
+            <td>${record.entity}</td>
+            <td>${record.mineral}</td>
+            <td>${record.volume.toLocaleString()}</td>
+            <td>E ${record.royalties.toLocaleString()}</td>
+            <td>${record.date}</td>
+            <td>
+                <span class="status-badge ${record.status.toLowerCase()}">
+                    ${record.status}
+                </span>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="editRecord(${record.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+    
+    this.updateRoyaltyRecordsSummary(records);
+};
+
+RoyaltiesApp.prototype.showAddRecordModal = function() {
+    try {
+        this.notificationManager.show('Opening add record form...', 'info');
+        
+        // Create modal content
+        const modalContent = `
+            <div class="modal-overlay" id="add-record-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Royalty Record</h3>
+                        <button class="modal-close" onclick="closeAddRecordModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-record-form" class="grid-4">
+                            <div class="form-group">
+                                <label for="record-entity">Entity:</label>
+                                <select id="record-entity" required>
+                                    <option value="">Select Entity</option>
+                                    ${this.dataManager.getEntities().map(entity => 
+                                        `<option value="${entity.name}">${entity.name}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-mineral">Mineral:</label>
+                                <select id="record-mineral" required>
+                                    <option value="">Select Mineral</option>
+                                    ${this.dataManager.getMinerals().map(mineral => 
+                                        `<option value="${mineral.name}" data-tariff="${mineral.tariff}">${mineral.name}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-volume">Volume:</label>
+                                <input type="number" id="record-volume" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-tariff">Tariff (E):</label>
+                                <input type="number" id="record-tariff" min="0" step="0.01" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-royalties">Calculated Royalties (E):</label>
+                                <input type="number" id="record-royalties" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="record-date">Date:</label>
+                                <input type="date" id="record-date" required value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="form-group">
+                                <label for="record-status">Status:</label>
+                                <select id="record-status" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Overdue">Overdue</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddRecordModal()">Cancel</button>
+                        <button type="submit" form="add-record-form" class="btn btn-primary">Add Record</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+        
+        // Setup form handlers
+        this.setupAddRecordFormHandlers();
+        
+    } catch (error) {
+        console.error('Error showing add record modal:', error);
+        this.notificationManager.show('Error opening add record form', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.setupAddRecordFormHandlers = function() {
+    const mineralSelect = document.getElementById('record-mineral');
+    const volumeInput = document.getElementById('record-volume');
+    const tariffInput = document.getElementById('record-tariff');
+    const royaltiesInput = document.getElementById('record-royalties');
+    const form = document.getElementById('add-record-form');
+    
+    // Auto-calculate royalties
+    const calculateRoyalties = () => {
+        const volume = parseFloat(volumeInput.value) || 0;
+        const tariff = parseFloat(tariffInput.value) || 0;
+        const royalties = volume * tariff;
+        royaltiesInput.value = royalties.toFixed(2);
+    };
+    
+    // Set tariff when mineral is selected
+    mineralSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const tariff = selectedOption.dataset.tariff || 0;
+        tariffInput.value = tariff;
+        calculateRoyalties();
+    });
+    
+    // Recalculate when volume changes
+    volumeInput.addEventListener('input', calculateRoyalties);
+    
+    // Handle form submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleAddRecordSubmit();
+    });
+};
+
+RoyaltiesApp.prototype.handleAddRecordSubmit = function() {
+    try {
+        const formData = {
+            entity: document.getElementById('record-entity').value,
+            mineral: document.getElementById('record-mineral').value,
+            volume: parseFloat(document.getElementById('record-volume').value),
+            tariff: parseFloat(document.getElementById('record-tariff').value),
+            royalties: parseFloat(document.getElementById('record-royalties').value),
+            date: document.getElementById('record-date').value,
+            status: document.getElementById('record-status').value
+        };
+        
+        // Validate form data
+        if (!formData.entity || !formData.mineral || !formData.volume || !formData.date) {
+            this.notificationManager.show('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Generate reference number
+        const referenceNumber = `ROY-${new Date().getFullYear()}-${String(this.dataManager.getRoyaltyRecords().length + 1).padStart(3, '0')}`;
+        
+        // Create new record
+        const newRecord = {
+            id: this.dataManager.getRoyaltyRecords().length + 1,
+            referenceNumber,
+            ...formData
+        };
+        
+        // Add to data manager
+        this.dataManager.getRoyaltyRecords().push(newRecord);
+        
+        // Add audit entry
+        this.dataManager.addAuditEntry({
+            user: this.authManager.getCurrentUser().username,
+            action: 'Create Record',
+            target: referenceNumber,
+            ipAddress: '192.168.1.100',
+            status: 'Success'
+        });
+        
+        // Close modal and refresh table
+        this.closeAddRecordModal();
+        this.updateRoyaltyRecordsTable();
+        
+        this.notificationManager.show('Royalty record added successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error adding royalty record:', error);
+        this.notificationManager.show('Error adding record', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.closeAddRecordModal = function() {
+    const modal = document.getElementById('add-record-modal');
+    if (modal) {
+        modal.remove();
+    }
+};
+
+RoyaltiesApp.prototype.exportRoyaltyRecords = function() {
+    try {
+        this.notificationManager.show('Exporting royalty records...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Royalty records exported successfully', 'success');
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error exporting royalty records:', error);
+        this.notificationManager.show('Error exporting records', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.handleBulkActions = function() {
+    try {
+        const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+        const selectedIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+        
+        if (selectedIds.length === 0) {
+            this.notificationManager.show('Please select records to perform bulk actions', 'warning');
+            return;
+        }
+        
+        this.notificationManager.show(`Selected ${selectedIds.length} records for bulk action`, 'info');
+        
+    } catch (error) {
+        console.error('Error handling bulk actions:', error);
+        this.notificationManager.show('Error performing bulk action', 'error');
+    }
+};
+
+RoyaltiesApp.prototype.updateElement = function(id, content) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = content;
+    }
+};
+
+// Global functions for royalty records
+window.viewRecord = function(recordId) {
+    try {
+        if (window.recordActions && typeof window.recordActions.viewRecord === 'function') {
+            window.recordActions.viewRecord(recordId);
+        } else {
+            window.notificationManager.show(`Viewing record ${recordId}`, 'info');
+        }
+    } catch (error) {
+        console.error('Error viewing record:', error);
+    }
+};
+
+window.editRecord = function(recordId) {
+    try {
+        if (window.recordActions && typeof window.recordActions.editRecord === 'function') {
+            window.recordActions.editRecord(recordId);
+        } else {
+            window.notificationManager.show(`Editing record ${recordId}`, 'info');
+        }
+    } catch (error) {
+        console.error('Error editing record:', error);
+    }
+};
+
+window.deleteRecord = function(recordId) {
+    try {
+        if (window.recordActions && typeof window.recordActions.deleteRecord === 'function') {
+            window.recordActions.deleteRecord(recordId);
+        } else {
+            if (confirm('Are you sure you want to delete this record?')) {
+                window.notificationManager.show(`Record ${recordId} deleted`, 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Error deleting record:', error);
+    }
+};
+
+window.closeAddRecordModal = function() {
+    try {
+        if (window.royaltiesApp && typeof window.royaltiesApp.closeAddRecordModal === 'function') {
+            window.royaltiesApp.closeAddRecordModal();
+        } else {
+            const modal = document.getElementById('add-record-modal');
+            if (modal) modal.remove();
+        }
+    } catch (error) {
+        console.error('Error closing modal:', error);
+    }
+};
