@@ -1,8 +1,11 @@
 // Mining Royalties Manager - Main Application Entry Point
 
+import { DataManager } from './core/DataManager.js';
+import { EventManager } from './core/EventManager.js';
+import { ComponentLoader } from './utils/ComponentLoader.js';
+
 // Global application state
 let currentUser = null;
-let currentSection = 'dashboard';
 
 // Authentication Manager
 class AuthManager {
@@ -120,22 +123,55 @@ class NotificationManager {
 class RoyaltiesApp {
     constructor() {
         this.dataManager = new DataManager();
+        this.eventManager = new EventManager();
+        this.componentLoader = new ComponentLoader();
         this.authManager = new AuthManager();
         this.notificationManager = new NotificationManager();
-        this.dashboardManager = null;
-        this.actionHandlers = {};
-        this.charts = {};
-        this.chartManager = new ChartManager();
+        this.currentSection = 'dashboard';
+        this.isInitialized = false;
     }
 
     async initialize() {
-        console.log('DOM loaded - Starting application initialization...');
+        if (this.isInitialized) return;
         
-        // Initialize data
-        this.dataManager.initialize();
+        try {
+            this.dataManager.initialize();
+            this.setupGlobalErrorHandling();
+            await this.startLoadingSequence();
+            this.isInitialized = true;
+        } catch (error) {
+            console.error('Application initialization failed:', error);
+            this.notificationManager.show('Failed to initialize application', 'error');
+        }
+    }
+
+    async showSection(sectionId) {
+        const sections = document.querySelectorAll('main section');
+        sections.forEach(section => section.style.display = 'none');
+
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            this.currentSection = sectionId;
+            this.updateNavigationState(sectionId);
+            
+            // Load component asynchronously
+            const loaded = await this.componentLoader.loadComponent(sectionId, targetSection);
+            if (loaded) {
+                this.initializeComponent(sectionId);
+            }
+        }
+    }
+
+    cleanup() {
+        this.eventManager.cleanup();
+        this.componentLoader.clearCache();
         
-        // Start loading sequence
-        this.startLoadingSequence();
+        // Cleanup charts
+        Object.values(this.charts || {}).forEach(chart => {
+            if (chart?.destroy) chart.destroy();
+        });
+        this.charts = {};
     }
 
     startLoadingSequence() {
