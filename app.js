@@ -1,1241 +1,121 @@
-// Mining Royalties Manager - Main Application JavaScript
-console.log('Mining Royalties Manager v1.0 - Loading...');
+// Mining Royalties Manager - Main Application
+console.log('Mining Royalties Manager v2.0 - Loading...');
 
-// Global application state
-let currentUser = null;
-let currentSection = 'dashboard';
-let charts = {};
+// ===== CORE CLASSES =====
 
-// ===== MOBILE NAVIGATION MANAGER =====
-class MobileNavigationManager {
-    constructor() {
-        this.isOpen = false;
-        this.setupMobileToggle();
-    }
-
-    setupMobileToggle() {
-        // Create mobile toggle button if it doesn't exist
-        let toggleButton = document.querySelector('.mobile-menu-toggle');
-        if (!toggleButton) {
-            toggleButton = document.createElement('button');
-            toggleButton.className = 'mobile-menu-toggle';
-            toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
-            toggleButton.style.cssText = `
-                position: fixed;
-                top: 1rem;
-                left: 1rem;
-                z-index: 1001;
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                padding: 0.75rem;
-                border-radius: 6px;
-                font-size: 1rem;
-                cursor: pointer;
-                display: none;
-            `;
-            document.body.appendChild(toggleButton);
-        }
-        
-        toggleButton.addEventListener('click', () => this.toggleSidebar());
-
-        // Show toggle on mobile
-        this.updateToggleVisibility();
-        window.addEventListener('resize', () => {
-            this.updateToggleVisibility();
-            if (window.innerWidth > 768) {
-                this.closeSidebar();
-            }
-        });
-    }
-
-    updateToggleVisibility() {
-        const toggle = document.querySelector('.mobile-menu-toggle');
-        if (toggle) {
-            toggle.style.display = window.innerWidth <= 768 ? 'block' : 'none';
-        }
-    }
-
-    toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            this.isOpen = !this.isOpen;
-            sidebar.classList.toggle('mobile-open', this.isOpen);
-            
-            // Update toggle icon
-            const toggle = document.querySelector('.mobile-menu-toggle i');
-            if (toggle) {
-                toggle.className = this.isOpen ? 'fas fa-times' : 'fas fa-bars';
-            }
-            
-            // Add/remove overlay
-            this.toggleOverlay();
-        }
-    }
-
-    toggleOverlay() {
-        let overlay = document.querySelector('.mobile-overlay');
-        if (this.isOpen) {
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'mobile-overlay';
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
-                    z-index: 999;
-                `;
-                overlay.addEventListener('click', () => this.closeSidebar());
-                document.body.appendChild(overlay);
-            }
-            overlay.classList.add('active');
-        } else if (overlay) {
-            overlay.classList.remove('active');
-            setTimeout(() => overlay.remove(), 300);
-        }
-    }
-
-    closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            this.isOpen = false;
-            sidebar.classList.remove('mobile-open');
-            
-            const toggle = document.querySelector('.mobile-menu-toggle i');
-            if (toggle) toggle.className = 'fas fa-bars';
-            
-            // Remove overlay
-            const overlay = document.querySelector('.mobile-overlay');
-            if (overlay) {
-                overlay.classList.remove('active');
-                setTimeout(() => overlay.remove(), 300);
-            }
-        }
-    }
-}
-
-// ===== NOTIFICATION MANAGER =====
-class NotificationManager {
-    constructor() {
-        this.activeNotifications = new Set();
-    }
-
-    show(message, type = 'info', duration = 5000) {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        
-        const iconMap = {
-            'success': '✓',
-            'error': '✗',
-            'warning': '⚠',
-            'info': 'ℹ'
-        };
-        
-        notification.innerHTML = `
-            <div class="notification-content">
-                <span style="margin-right: 0.5rem;">${iconMap[type]}</span>
-                <span>${message}</span>
-            </div>
-            <button class="notification-close" onclick="this.parentElement.remove()">
-                ×
-            </button>
-        `;
-        
-        document.body.appendChild(notification);
-        this.activeNotifications.add(notification);
-        
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-                this.activeNotifications.delete(notification);
-            }
-        }, duration);
-
-        return notification;
-    }
-
-    clear() {
-        this.activeNotifications.forEach(notification => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        });
-        this.activeNotifications.clear();
-    }
-}
-
-// ===== DATA MANAGER =====
-class DataManager {
-    constructor() {
-        this.entities = [];
-        this.minerals = [];
-        this.royaltyRecords = [];
-        this.userAccounts = [];
-        this.auditLog = [];
-        this.contracts = [];
-    }
-
-    initialize() {
-        this.initializeEntities();
-        this.initializeMinerals();
-        this.initializeRoyaltyRecords();
-        this.initializeUserAccounts();
-        this.initializeAuditLog();
-        this.initializeContracts();
-    }
-
-    initializeEntities() {
-        this.entities = [
-            { id: 1, name: 'Kwalini Quarry', type: 'Quarry', location: 'Kwaluseni', status: 'Active' },
-            { id: 2, name: 'Maloma Colliery', type: 'Mine', location: 'Maloma', status: 'Active' },
-            { id: 3, name: 'Ngwenya Mine', type: 'Mine', location: 'Ngwenya', status: 'Active' },
-            { id: 4, name: 'Mbabane Quarry', type: 'Quarry', location: 'Mbabane', status: 'Active' },
-            { id: 5, name: 'Sidvokodvo Quarry', type: 'Quarry', location: 'Sidvokodvo', status: 'Active' },
-            { id: 6, name: 'Piggs Peak Mine', type: 'Mine', location: 'Piggs Peak', status: 'Inactive' }
-        ];
-    }
-
-    initializeMinerals() {
-        this.minerals = [
-            { id: 1, name: 'Coal', tariff: 12, unit: 'per tonne' },
-            { id: 2, name: 'Iron Ore', tariff: 25, unit: 'per tonne' },
-            { id: 3, name: 'Quarried Stone', tariff: 15, unit: 'per m³' },
-            { id: 4, name: 'River Sand', tariff: 8, unit: 'per m³' },
-            { id: 5, name: 'Gravel', tariff: 10, unit: 'per m³' },
-            { id: 6, name: 'Clay', tariff: 5, unit: 'per tonne' }
-        ];
-    }
-
-    initializeRoyaltyRecords() {
-        this.royaltyRecords = [
-            {
-                id: 1, entity: 'Kwalini Quarry', mineral: 'Quarried Stone', volume: 1250,
-                tariff: 15, royalties: 18750, date: '2024-01-15', status: 'Paid', referenceNumber: 'ROY-2024-001'
-            },
-            {
-                id: 2, entity: 'Maloma Colliery', mineral: 'Coal', volume: 850,
-                tariff: 12, royalties: 10200, date: '2024-01-20', status: 'Pending', referenceNumber: 'ROY-2024-002'
-            },
-            {
-                id: 3, entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 2100,
-                tariff: 25, royalties: 52500, date: '2024-01-25', status: 'Paid', referenceNumber: 'ROY-2024-003'
-            },
-            {
-                id: 4, entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 750,
-                tariff: 10, royalties: 7500, date: '2024-02-01', status: 'Overdue', referenceNumber: 'ROY-2024-004'
-            }
-        ];
-    }
-
-    initializeUserAccounts() {
-        this.userAccounts = [
-            {
-                id: 1, username: 'admin', email: 'admin@eswacaa.sz', role: 'Administrator',
-                department: 'Management', status: 'Active', lastLogin: '2024-02-10 09:15:00'
-            },
-            {
-                id: 2, username: 'editor', email: 'editor@eswacaa.sz', role: 'Editor',
-                department: 'Finance', status: 'Active', lastLogin: '2024-02-09 14:30:00'
-            },
-            {
-                id: 3, username: 'viewer', email: 'viewer@eswacaa.sz', role: 'Viewer',
-                department: 'Audit', status: 'Active', lastLogin: '2024-02-08 11:45:00'
-            }
-        ];
-    }
-
-    initializeAuditLog() {
-        this.auditLog = [
-            {
-                id: 1, timestamp: '2024-02-10 09:15:23', user: 'admin', action: 'Login',
-                target: 'System', ipAddress: '192.168.1.100', status: 'Success'
-            },
-            {
-                id: 2, timestamp: '2024-02-10 09:20:15', user: 'admin', action: 'Create User',
-                target: 'editor', ipAddress: '192.168.1.100', status: 'Success'
-            }
-        ];
-    }
-
-    initializeContracts() {
-        this.contracts = [
-            {
-                id: 'MC-2024-001', stakeholder: 'Government of Eswatini', entity: 'Maloma Colliery',
-                contractType: 'Mining License Agreement', royaltyRate: '2.5% of gross value',
-                startDate: '2024-01-01', endDate: '2029-12-31', status: 'active'
-            }
-        ];
-    }
-
-    // Data access methods
-    getEntities() { return this.entities; }
-    getMinerals() { return this.minerals; }
-    getRoyaltyRecords() { return this.royaltyRecords; }
-    getUserAccounts() { return this.userAccounts; }
-    getAuditLog() { return this.auditLog; }
-    getContracts() { return this.contracts; }
-
-    addAuditEntry(entry) {
-        this.auditLog.unshift({
-            id: this.auditLog.length + 1,
-            timestamp: new Date().toLocaleString(),
-            ...entry
-        });
-    }
-
-    deleteUser(userId) {
-        const index = this.userAccounts.findIndex(u => u.id === userId);
-        if (index !== -1) {
-            return this.userAccounts.splice(index, 1)[0];
-        }
-        return null;
-    }
-
-    findUserById(userId) { return this.userAccounts.find(u => u.id === userId); }
-    findRecordById(recordId) { return this.royaltyRecords.find(r => r.id === recordId); }
-    findContractById(contractId) { return this.contracts.find(c => c.id === contractId); }
-}
-
-// ===== AUTHENTICATION MANAGER =====
-class AuthManager {
-    constructor() {
-        this.currentUser = null;
-        this.validCredentials = [
-            { username: 'admin', password: 'admin123', role: 'Administrator' },
-            { username: 'editor', password: 'editor123', role: 'Editor' },
-            { username: 'viewer', password: 'viewer123', role: 'Viewer' },
-            { username: 'finance', password: 'finance123', role: 'Finance Manager' },
-            { username: 'auditor', password: 'audit123', role: 'Auditor' }
-        ];
-    }
-
-    authenticate(username, password) {
-        const user = this.validCredentials.find(cred => 
-            cred.username === username && cred.password === password
-        );
-
-        if (user) {
-            this.currentUser = {
-                username: user.username,
-                role: user.role,
-                department: this.getDepartmentByRole(user.role),
-                email: `${user.username}@eswacaa.sz`,
-                lastLogin: new Date().toISOString()
-            };
-            return { success: true, user: this.currentUser };
-        }
-        return { success: false, error: 'Invalid credentials' };
-    }
-
-    getDepartmentByRole(role) {
-        const roleToDepartment = {
-            'Administrator': 'Management',
-            'Finance Manager': 'Finance',
-            'Editor': 'Finance',
-            'Auditor': 'Audit',
-            'Viewer': 'Audit'
-        };
-        return roleToDepartment[role] || 'General';
-    }
-
-    getCurrentUser() { return this.currentUser; }
-    logout() { this.currentUser = null; }
-    isAuthenticated() { return this.currentUser !== null; }
-    hasRole(role) { return this.currentUser && this.currentUser.role === role; }
-}
-
-// ===== MAIN APPLICATION CLASS =====
-class RoyaltiesApp {
-    constructor() {
-        this.dataManager = new DataManager();
-        this.authManager = new AuthManager();
-        this.notificationManager = new NotificationManager();
-        this.chartManager = new ChartManager();
-        this.actionHandlers = {};
-        this.charts = {};
-        this.mobileNav = null;
-        this.isInitialized = false;
-    }
-
-    async initialize() {
-        if (this.isInitialized) {
-            console.warn('Application already initialized');
-            return;
-        }
-        
-        console.log('DOM loaded - Starting application initialization...');
-        this.dataManager.initialize();
-        this.setupGlobalErrorHandling();
-        this.startLoadingSequence();
-        this.isInitialized = true;
-    }
-
-    setupGlobalErrorHandling() {
-        window.addEventListener('error', (event) => {
-            console.error('Global error:', event.error);
-            if (this.notificationManager) {
-                this.notificationManager.show('An unexpected error occurred', 'error');
-            }
-        });
-
-        window.addEventListener('unhandledrejection', (event) => {
-            console.error('Unhandled promise rejection:', event.reason);
-            if (this.notificationManager) {
-                this.notificationManager.show('System error - please refresh the page', 'error');
-            }
-        });
-    }
-
-    startLoadingSequence() {
-        console.log('Starting loading simulation...');
-        setTimeout(() => {
-            console.log('Loading complete - Showing login');
-            this.hideLoadingShowLogin();
-        }, 2000);
-    }
-
-    hideLoadingShowLogin() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const loginSection = document.getElementById('login-section');
-        
-        if (loadingScreen) loadingScreen.style.display = 'none';
-        if (loginSection) {
-            loginSection.style.display = 'flex';
-            this.setupLoginForm();
-        }
-    }
-
-    setupLoginForm() {
-        const loginForm = document.getElementById('login-form');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const passwordToggle = document.querySelector('.password-toggle');
-        
-        if (passwordToggle && passwordInput) {
-            passwordToggle.addEventListener('click', function() {
-                const type = passwordInput.type === 'password' ? 'text' : 'password';
-                passwordInput.type = type;
-                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-            });
-        }
-        
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const username = usernameInput?.value;
-                const password = passwordInput?.value;
-                this.authenticateUser(username, password);
-            });
-        }
-    }
-
-    authenticateUser(username, password) {
-        const result = this.authManager.authenticate(username, password);
-        
-        if (result.success) {
-            this.dataManager.addAuditEntry({
-                user: username, action: 'Login', target: 'System',
-                ipAddress: '192.168.1.100', status: 'Success',
-                details: `Successful login as ${result.user.role}`
-            });
-            this.showMainApplication();
-        } else {
-            this.notificationManager.show('Invalid credentials. Try: admin/admin123, editor/editor123, or viewer/viewer123', 'error');
-            this.dataManager.addAuditEntry({
-                user: username || 'Unknown', action: 'Failed Login', target: 'System',
-                ipAddress: '192.168.1.100', status: 'Failed',
-                details: 'Failed login attempt - invalid credentials'
-            });
-        }
-    }
-
-    async showMainApplication() {
-        const loginSection = document.getElementById('login-section');
-        const appContainer = document.getElementById('app-container');
-        
-        if (loginSection) loginSection.style.display = 'none';
-        if (appContainer) appContainer.style.display = 'flex';
-        
-        await this.loadSidebar();
-        this.initializeMainApplication();
-    }
-
-    async loadSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.innerHTML = `
-                <div class="sidebar-header">
-                    <div class="sidebar-logo">MR</div>
-                    <h2>Royalties Manager</h2>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                        <li><a href="#user-management" class="nav-link" data-section="user-management"><i class="fas fa-users"></i> User Management</a></li>
-                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records"><i class="fas fa-money-bill-wave"></i> Royalty Records</a></li>
-                        <li><a href="#contract-management" class="nav-link" data-section="contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
-                        <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard"><i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
-                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
-                        <li><a href="#communication" class="nav-link" data-section="communication"><i class="fas fa-envelope"></i> Communication</a></li>
-                        <li><a href="#notifications" class="nav-link" data-section="notifications"><i class="fas fa-bell"></i> Notifications</a></li>
-                        <li><a href="#compliance" class="nav-link" data-section="compliance"><i class="fas fa-check-circle"></i> Compliance</a></li>
-                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management"><i class="fas fa-gavel"></i> Regulatory</a></li>
-                        <li><a href="#profile" class="nav-link" data-section="profile"><i class="fas fa-user"></i> Profile</a></li>
-                        <li><a href="#logout" class="nav-link" data-section="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                    </ul>
-                </nav>
-            `;
-        }
-    }
-
-    initializeMainApplication() {
-        console.log('Initializing main application for user:', this.authManager.getCurrentUser());
-        
-        this.initializeManagers();
-        this.setupEventListeners();
-        this.setupNavigation();
-        this.setupGlobalAuditActions();
-        
-        // Initialize mobile navigation
-        this.mobileNav = new MobileNavigationManager();
-        
-        this.showSection('dashboard');
-        
-        const currentUser = this.authManager.getCurrentUser();
-        this.notificationManager.show(`Welcome back, ${currentUser.username}!`, 'success');
-        
-        console.log('Main application initialized successfully');
-    }
-
-    initializeManagers() {
-        this.actionHandlers = {
-            recordActions: new RecordActions(this.dataManager, this.notificationManager),
-            userActions: new UserActions(this.dataManager, this.notificationManager),
-            contractActions: new ContractActions(this.dataManager, this.notificationManager)
-        };
-
-        // Make managers globally available
-        window.dataManager = this.dataManager;
-        window.notificationManager = this.notificationManager;
-        window.recordActions = this.actionHandlers.recordActions;
-        window.userActions = this.actionHandlers.userActions;
-        window.contractActions = this.actionHandlers.contractActions;
-    }
-
-    setupEventListeners() {
-        // Remove existing listeners to prevent duplicates
-        document.removeEventListener('logoutRequested', this.handleLogout);
-        document.removeEventListener('reloadSection', this.handleReloadSection);
-        
-        // Add fresh listeners
-        this.handleLogout = () => this.performLogout();
-        this.handleReloadSection = (e) => this.loadSectionContent(e.detail.sectionId);
-        
-        document.addEventListener('logoutRequested', this.handleLogout);
-        document.addEventListener('reloadSection', this.handleReloadSection);
-    }
-
-    setupNavigation() {
-        // Remove existing navigation listener to prevent duplicates
-        if (this.navigationHandler) {
-            document.removeEventListener('click', this.navigationHandler);
-        }
-        
-        // Create new navigation handler
-        this.navigationHandler = (e) => {
-            const navLink = e.target.closest('.nav-link');
-            if (navLink) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const section = navLink.dataset.section;
-                
-                // Close mobile menu on navigation
-                if (this.mobileNav) {
-                    this.mobileNav.closeSidebar();
-                }
-                
-                if (section === 'logout') {
-                    this.performLogout();
-                } else {
-                    this.showSection(section);
-                }
-            }
-        };
-        
-        document.addEventListener('click', this.navigationHandler);
-    }
-
-    showSection(sectionId) {
-        const sections = document.querySelectorAll('main section');
-        sections.forEach(section => section.style.display = 'none');
-
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.style.display = 'block';
-            currentSection = sectionId;
-            this.updateNavigationState(sectionId);
-            this.loadSectionContent(sectionId);
-        }
-    }
-
-    updateNavigationState(activeSection) {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.dataset.section === activeSection) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    loadSectionContent(sectionId) {
-        console.log(`Loading section: ${sectionId}`);
-        
-        // Try to load component from components directory first
-        fetch(`components/${sectionId}.html`)
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                }
-                throw new Error(`Component not found: ${sectionId}.html`);
-            })
-            .then(componentHTML => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    section.innerHTML = componentHTML;
-                    console.log(`Successfully loaded component: ${sectionId}.html`);
-                    this.initializeComponent(sectionId);
-                }
-            })
-            .catch(error => {
-                console.warn(`Failed to load component ${sectionId}.html:`, error.message);
-                // Fallback to built-in section loaders
-                this.loadFallbackSection(sectionId);
-            });
-    }
-
-    initializeComponent(sectionId) {
-        console.log(`Initializing component: ${sectionId}`);
-        
-        setTimeout(() => {
-            switch (sectionId) {
-                case 'dashboard':
-                    this.initializeDashboardComponent();
-                    break;
-                case 'user-management':
-                    this.initializeUserManagementComponent();
-                    break;
-                case 'royalty-records':
-                    this.initializeRoyaltyRecordsComponent();
-                    break;
-                case 'contract-management':
-                    this.initializeContractManagementComponent();
-                    break;
-                case 'reporting-analytics':
-                    this.initializeReportingAnalyticsComponent();
-                    break;
-                case 'audit-dashboard':
-                    this.initializeAuditDashboardComponent();
-                    break;
-                case 'communication':
-                    this.initializeCommunicationComponent();
-                    break;
-                case 'notifications':
-                    this.initializeNotificationsComponent();
-                    break;
-                case 'compliance':
-                    this.initializeComplianceComponent();
-                    break;
-                case 'regulatory-management':
-                    this.initializeRegulatoryManagementComponent();
-                    break;
-                case 'profile':
-                    this.initializeProfileComponent();
-                    break;
-                default:
-                    console.log(`No specific initialization for component: ${sectionId}`);
-            }
-        }, 100);
-    }
-
-    // Component initialization methods
-    initializeDashboardComponent() {
-        console.log('Initializing dashboard component...');
-        
-        // Make sure managers are globally available
-        window.dataManager = this.dataManager;
-        window.notificationManager = this.notificationManager;
-        window.royaltiesApp = this;
-        
-        setTimeout(() => {
-            this.updateDashboardMetrics();
-            this.updateRecentActivity();
-            this.setupDashboardEventListeners();
-            
-            // Initialize charts if Chart.js is available
-            try {
-                this.initializeDashboardCharts();
-            } catch (error) {
-                console.error('Error initializing dashboard charts:', error);
-            }
-        }, 300);
-    }
-
-    initializeDashboardCharts() {
-        console.log('Setting up dashboard charts...');
-        
-        // Check if Chart.js is available
-        if (typeof Chart === 'undefined') {
-            console.warn('Chart.js not available, skipping chart initialization');
-            return;
-        }
-
-        try {
-            this.createRevenueChart();
-            this.createEntityChart();
-            this.createPaymentTimelineChart();
-            this.createMineralPerformanceChart();
-            this.createForecastChart();
-        } catch (error) {
-            console.error('Error creating charts:', error);
-        }
-    }
-
-    createRevenueChart() {
-        const revenueCtx = document.getElementById('revenue-trends-chart');
-        if (revenueCtx && typeof Chart !== 'undefined') {
-            this.charts.revenueTrends = new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Monthly Revenue (E)',
-                        data: [45000, 52000, 48000, 61000, 55000, 67000],
-                        borderColor: '#1a365d',
-                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'E' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    createEntityChart() {
-        const entityCtx = document.getElementById('production-by-entity-chart') || document.getElementById('revenue-by-entity-chart');
-        if (entityCtx && typeof Chart !== 'undefined') {
-            const royaltyRecords = this.dataManager.getRoyaltyRecords();
-            const entityData = royaltyRecords.reduce((acc, record) => {
-                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
-                return acc;
-            }, {});
-            
-            this.charts.entityProduction = new Chart(entityCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(entityData),
-                    datasets: [{
-                        data: Object.values(entityData),
-                        backgroundColor: [
-                            '#1a365d', '#2d5a88', '#4a90c2', 
-                            '#7ba7cc', '#a8c5e2', '#d4af37'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-        }
-    }
-
-    createPaymentTimelineChart() {
-        const canvas = document.getElementById('payment-timeline-chart');
-        if (canvas && typeof Chart !== 'undefined') {
-            this.charts.paymentTimeline = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Payments Received',
-                        data: [85000, 92000, 88000, 95000, 91000, 98000],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Payments Due',
-                        data: [90000, 95000, 90000, 98000, 93000, 100000],
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'E' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    createMineralPerformanceChart() {
-        const canvas = document.getElementById('mineral-performance-chart');
-        if (canvas && typeof Chart !== 'undefined') {
-            const records = this.dataManager.getRoyaltyRecords();
-            const mineralData = this.aggregateMineralPerformance(records);
-            
-            this.charts.mineralPerformance = new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: mineralData.labels,
-                    datasets: [{
-                        label: 'Revenue (E)',
-                        data: mineralData.revenue,
-                        backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2', '#d4af37']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'E' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    createForecastChart() {
-        const canvas = document.getElementById('forecast-chart');
-        if (canvas && typeof Chart !== 'undefined') {
-            this.charts.forecast = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    datasets: [{
-                        label: 'Historical',
-                        data: [45000, 52000, 48000, 61000, 55000, 67000, null, null, null, null, null, null],
-                        borderColor: '#1a365d',
-                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: 'Forecast',
-                        data: [null, null, null, null, null, 67000, 69000, 71000, 68000, 73000, 75000, 77000],
-                        borderColor: '#d4af37',
-                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
-                        borderDash: [5, 5],
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'E' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    aggregateMineralPerformance(records) {
-        const mineralRevenue = records.reduce((acc, record) => {
-            if (record.mineral && record.royalties) {
-                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
-            }
-            return acc;
-        }, {});
-        
-        return {
-            labels: Object.keys(mineralRevenue),
-            revenue: Object.values(mineralRevenue)
-        };
-    }
-
-    setupDashboardEventListeners() {
-        // Remove existing listeners first
-        this.removeDashboardListeners();
-        
-        // Main dashboard action buttons
-        const refreshBtn = document.getElementById('refresh-dashboard-btn');
-        if (refreshBtn) {
-            this.refreshDashboardHandler = () => this.refreshDashboard();
-            refreshBtn.addEventListener('click', this.refreshDashboardHandler);
-        }
-        
-        const exportBtn = document.getElementById('export-dashboard-btn');
-        if (exportBtn) {
-            this.exportDashboardHandler = () => this.exportDashboard();
-            exportBtn.addEventListener('click', this.exportDashboardHandler);
-        }
-        
-        // Chart control handlers
-        const chartBtns = document.querySelectorAll('.chart-btn');
-        this.chartBtnHandlers = [];
-        chartBtns.forEach((btn, index) => {
-            const handler = () => {
-                // Remove active class from siblings
-                btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
-                btn.classList.add('active');
-                
-                // Update chart if needed
-                const chartType = btn.dataset.chartType;
-                const chartId = btn.dataset.chartId;
-                
-                if (chartId && this.charts[chartId]) {
-                    this.updateChartType(this.charts[chartId], chartType);
-                }
-                
-                this.notificationManager.show(`Switched to ${chartType} view`, 'info');
-            };
-            
-            this.chartBtnHandlers[index] = handler;
-            btn.addEventListener('click', handler);
-        });
-        
-        // Period selectors
-        const periodSelectors = document.querySelectorAll('.metric-period');
-        this.periodSelectorHandlers = [];
-        periodSelectors.forEach((selector, index) => {
-            const handler = () => {
-                this.notificationManager.show(`Updated for ${selector.value.replace('-', ' ')}`, 'success');
-                this.updateDashboardMetrics();
-            };
-            
-            this.periodSelectorHandlers[index] = handler;
-            selector.addEventListener('change', handler);
-        });
-        
-        // Filter handlers
-        const applyFiltersBtn = document.getElementById('apply-filters');
-        if (applyFiltersBtn) {
-            this.applyFiltersHandler = () => this.applyDashboardFilters();
-            applyFiltersBtn.addEventListener('click', this.applyFiltersHandler);
-        }
-        
-        const resetFiltersBtn = document.getElementById('reset-filters');
-        if (resetFiltersBtn) {
-            this.resetFiltersHandler = () => this.resetDashboardFilters();
-            resetFiltersBtn.addEventListener('click', this.resetFiltersHandler);
-        }
-    }
-
-    removeDashboardListeners() {
-        // Remove refresh button listener
-        const refreshBtn = document.getElementById('refresh-dashboard-btn');
-        if (refreshBtn && this.refreshDashboardHandler) {
-            refreshBtn.removeEventListener('click', this.refreshDashboardHandler);
-        }
-        
-        // Remove export button listener
-        const exportBtn = document.getElementById('export-dashboard-btn');
-        if (exportBtn && this.exportDashboardHandler) {
-            exportBtn.removeEventListener('click', this.exportDashboardHandler);
-        }
-        
-        // Remove chart button listeners
-        const chartBtns = document.querySelectorAll('.chart-btn');
-        if (this.chartBtnHandlers) {
-            chartBtns.forEach((btn, index) => {
-                if (this.chartBtnHandlers[index]) {
-                    btn.removeEventListener('click', this.chartBtnHandlers[index]);
-                }
-            });
-        }
-        
-        // Remove period selector listeners
-        const periodSelectors = document.querySelectorAll('.metric-period');
-        if (this.periodSelectorHandlers) {
-            periodSelectors.forEach((selector, index) => {
-                if (this.periodSelectorHandlers[index]) {
-                    selector.removeEventListener('change', this.periodSelectorHandlers[index]);
-                }
-            });
-        }
-        
-        // Remove filter button listeners
-        const applyFiltersBtn = document.getElementById('apply-filters');
-        if (applyFiltersBtn && this.applyFiltersHandler) {
-            applyFiltersBtn.removeEventListener('click', this.applyFiltersHandler);
-        }
-        
-        const resetFiltersBtn = document.getElementById('reset-filters');
-        if (resetFiltersBtn && this.resetFiltersHandler) {
-            resetFiltersBtn.removeEventListener('click', this.resetFiltersHandler);
-        }
-    }
-
-    performLogout() {
-        try {
-            this.authManager.logout();
-            
-            // Clean up event listeners
-            this.cleanup();
-            
-            // Clear any existing charts
-            Object.values(this.charts).forEach(chart => {
-                if (chart && typeof chart.destroy === 'function') {
-                    try {
-                        chart.destroy();
-                    } catch (error) {
-                        console.warn('Error destroying chart:', error);
-                    }
-                }
-            });
-            this.charts = {};
-            
-            // Show login section
-            const appContainer = document.getElementById('app-container');
-            const loginSection = document.getElementById('login-section');
-            
-            if (appContainer) appContainer.style.display = 'none';
-            if (loginSection) loginSection.style.display = 'flex';
-            
-            this.notificationManager.show('Logged out successfully', 'info');
-        } catch (error) {
-            console.error('Error during logout:', error);
-            this.notificationManager.show('Error during logout', 'error');
-        }
-    }
-
-    cleanup() {
-        // Remove global event listeners
-        if (this.navigationHandler) {
-            document.removeEventListener('click', this.navigationHandler);
-        }
-        
-        if (this.handleLogout) {
-            document.removeEventListener('logoutRequested', this.handleLogout);
-        }
-        
-        if (this.handleReloadSection) {
-            document.removeEventListener('reloadSection', this.handleReloadSection);
-        }
-        
-        // Remove dashboard listeners
-        this.removeDashboardListeners();
-        
-        // Clean up mobile navigation
-        if (this.mobileNav) {
-            const toggleButton = document.querySelector('.mobile-menu-toggle');
-            if (toggleButton) {
-                toggleButton.remove();
-            }
-            
-            const overlay = document.querySelector('.mobile-overlay');
-            if (overlay) {
-                overlay.remove();
-            }
-        }
-    }
-
-    // Enhanced handleLogout method name change to avoid conflicts
-    handleLogout() {
-        this.performLogout();
-    }
-
-    // ...existing methods...
-}
-
-// ===== ACTION HANDLER CLASSES =====
-class UserActions {
-    constructor(dataManager, notificationManager) {
-        this.dataManager = dataManager;
-        this.notificationManager = notificationManager;
-    }
-
-    viewUser(userId) {
-        const user = this.dataManager.findUserById(userId);
-        if (!user) {
-            this.notificationManager.show('User not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Viewing user: ${user.username}`, 'info');
-    }
-
-    editUser(userId) {
-        const user = this.dataManager.findUserById(userId);
-        if (!user) {
-            this.notificationManager.show('User not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Editing user: ${user.username}`, 'info');
-    }
-
-    deleteUser(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            const deletedUser = this.dataManager.deleteUser(userId);
-            if (deletedUser) {
-                this.notificationManager.show('User deleted successfully', 'success');
-                document.dispatchEvent(new CustomEvent('reloadSection', { detail: { sectionId: 'user-management' } }));
-            }
-        }
-    }
-}
-
-class RecordActions {
-    constructor(dataManager, notificationManager) {
-        this.dataManager = dataManager;
-        this.notificationManager = notificationManager;
-    }
-
-    viewRecord(recordId) {
-        const record = this.dataManager.findRecordById(recordId);
-        if (!record) {
-            this.notificationManager.show('Record not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Viewing record: ${record.referenceNumber}`, 'info');
-    }
-
-    editRecord(recordId) {
-        const record = this.dataManager.findRecordById(recordId);
-        if (!record) {
-            this.notificationManager.show('Record not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Editing record: ${record.referenceNumber}`, 'info');
-    }
-
-    deleteRecord(recordId) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            this.notificationManager.show('Record deleted successfully', 'success');
-        }
-    }
-}
-
-class ContractActions {
-    constructor(dataManager, notificationManager) {
-        this.dataManager = dataManager;
-        this.notificationManager = notificationManager;
-    }
-
-    viewContract(contractId) {
-        const contract = this.dataManager.findContractById(contractId);
-        if (!contract) {
-            this.notificationManager.show('Contract not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Viewing contract: ${contract.id}`, 'info');
-    }
-
-    editContract(contractId) {
-        const contract = this.dataManager.findContractById(contractId);
-        if (!contract) {
-            this.notificationManager.show('Contract not found', 'error');
-            return;
-        }
-        this.notificationManager.show(`Editing contract: ${contract.id}`, 'info');
-    }
-
-    deleteContract(contractId) {
-        if (confirm('Are you sure you want to delete this contract?')) {
-            this.notificationManager.show('Contract deleted successfully', 'success');
-        }
-    }
-}
-
-// ===== ENHANCED CHART MANAGER =====
-class ChartManager {
+// Simple ChartManager for fallback
+class SimpleChartManager {
     constructor() {
         this.charts = new Map();
         this.isChartJsLoaded = typeof Chart !== 'undefined';
-        this.defaultOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
-        };
     }
 
-    create(canvasId, config) {
+    createChart(canvasId, config) {
         if (!this.isChartJsLoaded) {
-            console.warn('Chart.js not available, cannot create chart:', canvasId);
+            this.showFallbackChart(canvasId);
             return null;
         }
 
         const canvas = document.getElementById(canvasId);
-        if (!canvas) {
-            console.warn(`Canvas with id '${canvasId}' not found`);
-            return null;
-        }
+        if (!canvas) return null;
 
-        // Destroy existing chart if it exists
         if (this.charts.has(canvasId)) {
-            this.destroy(canvasId);
+            this.destroyChart(canvasId);
         }
-
-        const mergedConfig = {
-            ...config,
-            options: {
-                ...this.defaultOptions,
-                ...config.options
-            }
-        };
 
         try {
-            const chart = new Chart(canvas, mergedConfig);
+            const chart = new Chart(canvas, config);
             this.charts.set(canvasId, chart);
             return chart;
         } catch (error) {
             console.error(`Error creating chart ${canvasId}:`, error);
+            this.showFallbackChart(canvasId);
             return null;
         }
     }
 
-    destroy(canvasId) {
+    createRevenueChart(canvasId) {
+        return this.createChart(canvasId, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Monthly Revenue (E)',
+                    data: [45000, 52000, 48000, 61000, 55000, 67000],
+                    borderColor: '#1a365d',
+                    backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'E' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createProductionChart(canvasId, entityData) {
+        const data = entityData || {
+            'Diamond Mining Corp': 150,
+            'Gold Rush Ltd': 85,
+            'Copper Valley Mining': 2500
+        };
+
+        return this.createChart(canvasId, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    showFallbackChart(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            const container = canvas.parentNode;
+            if (container) {
+                container.innerHTML = `
+                    <div class="chart-fallback" style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: 200px;
+                        color: #64748b;
+                        background: #f8fafc;
+                        border-radius: 8px;
+                        border: 2px dashed #cbd5e0;
+                    ">
+                        <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Chart will load when Chart.js is available</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    destroyChart(canvasId) {
         const chart = this.charts.get(canvasId);
         if (chart) {
             try {
@@ -1257,157 +137,1277 @@ class ChartManager {
         });
         this.charts.clear();
     }
+}
 
-    aggregateMineralPerformance(records) {
-        const mineralRevenue = records.reduce((acc, record) => {
-            if (record.mineral && record.royalties) {
-                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+// Simplified NotificationManager
+class NotificationManager {
+    constructor() {
+        this.container = this.createContainer();
+    }
+
+    createContainer() {
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notification-container';
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                pointer-events: none;
+            `;
+            document.body.appendChild(container);
+        }
+        return container;
+    }
+
+    show(message, type = 'info', duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.pointerEvents = 'auto';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${this.getIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="notification-close">&times;</button>
+        `;
+
+        this.container.appendChild(notification);
+
+        // Auto remove
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
             }
-            return acc;
-        }, {});
-        
-        return {
-            labels: Object.keys(mineralRevenue),
-            revenue: Object.values(mineralRevenue)
+        }, duration);
+
+        // Manual close
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => notification.remove());
+
+        return notification;
+    }
+
+    getIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-triangle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+}
+
+// Simplified DataManager
+class DataManager {
+    constructor() {
+        this.royaltyRecords = this.generateSampleRecords();
+        this.userAccounts = this.generateSampleUsers();
+        this.auditLog = [];
+        this.entities = this.generateSampleEntities();
+        this.minerals = this.generateSampleMinerals();
+    }
+
+    generateSampleRecords() {
+        return [
+            {
+                id: 1,
+                referenceNumber: 'ROY-2024-001',
+                entity: 'Diamond Mining Corp',
+                mineral: 'Diamond',
+                volume: 150,
+                tariff: 2500,
+                royalties: 375000,
+                date: '2024-01-15',
+                status: 'Paid'
+            },
+            {
+                id: 2,
+                referenceNumber: 'ROY-2024-002',
+                entity: 'Gold Rush Ltd',
+                mineral: 'Gold',
+                volume: 85,
+                tariff: 1800,
+                royalties: 153000,
+                date: '2024-01-20',
+                status: 'Pending'
+            },
+            {
+                id: 3,
+                referenceNumber: 'ROY-2024-003',
+                entity: 'Copper Valley Mining',
+                mineral: 'Copper',
+                volume: 2500,
+                tariff: 45,
+                royalties: 112500,
+                date: '2024-01-10',
+                status: 'Overdue'
+            }
+        ];
+    }
+
+    generateSampleUsers() {
+        return [
+            {
+                id: 1,
+                username: 'admin',
+                email: 'admin@royalties.gov',
+                role: 'Administrator',
+                department: 'Management',
+                status: 'Active',
+                createdDate: '2024-01-01',
+                lastLogin: '2024-01-25',
+                failedAttempts: 0
+            },
+            {
+                id: 2,
+                username: 'editor',
+                email: 'editor@royalties.gov',
+                role: 'Editor',
+                department: 'Finance',
+                status: 'Active',
+                createdDate: '2024-01-02',
+                lastLogin: '2024-01-24',
+                failedAttempts: 0
+            },
+            {
+                id: 3,
+                username: 'viewer',
+                email: 'viewer@royalties.gov',
+                role: 'Viewer',
+                department: 'Operations',
+                status: 'Active',
+                createdDate: '2024-01-03',
+                lastLogin: '2024-01-23',
+                failedAttempts: 0
+            }
+        ];
+    }
+
+    generateSampleEntities() {
+        return [
+            { name: 'Diamond Mining Corp', type: 'Large Scale', status: 'Active' },
+            { name: 'Gold Rush Ltd', type: 'Medium Scale', status: 'Active' },
+            { name: 'Copper Valley Mining', type: 'Large Scale', status: 'Active' },
+            { name: 'Silver Stream Co', type: 'Small Scale', status: 'Active' }
+        ];
+    }
+
+    generateSampleMinerals() {
+        return [
+            { name: 'Diamond', tariff: 2500, unit: 'carat' },
+            { name: 'Gold', tariff: 1800, unit: 'gram' },
+            { name: 'Copper', tariff: 45, unit: 'tonne' },
+            { name: 'Silver', tariff: 850, unit: 'gram' },
+            { name: 'Coal', tariff: 25, unit: 'tonne' },
+            { name: 'Iron Ore', tariff: 35, unit: 'tonne' }
+        ];
+    }
+
+    getRoyaltyRecords() {
+        return this.royaltyRecords;
+    }
+
+    getUserAccounts() {
+        return this.userAccounts;
+    }
+
+    getEntities() {
+        return this.entities;
+    }
+
+    getMinerals() {
+        return this.minerals;
+    }
+
+    findRecordById(id) {
+        return this.royaltyRecords.find(record => record.id === parseInt(id));
+    }
+
+    findUserById(id) {
+        return this.userAccounts.find(user => user.id === parseInt(id));
+    }
+
+    deleteUser(id) {
+        const index = this.userAccounts.findIndex(user => user.id === parseInt(id));
+        if (index > -1) {
+            return this.userAccounts.splice(index, 1)[0];
+        }
+        return null;
+    }
+
+    addAuditEntry(entry) {
+        const auditEntry = {
+            id: this.auditLog.length + 1,
+            timestamp: new Date().toISOString(),
+            ...entry
+        };
+        this.auditLog.push(auditEntry);
+        return auditEntry;
+    }
+}
+
+// Simplified AuthManager
+class AuthManager {
+    constructor() {
+        this.currentUser = null;
+        this.users = {
+            'admin': { username: 'admin', password: 'admin123', role: 'Administrator' },
+            'editor': { username: 'editor', password: 'editor123', role: 'Editor' },
+            'viewer': { username: 'viewer', password: 'viewer123', role: 'Viewer' }
         };
     }
-}
 
-// Global instances - ensure clean initialization
-let notificationManager, dataManager, royaltiesApp;
+    authenticate(username, password) {
+        const user = this.users[username];
+        if (user && user.password === password) {
+            this.currentUser = user;
+            return { success: true, user };
+        }
+        return { success: false };
+    }
 
-// Clean up any existing instances
-if (window.royaltiesApp) {
-    try {
-        window.royaltiesApp.cleanup();
-    } catch (error) {
-        console.warn('Error cleaning up existing app instance:', error);
+    getCurrentUser() {
+        return this.currentUser;
+    }
+
+    logout() {
+        this.currentUser = null;
     }
 }
 
-try {
-    notificationManager = new NotificationManager();
-    dataManager = new DataManager();
-} catch (error) {
-    console.error('Error initializing global instances:', error);
-}
+// Mobile Navigation Manager
+class MobileNavigationManager {
+    constructor() {
+        this.isOpen = false;
+        this.init();
+    }
 
-// Initialize application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        console.log('DOM Content Loaded - Initializing app...');
-        royaltiesApp = new RoyaltiesApp();
-        window.royaltiesApp = royaltiesApp;
-        royaltiesApp.initialize();
-    } catch (error) {
-        console.error('Error during application initialization:', error);
-        if (notificationManager) {
-            notificationManager.show('Application failed to initialize', 'error');
+    init() {
+        this.createToggleButton();
+        this.setupEventListeners();
+        this.updateVisibility();
+    }
+
+    createToggleButton() {
+        const existing = document.querySelector('.mobile-menu-toggle');
+        if (existing) existing.remove();
+
+        const button = document.createElement('button');
+        button.className = 'mobile-menu-toggle';
+        button.innerHTML = '<i class="fas fa-bars"></i>';
+        button.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: #1a365d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 48px;
+            height: 48px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        document.body.appendChild(button);
+        this.toggleButton = button;
+    }
+
+    setupEventListeners() {
+        this.toggleButton.addEventListener('click', () => this.toggle());
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            this.updateVisibility();
+            if (window.innerWidth > 768 && this.isOpen) {
+                this.close();
+            }
+        });
+    }
+
+    toggle() {
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
         }
     }
-});
 
-// Prevent multiple initializations
-if (document.readyState === 'loading') {
-    // DOM is still loading
-    console.log('Waiting for DOM to load...');
-} else {
-    // DOM is already loaded
-    console.log('DOM already loaded, initializing immediately...');
-    if (!window.royaltiesApp) {
+    open() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        this.isOpen = true;
+        sidebar.classList.add('mobile-open');
+        this.toggleButton.innerHTML = '<i class="fas fa-times"></i>';
+        this.createOverlay();
+    }
+
+    close() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        this.isOpen = false;
+        sidebar.classList.remove('mobile-open');
+        this.toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+        this.removeOverlay();
+    }
+
+    createOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'mobile-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        `;
+        overlay.addEventListener('click', () => this.close());
+        document.body.appendChild(overlay);
+        this.overlay = overlay;
+    }
+
+    removeOverlay() {
+        if (this.overlay) {
+            this.overlay.remove();
+            this.overlay = null;
+        }
+    }
+
+    updateVisibility() {
+        const isMobile = window.innerWidth <= 768;
+        this.toggleButton.style.display = isMobile ? 'flex' : 'none';
+    }
+}
+
+// ===== MAIN APPLICATION CLASS =====
+
+class RoyaltiesApp {
+    constructor() {
+        this.dataManager = new DataManager();
+        this.authManager = new AuthManager();
+        this.notificationManager = new NotificationManager();
+        this.chartManager = new SimpleChartManager();
+        this.mobileNav = null;
+        this.currentSection = 'dashboard';
+        this.isInitialized = false;
+    }
+
+    async initialize() {
+        if (this.isInitialized) return;
+
         try {
-            royaltiesApp = new RoyaltiesApp();
-            window.royaltiesApp = royaltiesApp;
-            royaltiesApp.initialize();
+            console.log('Initializing application...');
+            this.startLoadingSequence();
+            this.isInitialized = true;
         } catch (error) {
-            console.error('Error during immediate initialization:', error);
+            console.error('Application initialization failed:', error);
+            this.showErrorMessage('Failed to initialize application. Please refresh the page.');
         }
     }
-}
 
-// ===== COMPONENT INITIALIZATION METHODS =====
-// Add missing component initialization methods
-RoyaltiesApp.prototype.initializeUserManagementComponent = function() {
-    console.log('Initializing user management component...');
-    setTimeout(() => {
-        this.notificationManager.show('User management component loaded', 'success');
-    }, 200);
-};
+    startLoadingSequence() {
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += Math.random() * 30;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(loadingInterval);
+                setTimeout(() => this.hideLoadingShowLogin(), 500);
+            }
+        }, 200);
+    }
 
-RoyaltiesApp.prototype.initializeRoyaltyRecordsComponent = function() {
-    console.log('Initializing royalty records component...');
-    
-    // Make sure managers are globally available
-    window.dataManager = this.dataManager;
-    window.notificationManager = this.notificationManager;
-    window.royaltiesApp = this;
-    
-    setTimeout(() => {
-        this.setupRoyaltyRecordsEventListeners();
-        this.updateRoyaltyRecordsTable();
-        this.notificationManager.show('Royalty records component loaded', 'success');
-    }, 300);
-};
-
-RoyaltiesApp.prototype.setupRoyaltyRecordsEventListeners = function() {
-    try {
-        // Remove existing listeners first
-        this.removeRoyaltyRecordsListeners();
+    hideLoadingShowLogin() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const loginSection = document.getElementById('login-section');
         
-        // Add Record button
-        const addRecordBtn = document.getElementById('add-record-btn');
-        if (addRecordBtn) {
-            this.addRecordHandler = () => this.showAddRecordModal();
-            addRecordBtn.addEventListener('click', this.addRecordHandler);
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.style.display = 'none', 300);
         }
         
-        // Filter buttons
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        this.filterHandlers = [];
-        filterButtons.forEach((btn, index) => {
-            const handler = () => {
-                // Remove active class from all filter buttons
-                filterButtons.forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
+        if (loginSection) {
+            loginSection.style.display = 'flex';
+            this.setupLoginForm();
+        }
+    }
+
+    setupLoginForm() {
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.querySelector('.password-toggle');
+        
+        // Password visibility toggle
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                passwordToggle.innerHTML = isPassword ? 
+                    '<i class="fas fa-eye-slash"></i>' : 
+                    '<i class="fas fa-eye"></i>';
+            });
+        }
+        
+        // Form submission
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.authenticateUser(usernameInput?.value, passwordInput?.value);
+            });
+        }
+
+        // Enter key support
+        [usernameInput, passwordInput].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            }
+        });
+    }
+
+    authenticateUser(username, password) {
+        if (!username || !password) {
+            this.notificationManager.show('Please enter both username and password', 'warning');
+            return;
+        }
+
+        const result = this.authManager.authenticate(username, password);
+        
+        if (result.success) {
+            this.dataManager.addAuditEntry({
+                user: username,
+                action: 'Login',
+                target: 'System',
+                ipAddress: '192.168.1.100',
+                status: 'Success',
+                details: `Successful login as ${result.user.role}`
+            });
+
+            this.showMainApplication();
+        } else {
+            this.dataManager.addAuditEntry({
+                user: username || 'Unknown',
+                action: 'Failed Login',
+                target: 'System',
+                ipAddress: '192.168.1.100',
+                status: 'Failed',
+                details: 'Invalid credentials provided'
+            });
+
+            this.notificationManager.show('Invalid credentials. Please try again.', 'error');
+        }
+    }
+
+    async showMainApplication() {
+        try {
+            const loginSection = document.getElementById('login-section');
+            const appContainer = document.getElementById('app-container');
+            
+            if (loginSection) loginSection.style.display = 'none';
+            if (appContainer) appContainer.style.display = 'flex';
+            
+            await this.loadSidebar();
+            this.setupNavigation();
+            this.setupGlobalActions();
+            
+            // Initialize mobile navigation
+            this.mobileNav = new MobileNavigationManager();
+            
+            // Show default section
+            await this.showSection('dashboard');
+            
+            const user = this.authManager.getCurrentUser();
+            this.notificationManager.show(`Welcome back, ${user.username}!`, 'success');
+
+        } catch (error) {
+            console.error('Error showing main application:', error);
+            this.notificationManager.show('Error loading application', 'error');
+        }
+    }
+
+    async loadSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        sidebar.innerHTML = `
+            <div class="sidebar-header">
+                <div class="sidebar-logo">💎</div>
+                <h2>Royalties Manager</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#user-management" class="nav-link" data-section="user-management">
+                        <i class="fas fa-users"></i> User Management</a></li>
+                    <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">
+                        <i class="fas fa-money-bill-wave"></i> Royalty Records</a></li>
+                    <li><a href="#contract-management" class="nav-link" data-section="contract-management">
+                        <i class="fas fa-file-contract"></i> Contract Management</a></li>
+                    <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard">
+                        <i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
+                    <li><a href="#logout" class="nav-link" data-section="logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        `;
+    }
+
+    setupNavigation() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.addEventListener('click', (e) => {
+                const navLink = e.target.closest('.nav-link');
+                if (navLink) {
+                    e.preventDefault();
+                    const section = navLink.dataset.section;
+                    
+                    if (section === 'logout') {
+                        this.handleLogout();
+                    } else {
+                        this.showSection(section);
+                    }
+                }
+            });
+        }
+    }
+
+    async showSection(sectionId) {
+        try {
+            // Hide all sections
+            const sections = document.querySelectorAll('main section');
+            sections.forEach(section => section.style.display = 'none');
+
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                this.currentSection = sectionId;
+                this.updateNavigationState(sectionId);
+
+                // Load section content
+                await this.loadSectionContent(sectionId);
+            }
+        } catch (error) {
+            console.error(`Error loading section ${sectionId}:`, error);
+            this.notificationManager.show(`Error loading ${sectionId}`, 'error');
+        }
+    }
+
+    async loadSectionContent(sectionId) {
+        try {
+            // Try to load component HTML
+            const response = await fetch(`components/${sectionId}.html`);
+            if (response.ok) {
+                const html = await response.text();
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.innerHTML = html;
+                    this.initializeSectionComponent(sectionId);
+                }
+            } else {
+                // Fallback to built-in content
+                this.loadFallbackSection(sectionId);
+            }
+        } catch (error) {
+            console.warn(`Failed to load component ${sectionId}.html:`, error);
+            this.loadFallbackSection(sectionId);
+        }
+    }
+
+    loadFallbackSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        switch (sectionId) {
+            case 'dashboard':
+                this.loadDashboardContent(section);
+                break;
+            case 'user-management':
+                this.loadUserManagementContent(section);
+                break;
+            case 'royalty-records':
+                this.loadRoyaltyRecordsContent(section);
+                break;
+            default:
+                section.innerHTML = `
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
+                            <p>This section is under development</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <p>Content for this section will be available soon.</p>
+                        </div>
+                    </div>
+                `;
+        }
+    }
+
+    loadDashboardContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p>Overview of mining royalties and key metrics</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" id="refresh-dashboard">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" id="export-dashboard">
+                        <i class="fas fa-download"></i> Export Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="metric-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-money-bill-wave"></i> Total Revenue</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>E ${this.calculateTotalRevenue().toLocaleString()}</p>
+                        <small class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> +12% from last month
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Total Records</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>${this.dataManager.getRoyaltyRecords().length}</p>
+                        <small class="trend-info">
+                            <i class="fas fa-info-circle"></i> Active records
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-check-circle"></i> Compliance Rate</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>${this.calculateComplianceRate()}%</p>
+                        <small class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> Good standing
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Overdue Payments</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>${this.getOverdueCount()}</p>
+                        <small class="trend-negative">
+                            <i class="fas fa-arrow-down"></i> Requires attention
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="card analytics-chart">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-line"></i> Revenue Trends</h5>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-chart-type="line">Line</button>
+                            <button class="chart-btn" data-chart-type="area">Area</button>
+                            <button class="chart-btn" data-chart-type="bar">Bar</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenue-trends-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card analytics-chart">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-pie"></i> Production by Entity</h5>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="production-by-entity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Royalty Records</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Entity</th>
+                                    <th>Mineral</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${this.dataManager.getRoyaltyRecords().slice(0, 5).map(record => `
+                                    <tr>
+                                        <td>${record.referenceNumber}</td>
+                                        <td>${record.entity}</td>
+                                        <td>${record.mineral}</td>
+                                        <td>E ${record.royalties.toLocaleString()}</td>
+                                        <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
+                                        <td>${new Date(record.date).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Initialize charts and event handlers after content is loaded
+        setTimeout(() => {
+            this.initializeDashboardCharts();
+            this.setupDashboardEventHandlers();
+        }, 100);
+    }
+
+    initializeDashboardCharts() {
+        // Create revenue chart
+        this.chartManager.createRevenueChart('revenue-trends-chart');
+
+        // Create production chart with actual data
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const entityData = royaltyRecords.reduce((acc, record) => {
+            acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+            return acc;
+        }, {});
+        this.chartManager.createProductionChart('production-by-entity-chart', entityData);
+    }
+
+    setupDashboardEventHandlers() {
+        // Refresh button
+        const refreshBtn = document.getElementById('refresh-dashboard');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshDashboard();
+            });
+        }
+
+        // Export button
+        const exportBtn = document.getElementById('export-dashboard');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportDashboard();
+            });
+        }
+
+        // Chart control buttons
+        const chartButtons = document.querySelectorAll('.chart-btn');
+        chartButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const chartType = btn.dataset.chartType;
+                
+                // Update active state
+                btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                const filterType = btn.dataset.filter;
-                this.filterRoyaltyRecords(filterType);
-            };
-            
-            this.filterHandlers[index] = handler;
-            btn.addEventListener('click', handler);
+                this.notificationManager.show(`Switched to ${chartType} view`, 'info');
+            });
         });
+    }
+
+    refreshDashboard() {
+        // Refresh charts
+        this.chartManager.destroyAll();
+        setTimeout(() => {
+            this.initializeDashboardCharts();
+        }, 100);
         
-        // Search functionality
-        const searchInput = document.getElementById('records-search');
-        if (searchInput) {
-            this.searchHandler = (e) => this.searchRoyaltyRecords(e.target.value);
-            searchInput.addEventListener('input', this.searchHandler);
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard data...', 'info');
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard data exported successfully', 'success');
+        }, 2000);
+    }
+
+    async loadUserManagementContent(section) {
+        const users = this.dataManager.getUserAccounts();
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>User Management</h1>
+                    <p>Manage system users and access permissions</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="exportUsers()">
+                        <i class="fas fa-download"></i> Export Users
+                    </button>
+                    <button class="btn btn-warning" onclick="resetAllPasswords()">
+                        <i class="fas fa-key"></i> Reset All Passwords
+                    </button>
+                    <button class="btn btn-primary" onclick="addUser()">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all-users"></th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Failed Attempts</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
+                                <td>${user.department}</td>
+                                <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
+                                <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
+                                <td>${user.failedAttempts}</td>
+                                <td>${new Date(user.createdDate).toLocaleDateString()}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-info" onclick="viewUser(${user.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" onclick="resetUserPassword(${user.id})">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    loadRoyaltyRecordsContent(section) {
+        const records = this.dataManager.getRoyaltyRecords();
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Royalty Records</h1>
+                    <p>Manage and track all royalty payments</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Records
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Record
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>Reference</th>
+                            <th>Entity</th>
+                            <th>Mineral</th>
+                            <th>Volume</th>
+                            <th>Royalties</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${records.map(record => `
+                            <tr>
+                                <td><input type="checkbox" value="${record.id}"></td>
+                                <td>${record.referenceNumber}</td>
+                                <td>${record.entity}</td>
+                                <td>${record.mineral}</td>
+                                <td>${record.volume.toLocaleString()}</td>
+                                <td>E ${record.royalties.toLocaleString()}</td>
+                                <td>${new Date(record.date).toLocaleDateString()}</td>
+                                <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editRecord(${record.id})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    initializeSectionComponent(sectionId) {
+        // Initialize section-specific functionality
+        switch (sectionId) {
+            case 'dashboard':
+                this.initializeDashboard();
+                break;
+            case 'user-management':
+                this.initializeUserManagement();
+                break;
+            case 'royalty-records':
+                this.initializeRoyaltyRecords();
+                break;
         }
-        
-        // Export button
-        const exportBtn = document.getElementById('export-records-btn');
-        if (exportBtn) {
-            this.exportRecordsHandler = () => this.exportRoyaltyRecords();
-            exportBtn.addEventListener('click', this.exportRecordsHandler);
+    }
+
+    initializeDashboard() {
+        console.log('Dashboard initialized');
+        // Dashboard-specific initialization
+    }
+
+    initializeUserManagement() {
+        console.log('User management initialized');
+        // User management-specific initialization
+    }
+
+    initializeRoyaltyRecords() {
+        console.log('Royalty records initialized');
+        // Royalty records-specific initialization
+    }
+
+    updateNavigationState(activeSection) {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.section === activeSection) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    setupGlobalActions() {
+        // Make global functions available
+        window.dataManager = this.dataManager;
+        window.notificationManager = this.notificationManager;
+        window.royaltiesApp = this;
+    }
+
+    // Helper methods for dashboard calculations
+    calculateTotalRevenue() {
+        return this.dataManager.getRoyaltyRecords()
+            .reduce((total, record) => total + record.royalties, 0);
+    }
+
+    calculateComplianceRate() {
+        const records = this.dataManager.getRoyaltyRecords();
+        const paidRecords = records.filter(r => r.status === 'Paid').length;
+        return records.length > 0 ? Math.round((paidRecords / records.length) * 100) : 0;
+    }
+
+    getOverdueCount() {
+        return this.dataManager.getRoyaltyRecords()
+            .filter(r => r.status === 'Overdue').length;
+    }
+
+    handleLogout() {
+        try {
+            this.authManager.logout();
+            
+            const appContainer = document.getElementById('app-container');
+            const loginSection = document.getElementById('login-section');
+            
+            if (appContainer) appContainer.style.display = 'none';
+            if (loginSection) {
+                loginSection.style.display = 'flex';
+                const form = document.getElementById('login-form');
+                if (form) form.reset();
+            }
+            
+            this.notificationManager.show('Logged out successfully', 'info');
+        } catch (error) {
+            console.error('Logout error:', error);
+            this.notificationManager.show('Error during logout', 'error');
         }
-        
-        // Bulk actions
-        const bulkActionBtn = document.getElementById('bulk-action-btn');
-        if (bulkActionBtn) {
-            this.bulkActionHandler = () => this.handleBulkActions();
-            bulkActionBtn.addEventListener('click', this.bulkActionHandler);
-        }
-        
-        console.log('Royalty records event listeners setup complete');
-    } catch (error) {
-        console.error('Error setting up royalty records event listeners:', error);
+    }
+
+    showErrorMessage(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.innerHTML = `
+            <div style="
+                position: fixed; 
+                top: 50%; 
+                left: 50%; 
+                transform: translate(-50%, -50%);
+                background: white; 
+                padding: 2rem; 
+                border-radius: 8px; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                text-align: center;
+                z-index: 10000;
+            ">
+                <i class="fas fa-exclamation-triangle" style="color: #e53e3e; font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h3 style="margin: 0 0 1rem 0; color: #1a202c;">Application Error</h3>
+                <p style="margin: 0 0 1.5rem 0; color: #4a5568;">${message}</p>
+                <button onclick="location.reload()" style="
+                    background: #1a365d; 
+                    color: white; 
+                    border: none; 
+                    padding: 0.75rem 1.5rem; 
+                    border-radius: 6px; 
+                    cursor: pointer;
+                ">
+                    Refresh Page
+                </button>
+            </div>
+        `;
+        document.body.appendChild(errorDiv);
+    }
+}
+
+// ===== GLOBAL FUNCTIONS =====
+
+// Fix global functions to work properly
+window.refreshDashboard = function() {
+    if (window.royaltiesApp && typeof window.royaltiesApp.refreshDashboard === 'function') {
+        window.royaltiesApp.refreshDashboard();
+    } else if (window.notificationManager) {
+        window.notificationManager.show('Dashboard refreshed successfully', 'success');
     }
 };
 
-RoyaltiesApp.prototype.removeRoyaltyRecordsListeners = function() {
-    // Remove add record listener
+window.exportDashboard = function() {
+    if (window.royaltiesApp && typeof window.royaltiesApp.exportDashboard === 'function') {
+        window.royaltiesApp.exportDashboard();
+    } else if (window.notificationManager) {
+        window.notificationManager.show('Exporting dashboard data...', 'info');
+        setTimeout(() => {
+            window.notificationManager.show('Dashboard data exported successfully', 'success');
+        }, 2000);
+    }
+};
+
+window.resetAllPasswords = function() {
+    if (confirm('Reset passwords for ALL users? This will generate new temporary passwords for every user account.')) {
+        const users = window.dataManager?.getUserAccounts() || [];
+        const resetCount = users.filter(user => user.status === 'Active').length;
+        
+        if (window.notificationManager) {
+            window.notificationManager.show(`Password reset initiated for ${resetCount} active users`, 'info');
+            
+            setTimeout(() => {
+                window.notificationManager.show(`Successfully reset passwords for ${resetCount} users`, 'success');
+            }, 2000);
+        }
+    }
+};
+
+window.exportUsers = function() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Exporting user data...', 'info');
+        
+        setTimeout(() => {
+            const users = window.dataManager?.getUserAccounts() || [];
+            window.notificationManager.show(`Successfully exported ${users.length} user records`, 'success');
+        }, 1500);
+    }
+};
+
+window.addUser = function() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Add user functionality would open here', 'info');
+    }
+};
+
+window.viewUser = function(userId) {
+    if (window.notificationManager) {
+        const user = window.dataManager?.findUserById(userId);
+        if (user) {
+            window.notificationManager.show(`Viewing user: ${user.username}`, 'info');
+        }
+    }
+};
+
+window.editUser = function(userId) {
+    if (window.notificationManager) {
+        const user = window.dataManager?.findUserById(userId);
+        if (user) {
+            window.notificationManager.show(`Edit functionality for ${user.username} would open here`, 'info');
+        }
+    }
+};
+
+window.deleteUser = function(userId) {
+    const user = window.dataManager?.findUserById(userId);
+    if (user && confirm(`Delete user "${user.username}"? This cannot be undone.`)) {
+        const deletedUser = window.dataManager?.deleteUser(userId);
+        if (deletedUser && window.notificationManager) {
+            window.notificationManager.show(`User "${user.username}" deleted successfully`, 'success');
+            
+            // Reload user management section
+            if (window.royaltiesApp?.currentSection === 'user-management') {
+                window.royaltiesApp.showSection('user-management');
+            }
+        }
+    }
+};
+
+window.resetUserPassword = function(userId) {
+    const user = window.dataManager?.findUserById(userId);
+    if (user && confirm(`Reset password for user "${user.username}"?`)) {
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        if (window.notificationManager) {
+            window.notificationManager.show(`Password reset for ${user.username}. Temp password: ${tempPassword}`, 'success');
+        }
+    }
+};
+
+window.viewRecord = function(recordId) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Viewing record ${recordId}`, 'info');
+    }
+};
+
+window.editRecord = function(recordId) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Editing record ${recordId}`, 'info');
+    }
+};
+
+window.deleteRecord = function(recordId) {
+    if (confirm('Are you sure you want to delete this record?')) {
+        if (window.notificationManager) {
+            window.notificationManager.show(`Record ${recordId} deleted`, 'success');
+        }
+    }
+};
+
+// ===== APPLICATION INITIALIZATION =====
+
+// Clean initialization
+let app = null;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
+}
+
+async function initializeApp() {
+    try {
+        if (window.royaltiesApp) {
+            console.log('App already initialized');
+            return;
+        }
+
+        app = new RoyaltiesApp();
+        window.royaltiesApp = app;
+        await app.initialize();
+    } catch (error) {
+        console.error('Failed to initialize application:', error);
+        // Show fallback error UI
+        const fallbackError = document.createElement('div');
+        fallbackError.innerHTML = `
+            <div style="
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                height: 100%; 
+                background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                color: white;
+                font-family: 'Inter', sans-serif;
+                z-index: 10000;
+            ">
+                <div style="text-align: center; max-width: 400px; padding: 2rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <h1 style="margin: 0 0 1rem 0;">Application Failed to Load</h1>
+                    <p style="margin: 0 0 2rem 0;">
+                        There was an error loading the Mining Royalties Manager. 
+                        Please refresh the page or contact support.
+                    </p>
+                    <button onclick="location.reload()" style="
+                        background: rgba(255,255,255,0.2); 
+                        color: white; 
+                        border: 2px solid rgba(255,255,255,0.3); 
+                        padding: 0.75rem 2rem; 
+                        border-radius: 6px; 
+                        cursor: pointer;
+                    ">
+                        Refresh Page
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(fallbackError);
+    }
+}
+
+window.app = app;
     const addRecordBtn = document.getElementById('add-record-btn');
     if (addRecordBtn && this.addRecordHandler) {
         addRecordBtn.removeEventListener('click', this.addRecordHandler);

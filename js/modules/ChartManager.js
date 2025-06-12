@@ -1,165 +1,181 @@
 export class ChartManager {
-  constructor() {
-    this.charts = new Map();
-    this.defaultOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' }
-      }
-    };
-  }
-
-  createChart(canvasId, config) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas || typeof Chart === 'undefined') {
-      console.warn(`Cannot create chart: canvas ${canvasId} not found or Chart.js not loaded`);
-      this.showFallbackChart(canvasId);
-      return null;
-    }
-
-    // Destroy existing chart if it exists
-    if (this.charts.has(canvasId)) {
-      this.charts.get(canvasId).destroy();
-    }
-
-    // Merge with default options
-    const mergedConfig = {
-      ...config,
-      options: {
-        ...this.defaultOptions,
-        ...config.options
-      }
-    };
-
-    try {
-      const chart = new Chart(canvas, mergedConfig);
-      this.charts.set(canvasId, chart);
-      return chart;
-    } catch (error) {
-      console.error(`Error creating chart ${canvasId}:`, error);
-      this.showFallbackChart(canvasId);
-      return null;
-    }
-  }
-
-  updateChart(canvasId, newData) {
-    const chart = this.charts.get(canvasId);
-    if (chart) {
-      chart.data = newData;
-      chart.update();
-    }
-  }
-
-  destroyChart(canvasId) {
-    const chart = this.charts.get(canvasId);
-    if (chart) {
-      chart.destroy();
-      this.charts.delete(canvasId);
-    }
-  }
-
-  showFallbackChart(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (canvas) {
-      const container = canvas.parentNode;
-      if (container) {
-        container.innerHTML = `
-          <div class="chart-fallback">
-            <i class="fas fa-chart-line"></i>
-            <p>Chart data will be loaded shortly...</p>
-          </div>
-        `;
-      }
-    }
-  }
-
-  showFallbackCharts() {
-    const containers = ['#revenue-trends-chart', '#production-by-entity-chart'];
-    containers.forEach(selector => {
-      const container = document.querySelector(selector)?.parentNode;
-      if (container) {
-        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
-      }
-    });
-  }
-
-  destroyAll() {
-    this.charts.forEach(chart => chart.destroy());
-    this.charts.clear();
-  }
-
-  // Specific chart creation methods
-  createRevenueChart(canvasId, data) {
-    return this.createChart(canvasId, {
-      type: 'line',
-      data: {
-        labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Monthly Revenue (E)',
-          data: data.values || [45000, 52000, 48000, 61000, 55000, 67000],
-          borderColor: '#1a365d',
-          backgroundColor: 'rgba(26, 54, 93, 0.1)',
-          tension: 0.4,
-          fill: false
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return 'E' + value.toLocaleString();
-              }
+    constructor() {
+        this.charts = new Map();
+        this.isChartJsLoaded = typeof Chart !== 'undefined';
+        this.defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
             }
-          }
-        },
-        plugins: {
-          legend: { display: false }
-        }
-      }
-    });
-  }
-
-  createProductionChart(canvasId, data) {
-    return this.createChart(canvasId, {
-      type: 'doughnut',
-      data: {
-        labels: data.labels || [],
-        datasets: [{
-          data: data.values || [],
-          backgroundColor: [
-            '#1a365d', '#2d5a88', '#4a90c2', 
-            '#7ba7cc', '#a8c5e2', '#d4af37'
-          ]
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { position: 'bottom' }
-        }
-      }
-    });
-  }
-
-  updateChartType(canvasId, newType) {
-    const chart = this.charts.get(canvasId);
-    if (!chart) return;
-
-    chart.config.type = newType;
-    
-    if (newType === 'area') {
-      chart.data.datasets[0].fill = true;
-      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
-    } else if (newType === 'bar') {
-      chart.data.datasets[0].fill = false;
-      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
-    } else {
-      chart.data.datasets[0].fill = false;
-      chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+        };
     }
-    
-    chart.update();
-  }
+
+    createChart(canvasId, config) {
+        if (!this.isChartJsLoaded) {
+            console.warn('Chart.js not available, showing fallback');
+            this.showFallbackChart(canvasId);
+            return null;
+        }
+
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.warn(`Canvas ${canvasId} not found`);
+            return null;
+        }
+
+        // Destroy existing chart
+        if (this.charts.has(canvasId)) {
+            this.destroyChart(canvasId);
+        }
+
+        try {
+            const mergedConfig = {
+                ...config,
+                options: {
+                    ...this.defaultOptions,
+                    ...config.options
+                }
+            };
+
+            const chart = new Chart(canvas, mergedConfig);
+            this.charts.set(canvasId, chart);
+            return chart;
+        } catch (error) {
+            console.error(`Error creating chart ${canvasId}:`, error);
+            this.showFallbackChart(canvasId);
+            return null;
+        }
+    }
+
+    createRevenueChart(canvasId, data = null) {
+        const chartData = data || {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Revenue (E)',
+                data: [45000, 52000, 48000, 61000, 55000, 67000],
+                borderColor: '#1a365d',
+                backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                tension: 0.4,
+                fill: false
+            }]
+        };
+
+        return this.createChart(canvasId, {
+            type: 'line',
+            data: chartData,
+            options: {
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'E' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    createProductionChart(canvasId, entityData) {
+        const defaultData = {
+            'Kwalini Quarry': 1250,
+            'Maloma Colliery': 850,
+            'Ngwenya Mine': 2100
+        };
+
+        const data = entityData || defaultData;
+        
+        return this.createChart(canvasId, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: [
+                        '#1a365d', '#2d5a88', '#4a90c2', 
+                        '#7ba7cc', '#a8c5e2', '#d4af37'
+                    ]
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    updateChartType(canvasId, newType) {
+        const chart = this.charts.get(canvasId);
+        if (!chart) return;
+
+        chart.config.type = newType;
+        
+        if (newType === 'area') {
+            chart.data.datasets[0].fill = true;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
+        } else if (newType === 'bar') {
+            chart.data.datasets[0].fill = false;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
+        } else {
+            chart.data.datasets[0].fill = false;
+            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+        }
+        
+        chart.update();
+    }
+
+    showFallbackChart(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            const container = canvas.parentNode;
+            if (container) {
+                container.innerHTML = `
+                    <div class="chart-fallback" style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: 200px;
+                        color: #64748b;
+                        background: #f8fafc;
+                        border-radius: 8px;
+                        border: 2px dashed #cbd5e0;
+                    ">
+                        <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Chart will load when Chart.js is available</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    destroyChart(canvasId) {
+        const chart = this.charts.get(canvasId);
+        if (chart) {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+            this.charts.delete(canvasId);
+        }
+    }
+
+    destroyAll() {
+        this.charts.forEach((chart, canvasId) => {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn(`Error destroying chart ${canvasId}:`, error);
+            }
+        });
+        this.charts.clear();
+    }
 }

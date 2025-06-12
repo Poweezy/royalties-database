@@ -796,89 +796,12 @@ class RoyaltiesApp {
         }
     }
 
-    loadDashboardSection() {
-        const section = document.getElementById('dashboard');
-        if (!section) return;
-
-        section.innerHTML = `
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>📊 Executive Dashboard</h1>
-                    <p>Real-time mining royalties overview and analytics</p>
-                </div>
-                <div class="page-actions">
-                    <button class="btn btn-info" id="refresh-dashboard-btn">
-                        <i class="fas fa-sync-alt"></i> Refresh Data
-                    </button>
-                </div>
-            </div>
-
-            <div class="charts-grid" id="kpi-metrics">
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="total-royalties">E 0</p>
-                        <small id="royalties-trend" class="trend-positive">
-                            <i class="fas fa-arrow-up"></i> +0%
-                        </small>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-industry"></i> Active Entities</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="active-entities">0</p>
-                        <small id="entities-trend" class="trend-positive">
-                            <i class="fas fa-plus"></i> +0 new entities
-                        </small>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-percentage"></i> Compliance Rate</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="compliance-rate">0%</p>
-                        <div class="mini-progress">
-                            <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Pending Approvals</h3>
-                    </div>
-                    <div class="card-body">
-                        <p id="pending-approvals">0</p>
-                        <small id="pending-text" class="trend-stable">
-                            <i class="fas fa-clock"></i> No pending items
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-history"></i> Recent Activity</h5>
-                </div>
-                <div class="card-body">
-                    <div id="recent-activity" class="activity-list">
-                        <!-- Activity items will be populated dynamically -->
-                    </div>
-                </div>
-            </div>
-        `;
-
-        setTimeout(() => {
-            this.updateDashboardMetrics();
-            this.updateRecentActivity();
-        }, 100);
+    initializeDashboardComponent() {
+        console.log('Initializing dashboard component...');
+        
+        // Directly update the dashboard metrics without reloading the section
+        this.updateDashboardMetrics();
+        this.updateRecentActivity();
     }
 
     updateDashboardMetrics() {

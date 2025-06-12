@@ -1,44 +1,53 @@
-// Dashboard Manager Module
+import { ChartManager } from '../modules/ChartManager.js';
 
+// Dashboard Manager Module
 export class DashboardManager {
-    constructor(dataManager) {
+    constructor(dataManager, notificationManager, chartManager) {
         this.dataManager = dataManager;
-        this.charts = {};
+        this.notificationManager = notificationManager;
+        this.chartManager = chartManager;
+        this.eventListeners = [];
     }
 
     initialize() {
-        this.updateDashboardMetrics();
-        this.setupCharts();
-        this.updateRecentActivity();
+        console.log('Initializing dashboard...');
+        
+        setTimeout(() => {
+            this.updateDashboardMetrics();
+            this.setupCharts();
+            this.updateRecentActivity();
+            this.setupEventHandlers();
+        }, 100);
     }
 
     updateDashboardMetrics() {
+        console.log('Updating dashboard metrics...');
+        
         const royaltyRecords = this.dataManager.getRoyaltyRecords();
         const entities = this.dataManager.getEntities();
         
         const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royalties, 0);
+        const totalProduction = royaltyRecords.reduce((sum, record) => sum + record.volume, 0);
         const activeEntities = entities.filter(e => e.status === 'Active').length;
         const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
-        const complianceRate = Math.round((paidRecords / royaltyRecords.length) * 100);
-        const pendingApprovals = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
+        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
+        const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
         
-        // Update displays
-        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}.00`);
+        // Update all metric elements
+        this.updateElement('total-royalties', `E ${totalRoyalties.toLocaleString()}`);
+        this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`);
         this.updateElement('active-entities', activeEntities);
         this.updateElement('compliance-rate', `${complianceRate}%`);
-        this.updateElement('pending-approvals', pendingApprovals);
+        this.updateElement('pending-approvals', pendingRecords);
+        this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
+        this.updateElement('overall-compliance', `${complianceRate}%`);
         
-        // Update progress bar
-        const progressBar = document.getElementById('compliance-progress');
-        if (progressBar) {
-            progressBar.style.width = `${complianceRate}%`;
-        }
+        // Update progress bars
+        this.updateProgressBar('compliance-progress', complianceRate);
+        this.updateProgressBar('royalties-progress', Math.min((totalRoyalties / 200000) * 100, 100));
         
-        // Update trend indicators
-        this.updateElement('royalties-trend', '+12.5%');
-        this.updateElement('entities-trend', '+2');
-        this.updateElement('compliance-trend', '+2.1%');
-        this.updateElement('pending-text', pendingApprovals > 0 ? 'Requires attention' : 'No pending items');
+        console.log('Dashboard metrics updated successfully');
     }
 
     updateElement(id, content) {
@@ -48,87 +57,52 @@ export class DashboardManager {
         }
     }
 
-    setupCharts() {
-        // Destroy existing charts
-        Object.values(this.charts).forEach(chart => {
-            if (chart) chart.destroy();
-        });
-        this.charts = {};
+    updateProgressBar(id, percentage) {
+        const progressBar = document.getElementById(id);
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+    }
 
+    setupCharts() {
+        console.log('Setting up charts...');
+        
+        // Clear existing charts
+        this.chartManager.destroyAll();
+        
+        // Create charts with fallback handling
         this.setupRevenueChart();
         this.setupProductionChart();
         this.setupChartControls();
+        
+        console.log('Charts setup completed');
     }
 
     setupRevenueChart() {
-        const revenueCtx = document.getElementById('revenue-trends-chart');
-        if (revenueCtx && typeof Chart !== 'undefined') {
-            this.charts.revenueTrends = new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Monthly Revenue (E)',
-                        data: [45000, 52000, 48000, 61000, 55000, 67000],
-                        borderColor: '#1a365d',
-                        backgroundColor: 'rgba(26, 54, 93, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return 'E' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+        const revenueChart = this.chartManager.createRevenueChart('revenue-trends-chart');
+        if (revenueChart) {
+            console.log('Revenue chart created successfully');
         }
     }
 
     setupProductionChart() {
-        const productionCtx = document.getElementById('production-by-entity-chart');
-        if (productionCtx && typeof Chart !== 'undefined') {
-            const royaltyRecords = this.dataManager.getRoyaltyRecords();
-            const entityData = royaltyRecords.reduce((acc, record) => {
-                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
-                return acc;
-            }, {});
-            
-            this.charts.productionByEntity = new Chart(productionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(entityData),
-                    datasets: [{
-                        data: Object.values(entityData),
-                        backgroundColor: [
-                            '#1a365d', '#2d5a88', '#4a90c2', 
-                            '#7ba7cc', '#a8c5e2', '#d4af37'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
+        const royaltyRecords = this.dataManager.getRoyaltyRecords();
+        const entityData = royaltyRecords.reduce((acc, record) => {
+            acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+            return acc;
+        }, {});
+        
+        const productionChart = this.chartManager.createProductionChart('production-by-entity-chart', entityData);
+        if (productionChart) {
+            console.log('Production chart created successfully');
         }
     }
 
     setupChartControls() {
         const chartButtons = document.querySelectorAll('.chart-btn');
         chartButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
+            const handler = (e) => {
+                e.preventDefault();
                 const chartType = btn.dataset.chartType;
                 const chartId = btn.dataset.chartId;
                 
@@ -136,67 +110,110 @@ export class DashboardManager {
                 btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                // Update chart if it exists
-                if (chartId === 'revenue-trends-chart' && this.charts.revenueTrends) {
-                    this.updateChartType(this.charts.revenueTrends, chartType);
+                // Update chart type
+                if (chartId && this.chartManager.charts.has(chartId)) {
+                    this.chartManager.updateChartType(chartId, chartType);
                 }
-            });
+                
+                this.notificationManager.show(`Switched to ${chartType} view`, 'info');
+            };
+            
+            btn.addEventListener('click', handler);
+            this.eventListeners.push({ element: btn, event: 'click', handler });
         });
     }
 
-    updateChartType(chart, type) {
-        if (type === 'area') {
-            chart.config.type = 'line';
-            chart.data.datasets[0].fill = true;
-            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.2)';
-        } else if (type === 'bar') {
-            chart.config.type = 'bar';
-            chart.data.datasets[0].fill = false;
-            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.8)';
-        } else {
-            chart.config.type = 'line';
-            chart.data.datasets[0].fill = false;
-            chart.data.datasets[0].backgroundColor = 'rgba(26, 54, 93, 0.1)';
+    setupEventHandlers() {
+        const refreshBtn = document.getElementById('refresh-dashboard-btn');
+        if (refreshBtn) {
+            const handler = () => this.refreshDashboard();
+            refreshBtn.addEventListener('click', handler);
+            this.eventListeners.push({ element: refreshBtn, event: 'click', handler });
         }
-        chart.update();
+
+        const exportBtn = document.getElementById('export-dashboard-btn');
+        if (exportBtn) {
+            const handler = () => this.exportDashboard();
+            exportBtn.addEventListener('click', handler);
+            this.eventListeners.push({ element: exportBtn, event: 'click', handler });
+        }
+
+        const customizeBtn = document.getElementById('customize-dashboard-btn');
+        if (customizeBtn) {
+            const handler = () => {
+                this.notificationManager.show('Dashboard customization options would be available here', 'info');
+            };
+            customizeBtn.addEventListener('click', handler);
+            this.eventListeners.push({ element: customizeBtn, event: 'click', handler });
+        }
+
+        const periodSelector = document.getElementById('royalties-period');
+        if (periodSelector) {
+            const handler = () => {
+                this.updateDashboardMetrics();
+                this.notificationManager.show('Dashboard updated for selected period', 'success');
+            };
+            periodSelector.addEventListener('change', handler);
+            this.eventListeners.push({ element: periodSelector, event: 'change', handler });
+        }
     }
 
-    updateRecentActivity() {
-        const activityContainer = document.getElementById('recent-activity');
-        if (!activityContainer) return;
-        
-        const auditLog = this.dataManager.getAuditLog();
-        const recentEntries = auditLog.slice(0, 5);
-        
-        activityContainer.innerHTML = recentEntries.map(entry => `
-            <div class="activity-item">
-                <div class="activity-icon">
-                    <i class="fas fa-${this.getActivityIcon(entry.action)}"></i>
-                </div>
-                <div class="activity-content">
-                    <p><strong>${entry.user}</strong> ${entry.action.toLowerCase()} ${entry.target}</p>
-                    <small>${entry.timestamp}</small>
-                </div>
-            </div>
-        `).join('');
+    refreshDashboard() {
+        this.updateDashboardMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
     }
 
-    getActivityIcon(action) {
-        const iconMap = {
-            'Login': 'sign-in-alt',
-            'Create User': 'user-plus',
-            'Modify User': 'user-edit',
-            'Delete User': 'user-minus',
-            'Data Access': 'eye',
-            'Failed Login': 'exclamation-triangle'
-        };
-        return iconMap[action] || 'circle';
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard report...', 'info');
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard report exported successfully', 'success');
+        }, 2000);
+    }
+
+    cleanup() {
+        this.eventListeners.forEach(({ element, event, handler }) => {
+            element.removeEventListener(event, handler);
+        });
+        this.eventListeners = [];
+        this.destroy();
     }
 
     destroy() {
-        Object.values(this.charts).forEach(chart => {
-            if (chart) chart.destroy();
+        // Remove all event listeners
+        this.eventListeners.forEach(({ element, event, handler }) => {
+            element.removeEventListener(event, handler);
         });
-        this.charts = {};
+        this.eventListeners = [];
+        
+        // Destroy charts
+        this.chartManager.destroyAll();
+    }
+}
+    refreshDashboard() {
+        this.updateDashboardMetrics();
+        this.setupCharts();
+        this.updateRecentActivity();
+        this.notificationManager.show('Dashboard refreshed successfully', 'success');
+    }
+
+    exportDashboard() {
+        this.notificationManager.show('Exporting dashboard report...', 'info');
+        
+        setTimeout(() => {
+            this.notificationManager.show('Dashboard report exported successfully', 'success');
+        }, 2000);
+    }
+
+    destroy() {
+        // Remove all event listeners
+        this.eventListeners.forEach(({ element, event, handler }) => {
+            element.removeEventListener(event, handler);
+        });
+        this.eventListeners = [];
+        
+        // Destroy charts
+        this.chartManager.destroyAll();
     }
 }

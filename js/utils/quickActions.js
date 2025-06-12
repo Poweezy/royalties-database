@@ -1,8 +1,8 @@
 // Quick Actions Utility Functions
 
 function showBulkUserUpload() {
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.show('Bulk user upload feature would allow CSV import with user validation', 'info');
+    if (typeof window.notificationManager !== 'undefined') {
+        window.notificationManager.show('Bulk user upload feature would allow CSV import with user validation', 'info');
     } else {
         alert('Bulk user upload feature would allow CSV import with user validation');
     }
@@ -10,15 +10,15 @@ function showBulkUserUpload() {
 
 function resetAllPasswords() {
     if (confirm('This will generate new temporary passwords for all users. Continue?')) {
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.show('Temporary passwords generated for all users. Email notifications sent.', 'success');
+        if (typeof window.notificationManager !== 'undefined') {
+            window.notificationManager.show('Temporary passwords generated for all users. Email notifications sent.', 'success');
         } else {
             alert('Temporary passwords generated for all users. Email notifications sent.');
         }
         
         // Add audit entry if dataManager is available
-        if (typeof dataManager !== 'undefined') {
-            dataManager.addAuditEntry({
+        if (typeof window.dataManager !== 'undefined') {
+            window.dataManager.addAuditEntry({
                 user: 'admin',
                 action: 'Bulk Password Reset',
                 target: 'All Users',
@@ -31,8 +31,8 @@ function resetAllPasswords() {
 }
 
 function auditUserActivity() {
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.show('Opening comprehensive user activity audit report...', 'info');
+    if (typeof window.notificationManager !== 'undefined') {
+        window.notificationManager.show('Opening comprehensive user activity audit report...', 'info');
     } else {
         alert('Opening comprehensive user activity audit report...');
     }
@@ -43,26 +43,32 @@ function auditUserActivity() {
         auditContainer.style.display = 'block';
         
         // Populate audit log if function exists
-        if (typeof app !== 'undefined' && app.populateAuditLog) {
-            app.populateAuditLog();
+        if (typeof window.royaltiesApp !== 'undefined' && window.royaltiesApp.populateAuditLog) {
+            window.royaltiesApp.populateAuditLog();
         }
     }
 }
 
 function generateUserReport() {
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.show('Generating comprehensive user management report with security metrics...', 'success');
+    if (typeof window.notificationManager !== 'undefined') {
+        window.notificationManager.show('Generating comprehensive user management report with security metrics...', 'info');
     } else {
         alert('Generating comprehensive user management report with security metrics...');
     }
     
     // Simulate report generation
     setTimeout(() => {
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.show('User management report generated successfully. Check downloads folder.', 'success');
+        if (typeof window.notificationManager !== 'undefined') {
+            window.notificationManager.show('User management report generated successfully. Check downloads folder.', 'success');
         }
     }, 2000);
 }
+
+// Global button handlers for quick actions
+window.showBulkUserUpload = showBulkUserUpload;
+window.resetAllPasswords = resetAllPasswords;
+window.auditUserActivity = auditUserActivity;
+window.generateUserReport = generateUserReport;
 
 // Export functions for module systems
 if (typeof module !== 'undefined' && module.exports) {

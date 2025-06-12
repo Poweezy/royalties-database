@@ -203,10 +203,7 @@ export class ChartManager {
 
         return this.createDoughnutChart(canvasId, data, {
             plugins: {
-                title: {
-                    display: true,
-                    text: 'Production by Entity'
-                }
+                legend: { position: 'bottom' }
             }
         });
     }
@@ -317,6 +314,9 @@ export class ChartManager {
                     borderWidth: 2
                 }]
             };
+        }
+    }
+}
         }
     }
 }
