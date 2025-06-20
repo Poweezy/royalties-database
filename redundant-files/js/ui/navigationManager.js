@@ -40,6 +40,16 @@ export class NavigationManager {
     }
 
     showSection(sectionId) {
+        // Dispatch event before hiding current section
+        if (this.currentSection) {
+            document.dispatchEvent(new CustomEvent('sectionLeaving', {
+                detail: { 
+                    sectionId: this.currentSection,
+                    nextSection: sectionId 
+                }
+            }));
+        }
+
         // Hide all sections
         const sections = document.querySelectorAll('main section');
         sections.forEach(section => section.style.display = 'none');
@@ -55,6 +65,11 @@ export class NavigationManager {
             
             // Load section content
             this.loadSectionContent(sectionId);
+            
+            // Dispatch event after section is displayed
+            document.dispatchEvent(new CustomEvent('sectionLoaded', {
+                detail: { sectionId }
+            }));
         }
     }
 
@@ -71,7 +86,12 @@ export class NavigationManager {
     async loadSectionContent(sectionId) {
         const manager = this.getSectionManager(sectionId);
         if (manager && typeof manager.loadSection === 'function') {
-            await manager.loadSection();
+            try {
+                await manager.loadSection();
+            } catch (error) {
+                console.error(`Error loading section ${sectionId}:`, error);
+                this.loadGenericSection(sectionId, true);
+            }
         } else {
             this.loadGenericSection(sectionId);
         }
@@ -85,7 +105,7 @@ export class NavigationManager {
         this.sectionManagers.set(sectionId, manager);
     }
 
-    loadGenericSection(sectionId) {
+    loadGenericSection(sectionId, isError = false) {
         const section = document.getElementById(sectionId);
         if (!section) return;
         
@@ -101,19 +121,28 @@ export class NavigationManager {
         
         const sectionName = sectionNames[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', ' ');
         
-        section.innerHTML = `
+        let content = `
             <div class="page-header">
                 <div class="page-title">
                     <h1>${sectionName}</h1>
-                    <p>This section is under development</p>
+                    <p>${isError ? 'Error loading section content' : 'This section is under development'}</p>
                 </div>
             </div>
             <div class="card">
                 <div class="card-body">
-                    <p>Content for ${sectionName} will be implemented here.</p>
+                    <p>${isError ? 'There was an error loading the content for this section. Please try again later.' : 'Content for ' + sectionName + ' will be implemented here.'}</p>
                 </div>
             </div>
         `;
+        
+        // Special handling for audit dashboard
+        if (sectionId === 'audit-dashboard') {
+            // Dispatch custom event for audit dashboard loading
+            document.dispatchEvent(new CustomEvent('loadAuditDashboard'));
+            // Don't set the content here - let the event handler do it
+        } else {
+            section.innerHTML = content;
+        }
     }
 
     loadInitialSection() {

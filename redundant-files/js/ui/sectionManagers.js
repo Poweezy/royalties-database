@@ -18,7 +18,7 @@ export class DashboardManager {
         }, 100);
     }
 
-    loadSection() {
+    async loadSection() {
         const section = document.getElementById('dashboard');
         if (!section) return;
 
@@ -307,4 +307,242 @@ export class DashboardManager {
     }
 }
 
-// Remove duplicate ChartManager class since it exists in other files
+export class AuditDashboardManager {
+    constructor(dataManager, notificationManager) {
+        this.dataManager = dataManager;
+        this.notificationManager = notificationManager;
+        this.eventListeners = [];
+    }
+
+    async loadSection() {
+        console.log('Loading audit dashboard...');
+        const section = document.getElementById('audit-dashboard');
+        
+        if (!section) {
+            console.error('Audit dashboard section element not found');
+            return;
+        }
+        
+        try {
+            // Try to load the audit dashboard content from components
+            const response = await fetch('components/audit-dashboard.html');
+            if (response.ok) {
+                const html = await response.text();
+                section.innerHTML = html;
+                this.initializeAuditDashboard();
+            } else {
+                this.loadFallbackContent(section);
+            }
+        } catch (error) {
+            console.error('Error loading audit dashboard:', error);
+            this.loadFallbackContent(section);
+        }
+    }
+    
+    loadFallbackContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Audit Dashboard</h1>
+                    <p>Comprehensive audit trail and security monitoring for the mining royalties system</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-info" id="refresh-audit-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <button class="btn btn-success" id="export-audit-btn">
+                        <i class="fas fa-download"></i> Export Audit Log
+                    </button>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users"></i> Active Users (24h)</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="active-users-24h">12</p>
+                        <small class="trend-positive">
+                            <i class="fas fa-arrow-up"></i> +3 from yesterday
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-sign-in-alt"></i> Login Attempts</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="login-attempts">45</p>
+                        <small class="trend-stable">
+                            <i class="fas fa-check-circle"></i> 43 successful, 2 failed
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-database"></i> Data Access Events</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="data-access-events">156</p>
+                        <small class="trend-info">
+                            <i class="fas fa-eye"></i> View: 120, Edit: 25, Export: 11
+                        </small>
+                    </div>
+                </div>
+
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Security Alerts</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="security-alerts">3</p>
+                        <small class="trend-warning">
+                            <i class="fas fa-shield-alt"></i> 1 high, 2 medium priority
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Audit Events</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Target</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-events-table">
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">Loading audit data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.initializeAuditDashboard();
+    }
+    
+    initializeAuditDashboard() {
+        this.loadAuditMetrics();
+        this.loadAuditEvents();
+        this.setupEventListeners();
+    }
+    
+    loadAuditMetrics() {
+        // In a real implementation, this would load data from an API
+        const auditLog = this.dataManager.getAuditLog();
+        
+        // Update metrics
+        this.updateElement('active-users-24h', Math.floor(Math.random() * 20) + 10);
+        this.updateElement('login-attempts', auditLog.filter(entry => entry.action === 'Login' || entry.action === 'Failed Login').length);
+        this.updateElement('data-access-events', auditLog.filter(entry => entry.action === 'Data Access').length);
+        this.updateElement('security-alerts', Math.floor(Math.random() * 5));
+    }
+    
+    loadAuditEvents() {
+        const auditLog = this.dataManager.getAuditLog();
+        const tableBody = document.getElementById('audit-events-table');
+        
+        if (!tableBody) {
+            console.warn('Audit events table not found');
+            return;
+        }
+        
+        if (auditLog.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem;">
+                        No audit events found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Display latest events first
+        const sortedLog = [...auditLog].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        tableBody.innerHTML = sortedLog.slice(0, 10).map(entry => `
+            <tr>
+                <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                <td>${entry.user}</td>
+                <td>${entry.action}</td>
+                <td>${entry.target}</td>
+                <td>${entry.ipAddress || '127.0.0.1'}</td>
+                <td>
+                    <span class="status-badge ${entry.status === 'Success' ? 'paid' : 'overdue'}">
+                        ${entry.status || 'Unknown'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-info" onclick="viewAuditDetails(${entry.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    setupEventListeners() {
+        // Refresh button
+        const refreshBtn = document.getElementById('refresh-audit-btn');
+        if (refreshBtn) {
+            const handler = () => this.refreshAuditDashboard();
+            refreshBtn.addEventListener('click', handler);
+            this.eventListeners.push({ element: refreshBtn, event: 'click', handler });
+        }
+
+        // Export button
+        const exportBtn = document.getElementById('export-audit-btn');
+        if (exportBtn) {
+            const handler = () => this.exportAuditData();
+            exportBtn.addEventListener('click', handler);
+            this.eventListeners.push({ element: exportBtn, event: 'click', handler });
+        }
+    }
+    
+    refreshAuditDashboard() {
+        this.loadAuditMetrics();
+        this.loadAuditEvents();
+        this.notificationManager.show('Audit dashboard refreshed successfully', 'success');
+    }
+    
+    exportAuditData() {
+        this.notificationManager.show('Exporting audit data...', 'info');
+        setTimeout(() => {
+            this.notificationManager.show('Audit data exported successfully', 'success');
+        }, 2000);
+    }
+    
+    updateElement(id, content) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = content;
+        }
+    }
+    
+    cleanup() {
+        this.eventListeners.forEach(({ element, event, handler }) => {
+            if (element) {
+                element.removeEventListener(event, handler);
+            }
+        });
+        this.eventListeners = [];
+    }
+}

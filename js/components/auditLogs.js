@@ -9,7 +9,76 @@ export class AuditLogsManager {
         this.sortColumn = 'timestamp';
         this.sortDirection = 'desc';
         this.autoRefreshInterval = null;
+        this.realTimeInterval = null;
         this.realTimeMode = false;
+        this.initialized = false;
+        this.eventListeners = new Map();
+        
+        // Register cleanup handler
+        this.registerCleanupHandler();
+    }
+
+    registerCleanupHandler() {
+        // Listen for section changes to clean up
+        const sectionChangeHandler = (e) => {
+            if (e.detail.sectionId !== 'audit-dashboard') {
+                this.cleanup();
+            }
+        };
+        document.addEventListener('sectionChange', sectionChangeHandler);
+        this.eventListeners.set('sectionChange', sectionChangeHandler);
+
+        // Listen for explicit cleanup calls
+        const cleanupHandler = () => this.cleanup();
+        document.addEventListener('sectionCleanup', cleanupHandler);
+        this.eventListeners.set('sectionCleanup', cleanupHandler);
+    }
+
+    cleanup() {
+        // Stop all intervals
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+            this.autoRefreshInterval = null;
+        }
+        
+        if (this.realTimeInterval) {
+            clearInterval(this.realTimeInterval);
+            this.realTimeInterval = null;
+        }
+
+        // Remove all event listeners
+        this.removeEventListeners();
+        
+        console.log('Audit Logs Manager cleaned up');
+        this.initialized = false;
+    }
+
+    removeEventListeners() {
+        // Clean up registered event listeners
+        this.eventListeners.forEach((handler, event) => {
+            document.removeEventListener(event, handler);
+        });
+        
+        // Clean up element-specific listeners
+        const elements = [
+            'real-time-toggle', 
+            'export-audit-log-btn', 
+            'security-report-btn',
+            'toggle-filters',
+            'apply-audit-filters',
+            'clear-audit-filters',
+            'refresh-audit-log',
+            'auto-refresh-toggle',
+            'select-all-audit'
+        ];
+        
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                const newElement = element.cloneNode(true);
+                element.parentNode.replaceChild(newElement, element);
+            }
+        });
     }
 
     async loadSection() {
@@ -18,7 +87,9 @@ export class AuditLogsManager {
 
         try {
             const template = await this.loadTemplate();
-            section.innerHTML = template;
+            if (template) {
+                section.innerHTML = template;
+            }
             
             await this.initializeComponent();
         } catch (error) {
@@ -40,6 +111,12 @@ export class AuditLogsManager {
     }
 
     async initializeComponent() {
+        if (this.initialized) {
+            console.log('Audit logs already initialized, refreshing data');
+            this.refreshAuditLog();
+            return;
+        }
+        
         this.loadAuditData();
         this.updateMetrics();
         this.populateAuditTable();
@@ -47,6 +124,7 @@ export class AuditLogsManager {
         this.setupFilters();
         this.setupPagination();
         
+        this.initialized = true;
         console.log('Audit Logs component initialized');
     }
 
@@ -467,18 +545,20 @@ export class AuditLogsManager {
         const button = document.getElementById('real-time-toggle');
         const feed = document.getElementById('realtime-feed');
 
+        if (!button || !feed) return;
+
         if (this.realTimeMode) {
             button.innerHTML = '<i class="fas fa-pause"></i> Real-time Monitoring';
             button.classList.add('btn-success');
             button.classList.remove('btn-info');
-            if (feed) feed.style.display = 'block';
+            feed.style.display = 'block';
             this.startRealTimeMonitoring();
             this.notificationManager.show('Real-time monitoring enabled', 'success');
         } else {
             button.innerHTML = '<i class="fas fa-play"></i> Real-time Monitoring';
             button.classList.add('btn-info');
             button.classList.remove('btn-success');
-            if (feed) feed.style.display = 'none';
+            feed.style.display = 'none';
             this.stopRealTimeMonitoring();
             this.notificationManager.show('Real-time monitoring disabled', 'info');
         }

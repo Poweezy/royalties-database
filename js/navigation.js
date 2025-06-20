@@ -5,6 +5,7 @@ export class NavigationModule {
     constructor() {
         console.warn('NavigationModule is deprecated. Use NavigationManager instead.');
         this.currentSection = 'dashboard';
+        this.sectionLoaders = new Map(); // Add a map for section loaders
     }
 
     initialize() {
@@ -48,6 +49,13 @@ export class NavigationModule {
             section.style.display = 'none';
         });
         
+        // Before showing new section, dispatch a cleanup event for the current section
+        if (this.currentSection) {
+            document.dispatchEvent(new CustomEvent('sectionLeaving', {
+                detail: { sectionId: this.currentSection }
+            }));
+        }
+        
         // Show target section
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
@@ -57,8 +65,18 @@ export class NavigationModule {
             // Update navigation active state
             this.updateNavigationState(sectionId);
             
+            // Clear any previous content if needed
+            if (targetSection.getAttribute('data-requires-clear') === 'true') {
+                targetSection.innerHTML = ''; // Only clear if the attribute is set
+            }
+            
             // Load section content
             this.loadSectionContent(sectionId);
+            
+            // Dispatch section changed event
+            document.dispatchEvent(new CustomEvent('sectionChanged', {
+                detail: { sectionId: sectionId, timestamp: Date.now() }
+            }));
         }
     }
 
@@ -73,11 +91,21 @@ export class NavigationModule {
     }
 
     loadSectionContent(sectionId) {
+        // First check for a cleanup process for the previous section
+        document.dispatchEvent(new CustomEvent('sectionCleanup'));
+
         // Dispatch event for section loading
         document.dispatchEvent(new CustomEvent('sectionLoading', {
             detail: { sectionId }
         }));
 
+        // First, check if we have a custom loader registered
+        if (this.sectionLoaders.has(sectionId)) {
+            this.sectionLoaders.get(sectionId)();
+            return;
+        }
+
+        // Otherwise use the standard switch-based loading
         switch (sectionId) {
             case 'dashboard':
                 document.dispatchEvent(new CustomEvent('loadDashboard'));
@@ -141,6 +169,9 @@ export class NavigationModule {
     }
 
     registerSectionLoader(sectionId, loaderFunction) {
+        if (!this.sectionLoaders) {
+            this.sectionLoaders = new Map();
+        }
         this.sectionLoaders.set(sectionId, loaderFunction);
     }
 }

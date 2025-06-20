@@ -129,66 +129,12 @@
   </div>
 </div>
 
-<!-- Security Status Overview -->
-<div class="card">
-  <div class="card-header">
-    <h5><i class="fas fa-shield-check"></i> Security Status Overview</h5>
-    <div class="card-actions">
-      <button class="btn btn-sm btn-info" onclick="runSecurityScan()">
-        <i class="fas fa-search"></i> Run Security Scan
-      </button>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="charts-grid">
-      <div class="security-metric">
-        <h6>System Integrity</h6>
-        <div class="mini-progress">
-          <div class="progress-bar" style="width: 98%; background: var(--success-color);"></div>
-        </div>
-        <small>98% - Excellent</small>
-      </div>
-      <div class="security-metric">
-        <h6>Access Control</h6>
-        <div class="mini-progress">
-          <div class="progress-bar" style="width: 95%; background: var(--success-color);"></div>
-        </div>
-        <small>95% - Very Good</small>
-      </div>
-      <div class="security-metric">
-        <h6>Data Protection</h6>
-        <div class="mini-progress">
-          <div class="progress-bar" style="width: 92%; background: var(--warning-color);"></div>
-        </div>
-        <small>92% - Good</small>
-      </div>
-      <div class="security-metric">
-        <h6>Compliance Score</h6>
-        <div class="mini-progress">
-          <div class="progress-bar" style="width: 88%; background: var(--warning-color);" id="compliance-score-bar"></div>
-        </div>
-        <small id="compliance-score-text">88% - Needs Attention</small>
-      </div>
-    </div>
-    <div class="compliance-issues" id="compliance-issues" style="margin-top: 15px; display: none;">
-      <h6><i class="fas fa-clipboard-list"></i> Compliance Issues</h6>
-      <ul class="issue-list">
-        <li><span class="issue-badge medium">Medium</span> Data retention policy documentation needs update</li>
-        <li><span class="issue-badge low">Low</span> Last security training was more than 6 months ago</li>
-      </ul>
-      <button class="btn btn-sm btn-outline-primary" id="view-compliance-report">
-        <i class="fas fa-file-alt"></i> View Full Report
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- Recent Audit Events -->
 <div class="card">
   <div class="card-header">
     <h5><i class="fas fa-history"></i> Recent Audit Events</h5>
     <div class="card-actions">
-      <button class="btn btn-sm btn-secondary" onclick="refreshAuditEvents()">
+      <button class="btn btn-sm btn-secondary" id="refresh-events-btn">
         <i class="fas fa-sync-alt"></i> Refresh
       </button>
     </div>
@@ -208,70 +154,9 @@
           </tr>
         </thead>
         <tbody id="audit-events-table">
+          <!-- Table content will be loaded dynamically -->
           <tr>
-            <td>2024-02-10 15:30:25</td>
-            <td>admin</td>
-            <td>Login</td>
-            <td>System</td>
-            <td>192.168.1.100</td>
-            <td><span class="status-badge paid">Success</span></td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(1)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>2024-02-10 15:28:12</td>
-            <td>editor</td>
-            <td>Update Record</td>
-            <td>ROY-2024-002</td>
-            <td>192.168.1.101</td>
-            <td><span class="status-badge paid">Success</span></td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(2)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>2024-02-10 15:25:45</td>
-            <td>unknown</td>
-            <td>Failed Login</td>
-            <td>System</td>
-            <td>203.45.67.89</td>
-            <td><span class="status-badge overdue">Failed</span></td>
-            <td>
-              <button class="btn btn-sm btn-warning" onclick="investigateFailedLogin(3)">
-                <i class="fas fa-search"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>2024-02-10 15:20:33</td>
-            <td>viewer</td>
-            <td>Export Data</td>
-            <td>Royalty Records</td>
-            <td>192.168.1.102</td>
-            <td><span class="status-badge paid">Success</span></td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(4)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>2024-02-10 15:18:17</td>
-            <td>admin</td>
-            <td>Create User</td>
-            <td>newuser</td>
-            <td>192.168.1.100</td>
-            <td><span class="status-badge paid">Success</span></td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="viewAuditDetails(5)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
+            <td colspan="7" class="text-center">Loading audit events...</td>
           </tr>
         </tbody>
       </table>
@@ -302,7 +187,7 @@
   <div class="card-header">
     <h5><i class="fas fa-exclamation-triangle"></i> Security Alerts</h5>
     <div class="card-actions">
-      <button class="btn btn-sm btn-warning" onclick="acknowledgeAllAlerts()">
+      <button class="btn btn-sm btn-warning" id="acknowledge-all-btn">
         <i class="fas fa-check"></i> Acknowledge All
       </button>
     </div>
@@ -319,8 +204,8 @@
           <small>Detected: 2024-02-10 15:25:45 | Risk Level: High</small>
         </div>
         <div class="alert-actions">
-          <button class="btn btn-sm btn-danger" onclick="blockIpAddress('203.45.67.89')">Block IP</button>
-          <button class="btn btn-sm btn-info" onclick="investigateIp('203.45.67.89')">Investigate</button>
+          <button class="btn btn-sm btn-danger" data-ip="203.45.67.89" data-action="block">Block IP</button>
+          <button class="btn btn-sm btn-info" data-ip="203.45.67.89" data-action="investigate">Investigate</button>
         </div>
       </div>
       
@@ -334,8 +219,8 @@
           <small>Detected: 2024-02-10 02:30:15 | Risk Level: Medium</small>
         </div>
         <div class="alert-actions">
-          <button class="btn btn-sm btn-warning" onclick="contactUser('viewer')">Contact User</button>
-          <button class="btn btn-sm btn-info" onclick="reviewUserActivity('viewer')">Review Activity</button>
+          <button class="btn btn-sm btn-warning" data-user="viewer" data-action="contact">Contact User</button>
+          <button class="btn btn-sm btn-info" data-user="viewer" data-action="review">Review Activity</button>
         </div>
       </div>
       
@@ -349,8 +234,123 @@
           <small>Detected: 2024-02-10 14:45:20 | Risk Level: Medium</small>
         </div>
         <div class="alert-actions">
-          <button class="btn btn-sm btn-info" onclick="reviewExport('editor', 'export-001')">Review Export</button>
+          <button class="btn btn-sm btn-info" data-user="editor" data-export="export-001" data-action="review-export">Review Export</button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add inline styles to ensure visibility -->
+<style>
+/* Audit Dashboard Specific Styles */
+.security-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.security-metric h6 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.security-metric small {
+  font-size: 0.75rem;
+  color: var(--text-muted, #718096);
+  text-align: center;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  text-align: center;
+}
+
+.alert-item {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #718096;
+}
+
+.alert-item.urgent {
+  background-color: rgba(229, 62, 62, 0.1);
+  border-left-color: #e53e3e;
+}
+
+.alert-item.warning {
+  background-color: rgba(214, 158, 46, 0.1);
+  border-left-color: #d69e2e;
+}
+
+.alert-icon {
+  padding-right: 1rem;
+  color: #718096;
+}
+
+.alert-item.urgent .alert-icon {
+  color: #e53e3e;
+}
+
+.alert-item.warning .alert-icon {
+  color: #d69e2e;
+}
+
+.alert-content {
+  flex-grow: 1;
+}
+
+.alert-content h6 {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.alert-content p {
+  margin: 0 0 0.25rem 0;
+}
+
+.alert-content small {
+  color: #718096;
+}
+
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .alert-item {
+    flex-direction: column;
+  }
+  
+  .alert-icon {
+    padding-right: 0;
+    padding-bottom: 0.5rem;
+  }
+  
+  .alert-actions {
+    flex-direction: row;
+    margin-top: 1rem;
+  }
+}
+</style>
       </div>
     </div>
   </div>
@@ -569,89 +569,89 @@
 </style>
 
 <script>
-// Enhanced audit dashboard initialization
-(function() {
-  console.log('Audit Dashboard: Initializing...');
-  
-  // Ensure the audit dashboard is visible
-  const auditDashboard = document.getElementById('audit-dashboard');
-  if (auditDashboard) {
-    auditDashboard.style.display = 'block';
-    auditDashboard.style.opacity = '1';
-    auditDashboard.style.visibility = 'visible';
-    console.log('Audit Dashboard: Made visible');
+// Remove self-executing function to avoid conflicts
+// and ensure proper cleanup
+
+// Define functions in window scope to ensure they're available globally
+window.viewAuditDetails = function(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Viewing details for audit event ${eventId}`, 'info');
   }
-  
-  // Initialize component when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAuditDashboard);
-  } else {
-    initializeAuditDashboard();
+};
+
+window.investigateFailedLogin = function(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Investigating failed login attempt ${eventId}`, 'warning');
   }
-  
-  function initializeAuditDashboard() {
-    console.log('Audit Dashboard: DOM ready, setting up event listeners...');
-    
-    // Setup main action buttons
-    setupMainActionButtons();
-    
-    // Setup filter handlers
-    setupFilterHandlers();
-    
-    // Setup custom date range handlers
-    setupCustomDateRangeHandlers();
-    
-    // Setup pagination handlers
-    setupPaginationHandlers();
-    
-    // Setup compliance score click handler
-    setupComplianceScoreHandler();
-    
-    // Update metrics
-    updateAuditMetrics();
-    
-    console.log('Audit Dashboard: Initialization complete');
-  }
-  
-  function setupMainActionButtons() {
-    const refreshBtn = document.getElementById('refresh-audit-btn');
-    const exportBtn = document.getElementById('export-audit-btn');
-    const scanBtn = document.getElementById('security-scan-btn');
-    
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', function() {
-        if (window.notificationManager) {
-          window.notificationManager.show('Refreshing audit data...', 'info');
-        }
-        updateAuditMetrics();
-      });
-    }
-    
-    if (exportBtn) {
-      exportBtn.addEventListener('click', function() {
-        if (window.notificationManager) {
-          window.notificationManager.show('Exporting audit log...', 'info');
-          setTimeout(() => {
-            window.notificationManager.show('Audit log exported successfully', 'success');
-          }, 2000);
-        }
-      });
-    }
-    
-    if (scanBtn) {
-      scanBtn.addEventListener('click', runSecurityScan);
+};
+
+window.blockIpAddress = function(ip) {
+  if (confirm(`Are you sure you want to block IP address ${ip}?`)) {
+    if (window.notificationManager) {
+      window.notificationManager.show(`IP address ${ip} has been blocked`, 'success');
     }
   }
+};
+
+window.investigateIp = function(ip) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Opening investigation for IP ${ip}`, 'info');
+  }
+};
+
+window.contactUser = function(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Contacting user ${username}...`, 'info');
+  }
+};
+
+window.reviewUserActivity = function(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing activity for user ${username}`, 'info');
+  }
+};
+
+window.reviewExport = function(username, exportId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing export ${exportId} by ${username}`, 'info');
+  }
+};
+
+window.acknowledgeAllAlerts = function() {
+  if (confirm('Are you sure you want to acknowledge all security alerts?')) {
+    if (window.notificationManager) {
+      window.notificationManager.show('All security alerts acknowledged', 'success');
+    }
+  }
+};
+
+window.runSecurityScan = function() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Running comprehensive security scan...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Security scan completed - 2 issues found', 'warning');
+    }, 3000);
+  }
+};
+
+window.refreshAuditEvents = function() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Refreshing audit events...', 'info');
+  }
+};
+
+window.exportAuditData = function(format) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Exporting audit data in ${format} format...`, 'info');
+  }
   
-  function setupFilterHandlers() {
-    const applyFiltersBtn = document.getElementById('apply-audit-filters');
-    const resetFiltersBtn = document.getElementById('reset-audit-filters');
-    const dateRangeSelect = document.getElementById('audit-date-range');
-    
-    if (dateRangeSelect) {
-      dateRangeSelect.addEventListener('change', function(e) {
-        if (e.target.value === 'custom') {
-          document.getElementById('custom-date-range-container').style.display = 'block';
+  setTimeout(() => {
+    if (window.notificationManager) {
+      window.notificationManager.show(`Audit data exported successfully as ${format}`, 'success');
+    }
+  }, 1500);
+};
+</script>
         } else {
           document.getElementById('custom-date-range-container').style.display = 'none';
         }
