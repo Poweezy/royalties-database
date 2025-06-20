@@ -181,8 +181,7 @@
             
             console.groupEnd();
         },
-        
-        /**
+          /**
          * Analyze and fix sections
          */
         fixSections: function() {
@@ -227,9 +226,11 @@
             
             return fixCount;
         },
-          /**
+        
+        /**
          * Load content for all sections
-         */        loadAllSections: async function() {
+         */
+        loadAllSections: async function() {
             console.group('Loading All Sections');
             
             const sections = document.querySelectorAll('main section');
