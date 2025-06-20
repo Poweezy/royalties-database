@@ -1525,10 +1525,9 @@ async function initializeApp() {
             console.log('Will attempt to continue but some features may not work properly');
         } else {
             console.log('All dependencies loaded successfully');
-        }
-
-        app = new RoyaltiesApp();
+        }        app = new RoyaltiesApp();
         window.royaltiesApp = app;
+        window.app = app; // Also assign to window.app for compatibility with startup.js
         await app.initialize();
         
         // Run diagnostics if requested

@@ -261,13 +261,13 @@
         <!-- Profile content will be loaded dynamically -->
       </section>
     </main>  </div>  <!-- Scripts -->
-  <!-- Load core modules and scripts in correct order -->  <script src="js/module-loader.js?v=20250626" type="text/javascript"></script>
-  <script src="app.js?v=20250626" type="text/javascript"></script>
-  <script src="js/chart-manager.js?v=20250626" type="text/javascript"></script>
-  <script src="js/component-initializer.js?v=20250626" type="text/javascript"></script>
-  <script src="js/sidebar-manager.js?v=20250626" type="text/javascript"></script>
+  <!-- Load core modules and scripts in correct order -->  <script src="js/module-loader.js?v=20250627" type="text/javascript"></script>
+  <script src="app.js?v=20250627" type="text/javascript"></script>
+  <script src="js/chart-manager.js?v=20250627" type="text/javascript"></script>
+  <script src="js/component-initializer.js?v=20250627" type="text/javascript"></script>
+  <script src="js/sidebar-manager.js?v=20250627" type="text/javascript"></script>
   <script src="js/diagnostics.js?v=20250627" type="text/javascript"></script>
-  <script src="js/startup.js?v=20250626" type="text/javascript"></script>
+  <script src="js/startup.js?v=20250627" type="text/javascript"></script>
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>
@@ -287,7 +287,7 @@
       if ('serviceWorker' in navigator) {
           if (window.location.protocol !== 'file:') {
               // Only register the service worker if we're not on file:// protocol
-              navigator.serviceWorker.register('sw.js?v=3.2')
+              navigator.serviceWorker.register('sw.js?v=3.3')
                   .then(registration => {
                       console.log('SW registered successfully: ', registration);
                       

@@ -89,11 +89,11 @@
             const navLinks = sidebar.querySelectorAll('a.nav-link');
             if (!navLinks || navLinks.length === 0) {
                 console.warn('No navigation links found in sidebar - they may not have loaded yet');
-                
-                // Try to manually reload sidebar if window.app is available
-                if (window.app && typeof window.app.loadSidebar === 'function') {
+                  // Try to manually reload sidebar if app is available (either as app or royaltiesApp)
+                const appInstance = window.app || window.royaltiesApp;
+                if (appInstance && typeof appInstance.loadSidebar === 'function') {
                     try {
-                        await window.app.loadSidebar();
+                        await appInstance.loadSidebar();
                         console.log('Manually reloaded sidebar');
                         
                         // Check again after reload

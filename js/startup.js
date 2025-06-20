@@ -15,11 +15,19 @@
         if (isFileProtocol) {
             console.log('Startup: Detected file:// protocol - using limited functionality mode');
         }
-        
-        // Step 1: Ensure app object is created
-        if (!window.app) {
+          // Step 1: Ensure app object is created
+        if (!window.app && !window.royaltiesApp) {
             console.warn('Startup: App object not found! Application may not function correctly.');
             return;
+        }
+        
+        // Ensure we have a consistent reference
+        if (!window.app && window.royaltiesApp) {
+            window.app = window.royaltiesApp;
+            console.log('Startup: Using royaltiesApp as app reference');
+        } else if (window.app && !window.royaltiesApp) {
+            window.royaltiesApp = window.app;
+            console.log('Startup: Using app as royaltiesApp reference');
         }
         
         // Step 2: Load sidebar if needed
