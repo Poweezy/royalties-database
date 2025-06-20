@@ -33,9 +33,8 @@ class SimpleChartManager {
             this.showFallbackChart(canvasId);
             return null;
         }
-    }
-
-    createRevenueChart(canvasId) {
+    }    createRevenueChart(canvasId) {
+        console.log('SimpleChartManager: Creating revenue chart on canvas', canvasId);
         return this.createChart(canvasId, {
             type: 'line',
             data: {
@@ -506,7 +505,8 @@ class RoyaltiesApp {
         this.dataManager = new DataManager();
         this.authManager = new AuthManager();
         this.notificationManager = new NotificationManager();
-        this.chartManager = new SimpleChartManager();
+        // Use the globally available chartManager if it exists, otherwise use SimpleChartManager
+        this.chartManager = window.chartManager || new SimpleChartManager();
         this.mobileNav = null;
         this.currentSection = 'dashboard';
         this.isInitialized = false;
@@ -1043,26 +1043,45 @@ class RoyaltiesApp {
                     </div>
                 </div>
             </div>
-        `;
-
-        // Initialize charts and event handlers after content is loaded
+        `;        // Initialize charts and event handlers after content is loaded with longer timeout
+        // to ensure canvas elements are properly rendered
+        console.log('Dashboard content loaded, will initialize charts in 300ms...');
         setTimeout(() => {
             this.initializeDashboardCharts();
             this.setupDashboardEventHandlers();
-        }, 100);
-    }
-
-    initializeDashboardCharts() {
-        // Create revenue chart
-        this.chartManager.createRevenueChart('revenue-trends-chart');
-
-        // Create production chart with actual data
-        const royaltyRecords = this.dataManager.getRoyaltyRecords();
-        const entityData = royaltyRecords.reduce((acc, record) => {
-            acc[record.entity] = (acc[record.entity] || 0) + record.volume;
-            return acc;
-        }, {});
-        this.chartManager.createProductionChart('production-by-entity-chart', entityData);
+        }, 300);
+    }    initializeDashboardCharts() {
+        console.log('Initializing dashboard charts...');
+        
+        try {
+            // Get royalty records for charts
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            
+            // Create revenue chart
+            if (this.chartManager.createRevenueChart) {
+                console.log('Creating revenue chart...');
+                this.chartManager.createRevenueChart('revenue-trends-chart');
+            }
+    
+            // Create production chart with actual data
+            const entityData = royaltyRecords.reduce((acc, record) => {
+                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+                return acc;
+            }, {});
+            
+            // Handle different method names in different chart manager implementations
+            if (this.chartManager.createProductionChart) {
+                console.log('Creating production chart using createProductionChart...');
+                this.chartManager.createProductionChart('production-by-entity-chart', entityData);
+            } else if (this.chartManager.createEntityChart) {
+                console.log('Creating production chart using createEntityChart...');
+                this.chartManager.createEntityChart('production-by-entity-chart', entityData);
+            } else {
+                console.warn('No suitable chart creation method found in chartManager');
+            }
+        } catch (error) {
+            console.error('Error initializing dashboard charts:', error);
+        }
     }
 
     setupDashboardEventHandlers() {

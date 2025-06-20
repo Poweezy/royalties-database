@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mining-royalties-v3.3';
+const CACHE_NAME = 'mining-royalties-v3.4';
 const CACHE_URLS = [
     '/',
     '/index.html',

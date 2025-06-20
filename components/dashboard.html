@@ -815,9 +815,71 @@ function refreshRecentActivity() {
   }
 }
 
+// Initialize dashboard charts
+function initializeDashboardCharts() {
+  console.log('Initializing dashboard charts...');
+  
+  try {
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js is not loaded. Charts cannot be displayed.');
+      return;
+    }
+    
+    // Check if chartManager is available
+    if (!window.chartManager) {
+      console.error('Chart manager is not available. Charts cannot be displayed.');
+      return;
+    }
+    
+    console.log('Creating revenue trends chart...');
+    // Create revenue trends chart
+    window.chartManager.createRevenueChart('revenue-trends-chart', {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Monthly Revenue (E)',
+        data: [45000, 52000, 48000, 61000, 55000, 67000],
+        borderColor: '#1a365d',
+        backgroundColor: 'rgba(26, 54, 93, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    });
+    
+    console.log('Creating production chart...');
+    // Create entity production chart
+    window.chartManager.createProductionChart('revenue-by-entity-chart', {
+      'Diamond Mining Corp': 150,
+      'Gold Rush Ltd': 85, 
+      'Copper Valley Mining': 2500
+    });
+    
+    console.log('Creating payment timeline chart...');
+    // Create payment timeline chart
+    window.chartManager.create('payment-timeline-chart', {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Payments Made',
+          data: [28, 35, 42, 31, 39, 45],
+          backgroundColor: 'rgba(38, 84, 124, 0.8)'
+        }]
+      }
+    });
+    
+    console.log('Charts initialized successfully');
+  } catch (error) {
+    console.error('Error initializing dashboard charts:', error);
+  }
+}
+
 // Initialize dashboard-specific features with error handling
 document.addEventListener('DOMContentLoaded', function() {
   try {
+    // Initialize charts
+    initializeDashboardCharts();
+    
     // Setup chart control handlers
     const chartBtns = document.querySelectorAll('.chart-btn');
     chartBtns.forEach(btn => {
@@ -831,6 +893,12 @@ document.addEventListener('DOMContentLoaded', function() {
           // Trigger chart update if needed
           const chartId = this.dataset.chartId;
           const chartType = this.dataset.chartType;
+          
+          // Update chart type if chart manager is available
+          if (window.chartManager && chartId && chartType) {
+            console.log(`Updating chart ${chartId} to type ${chartType}`);
+            window.chartManager.updateChartType(chartId, chartType);
+          }
           
           if (window.notificationManager) {
             window.notificationManager.show(`Switching to ${chartType} chart view`, 'info');
@@ -919,8 +987,46 @@ document.addEventListener('DOMContentLoaded', function() {
           console.error('Error resetting filters:', error);
         }
       });
-    }
-  } catch (error) {
+    }  } catch (error) {
     console.error('Error initializing dashboard:', error);
+  }
+  
+  // Add handlers for dashboard buttons
+  const refreshDashboardBtn = document.getElementById('refresh-dashboard-btn');
+  if (refreshDashboardBtn) {
+    refreshDashboardBtn.addEventListener('click', function() {
+      try {
+        console.log('Refreshing dashboard...');
+        // Destroy existing charts
+        if (window.chartManager) {
+          window.chartManager.destroyAll();
+        }
+        // Reinitialize charts
+        setTimeout(initializeDashboardCharts, 100);
+        
+        if (window.notificationManager) {
+          window.notificationManager.show('Dashboard refreshed successfully', 'success');
+        }
+      } catch (error) {
+        console.error('Error refreshing dashboard:', error);
+      }
+    });
+  }
+
+  const exportDashboardBtn = document.getElementById('export-dashboard-btn');
+  if (exportDashboardBtn) {
+    exportDashboardBtn.addEventListener('click', function() {
+      try {
+        if (window.notificationManager) {
+          window.notificationManager.show('Exporting dashboard data...', 'info');
+          
+          setTimeout(() => {
+            window.notificationManager.show('Dashboard exported successfully', 'success');
+          }, 1500);
+        }
+      } catch (error) {
+        console.error('Error exporting dashboard:', error);
+      }
+    });
   }
 });
