@@ -33,8 +33,7 @@
             console.log('Startup: Initializing module loader...');
             window.moduleLoader.initialize();
         }
-        
-        // Step 4: Run diagnostics in the background
+          // Step 4: Run diagnostics in the background
         setTimeout(() => {
             if (window.appDiagnostics && window.appDiagnostics.runAll) {
                 console.log('Startup: Running diagnostics...');
@@ -42,9 +41,9 @@
             }
             
             // Fix common issues automatically
-            if (window.appDiagnostics && window.appDiagnostics.fixCommonIssues) {
+            if (window.appDiagnostics && window.appDiagnostics.runDiagnosticsAndFix) {
                 console.log('Startup: Applying automatic fixes...');
-                window.appDiagnostics.fixCommonIssues();
+                window.appDiagnostics.runDiagnosticsAndFix();
             }
         }, 3000); // Wait 3 seconds before running diagnostics
         

@@ -1,6 +1,6 @@
 /**
  * Diagnostics Tool for Mining Royalties Manager
- * v1.1.0 - 2025-06-25
+ * v1.2.0 - 2023-06-26
  */
 (function() {
     'use strict';
@@ -34,7 +34,8 @@
         
         /**
          * Check components availability
-         */        checkComponents: async function() {
+         */
+        checkComponents: async function() {
             console.group('Component Check');
             
             if (window.checkComponentsAvailability) {
@@ -197,7 +198,8 @@
             }
             
             let fixCount = 0;
-              // Check each section from sidebar links
+            
+            // Check each section from sidebar links
             sidebarLinks.forEach(link => {
                 const sectionId = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
                 
@@ -225,11 +227,9 @@
             
             return fixCount;
         },
-        
-        /**
+          /**
          * Load content for all sections
-         */
-        loadAllSections: async function() {
+         */        loadAllSections: async function() {
             console.group('Loading All Sections');
             
             const sections = document.querySelectorAll('main section');
@@ -239,4 +239,176 @@
                 const sectionId = section.id;
                 
                 // Skip logout
-                if
+                if (sectionId === 'logout') continue;
+                
+                try {
+                    // Try to load content from component file
+                    const componentPaths = ['components', 'html/components'];
+                    let loaded = false;
+                    
+                    for (const path of componentPaths) {
+                        try {
+                            const response = await fetch(`${path}/${sectionId}.html?v=${Date.now()}`);
+                            if (response.ok) {
+                                const html = await response.text();
+                                section.innerHTML = html;
+                                loadedCount++;
+                                console.log(`Loaded ${sectionId} from ${path}/${sectionId}.html`);
+                                loaded = true;
+                                break;
+                            }
+                        } catch (error) {
+                            // Continue to next path
+                        }
+                    }
+                    
+                    if (!loaded) {
+                        console.warn(`Could not load content for section ${sectionId}`);
+                    }
+                } catch (error) {
+                    console.error(`Error loading section ${sectionId}:`, error);
+                }
+            }
+            
+            console.log(`Loaded ${loadedCount}/${sections.length} sections`);
+            console.groupEnd();
+            return loadedCount;
+        },
+
+        /**
+         * Check sidebar links and validate they point to existing sections
+         */
+        validateSidebarLinks: function() {
+            console.group('Sidebar Links Validation');
+            
+            const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link');
+            let validCount = 0;
+            let invalidCount = 0;
+            
+            sidebarLinks.forEach(link => {
+                const sectionId = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                
+                if (!sectionId) {
+                    console.warn(`Link has no section ID or href: ${link.textContent.trim()}`);
+                    invalidCount++;
+                    return;
+                }
+                
+                if (sectionId === 'logout') {
+                    console.log(`Logout link: ✓ Valid`);
+                    validCount++;
+                    return;
+                }
+                
+                const sectionElement = document.getElementById(sectionId);
+                if (sectionElement) {
+                    console.log(`Link to ${sectionId}: ✓ Valid`);
+                    validCount++;
+                } else {
+                    console.warn(`Link to ${sectionId}: ✗ Invalid - section does not exist`);
+                    invalidCount++;
+                    
+                    // Mark link as disabled
+                    if (!link.classList.contains('disabled')) {
+                        link.classList.add('disabled');
+                        link.setAttribute('title', 'This section is not available');
+                    }
+                }
+            });
+            
+            console.log(`Validation complete: ${validCount} valid, ${invalidCount} invalid links`);
+            console.groupEnd();
+            
+            return { validCount, invalidCount };
+        },
+        
+        /**
+         * Fix missing references to scripts
+         */
+        fixScriptReferences: function() {
+            console.group('Script References Check');
+            
+            const requiredScripts = [
+                { src: 'js/chart-manager.js', id: 'chart-manager-script' },
+                { src: 'js/component-initializer.js', id: 'component-initializer-script' },
+                { src: 'js/sidebar-manager.js', id: 'sidebar-manager-script' }
+            ];
+            
+            let fixCount = 0;
+            
+            requiredScripts.forEach(scriptInfo => {
+                const exists = document.querySelector(`script[src="${scriptInfo.src}"], script#${scriptInfo.id}`);
+                
+                if (!exists) {
+                    console.log(`Missing script: ${scriptInfo.src}, adding it now...`);
+                    const script = document.createElement('script');
+                    script.src = scriptInfo.src;
+                    script.id = scriptInfo.id;
+                    script.defer = true;
+                    script.setAttribute('data-added-by', 'diagnostics');
+                    
+                    document.head.appendChild(script);
+                    fixCount++;
+                }
+            });
+            
+            if (fixCount > 0) {
+                console.log(`Added ${fixCount} missing script references`);
+            } else {
+                console.log('All required scripts are present');
+            }
+            
+            console.groupEnd();
+            return fixCount;
+        },
+        
+        /**
+         * Run a full diagnostic and attempt to fix issues automatically
+         */
+        runDiagnosticsAndFix: async function() {
+            console.group('Full Diagnostics & Auto-Fix');
+            
+            console.log('Running initial diagnostics...');
+            this.runAll();
+            
+            console.log('Attempting to fix sections...');
+            const sectionFixCount = this.fixSections();
+            
+            console.log('Validating sidebar links...');
+            const { validCount, invalidCount } = this.validateSidebarLinks();
+            
+            console.log('Checking script references...');
+            const scriptFixCount = this.fixScriptReferences();
+            
+            console.log('Diagnostics and fixes complete:');
+            console.log(`- Section fixes: ${sectionFixCount}`);
+            console.log(`- Valid sidebar links: ${validCount}`);
+            console.log(`- Invalid sidebar links: ${invalidCount}`);
+            console.log(`- Script reference fixes: ${scriptFixCount}`);
+            
+            console.groupEnd();
+            
+            return {
+                sectionFixCount,
+                validLinks: validCount,
+                invalidLinks: invalidCount,
+                scriptFixCount
+            };
+        }
+    };
+    
+    // Create a global shortcut for diagnostics
+    window.runDiagnostics = function() {
+        window.appDiagnostics.runAll();
+    };
+    
+    // Auto-run diagnostics on load if requested via URL
+    if (window.location.search.includes('diagnostics=true')) {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Auto-running diagnostics (triggered by URL parameter)');
+            window.appDiagnostics.runAll();
+        });
+    }
+    
+    console.log('Diagnostics module loaded and ready');
+})();
