@@ -1,0 +1,264 @@
+/**
+ * Diagnostics Tool for Mining Royalties Manager
+ * v1.0.0 - 2025-06-21
+ */
+(function() {
+    'use strict';
+    
+    // Create global diagnostics object
+    window.appDiagnostics = {
+        /**
+         * Run all diagnostics
+         */
+        runAll: function() {
+            this.checkEnvironment();
+            this.checkComponents();
+            this.checkCharts();
+            this.checkScripts();
+            this.checkSections();
+        },
+        
+        /**
+         * Check environment
+         */
+        checkEnvironment: function() {
+            console.group('Environment Check');
+            
+            console.log('Protocol:', window.location.protocol);
+            console.log('Host:', window.location.host);
+            console.log('Service Worker Supported:', 'serviceWorker' in navigator);
+            console.log('Chart.js Available:', typeof Chart !== 'undefined');
+            
+            console.groupEnd();
+        },
+        
+        /**
+         * Check components availability
+         */
+        checkComponents: async function() {
+            console.group('Component Check');
+            
+            if (window.checkComponentsAvailability) {
+                console.log('Using checkComponentsAvailability...');
+                await window.checkComponentsAvailability();
+            } else {
+                console.log('checkComponentsAvailability not available, using manual check...');
+                
+                const components = [
+                    'sidebar', 'dashboard', 'user-management', 'royalty-records',
+                    'contract-management', 'audit-dashboard', 'reporting-analytics',
+                    'communication', 'notifications', 'compliance', 'regulatory-management', 'profile'
+                ];
+                
+                for (const component of components) {
+                    try {
+                        const response = await fetch(`components/${component}.html?v=${Date.now()}`);
+                        console.log(`Component ${component}.html: ${response.ok ? '✓ Available' : '✗ Not found'}`);
+                    } catch (error) {
+                        console.log(`Component ${component}.html: ✗ Error (${error.message})`);
+                    }
+                }
+            }
+            
+            console.groupEnd();
+        },
+        
+        /**
+         * Check if all sections from sidebar are available and properly configured in DOM
+         */
+        checkSections: function() {
+            console.group('Section Diagnostics');
+            
+            // Get all section IDs from navigation links
+            const navLinks = document.querySelectorAll('.sidebar a.nav-link');
+            const sectionIds = Array.from(navLinks).map(link => {
+                const section = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                return {
+                    id: section,
+                    text: link.textContent.trim(),
+                    link: link
+                };
+            }).filter(item => item.id && item.id !== 'logout');
+            
+            console.log(`Found ${sectionIds.length} sections in navigation:`);
+            
+            // Check each section
+            sectionIds.forEach(section => {
+                const sectionElement = document.getElementById(section.id);
+                const status = {
+                    exists: !!sectionElement,
+                    visible: sectionElement ? window.getComputedStyle(sectionElement).display !== 'none' : false,
+                    hasContent: sectionElement ? sectionElement.children.length > 0 : false
+                };
+                
+                console.log(`Section "${section.text}" (${section.id}):`);
+                console.log(`  - DOM element: ${status.exists ? '✓ Exists' : '✗ Missing'}`);
+                console.log(`  - Visibility: ${status.visible ? '✓ Visible' : '✗ Hidden'}`);
+                console.log(`  - Content: ${status.hasContent ? `✓ Has content (${sectionElement?.children.length} elements)` : '✗ Empty'}`);
+                
+                if (!status.exists) {
+                    console.warn(`  ⚠️ Section ${section.id} is missing in the DOM but exists in navigation!`);
+                }
+            });
+            
+            // Check for sections in DOM that are not in navigation
+            const allSections = document.querySelectorAll('main section');
+            const allSectionIds = Array.from(allSections).map(s => s.id);
+            const navigationSectionIds = sectionIds.map(s => s.id);
+            
+            const orphanedSections = allSectionIds.filter(id => !navigationSectionIds.includes(id));
+            if (orphanedSections.length) {
+                console.warn(`Orphaned sections (in DOM but not in navigation): ${orphanedSections.join(', ')}`);
+            }
+            
+            console.groupEnd();
+            
+            return {
+                sectionsInNavigation: sectionIds.length,
+                sectionsInDOM: allSections.length,
+                orphanedSections
+            };
+        },
+        
+        /**
+         * Check charts
+         */
+        checkCharts: function() {
+            console.group('Charts Check');
+            
+            const canvasElements = document.querySelectorAll('canvas[id]');
+            console.log(`Found ${canvasElements.length} canvas elements`);
+            
+            if (typeof Chart !== 'undefined') {
+                console.log('Chart.js is available');
+            } else {
+                console.warn('Chart.js is not available');
+            }
+            
+            if (typeof window.chartManager !== 'undefined') {
+                console.log('ChartManager is available');
+            } else {
+                console.warn('ChartManager is not available');
+            }
+            
+            console.groupEnd();
+        },
+        
+        /**
+         * Check scripts
+         */
+        checkScripts: function() {
+            console.group('Scripts Check');
+            
+            const scripts = document.querySelectorAll('script');
+            console.log(`Total scripts loaded: ${scripts.length}`);
+            
+            const scriptSources = Array.from(scripts)
+                .filter(script => script.src)
+                .map(script => {
+                    const url = new URL(script.src);
+                    return url.pathname.split('/').pop();
+                });
+            
+            console.log('Loaded script files:', scriptSources);
+            
+            console.groupEnd();
+        },
+        
+        /**
+         * Analyze and fix sections
+         */
+        fixSections: function() {
+            console.group('Section Repair');
+            
+            const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link');
+            const mainContent = document.querySelector('main.main-content');
+            
+            if (!mainContent) {
+                console.error('Main content container not found!');
+                console.groupEnd();
+                return;
+            }
+            
+            let fixCount = 0;
+            
+            // Check each section from sidebar links
+            sidebarLinks.forEach(link => {
+                const sectionId = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                
+                // Skip logout
+                if (sectionId === 'logout') return;
+                
+                const existingSection = document.getElementById(sectionId);
+                
+                // If section doesn't exist, create it
+                if (!existingSection) {
+                    console.log(`Creating missing section: ${sectionId}`);
+                    const newSection = document.createElement('section');
+                    newSection.id = sectionId;
+                    newSection.style.display = 'none';
+                    mainContent.appendChild(newSection);
+                    fixCount++;
+                }
+            });
+            
+            console.log(`Repairs completed. Fixed ${fixCount} issues.`);
+            console.groupEnd();
+            
+            // Refresh diagnostics
+            this.checkSections();
+            
+            return fixCount;
+        },
+        
+        /**
+         * Load content for all sections
+         */
+        loadAllSections: async function() {
+            console.group('Loading All Sections');
+            
+            const sections = document.querySelectorAll('main section');
+            let loadedCount = 0;
+            
+            for (const section of sections) {
+                const sectionId = section.id;
+                
+                // Skip logout
+                if (sectionId === 'logout') continue;
+                
+                console.log(`Loading content for section: ${sectionId}`);
+                
+                try {
+                    const response = await fetch(`components/${sectionId}.html?v=${Date.now()}`);
+                    if (response.ok) {
+                        const html = await response.text();
+                        section.innerHTML = html;
+                        console.log(`✓ Loaded content for ${sectionId}`);
+                        loadedCount++;
+                    } else {
+                        console.warn(`✗ Failed to load content for ${sectionId}: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(`✗ Error loading content for ${sectionId}:`, error);
+                }
+            }
+            
+            console.log(`Loaded content for ${loadedCount} of ${sections.length} sections.`);
+            console.groupEnd();
+            
+            return loadedCount;
+        }
+    };
+
+    // Run diagnostics on page load if not in iframe
+    if (window === window.top) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Running automatic diagnostics...');
+                window.appDiagnostics.runAll();
+            }, 2000); // Run after 2 seconds to allow other scripts to initialize
+        });
+    }
+    
+    console.log('Diagnostics tool initialized.');
+})();

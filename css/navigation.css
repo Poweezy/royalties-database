@@ -44,3 +44,19 @@ nav ul li a span {
   font-size: 0.75rem;
   margin-left: auto;
 }
+
+/* Styles for disabled and warning nav links */
+nav ul li a.nav-link-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+nav ul li a.nav-link-warning {
+  color: var(--warning-color);
+}
+
+nav ul li a.nav-link-warning:hover {
+  background-color: rgba(214, 158, 46, 0.1);
+}

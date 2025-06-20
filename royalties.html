@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mining Royalties Manager - A comprehensive solution for managing mining royalties">
   <title>Mining Royalties Manager</title>
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
   
   <!-- External Dependencies -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +16,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <!-- Local CSS Files -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/buttons.css">
+  <link rel="stylesheet" href="css/badges.css">
+  <link rel="stylesheet" href="css/utilities.css">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="royalties.css">
   
@@ -237,22 +250,46 @@
       <section id="profile" style="display: none;">
         <!-- Profile content will be loaded dynamically -->
       </section>
-    </main>
-  </div>
-
-  <!-- Scripts -->
-  <script src="app.js"></script>
-
+    </main>  </div>  <!-- Scripts -->
+  <!-- Load core modules and scripts in correct order -->
+  <script src="js/module-loader.js?v=20250626" type="text/javascript"></script>
+  <script src="app.js?v=20250626" type="text/javascript"></script>
+  <script src="js/chart-manager.js?v=20250626" type="text/javascript"></script>
+  <script src="js/component-initializer.js?v=20250626" type="text/javascript"></script>
+  <script src="js/sidebar-manager.js?v=20250626" type="text/javascript"></script>
+  <script src="js/diagnostics.js?v=20250626" type="text/javascript"></script>
+  <script src="js/startup.js?v=20250626" type="text/javascript"></script>
+  <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>
+      // Display protocol information for debugging
+      console.log("Current protocol: " + window.location.protocol);
+      console.log("Current origin: " + window.location.origin);
+
       if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('sw.js')
-              .then(registration => {
-                  console.log('SW registered: ', registration);
-              })
-              .catch(registrationError => {
-                  console.log('SW registration failed: ', registrationError);
-              });
+          if (window.location.protocol !== 'file:') {
+              // Only register the service worker if we're not on file:// protocol
+              navigator.serviceWorker.register('sw.js?v=2')
+                  .then(registration => {
+                      console.log('SW registered successfully: ', registration);
+                  })
+                  .catch(registrationError => {
+                      console.error('SW registration failed: ', registrationError);
+                      
+                      // More detailed error information
+                      console.log('Registration error details:');
+                      console.log('- Error name: ' + registrationError.name);
+                      console.log('- Error message: ' + registrationError.message);
+                  });
+          } else {
+              console.warn('Service Worker cannot be registered when loading from file:// protocol. Please use a web server instead.');
+              console.log('Try using:');
+              console.log('1. VS Code Live Server extension');
+              console.log('2. Python: python -m http.server');
+              console.log('3. Node: npx http-server');
+          }
+      } else {
+          console.warn('Service Worker is not supported in this browser');
       }
   </script>
 </body>

@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Setup Royalties Database",
+			"type": "shell",
+			"command": "echo 'Setting up Royalties Database with royalties.html as main entry point'",
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

@@ -3,21 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mining Royalties Manager</title>
-    
-    <!-- Replace the existing royalties.css link with the new modular structure -->
-    <link rel="stylesheet" href="css/main.css">
-    
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-    
-    <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Custom scripts - Load the correct app.js file -->
-    <script src="app.js" defer></script>
+    <title>Mining Royalties Manager - Redirecting...</title>
+    <meta http-equiv="refresh" content="0;url=royalties.html">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <div class="loading-spinner"></div>
+    <p>Redirecting to Mining Royalties Manager...</p>
+    <script>
+        window.location.href = 'royalties.html';
+    </script>
     <!-- Loading Screen -->
     <div class="loading-screen" id="loading-screen">
         <div class="loading-content">

@@ -645,56 +645,34 @@ class RoyaltiesApp {
             console.error('Error showing main application:', error);
             this.notificationManager.show('Error loading application', 'error');
         }
-    }    async loadSidebar() {
+    }
+
+    async loadSidebar() {
         const sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
-        
-        try {
-            const response = await fetch('components/sidebar.html');
-            if (!response.ok) {
-                throw new Error(`Failed to load sidebar: ${response.status}`);
-            }
-            const content = await response.text();
-            sidebar.innerHTML = content;
-            console.log('Sidebar loaded successfully from components/sidebar.html');        } catch (error) {
-            console.error('Error loading sidebar:', error);
-            // Fallback sidebar with all sections
-            sidebar.innerHTML = `
-                <div class="sidebar-header">
-                    <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
-                    <h2>Royalties Manager</h2>
-                </div>
-                <nav>
-                    <ul>
-                        <!-- Sections verified to exist -->
-                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                        <li><a href="#user-management" class="nav-link" data-section="user-management">
-                            <i class="fas fa-users"></i> User Management</a></li>
-                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">
-                            <i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
-                        <li><a href="#contract-management" class="nav-link" data-section="contract-management">
-                            <i class="fas fa-file-contract"></i> Contract Management</a></li>
-                        <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard">
-                            <i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
-                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics">
-                            <i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
-                        <li><a href="#communication" class="nav-link" data-section="communication">
-                            <i class="fas fa-envelope"></i> Communication</a></li>
-                        <li><a href="#notifications" class="nav-link" data-section="notifications">
-                            <i class="fas fa-bell"></i> Notifications <span id="notification-count">3</span></a></li>
-                        <li><a href="#compliance" class="nav-link" data-section="compliance">
-                            <i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
-                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management">
-                            <i class="fas fa-gavel"></i> Regulatory Management</a></li>
-                        <li><a href="#profile" class="nav-link" data-section="profile">
-                            <i class="fas fa-user"></i> My Profile</a></li>
-                        <li><a href="#logout" class="nav-link" data-section="logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                    </ul>
-                </nav>
-            `;
-        }
+
+        sidebar.innerHTML = `
+            <div class="sidebar-header">
+                <div class="sidebar-logo">💎</div>
+                <h2>Royalties Manager</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#user-management" class="nav-link" data-section="user-management">
+                        <i class="fas fa-users"></i> User Management</a></li>
+                    <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">
+                        <i class="fas fa-money-bill-wave"></i> Royalty Records</a></li>
+                    <li><a href="#contract-management" class="nav-link" data-section="contract-management">
+                        <i class="fas fa-file-contract"></i> Contract Management</a></li>
+                    <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard">
+                        <i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
+                    <li><a href="#logout" class="nav-link" data-section="logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        `;
     }
 
     setupNavigation() {
@@ -714,7 +692,9 @@ class RoyaltiesApp {
                 }
             });
         }
-    }    async showSection(sectionId) {
+    }
+
+    async showSection(sectionId) {
         try {
             // Hide all sections
             const sections = document.querySelectorAll('main section');
@@ -722,89 +702,33 @@ class RoyaltiesApp {
 
             // Show target section
             const targetSection = document.getElementById(sectionId);
-            if (!targetSection) {
-                console.error(`Section ${sectionId} not found in DOM`);
-                this.notificationManager.show(`The ${sectionId.replace('-', ' ')} section is not available`, 'warning');
-                
-                // Fallback to dashboard
-                if (sectionId !== 'dashboard') {
-                    console.log('Falling back to dashboard');
-                    this.showSection('dashboard');
-                }
-                return;
-            }
-            
-            targetSection.style.display = 'block';
-            this.currentSection = sectionId;
-            this.updateNavigationState(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                this.currentSection = sectionId;
+                this.updateNavigationState(sectionId);
 
-            // Check if section is empty and needs content
-            if (targetSection.children.length === 0 || !targetSection.hasAttribute('data-loaded')) {
+                // Load section content
                 await this.loadSectionContent(sectionId);
-                targetSection.setAttribute('data-loaded', 'true');
-            } else {
-                console.log(`Section ${sectionId} already has content, skipping load`);
             }
         } catch (error) {
             console.error(`Error loading section ${sectionId}:`, error);
-            this.notificationManager.show(`Error loading ${sectionId.replace('-', ' ')}`, 'error');
-            
-            // Fallback to dashboard on error
-            if (sectionId !== 'dashboard') {
-                console.log('Falling back to dashboard due to error');
-                this.showSection('dashboard');
-            }
+            this.notificationManager.show(`Error loading ${sectionId}`, 'error');
         }
-    }async loadSectionContent(sectionId) {
+    }
+
+    async loadSectionContent(sectionId) {
         try {
-            console.log(`Loading section content for: ${sectionId}`);
-            
-            const section = document.getElementById(sectionId);
-            if (!section) {
-                console.error(`Section element #${sectionId} not found in DOM`);
-                return;
-            }
-            
-            let componentLoaded = false;
-            
-            // First try to use moduleLoader if available
-            if (window.moduleLoader) {
-                console.log(`Using ModuleLoader to load component: ${sectionId}`);
-                const result = await window.moduleLoader.loadComponent(sectionId, section);
-                if (result.success) {
-                    console.log(`Component ${sectionId} loaded successfully via ModuleLoader`);
-                    componentLoaded = true;
+            // Try to load component HTML
+            const response = await fetch(`components/${sectionId}.html`);
+            if (response.ok) {
+                const html = await response.text();
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.innerHTML = html;
                     this.initializeSectionComponent(sectionId);
-                } else {
-                    console.warn(`ModuleLoader failed for ${sectionId}, trying alternative paths`);
                 }
-            }
-            
-            // If module loader didn't work, try the direct approach with multiple possible paths
-            if (!componentLoaded) {
-                const componentPaths = ['components', 'html/components'];
-                
-                for (const path of componentPaths) {
-                    try {
-                        const response = await fetch(`${path}/${sectionId}.html?v=${Date.now()}`);
-                        if (response.ok) {
-                            const html = await response.text();
-                            section.innerHTML = html;
-                            console.log(`Component ${sectionId} loaded successfully from ${path}`);
-                            componentLoaded = true;
-                            this.initializeSectionComponent(sectionId);
-                            break;
-                        }
-                    } catch (pathError) {
-                        // Continue to next path
-                        console.warn(`Could not load ${sectionId} from ${path}:`, pathError);
-                    }
-                }
-            }
-            
-            // If still not loaded, use fallback content
-            if (!componentLoaded) {
-                console.warn(`Component ${sectionId}.html not found in any path, using fallback content`);
+            } else {
+                // Fallback to built-in content
                 this.loadFallbackSection(sectionId);
             }
         } catch (error) {
@@ -1437,32 +1361,9 @@ async function initializeApp() {
             return;
         }
 
-        console.log('Initializing Mining Royalties Manager application...');
-        
-        // Verify dependencies
-        const dependencies = [
-            { name: 'moduleLoader', global: 'moduleLoader' },
-            { name: 'Chart.js', global: 'Chart' },
-            { name: 'chartManager', global: 'chartManager' }
-        ];
-        
-        const missingDeps = dependencies.filter(dep => !window[dep.global]);
-        if (missingDeps.length > 0) {
-            console.warn('Missing dependencies:', missingDeps.map(d => d.name).join(', '));
-            console.log('Will attempt to continue but some features may not work properly');
-        } else {
-            console.log('All dependencies loaded successfully');
-        }
-
         app = new RoyaltiesApp();
         window.royaltiesApp = app;
         await app.initialize();
-        
-        // Run diagnostics if requested
-        if (window.appDiagnostics && window.location.search.includes('diagnostics=true')) {
-            console.log('Running diagnostics after initialization...');
-            window.appDiagnostics.runAll();
-        }
     } catch (error) {
         console.error('Failed to initialize application:', error);
         // Show fallback error UI
