@@ -58,6 +58,26 @@
   </div>
 </div>
 
+<!-- Custom Date Range Selector (initially hidden) -->
+<div class="card dashboard-filters" id="custom-date-range-container" style="display: none; margin-top: 10px;">
+  <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="custom-date-start">Start Date:</label>
+        <input type="date" id="custom-date-start" class="form-control">
+      </div>
+      <div class="filter-group">
+        <label for="custom-date-end">End Date:</label>
+        <input type="date" id="custom-date-end" class="form-control">
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="apply-custom-date">Apply</button>
+        <button class="btn btn-secondary btn-sm" id="cancel-custom-date">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Audit Summary Metrics -->
 <div class="charts-grid">
   <div class="metric-card card">
@@ -145,10 +165,20 @@
       <div class="security-metric">
         <h6>Compliance Score</h6>
         <div class="mini-progress">
-          <div class="progress-bar" style="width: 88%; background: var(--warning-color);"></div>
+          <div class="progress-bar" style="width: 88%; background: var(--warning-color);" id="compliance-score-bar"></div>
         </div>
-        <small>88% - Needs Attention</small>
+        <small id="compliance-score-text">88% - Needs Attention</small>
       </div>
+    </div>
+    <div class="compliance-issues" id="compliance-issues" style="margin-top: 15px; display: none;">
+      <h6><i class="fas fa-clipboard-list"></i> Compliance Issues</h6>
+      <ul class="issue-list">
+        <li><span class="issue-badge medium">Medium</span> Data retention policy documentation needs update</li>
+        <li><span class="issue-badge low">Low</span> Last security training was more than 6 months ago</li>
+      </ul>
+      <button class="btn btn-sm btn-outline-primary" id="view-compliance-report">
+        <i class="fas fa-file-alt"></i> View Full Report
+      </button>
     </div>
   </div>
 </div>
@@ -245,6 +275,24 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+  <!-- Add pagination to audit events table -->
+  <div class="card-footer">
+    <div class="pagination-controls">
+      <button class="btn btn-sm btn-outline-secondary" id="prev-page" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span id="page-indicator">Page 1 of 10</span>
+      <button class="btn btn-sm btn-outline-secondary" id="next-page">
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+      <select id="page-size" class="form-control form-control-sm">
+        <option value="5">5 per page</option>
+        <option value="10" selected>10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+      </select>
     </div>
   </div>
 </div>
@@ -389,6 +437,98 @@
   color: var(--text-secondary, #4a5568);
 }
 
+/* New styles for enhanced components */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#page-indicator {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4a5568);
+}
+
+#page-size {
+  width: auto;
+  max-width: 120px;
+}
+
+.issue-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+
+.issue-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.875rem;
+}
+
+.issue-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.issue-badge.high {
+  background-color: rgba(245, 101, 101, 0.1);
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+}
+
+.issue-badge.medium {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: #dd6b20;
+  border: 1px solid #dd6b20;
+}
+
+.issue-badge.low {
+  background-color: rgba(66, 153, 225, 0.1);
+  color: #3182ce;
+  border: 1px solid #3182ce;
+}
+
+/* Tooltip styles */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.25rem;
+}
+
+.tooltip-icon {
+  color: var(--text-muted, #718096);
+  cursor: help;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.75rem;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* Ensure audit dashboard visibility */
 #audit-dashboard {
   display: block !important;
@@ -403,6 +543,28 @@
 .card {
   position: relative;
   z-index: 1;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
 }
 </style>
 
@@ -435,6 +597,15 @@
     
     // Setup filter handlers
     setupFilterHandlers();
+    
+    // Setup custom date range handlers
+    setupCustomDateRangeHandlers();
+    
+    // Setup pagination handlers
+    setupPaginationHandlers();
+    
+    // Setup compliance score click handler
+    setupComplianceScoreHandler();
     
     // Update metrics
     updateAuditMetrics();
@@ -475,6 +646,17 @@
   function setupFilterHandlers() {
     const applyFiltersBtn = document.getElementById('apply-audit-filters');
     const resetFiltersBtn = document.getElementById('reset-audit-filters');
+    const dateRangeSelect = document.getElementById('audit-date-range');
+    
+    if (dateRangeSelect) {
+      dateRangeSelect.addEventListener('change', function(e) {
+        if (e.target.value === 'custom') {
+          document.getElementById('custom-date-range-container').style.display = 'block';
+        } else {
+          document.getElementById('custom-date-range-container').style.display = 'none';
+        }
+      });
+    }
     
     if (applyFiltersBtn) {
       applyFiltersBtn.addEventListener('click', function() {
@@ -509,6 +691,110 @@
     }
   }
   
+  function setupCustomDateRangeHandlers() {
+    const applyCustomDateBtn = document.getElementById('apply-custom-date');
+    const cancelCustomDateBtn = document.getElementById('cancel-custom-date');
+    
+    if (applyCustomDateBtn) {
+      applyCustomDateBtn.addEventListener('click', function() {
+        const startDate = document.getElementById('custom-date-start').value;
+        const endDate = document.getElementById('custom-date-end').value;
+        
+        if (!startDate || !endDate) {
+          if (window.notificationManager) {
+            window.notificationManager.show('Please select both start and end dates', 'error');
+          } else {
+            alert('Please select both start and end dates');
+          }
+          return;
+        }
+        
+        if (window.notificationManager) {
+          window.notificationManager.show(`Applying custom date range: ${startDate} - ${endDate}`, 'info');
+        }
+        
+        updateAuditEvents('custom', document.getElementById('audit-user-filter').value, 
+            document.getElementById('audit-action-filter').value, startDate, endDate);
+      });
+    }
+    
+    if (cancelCustomDateBtn) {
+      cancelCustomDateBtn.addEventListener('click', function() {
+        document.getElementById('custom-date-range-container').style.display = 'none';
+        document.getElementById('audit-date-range').value = 'week';
+      });
+    }
+  }
+  
+  function setupPaginationHandlers() {
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const pageSizeSelect = document.getElementById('page-size');
+    
+    let currentPage = 1;
+    const totalPages = 10; // This would be dynamically determined based on total records
+    
+    if (prevPageBtn) {
+      prevPageBtn.addEventListener('click', function() {
+        if (currentPage > 1) {
+          currentPage--;
+          updatePagination();
+          // In a real implementation, you would fetch the previous page of records here
+        }
+      });
+    }
+    
+    if (nextPageBtn) {
+      nextPageBtn.addEventListener('click', function() {
+        if (currentPage < totalPages) {
+          currentPage++;
+          updatePagination();
+          // In a real implementation, you would fetch the next page of records here
+        }
+      });
+    }
+    
+    if (pageSizeSelect) {
+      pageSizeSelect.addEventListener('change', function() {
+        // In a real implementation, you would update the page size and refetch records here
+        if (window.notificationManager) {
+          window.notificationManager.show(`Page size changed to ${pageSizeSelect.value} records`, 'info');
+        }
+      });
+    }
+    
+    function updatePagination() {
+      document.getElementById('page-indicator').textContent = `Page ${currentPage} of ${totalPages}`;
+      prevPageBtn.disabled = currentPage === 1;
+      nextPageBtn.disabled = currentPage === totalPages;
+    }
+  }
+  
+  function setupComplianceScoreHandler() {
+    const complianceScore = document.getElementById('compliance-score-bar');
+    const complianceIssues = document.getElementById('compliance-issues');
+    
+    if (complianceScore && complianceIssues) {
+      complianceScore.parentElement.addEventListener('click', function() {
+        if (complianceIssues.style.display === 'none') {
+          complianceIssues.style.display = 'block';
+        } else {
+          complianceIssues.style.display = 'none';
+        }
+      });
+    }
+    
+    const viewReportBtn = document.getElementById('view-compliance-report');
+    if (viewReportBtn) {
+      viewReportBtn.addEventListener('click', function() {
+        if (window.notificationManager) {
+          window.notificationManager.show('Opening compliance report...', 'info');
+        }
+        // In a real implementation, you would open the full compliance report here
+      });
+    }
+  }
+  
   function updateAuditMetrics() {
     // Update metrics with real or simulated data
     const metrics = {
@@ -526,15 +812,26 @@
     });
   }
   
-  function updateAuditEvents(dateRange, userFilter, actionFilter) {
+  function updateAuditEvents(dateRange, userFilter, actionFilter, startDate = null, endDate = null) {
     const tableBody = document.getElementById('audit-events-table');
     if (tableBody) {
       // Add loading state
       tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
       
-      // Simulate loading delay
+      // In a real implementation, you would fetch filtered data from the server
+      // For now, we'll simulate loading delay and use placeholder data
       setTimeout(() => {
-        // Restore original content (in a real app, this would fetch filtered data)
+        // Reset pagination when filters change
+        document.getElementById('prev-page').disabled = true;
+        document.getElementById('page-indicator').textContent = 'Page 1 of 10';
+        document.getElementById('next-page').disabled = false;
+        
+        if (window.notificationManager) {
+          window.notificationManager.show('Audit events updated', 'success');
+        }
+        
+        // For demonstration, just reload the page to restore the original data
+        // In a real app, you would render the filtered data here
         location.reload();
       }, 1000);
     }
@@ -633,4 +930,34 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+  
+  // Setup export button dropdown
+  const exportBtn = document.getElementById('export-audit-btn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function() {
+      // Show export format options
+      const formatOptions = ['CSV', 'PDF', 'Excel'];
+      const selectedFormat = prompt(`Choose export format: ${formatOptions.join(', ')}`, 'CSV');
+      
+      if (selectedFormat && formatOptions.map(f => f.toLowerCase()).includes(selectedFormat.toLowerCase())) {
+        exportAuditData(selectedFormat);
+      }
+    });
+  }
 });
+
+// Add a function to export audit data in multiple formats
+function exportAuditData(format) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Exporting audit data in ${format} format...`, 'info');
+  }
+  
+  setTimeout(() => {
+    if (window.notificationManager) {
+      window.notificationManager.show(`Audit data exported successfully as ${format}`, 'success');
+    }
+    
+    // In a real implementation, you would trigger the actual download here
+  }, 1500);
+}
+</script>
