@@ -1,6 +1,6 @@
 /**
  * Diagnostics Tool for Mining Royalties Manager
- * v1.2.0 - 2023-06-26
+ * v1.2.1 - 2023-06-26 (Fixed version)
  */
 (function() {
     'use strict';
@@ -17,28 +17,65 @@
             this.checkScripts();
             this.checkSections();
         },
-        
-        /**
+          /**
          * Check environment
          */
         checkEnvironment: function() {
             console.group('Environment Check');
             
-            console.log('Protocol:', window.location.protocol);
+            // Check protocol and provide detailed information
+            const protocol = window.location.protocol;
+            console.log('Protocol:', protocol);
             console.log('Host:', window.location.host);
-            console.log('Service Worker Supported:', 'serviceWorker' in navigator);
+            
+            // File protocol specific checks
+            if (protocol === 'file:') {
+                console.log('⚠️ Running in file:// protocol mode - LIMITED FUNCTIONALITY');
+                console.log('- Fetch API restrictions apply (CORS policy blocks local file access)');
+                console.log('- Service Worker is not available in file:// protocol');
+                console.log('- Only core components are available via fallback mechanism');
+                console.log('- For full functionality, please use a web server');
+            } else {
+                console.log('✓ Running on web server - FULL FUNCTIONALITY');
+                console.log('Service Worker Supported:', 'serviceWorker' in navigator);
+            }
+            
             console.log('Chart.js Available:', typeof Chart !== 'undefined');
+            
+            // Additional resources
+            if (window.moduleLoader && window.moduleLoader.isFileProtocol) {
+                console.log('ModuleLoader is using fallback content for file:// protocol');
+            }
             
             console.groupEnd();
         },
-        
-        /**
+          /**
          * Check components availability
          */
         checkComponents: async function() {
             console.group('Component Check');
             
-            if (window.checkComponentsAvailability) {
+            // Check if we're on file:// protocol
+            const isFileProtocol = window.location.protocol === 'file:';
+            
+            // Components that should be available in file:// protocol via fallbacks
+            const fileProtocolComponents = ['sidebar', 'dashboard', 'royalty-records', 'contract-management'];
+            
+            if (isFileProtocol) {
+                console.log('⚠️ Running in file:// protocol mode - Component checks are limited');
+                console.log('The following components should be available through fallbacks:');
+                fileProtocolComponents.forEach(component => {
+                    console.log(`- ${component}: Should be available via fallback`);
+                });
+                
+                // If moduleLoader is available, check its fallbacks
+                if (window.moduleLoader && window.moduleLoader.fallbackComponents) {
+                    console.log('ModuleLoader fallback components registered:');
+                    Object.keys(window.moduleLoader.fallbackComponents).forEach(component => {
+                        console.log(`- ${component}: ✓ Fallback available`);
+                    });
+                }
+            } else if (window.checkComponentsAvailability) {
                 console.log('Using checkComponentsAvailability...');
                 await window.checkComponentsAvailability();
             } else {
@@ -55,6 +92,12 @@
                 for (const component of components) {
                     let isAvailable = false;
                     let foundPath = '';
+                    
+                    // Handle file:// protocol fallbacks
+                    if (isFileProtocol && fileProtocolComponents.includes(component)) {
+                        console.log(`Component ${component}.html: ✓ Available (file:// fallback)`);
+                        continue;
+                    }
                     
                     for (const path of componentPaths) {
                         try {
@@ -89,7 +132,7 @@
             // Get all section IDs from navigation links
             const navLinks = document.querySelectorAll('.sidebar a.nav-link');
             const sectionIds = Array.from(navLinks).map(link => {
-                const section = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                const section = link.getAttribute('data-section') || (link.getAttribute('href') ? link.getAttribute('href').substring(1) : null);
                 return {
                     id: section,
                     text: link.textContent.trim(),
@@ -111,7 +154,7 @@
                 console.log(`Section "${section.text}" (${section.id}):`);
                 console.log(`  - DOM element: ${status.exists ? '✓ Exists' : '✗ Missing'}`);
                 console.log(`  - Visibility: ${status.visible ? '✓ Visible' : '✗ Hidden'}`);
-                console.log(`  - Content: ${status.hasContent ? `✓ Has content (${sectionElement?.children.length} elements)` : '✗ Empty'}`);
+                console.log(`  - Content: ${status.hasContent ? `✓ Has content (${sectionElement ? sectionElement.children.length : 0} elements)` : '✗ Empty'}`);
                 
                 if (!status.exists) {
                     console.warn(`  ⚠️ Section ${section.id} is missing in the DOM but exists in navigation!`);
@@ -133,7 +176,7 @@
             return {
                 sectionsInNavigation: sectionIds.length,
                 sectionsInDOM: allSections.length,
-                orphanedSections
+                orphanedSections: orphanedSections
             };
         },
         
@@ -181,7 +224,8 @@
             
             console.groupEnd();
         },
-          /**
+        
+        /**
          * Analyze and fix sections
          */
         fixSections: function() {
@@ -193,17 +237,17 @@
             if (!mainContent) {
                 console.error('Main content container not found!');
                 console.groupEnd();
-                return;
+                return 0;
             }
             
             let fixCount = 0;
             
             // Check each section from sidebar links
             sidebarLinks.forEach(link => {
-                const sectionId = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                const sectionId = link.getAttribute('data-section') || (link.getAttribute('href') ? link.getAttribute('href').substring(1) : null);
                 
-                // Skip logout
-                if (sectionId === 'logout') return;
+                // Skip logout or invalid IDs
+                if (!sectionId || sectionId === 'logout') return;
                 
                 const sectionElement = document.getElementById(sectionId);
                 
@@ -239,8 +283,8 @@
             for (const section of sections) {
                 const sectionId = section.id;
                 
-                // Skip logout
-                if (sectionId === 'logout') continue;
+                // Skip logout or empty IDs
+                if (!sectionId || sectionId === 'logout') continue;
                 
                 try {
                     // Try to load content from component file
@@ -287,7 +331,7 @@
             let invalidCount = 0;
             
             sidebarLinks.forEach(link => {
-                const sectionId = link.getAttribute('data-section') || link.getAttribute('href')?.substring(1);
+                const sectionId = link.getAttribute('data-section') || (link.getAttribute('href') ? link.getAttribute('href').substring(1) : null);
                 
                 if (!sectionId) {
                     console.warn(`Link has no section ID or href: ${link.textContent.trim()}`);

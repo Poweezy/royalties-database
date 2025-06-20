@@ -1,6 +1,5 @@
 // Mining Royalties Manager - Main Application
 console.log('Mining Royalties Manager v2.0 - Loading...');
-console.log('App.js syntax fixes applied - 2025-06-20');
 
 // ===== CORE CLASSES =====
 
@@ -500,7 +499,6 @@ class MobileNavigationManager {
 
 // ===== MAIN APPLICATION CLASS =====
 
-// ===== MAIN APPLICATION CLASS =====
 class RoyaltiesApp {
     constructor() {
         this.dataManager = new DataManager();
@@ -646,9 +644,8 @@ class RoyaltiesApp {
         } catch (error) {
             console.error('Error showing main application:', error);
             this.notificationManager.show('Error loading application', 'error');
-        }    }
-    
-    async loadSidebar() {
+        }
+    }    async loadSidebar() {
         const sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
         
@@ -764,10 +761,11 @@ class RoyaltiesApp {
                         this.handleLogout();
                     } else {
                         this.showSection(section);
-                    }                }
+                    }
+                }
             });
         }
-    }
+    };
     
     async showSection(sectionId) {
         try {
@@ -806,10 +804,10 @@ class RoyaltiesApp {
             
             // Fallback to dashboard on error
             if (sectionId !== 'dashboard') {
-                console.log('Falling back to dashboard due to error');                this.showSection('dashboard');
-            }
-        }
-    }
+                console.log('Falling back to dashboard due to error');
+                this.showSection('dashboard');
+            }        }
+    };
     
     async loadSectionContent(sectionId) {
         try {
@@ -881,11 +879,11 @@ class RoyaltiesApp {
             if (!componentLoaded) {
                 console.warn(`Component ${sectionId}.html not found in any path, using fallback content`);
                 this.loadFallbackSection(sectionId);
-            }        } catch (error) {
+            }
+        } catch (error) {
             console.warn(`Failed to load component ${sectionId}.html:`, error);
-            this.loadFallbackSection(sectionId);
-        }
-    }
+            this.loadFallbackSection(sectionId);        }
+    };
 
     loadFallbackSection(sectionId) {
         const section = document.getElementById(sectionId);

@@ -137,7 +137,7 @@ self.addEventListener('fetch', event => {
     );
 });
 
-// Message event - simplified to avoid promise issues
+// Message event - properly handled to avoid message channel errors
 self.addEventListener('message', event => {
     console.log('Service Worker: Message received:', event.data);
     
@@ -146,11 +146,21 @@ self.addEventListener('message', event => {
     } else if (event.data && event.data.type === 'CACHE_UPDATE') {
         event.waitUntil(
             caches.open(CACHE_NAME)
-                .then(cache => cache.addAll(CACHE_URLS.filter(shouldCache)))
-                .catch(error => console.error('Service Worker: Cache update failed:', error))
+                .then(cache => {
+                    console.log('Service Worker: Updating cache for CACHE_UPDATE message');
+                    return cache.addAll(CACHE_URLS.filter(shouldCache));
+                })
+                .catch(error => {
+                    console.error('Service Worker: Cache update failed:', error);
+                })
         );
+    } else if (event.data && event.data.type === 'REQUEST_VERSION') {
+        // Respond to version requests synchronously, don't use postMessage
+        console.log('Service Worker: Received version request');
     }
-    // Don't return true - this prevents the promise channel errors
+    
+    // IMPORTANT: Never return a Promise or true from this handler
+    // to avoid "message channel closed before response" errors
 });
 
 // Error handlers

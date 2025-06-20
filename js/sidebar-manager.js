@@ -29,8 +29,7 @@
             
             console.log('SidebarManager: Initialization complete');
         }
-        
-        /**
+          /**
          * Check which section components actually exist
          */
         async validateAvailableComponents() {
@@ -43,6 +42,13 @@
                 'compliance', 'regulatory-management', 'profile'
             ];
             
+            // Check if we're on file:// protocol
+            const isFileProtocol = window.location.protocol === 'file:';
+            
+            // Always consider these components available when running from file://
+            // These should match the fallback components in module-loader.js
+            const fileProtocolComponents = ['dashboard', 'royalty-records', 'contract-management'];
+            
             // Check each section for component availability
             for (const section of allSections) {
                 let isAvailable = false;
@@ -54,17 +60,26 @@
                     continue;
                 }
                 
-                // Check component files
-                for (const path of this.componentPaths) {
-                    try {
-                        const response = await fetch(`${path}/${section}.html?v=${Date.now()}`);
-                        if (response.ok) {
-                            isAvailable = true;
-                            console.log(`SidebarManager: Component ${section}.html found in ${path}`);
-                            break;
+                // When on file:// protocol, immediately consider core sections available
+                if (isFileProtocol && fileProtocolComponents.includes(section)) {
+                    console.log(`SidebarManager: Section ${section} available (file:// protocol fallback)`);
+                    isAvailable = true;
+                } else {
+                    // Check component files
+                    for (const path of this.componentPaths) {
+                        try {
+                            const response = await fetch(`${path}/${section}.html?v=${Date.now()}`);
+                            if (response.ok) {
+                                isAvailable = true;
+                                console.log(`SidebarManager: Component ${section}.html found in ${path}`);
+                                break;
+                            }
+                        } catch (error) {
+                            // Continue to next path
+                            if (isFileProtocol) {
+                                console.warn(`SidebarManager: Fetch failed for ${path}/${section}.html - this is normal for file:// protocol`);
+                            }
                         }
-                    } catch (error) {
-                        // Continue to next path
                     }
                 }
                 

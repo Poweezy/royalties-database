@@ -6,10 +6,15 @@
  */
 (function() {
     'use strict';
-    
-    // Initialization function
+      // Initialization function
     function initializeApplication() {
         console.log('Startup: Application initialization beginning...');
+        
+        // Check for file:// protocol
+        const isFileProtocol = window.location.protocol === 'file:';
+        if (isFileProtocol) {
+            console.log('Startup: Detected file:// protocol - using limited functionality mode');
+        }
         
         // Step 1: Ensure app object is created
         if (!window.app) {
@@ -21,9 +26,22 @@
         const sidebar = document.getElementById('sidebar');
         if (!sidebar || sidebar.children.length === 0) {
             console.log('Startup: Sidebar empty or not loaded, triggering load...');
-            window.app.loadSidebar().catch(error => {
-                console.error('Startup: Failed to load sidebar:', error);
-            });
+            
+            // Special handling for file:// protocol
+            if (isFileProtocol && window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents['sidebar']) {
+                console.log('Startup: Using fallback sidebar for file:// protocol');
+                sidebar.innerHTML = window.moduleLoader.fallbackComponents['sidebar'];
+            } else {
+                window.app.loadSidebar().catch(error => {
+                    console.error('Startup: Failed to load sidebar:', error);
+                    
+                    // Try fallback on error if we have it
+                    if (window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents['sidebar']) {
+                        console.log('Startup: Using fallback sidebar after load failure');
+                        sidebar.innerHTML = window.moduleLoader.fallbackComponents['sidebar'];
+                    }
+                });
+            }
         } else {
             console.log('Startup: Sidebar already loaded');
         }

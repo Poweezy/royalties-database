@@ -150,12 +150,22 @@
     }
   </style>
 </head>
-<body>
-  <!-- Loading Screen -->
+<body>  <!-- Loading Screen -->
   <div class="loading-screen" id="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
       <p>Loading Mining Royalties Manager...</p>
+      <div id="loading-protocol-message" style="display: none; margin-top: 15px; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.2); font-size: 14px; max-width: 400px;">
+        <strong>Loading in file:// protocol mode</strong><br>
+        Limited functionality available.<br>
+        For best results, use a web server instead.
+      </div>
+      <script>
+        // Add file:// protocol message if needed
+        if (window.location.protocol === 'file:') {
+          document.getElementById('loading-protocol-message').style.display = 'block';
+        }
+      </script>
     </div>
   </div>
 
@@ -261,18 +271,45 @@
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>
-      // Display protocol information for debugging
-      console.log("Current protocol: " + window.location.protocol);
+      // Display protocol information for debugging      console.log("Current protocol: " + window.location.protocol);
       console.log("Current origin: " + window.location.origin);
+
+      // Add a dedicated error handler for message channel errors
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && 
+            event.reason.message && 
+            event.reason.message.includes('message channel closed')) {
+          console.warn('Service Worker message channel error caught:', event.reason);
+          event.preventDefault(); // Prevents the default error handling
+        }
+      });
 
       if ('serviceWorker' in navigator) {
           if (window.location.protocol !== 'file:') {
               // Only register the service worker if we're not on file:// protocol
-              navigator.serviceWorker.register('sw.js?v=2')
+              navigator.serviceWorker.register('sw.js?v=3.2')
                   .then(registration => {
                       console.log('SW registered successfully: ', registration);
-                  })
-                  .catch(registrationError => {
+                      
+                      // Handle updates
+                      if (registration.waiting) {
+                          console.log('SW: New version waiting, activating...');
+                          registration.waiting.postMessage({type: 'SKIP_WAITING'});
+                      }
+                      
+                      // Listen for new SW installing
+                      registration.addEventListener('updatefound', () => {
+                          const newWorker = registration.installing;
+                          console.log('SW: New version installing');
+                          
+                          // Add reliable waiting detection
+                          newWorker.addEventListener('statechange', () => {
+                              if (newWorker.state === 'installed') {
+                                  console.log('SW: New version installed and waiting');
+                              }
+                          });
+                      });
+                  })                  .catch(registrationError => {
                       console.error('SW registration failed: ', registrationError);
                       
                       // More detailed error information
@@ -280,6 +317,11 @@
                       console.log('- Error name: ' + registrationError.name);
                       console.log('- Error message: ' + registrationError.message);
                   });
+              
+              // Listen for controlled page change indicating a new service worker is active
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                  console.log('SW: New service worker controlling page');
+              });
           } else {
               console.warn('Service Worker cannot be registered when loading from file:// protocol. Please use a web server instead.');
               console.log('Try using:');
@@ -287,9 +329,45 @@
               console.log('2. Python: python -m http.server');
               console.log('3. Node: npx http-server');
           }
-      } else {
-          console.warn('Service Worker is not supported in this browser');
+      } else {          console.warn('Service Worker is not supported in this browser');
       }
+  </script>
+  
+  <!-- File Protocol Detection and Warning Banner -->
+  <script>
+      // Check if running from file:// protocol and show appropriate warning
+      document.addEventListener('DOMContentLoaded', function() {
+          if (window.location.protocol === 'file:') {
+              // Create the banner if it doesn't exist
+              let banner = document.getElementById('file-protocol-banner');
+              if (!banner) {
+                  banner = document.createElement('div');
+                  banner.id = 'file-protocol-banner';
+                  banner.style.cssText = 'background: #f8d7da; color: #721c24; padding: 10px 15px; font-size: 14px; text-align: center; border-bottom: 1px solid #f5c6cb; position: fixed; top: 0; left: 0; right: 0; z-index: 10000;';
+                  
+                  banner.innerHTML = `
+                      <strong>Limited Functionality Mode:</strong> You are running the application from a local file. 
+                      Some features will be restricted. For full functionality, please serve the application through a web server.
+                      <button onclick="this.parentElement.style.display='none';" 
+                              style="background: none; border: none; cursor: pointer; font-size: 16px; float: right; margin-top: -2px;">
+                          &times;
+                      </button>
+                  `;
+                  
+                  document.body.insertBefore(banner, document.body.firstChild);
+              } else {
+                  banner.style.display = 'block';
+              }
+              
+              // Log additional guidance for users
+              console.info('%c Running in FILE:// PROTOCOL MODE - Limited Functionality ', 'background: #721c24; color: white; padding: 5px;');
+              console.info('Some features will not work due to browser security restrictions when loading from file://');
+              console.info('For full functionality, please use a web server such as:');
+              console.info('1. VS Code Live Server extension');
+              console.info('2. Python: python -m http.server');
+              console.info('3. Node: npx http-server');
+          }
+      });
   </script>
 </body>
 </html>

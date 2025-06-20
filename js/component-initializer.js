@@ -30,10 +30,10 @@
         
         console.log('Component initializer completed!');
     });
-    
-    // Preload the most commonly used components
+      // Preload the most commonly used components
     function preloadCriticalComponents() {
-        if (!window.moduleLoader || !window.moduleLoader.preloadComponent) {            console.warn('Cannot preload components - ModuleLoader not properly initialized');
+        if (!window.moduleLoader || !window.moduleLoader.preloadComponent) {            
+            console.warn('Cannot preload components - ModuleLoader not properly initialized');
             
             // Try to initialize the moduleLoader
             if (window.moduleLoader) {
@@ -44,13 +44,28 @@
             return;
         }
         
-        const criticalComponents = ['sidebar', 'dashboard'];
+        // Check if we're in file:// protocol
+        const isFileProtocol = window.location.protocol === 'file:';
+        
+        // Adjust components based on protocol
+        let criticalComponents = ['sidebar', 'dashboard'];
+        
+        // Add more components for file:// protocol to ensure they're loaded
+        if (isFileProtocol) {
+            criticalComponents = ['sidebar', 'dashboard', 'royalty-records', 'contract-management'];
+            console.log('Using extended component list for file:// protocol');
+            
+            // Special handling for file:// protocol - create any missing sections
+            if (window.moduleLoader.createFileProtocolSections) {
+                window.moduleLoader.createFileProtocolSections();
+            }
+        }
         
         criticalComponents.forEach(componentId => {
             window.moduleLoader.preloadComponent(componentId)
                 .then(result => {
                     if (result.success) {
-                        console.log(`Preloaded component: ${componentId}`);
+                        console.log(`Preloaded component: ${componentId}${result.fromFallback ? ' (from fallback)' : ''}`);
                     } else {
                         console.warn(`Failed to preload component: ${componentId}`);
                     }
