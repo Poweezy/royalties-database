@@ -170,7 +170,7 @@ class AuditDashboardController {
       this.tableBody = document.getElementById('audit-events-table');
     }
     
-    if this.tableBody) {
+    if (this.tableBody) {
       // Show loading state
       this.tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
       

@@ -1278,6 +1278,12 @@ class RoyaltiesApp {
         }
     }
 
+    // Compatibility function to fix sections not loading after audit-dashboard navigation
+    initializeSectionContent(sectionId) {
+        console.log(`initializeSectionContent called for ${sectionId} - delegating to initializeSectionComponent`);
+        this.initializeSectionComponent(sectionId);
+    }
+
     initializeDashboard() {
         console.log('Dashboard initialized');
         // Dashboard-specific initialization
