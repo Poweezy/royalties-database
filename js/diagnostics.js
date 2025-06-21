@@ -478,6 +478,98 @@
                 invalidLinks: invalidCount,
                 scriptFixCount
             };
+        },
+        
+        /**
+         * Monitor section navigation events
+         */
+        monitorSectionNavigation: function() {
+            document.addEventListener('sectionChange', function(e) {
+                const detail = e.detail || {};
+                console.log(`Navigation event: ${detail.previousSection || 'unknown'} → ${detail.newSection || 'unknown'}`);
+            });
+            
+            document.addEventListener('sectionContentLoaded', function(e) {
+                const detail = e.detail || {};
+                console.log(`Section content loaded: ${detail.sectionId || 'unknown'}`);
+            });
+            
+            console.log('Section navigation monitoring enabled');
+        },
+        
+        /**
+         * Fix audit dashboard navigation issues
+         */
+        fixAuditDashboardNavigation: function() {
+            // Check if audit dashboard section exists
+            const auditDashboard = document.getElementById('audit-dashboard');
+            if (!auditDashboard) {
+                console.log('Audit dashboard section not found');
+                return false;
+            }
+            
+            // Find and fix problematic code in the audit dashboard
+            const scripts = auditDashboard.querySelectorAll('script');
+            let fixed = false;
+            
+            scripts.forEach(script => {
+                const code = script.textContent;
+                
+                // Check for location.reload() calls that break navigation
+                if (code && code.includes('location.reload()')) {
+                    console.log('Found location.reload() in audit dashboard script - this breaks navigation!');
+                    
+                    // Replace the script with a fixed version
+                    const fixedCode = code.replace(
+                        'location.reload()',
+                        'loadAuditEventsData("current")'
+                    );
+                    
+                    const newScript = document.createElement('script');
+                    newScript.textContent = fixedCode;
+                    script.parentNode.replaceChild(newScript, script);
+                    
+                    fixed = true;
+                    console.log('Fixed location.reload() call in audit dashboard');
+                }
+            });
+            
+            // Set up event listener for audit dashboard cleanup
+            document.addEventListener('sectionChange', function onSectionChange(e) {
+                if (e.detail && e.detail.previousSection === 'audit-dashboard') {
+                    console.log('Cleaning up audit dashboard resources...');
+                    
+                    // Clean up global functions
+                    ['viewAuditDetails', 'investigateFailedLogin', 'blockIpAddress',
+                     'investigateIp', 'contactUser', 'reviewUserActivity',
+                     'reviewExport', 'acknowledgeAllAlerts', 'runSecurityScan', 
+                     'refreshAuditEvents', 'exportAuditData'].forEach(fnName => {
+                        // Save original function if needed later
+                        if (window[fnName]) {
+                            window['_orig_' + fnName] = window[fnName];
+                            // Replace with no-op
+                            window[fnName] = function() {
+                                console.warn(`${fnName} called after leaving audit dashboard`);
+                            };
+                        }
+                    });
+                }
+            });
+            
+            return fixed;
+        },
+        
+        /**
+         * Initialize the diagnostics module
+         */
+        init: function() {
+            // Set up navigation monitoring
+            this.monitorSectionNavigation();
+            
+            // Fix known issues
+            this.fixAuditDashboardNavigation();
+            
+            console.log('Diagnostics module loaded and ready');
         }
     };
     

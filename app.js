@@ -812,47 +812,39 @@ class RoyaltiesApp {
     }
     
     async loadSectionContent(sectionId) {
+        console.log('Loading section content for: ' + sectionId);
+        
+        const section = document.getElementById(sectionId);
+        if (!section) {
+            console.error('Cannot load content, section not found: ' + sectionId);
+            return;
+        }
+        
+        // Show loading indicator
+        section.innerHTML = '<div class="loading-indicator"><span class="spinner"></span><p>Loading content...</p></div>';
+        
         try {
-            console.log(`Loading section content for: ${sectionId}`);
-            
-            const section = document.getElementById(sectionId);
-            if (!section) {
-                console.error(`Section element #${sectionId} not found in DOM`);
-                return;
-            }
-            
-            // Check if we're on file:// protocol
-            const isFileProtocol = window.location.protocol === 'file:';
-            let componentLoaded = false;
-            
-            // Special handling for file:// protocol
-            if (isFileProtocol) {
-                console.log(`File:// protocol detected for ${sectionId} - checking for fallback content`);
-                // First try moduleLoader with its fallbacks
-                if (window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents[sectionId]) {
-                    console.log(`Using fallback content for ${sectionId} (file:// protocol)`);
-                    section.innerHTML = window.moduleLoader.fallbackComponents[sectionId];
-                    componentLoaded = true;
-                    this.initializeSectionComponent(sectionId);
-                    return;
-                }
-            }
-            
-            // First try to use moduleLoader if available
-            if (window.moduleLoader) {
-                console.log(`Using ModuleLoader to load component: ${sectionId}`);
-                const result = await window.moduleLoader.loadComponent(sectionId, section);
-                if (result.success) {
-                    console.log(`Component ${sectionId} loaded successfully via ModuleLoader`);
-                    componentLoaded = true;
-                    this.initializeSectionComponent(sectionId);
-                } else {
-                    console.warn(`ModuleLoader failed for ${sectionId}, trying alternative paths`);
-                }
-            }
-            
-            // If module loader didn't work, try the direct approach with multiple possible paths
-            if (!componentLoaded) {
+            if (window.moduleLoader && typeof window.moduleLoader.loadComponent === 'function') {
+                console.log('Using ModuleLoader to load component: ' + sectionId);
+                
+                window.moduleLoader.loadComponent(sectionId)
+                    .then(() => {
+                        console.log('Component ' + sectionId + ' loaded successfully via ModuleLoader');
+                        
+                        // Trigger post-load initialization
+                        this.initializeSectionContent(sectionId);
+                        
+                        // Dispatch section content loaded event
+                        document.dispatchEvent(new CustomEvent('sectionContentLoaded', {
+                            detail: { sectionId }
+                        }));
+                    })
+                    .catch(error => {
+                        console.error('Error loading component via ModuleLoader:', error);
+                        section.innerHTML = '<div class="error-message"><h3>Error</h3><p>Failed to load content for this section.</p></div>';
+                    });
+            } else {
+                // If module loader didn't work, try the direct approach with multiple possible paths
                 const componentPaths = ['components', 'html/components'];
                 
                 for (const path of componentPaths) {
@@ -862,9 +854,8 @@ class RoyaltiesApp {
                             const html = await response.text();
                             section.innerHTML = html;
                             console.log(`Component ${sectionId} loaded successfully from ${path}`);
-                            componentLoaded = true;
                             this.initializeSectionComponent(sectionId);
-                            break;
+                            return;
                         }
                     } catch (pathError) {
                         if (isFileProtocol) {
@@ -878,10 +869,8 @@ class RoyaltiesApp {
             }
             
             // If still not loaded, use fallback content
-            if (!componentLoaded) {
-                console.warn(`Component ${sectionId}.html not found in any path, using fallback content`);
-                this.loadFallbackSection(sectionId);
-            }        } catch (error) {
+            this.loadFallbackSection(sectionId);
+        } catch (error) {
             console.warn(`Failed to load component ${sectionId}.html:`, error);
             this.loadFallbackSection(sectionId);
         }
