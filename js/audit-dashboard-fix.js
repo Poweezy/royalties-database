@@ -26,7 +26,7 @@
         });
         
         // Fix immediately if we're already on the audit dashboard
-        if (window.app && window.app.currentSection === 'audit-dashboard') {
+        if (window.royaltiesApp && window.royaltiesApp.currentSection === 'audit-dashboard') {
             console.log('Audit dashboard already active, applying fixes immediately');
             applyAuditDashboardFixes();
         }
@@ -110,7 +110,7 @@
             const timerId = originalSetTimeout(callback, delay);
             
             // Only track timers in the audit dashboard section
-            if (window.app && window.app.currentSection === 'audit-dashboard') {
+            if (window.royaltiesApp && window.royaltiesApp.currentSection === 'audit-dashboard') {
                 window._auditDashboardTimers.push(timerId);
             }
             

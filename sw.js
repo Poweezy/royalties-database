@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mining-royalties-v3.4';
+const CACHE_NAME = 'mining-royalties-v3.5';
 const CACHE_URLS = [
     '/',
     '/index.html',
@@ -137,26 +137,25 @@ self.addEventListener('fetch', event => {
     );
 });
 
-// Message event - properly handled to avoid message channel errors
+// Message event - fixed to avoid message channel errors
 self.addEventListener('message', event => {
     console.log('Service Worker: Message received:', event.data);
     
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     } else if (event.data && event.data.type === 'CACHE_UPDATE') {
-        event.waitUntil(
-            caches.open(CACHE_NAME)
-                .then(cache => {
-                    console.log('Service Worker: Updating cache for CACHE_UPDATE message');
-                    return cache.addAll(CACHE_URLS.filter(shouldCache));
-                })
-                .catch(error => {
-                    console.error('Service Worker: Cache update failed:', error);
-                })
-        );
+        // Don't use waitUntil for messages to avoid keeping the message channel open
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('Service Worker: Updating cache for CACHE_UPDATE message');
+                return cache.addAll(CACHE_URLS.filter(shouldCache));
+            })
+            .catch(error => {
+                console.error('Service Worker: Cache update failed:', error);
+            });
     } else if (event.data && event.data.type === 'REQUEST_VERSION') {
-        // Respond to version requests synchronously, don't use postMessage
         console.log('Service Worker: Received version request');
+        // Don't respond through the message channel - it might be closed before response
     }
     
     // IMPORTANT: Never return a Promise or true from this handler

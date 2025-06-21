@@ -6,6 +6,7 @@ export class AuditDashboardController {
     constructor() {
         this.initialized = false;
         this.eventListeners = new Map(); // Track event listeners for cleanup
+        this.timers = []; // Track timers for cleanup
         this.bindEvents();
     }
     
@@ -27,6 +28,11 @@ export class AuditDashboardController {
     destroy() {
         // Clean up event listeners when navigating away
         this.removeEventListeners();
+        
+        // Clean up timers
+        this.timers.forEach(timer => clearTimeout(timer));
+        this.timers = [];
+        
         console.log('Audit Dashboard Controller destroyed');
     }
     
@@ -44,6 +50,16 @@ export class AuditDashboardController {
         };
         document.addEventListener('sectionChange', sectionChangeHandler);
         this.eventListeners.set('sectionChange', sectionChangeHandler);
+        
+        // Override setTimeout to track timers
+        const originalSetTimeout = window.setTimeout;
+        window.setTimeout = (callback, delay, ...args) => {
+            const timerId = originalSetTimeout(callback, delay, ...args);
+            if (this.initialized) {
+                this.timers.push(timerId);
+            }
+            return timerId;
+        };
     }
     
     removeEventListeners() {

@@ -182,8 +182,7 @@
         
         /**
          * Check charts
-         */
-        checkCharts: function() {
+         */        checkCharts: function() {
             console.group('Charts Check');
             
             const canvasElements = document.querySelectorAll('canvas[id]');
@@ -202,6 +201,46 @@
             }
             
             console.groupEnd();
+        },
+        
+        /**
+         * Check for potential navigation issues
+         */
+        checkNavigationIssues: function() {
+            console.group('Navigation Issues Check');
+            
+            // Check for location.reload() in script elements
+            const scriptElements = document.querySelectorAll('script');
+            let potentialIssues = 0;
+            
+            scriptElements.forEach(script => {
+                if (script.textContent.includes('location.reload()')) {
+                    console.warn('Found location.reload() in script tag: This can break SPA navigation');
+                    potentialIssues++;
+                }
+            });
+            
+            // Check audit dashboard specifically
+            const auditDashboard = document.getElementById('audit-dashboard');
+            if (auditDashboard) {
+                const scriptTags = auditDashboard.querySelectorAll('script');
+                scriptTags.forEach(script => {
+                    if (script.textContent.includes('location.reload()')) {
+                        console.error('❌ Found location.reload() in audit-dashboard section: This will break navigation!');
+                        potentialIssues++;
+                    }
+                });
+            }
+            
+            if (potentialIssues === 0) {
+                console.log('✓ No obvious navigation issues detected');
+            } else {
+                console.warn(`Found ${potentialIssues} potential navigation issues`);
+            }
+            
+            console.groupEnd();
+            
+            return potentialIssues;
         },
         
         /**
