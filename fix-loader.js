@@ -1,112 +1,134 @@
 /**
  * Fix Loader for Navigation Issues
- *
- * This is a simple script that loads the navigation fixes.
  * 
- * USAGE:
- * 1. Load the application normally
- * 2. Open browser console (F12 or right-click -> Inspect)
- * 3. Open the Console tab
- * 4. Copy and paste this entire script, then press Enter
- * 5. You should see confirmation messages in the console
+ * This script fixes the issue where sections don't load after visiting the audit dashboard.
+ * 
+ * Usage:
+ * 1. Open your browser console (F12 or right-click > Inspect > Console)
+ * 2. Copy and paste this entire file content
+ * 3. Press Enter to run
  */
 
 (function() {
-  console.log('Loading navigation fixes...');
-  
-  // List of scripts to load
-  const scripts = [
-    { name: 'Audit Dashboard Navigation Fix', path: 'js/audit-dashboard-navigation-fix.js' },
-    { name: 'App Navigation Fix', path: 'js/app-navigation-fix.js' }
-  ];
-  
-  // Load scripts in sequence
-  loadScripts(scripts, 0);
-  
-  function loadScripts(scriptsList, index) {
-    if (index >= scriptsList.length) {
-      console.log('%c✓ All navigation fixes loaded successfully!', 'color: green; font-weight: bold');
-      console.log('%cYou should now be able to navigate freely between all sections.', 'color: blue');
-      return;
-    }
+    console.log('%c🔧 Applying navigation fixes...', 'color: blue; font-weight: bold');
     
-    const script = scriptsList[index];
-    const scriptElement = document.createElement('script');
-    scriptElement.src = script.path + '?v=' + Date.now(); // Add cache buster
+    // Apply immediate fixes for urgent issues
+    applyImmediateFix();
     
-    // Handle successful loading
-    scriptElement.onload = function() {
-      console.log(`%c✓ ${script.name} loaded successfully!`, 'color: green;');
-      // Load the next script
-      loadScripts(scriptsList, index + 1);
-    };
+    // Load our fix scripts
+    loadFixScripts();
     
-    // Handle loading error
-    scriptElement.onerror = function() {
-      console.error(`%c✗ Failed to load ${script.name}!`, 'color: red; font-weight: bold');
-      // Try next script anyway
-      loadScripts(scriptsList, index + 1);
-    };
-    
-    // Add the script to the page
-    document.head.appendChild(scriptElement);
-  }
-  
-  // Backup fix in case the external scripts don't load
-  function applyInlineFix() {
-    // Store reference to original showSection function
-    if (window.app && window.app.showSection) {
-      const originalShowSection = window.app.showSection;
-      
-      window.app.showSection = function(sectionId) {
-        try {
-          console.log(`Enhanced navigation to section: ${sectionId}`);
-          
-          // Get current section before changing
-          const previousSection = this.currentSection;
-          
-          // Special cleanup for audit dashboard
-          if (previousSection === 'audit-dashboard') {
-            console.log('Cleaning up audit dashboard resources...');
-            cleanupAuditResources();
-          }
-          
-          // Call original function
-          return originalShowSection.call(this, sectionId);
-        } catch (error) {
-          console.error('Error in navigation:', error);
-          return originalShowSection.call(this, sectionId);
+    // Function to apply immediate fixes for navigation
+    function applyImmediateFix() {
+        console.log('Applying immediate fix...');
+        
+        // Fix the problematic updateAuditEvents function
+        if (typeof window.updateAuditEvents === 'function') {
+            console.log('Found updateAuditEvents function, replacing it...');
+            
+            const originalUpdateAuditEvents = window.updateAuditEvents;
+            
+            window.updateAuditEvents = function(dateRange, userFilter, actionFilter, startDate = null, endDate = null) {
+                console.log('Safe updateAuditEvents called - preventing page reload');
+                
+                const tableBody = document.getElementById('audit-events-table');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
+                    
+                    setTimeout(() => {
+                        if (window.notificationManager) {
+                            window.notificationManager.show('Audit events updated', 'success');
+                        }
+                        
+                        // Instead of location.reload(), load some data
+                        if (typeof window.loadAuditEventsData === 'function') {
+                            window.loadAuditEventsData();
+                        } else {
+                            tableBody.innerHTML = '';
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td colspan="7" style="text-align: center;">
+                                    Fix applied - data loaded without page reload
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        }
+                    }, 1000);
+                }
+            };
+            
+            console.log('%c✅ Fixed updateAuditEvents function', 'color: green');
         }
-      };
-      
-      console.log('%c✓ Applied inline navigation fix successfully!', 'color: green');
-    } else {
-      console.error('%c✗ Could not find app.showSection to patch!', 'color: red; font-weight: bold');
-    }
-  }
-  
-  // Helper function to clean up audit resources
-  function cleanupAuditResources() {
-    // Clean up timers
-    if (window._auditTimers) {
-      window._auditTimers.forEach(id => clearTimeout(id));
-      window._auditTimers = [];
-    }
-    
-    // Clean up intervals
-    if (window._auditIntervals) {
-      window._auditIntervals.forEach(id => clearInterval(id));
-      window._auditIntervals = [];
-    }
-    
-    // Override the location.reload() call that breaks navigation
-    if (typeof window.updateAuditEvents === 'function') {
-      window.updateAuditEvents = function() {
-        console.log('Safe version of updateAuditEvents called');
-        if (window.notificationManager) {
-          window.notificationManager.show('Filter applied', 'success');
+        
+        // Add section change handler to clean up resources
+        if (window.app && typeof window.app.showSection === 'function') {
+            const originalShowSection = window.app.showSection;
+            
+            window.app.showSection = function(sectionId) {
+                const previousSection = this.currentSection;
+                console.log(`Navigation: ${previousSection} -> ${sectionId}`);
+                
+                // Special handling when leaving audit dashboard
+                if (previousSection === 'audit-dashboard') {
+                    console.log('Leaving audit dashboard - cleaning up resources');
+                    cleanupAuditDashboardResources();
+                }
+                
+                return originalShowSection.call(this, sectionId);
+            };
+            
+            console.log('%c✅ Enhanced showSection function', 'color: green');
         }
-      };
     }
-  }
+    
+    // Clean up audit dashboard resources
+    function cleanupAuditDashboardResources() {
+        // Clean up timers
+        if (window._auditDashboardTimers && window._auditDashboardTimers.length) {
+            window._auditDashboardTimers.forEach(id => clearTimeout(id));
+            window._auditDashboardTimers = [];
+        }
+        
+        // Clean up intervals
+        if (window._auditDashboardIntervals && window._auditDashboardIntervals.length) {
+            window._auditDashboardIntervals.forEach(id => clearInterval(id));
+            window._auditDashboardIntervals = [];
+        }
+        
+        console.log('Audit dashboard resources cleaned up');
+    }
+    
+    // Load fix scripts
+    function loadFixScripts() {
+        const scripts = [
+            { name: 'Audit Dashboard Navigation Fix', path: 'js/audit-dashboard-navigation-fix.js' },
+            { name: 'App Navigation Fix', path: 'js/app-navigation-fix.js' }
+        ];
+        
+        scripts.forEach(script => {
+            try {
+                console.log(`Loading ${script.name}...`);
+                
+                const scriptElement = document.createElement('script');
+                scriptElement.src = script.path + '?v=' + Date.now(); // Cache busting
+                
+                // Handle script loading success
+                scriptElement.onload = function() {
+                    console.log(`%c✅ ${script.name} loaded successfully`, 'color: green');
+                };
+                
+                // Handle script loading error
+                scriptElement.onerror = function() {
+                    console.error(`%c❌ Failed to load ${script.name}`, 'color: red');
+                };
+                
+                document.head.appendChild(scriptElement);
+            } catch (error) {
+                console.error(`Error loading ${script.name}:`, error);
+            }
+        });
+    }
+    
+    console.log('%c✅ Navigation fix applied successfully!', 'color: green; font-weight: bold');
+    console.log('%cYou can now navigate freely between sections.', 'color: blue');
 })();

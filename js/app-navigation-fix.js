@@ -59,8 +59,10 @@
             }
           }));
 
-          // Clean up any timers
-          cleanupAuditDashboardResources();
+          // Clean up any resources
+          if (window.cleanupAuditDashboardResources) {
+            window.cleanupAuditDashboardResources();
+          }
         }
 
         // Call original showSection function
@@ -92,9 +94,6 @@
 
           // Track that we're loading audit dashboard
           window._loadingAuditDashboard = true;
-
-          // Set up interceptors for problematic functions
-          setupAuditDashboardInterceptors();
         }
 
         // Call original loadSectionContent function
@@ -124,208 +123,34 @@
     document.addEventListener('sectionChange', function(e) {
       if (e.detail && e.detail.previousSection === 'audit-dashboard') {
         console.log('Section change event: Leaving audit dashboard');
-        cleanupAuditDashboardResources();
       }
     });
-  }
-
-  function setupAuditDashboardInterceptors() {
-    // Store original updateAuditEvents function if it exists
-    if (typeof window.updateAuditEvents === 'function') {
-      window._originalUpdateAuditEvents = window.updateAuditEvents;
-
-      // Replace with safe version
-      window.updateAuditEvents = function(...args) {
-        console.log('Safe updateAuditEvents called');
-        try {
-          const tableBody = document.getElementById('audit-events-table');
-          if (tableBody) {
-            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
-
-            setTimeout(() => {
-              if (document.getElementById('prev-page')) {
-                document.getElementById('prev-page').disabled = true;
-              }
-              if (document.getElementById('page-indicator')) {
-                document.getElementById('page-indicator').textContent = 'Page 1 of 10';
-              }
-              if (document.getElementById('next-page')) {
-                document.getElementById('next-page').disabled = false;
-              }
-
-              if (window.notificationManager) {
-                window.notificationManager.show('Audit events updated', 'success');
-              }
-
-              // Use loadAuditEventsData instead of location.reload()
-              if (typeof window.loadAuditEventsData === 'function') {
-                window.loadAuditEventsData();
-              } else {
-                // Fallback to showing some data
-                loadDummyAuditData(tableBody);
-              }
-            }, 1000);
-          }
-        } catch (e) {
-          console.error('Error in safe updateAuditEvents:', e);
-        }
-      };
-    }
-
-    // Track setTimeout calls in audit dashboard
-    window._originalSetTimeout = window.setTimeout;
-    window._auditDashboardTimers = window._auditDashboardTimers || [];
-
-    window.setTimeout = function(callback, delay) {
-      const timerId = window._originalSetTimeout(callback, delay);
-      
-      // Track timer if we're in the audit dashboard section
-      if (window.app && window.app.currentSection === 'audit-dashboard') {
-        window._auditDashboardTimers.push(timerId);
-      }
-      
-      return timerId;
-    };
-    
-    // Track setInterval calls too
-    window._originalSetInterval = window.setInterval;
-    window._auditDashboardIntervals = window._auditDashboardIntervals || [];
-    
-    window.setInterval = function(callback, delay) {
-      const intervalId = window._originalSetInterval(callback, delay);
-      
-      // Track interval if we're in the audit dashboard section
-      if (window.app && window.app.currentSection === 'audit-dashboard') {
-        window._auditDashboardIntervals.push(intervalId);
-      }
-      
-      return intervalId;
-    };
   }
 
   function fixAuditDashboard() {
     // Apply specific fixes to the audit dashboard component after it's loaded
     
-    // Remove any existing location.reload() calls
-    if (typeof window.updateAuditEvents === 'function' && 
-        window.updateAuditEvents.toString().includes('location.reload')) {
-      console.log('Found location.reload() in updateAuditEvents, fixing...');
+    // Find the problematic script that contains location.reload()
+    const scripts = document.querySelectorAll('script');
+    for (let i = 0; i < scripts.length; i++) {
+      const script = scripts[i];
+      const scriptText = script.textContent;
       
-      // Already replaced this function in setupAuditDashboardInterceptors
-    }
-    
-    // Make sure event listeners are properly set up with cleanup
-    setupEventCleanup();
-  }
-  
-  function setupEventCleanup() {
-    // Track event listeners added in the audit dashboard
-    window._auditDashboardEventListeners = window._auditDashboardEventListeners || [];
-    
-    // Store original addEventListener
-    const originalAddEventListener = Element.prototype.addEventListener;
-    
-    // Override addEventListener to track listeners in audit dashboard
-    Element.prototype.addEventListener = function(type, listener, options) {
-      const result = originalAddEventListener.call(this, type, listener, options);
-      
-      // Track listeners added while in audit dashboard
-      if (window.app && window.app.currentSection === 'audit-dashboard') {
-        window._auditDashboardEventListeners.push({
-          element: this,
-          type: type,
-          listener: listener,
-          options: options
-        });
+      if (scriptText && scriptText.includes('location.reload()')) {
+        console.log('Found script with location.reload(), fixing...');
+        
+        // Create a new script with fixed code
+        const fixedScript = scriptText.replace(
+          'location.reload()',
+          'window.loadAuditEventsData ? window.loadAuditEventsData() : console.log("loadAuditEventsData not available")'
+        );
+        
+        const newScript = document.createElement('script');
+        newScript.textContent = fixedScript;
+        
+        // Replace the old script with the fixed one
+        script.parentNode.replaceChild(newScript, script);
       }
-      
-      return result;
-    };
-  }
-
-  function cleanupAuditDashboardResources() {
-    console.log('Cleaning up audit dashboard resources...');
-    
-    // Clean up timers
-    if (window._auditDashboardTimers && window._auditDashboardTimers.length) {
-      console.log(`Clearing ${window._auditDashboardTimers.length} timers...`);
-      window._auditDashboardTimers.forEach(id => clearTimeout(id));
-      window._auditDashboardTimers = [];
     }
-    
-    // Clean up intervals
-    if (window._auditDashboardIntervals && window._auditDashboardIntervals.length) {
-      console.log(`Clearing ${window._auditDashboardIntervals.length} intervals...`);
-      window._auditDashboardIntervals.forEach(id => clearInterval(id));
-      window._auditDashboardIntervals = [];
-    }
-    
-    // Clean up event listeners
-    if (window._auditDashboardEventListeners && window._auditDashboardEventListeners.length) {
-      console.log(`Removing ${window._auditDashboardEventListeners.length} event listeners...`);
-      window._auditDashboardEventListeners.forEach(({ element, type, listener, options }) => {
-        try {
-          element.removeEventListener(type, listener, options);
-        } catch (e) {
-          console.warn('Error removing event listener:', e);
-        }
-      });
-      window._auditDashboardEventListeners = [];
-    }
-    
-    // Restore original functions
-    if (window._originalUpdateAuditEvents) {
-      window.updateAuditEvents = window._originalUpdateAuditEvents;
-    }
-    
-    if (window._originalSetTimeout) {
-      window.setTimeout = window._originalSetTimeout;
-    }
-    
-    if (window._originalSetInterval) {
-      window.setInterval = window._originalSetInterval;
-    }
-    
-    // Restore original addEventListener
-    Element.prototype.addEventListener = Element.prototype._originalAddEventListener;
-    
-    console.log('Audit dashboard cleanup complete');
-  }
-
-  function loadDummyAuditData(tableBody) {
-    if (!tableBody) return;
-    
-    tableBody.innerHTML = '';
-    
-    const sampleData = [
-      { timestamp: '2024-02-10 15:45:32', user: 'admin', action: 'Login', target: 'System', ip: '192.168.1.100', status: 'Success' },
-      { timestamp: '2024-02-10 16:12:45', user: 'editor', action: 'Create Record', target: 'Royalty Payment #1045', ip: '192.168.1.120', status: 'Success' },
-      { timestamp: '2024-02-10 16:45:18', user: 'unknown', action: 'Login', target: 'System', ip: '203.45.67.89', status: 'Failed' },
-      { timestamp: '2024-02-10 17:02:51', user: 'admin', action: 'Update Settings', target: 'System Configuration', ip: '192.168.1.100', status: 'Success' }
-    ];
-    
-    sampleData.forEach((event, index) => {
-      const row = document.createElement('tr');
-      
-      row.innerHTML = `
-        <td>${event.timestamp}</td>
-        <td>${event.user}</td>
-        <td>${event.action}</td>
-        <td>${event.target}</td>
-        <td>${event.ip}</td>
-        <td><span class="status-badge ${event.status.toLowerCase()}">${event.status}</span></td>
-        <td>
-          <button class="btn btn-sm btn-info" onclick="console.log('View details ${index+1}')">
-            <i class="fas fa-eye"></i>
-          </button>
-          ${event.status === 'Failed' ? 
-            `<button class="btn btn-sm btn-warning" onclick="console.log('Investigate ${index+1}')">
-              <i class="fas fa-search"></i>
-            </button>` : ''}
-        </td>
-      `;
-      
-      tableBody.appendChild(row);
-    });
   }
 })();
