@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Royalties Database - Codebase Cleanup Guide</title>
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            color: #1a365d;
+            margin-top: 30px;
+        }
+        h1 {
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .file-list {
+            margin-left: 20px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .required {
+            color: #38a169;
+        }
+        .redundant {
+            color: #e53e3e;
+        }
+        .category {
+            color: #3182ce;
+        }
+        .code {
+            font-family: monospace;
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .instructions {
+            background-color: #fffde7;
+            border-left: 4px solid #d4af37;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #1a365d;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mining Royalties Database - Codebase Cleanup Guide</h1>
+    <p>This document explains the codebase cleanup process for the Mining Royalties Manager application.</p>
+    
+    <div class="instructions">
+        <h3>Quick Cleanup Instructions</h3>
+        <p>To clean up the codebase, you can use one of these methods:</p>
+        <ol>
+            <li>Run the PowerShell script: <span class="code">.\cleanup-redundant.ps1</span></li>
+            <li>Run the batch file: <span class="code">cleanup-redundant.bat</span></li>
+        </ol>
+        <p>These scripts will move redundant files to a backup directory called <span class="code">redundant-files-backup</span>.</p>
+    </div>
+    
+    <div class="section">
+        <h2>Core Required Files</h2>
+        <p>These files are essential for the application to function properly:</p>
+        
+        <table>
+            <tr>
+                <th>File</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td>royalties.html</td>
+                <td>Main entry point and HTML container</td>
+            </tr>
+            <tr>
+                <td>app.js</td>
+                <td>Core application logic</td>
+            </tr>
+            <tr>
+                <td>js/module-loader.js</td>
+                <td>Dynamic component loading system</td>
+            </tr>
+            <tr>
+                <td>js/chart-manager.js</td>
+                <td>Chart creation and management</td>
+            </tr>
+            <tr>
+                <td>js/component-initializer.js</td>
+                <td>Ensures components are properly initialized</td>
+            </tr>
+            <tr>
+                <td>js/sidebar-manager.js</td>
+                <td>Validates and manages sidebar sections</td>
+            </tr>
+            <tr>
+                <td>js/diagnostics.js</td>
+                <td>Helps diagnose and troubleshoot issues</td>
+            </tr>
+            <tr>
+                <td>fix.js</td>
+                <td>Consolidated fixes for navigation issues</td>
+            </tr>
+            <tr>
+                <td>components/*</td>
+                <td>HTML templates for various sections</td>
+            </tr>
+            <tr>
+                <td>css/*</td>
+                <td>Stylesheets for the application</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>Redundant Files by Category</h2>
+        <p>These files are no longer needed and can be safely removed:</p>
+        
+        <h3 class="category">Backup Files</h3>
+        <ul>
+            <li class="redundant">app.js.backup</li>
+            <li class="redundant">app.js.fixed</li>
+            <li class="redundant">app.js.before-fix</li>
+            <li class="redundant">app.js.bak</li>
+        </ul>
+        
+        <h3 class="category">Duplicate Chart Manager Implementations</h3>
+        <ul>
+            <li class="redundant">chart-manager-v2.js (root folder)</li>
+            <li class="redundant">chart-manager.js (root folder)</li>
+            <li class="required">js/chart-manager.js (keep this one)</li>
+        </ul>
+        
+        <h3 class="category">Redundant Fix Scripts</h3>
+        <ul>
+            <li class="redundant">update-scripts.js</li>
+            <li class="redundant">update-scripts-improved.js</li>
+            <li class="redundant">js/app-fixer.js</li>
+            <li class="redundant">js/module-loader-fix.js</li>
+            <li class="redundant">js/section-loader-fix.js</li>
+            <li class="redundant">js/section-navigation-fix.js</li>
+            <li class="redundant">js/resource-tracker.js</li>
+            <li class="required">fix.js (keep this one)</li>
+        </ul>
+        
+        <h3 class="category">Empty/Unused Files</h3>
+        <ul>
+            <li class="redundant">js/message-handler.js</li>
+            <li class="redundant">js/utils/stateManager.js</li>
+            <li class="redundant">js/utils/validation.js</li>
+            <li class="redundant">redundant-files/js/sections/dashboard.js</li>
+        </ul>
+        
+        <h3 class="category">Test Files</h3>
+        <ul>
+            <li class="redundant">index.html (simple redirect to royalties.html)</li>
+            <li class="redundant">redundant-files/test_app.html</li>
+            <li class="redundant">redundant-files/icon-fix.html</li>
+        </ul>
+        
+        <h3 class="category">Legacy Files</h3>
+        <ul>
+            <li class="redundant">js/auth.js</li>
+            <li class="redundant">js/dashboard.js</li>
+            <li class="redundant">js/main.js</li>
+            <li class="redundant">js/navigation.js</li>
+            <li class="redundant">js/section-loaders.js</li>
+            <li class="redundant">js/validation.js</li>
+        </ul>
+    </div>
+    
+    <div class="instructions">
+        <h3>After Cleanup</h3>
+        <p>After running the cleanup script:</p>
+        <ol>
+            <li>Test the application to make sure everything still works correctly</li>
+            <li>If all works well, you can delete the <span class="code">redundant-files-backup</span> directory</li>
+            <li>If you encounter issues, you can restore any needed file from the backup directory</li>
+        </ol>
+    </div>
+    
+    <div class="section">
+        <h2>Benefits of Cleanup</h2>
+        <ul>
+            <li>Smaller codebase size</li>
+            <li>Better maintainability with fewer files to track</li>
+            <li>Clearer organization with less duplication</li>
+            <li>Improved loading performance</li>
+            <li>Fewer potential points of failure</li>
+        </ul>
+    </div>
+    
+    <footer style="margin-top: 50px; text-align: center; color: #666; font-size: 0.8em;">
+        <p>Mining Royalties Manager - Codebase Cleanup Guide - July 2025</p>
+    </footer>
+</body>
+</html>

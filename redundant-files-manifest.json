@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2025-06-26",
+  "version": "1.0",
+  "redundantFiles": [
+    {
+      "path": "app.js.backup",
+      "type": "backup",
+      "reason": "Backup copy of app.js, no longer needed",
+      "replacedBy": "app.js"
+    },
+    {
+      "path": "app.js.fixed",
+      "type": "backup",
+      "reason": "Fixed version of app.js, changes merged into app.js",
+      "replacedBy": "app.js"
+    },
+    {
+      "path": "app.js.before-fix",
+      "type": "backup",
+      "reason": "Backup before syntax fixes were applied, no longer needed",
+      "replacedBy": "app.js"
+    },
+    {
+      "path": "app.js.bak",
+      "type": "backup",
+      "reason": "Backup copy of app.js, no longer needed",
+      "replacedBy": "app.js"
+    },
+    {
+      "path": "chart-manager-v2.js",
+      "type": "duplicate",
+      "reason": "Delegator to js/chart-manager.js, adds unnecessary indirection",
+      "replacedBy": "js/chart-manager.js"
+    },
+    {
+      "path": "chart-manager.js",
+      "type": "duplicate",
+      "reason": "Root folder version that delegates to js/chart-manager.js",
+      "replacedBy": "js/chart-manager.js"
+    },
+    {
+      "path": "update-scripts.js",
+      "type": "obsolete",
+      "reason": "Script injector replaced by consolidated fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "update-scripts-improved.js",
+      "type": "obsolete",
+      "reason": "Improved version of script injector, replaced by fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/app-fixer.js",
+      "type": "consolidated",
+      "reason": "App fix functionality merged into fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/module-loader-fix.js",
+      "type": "consolidated",
+      "reason": "Module loader fixes incorporated into fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/section-loader-fix.js",
+      "type": "consolidated",
+      "reason": "Section loader fixes incorporated into fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/section-navigation-fix.js",
+      "type": "consolidated",
+      "reason": "Navigation fixes incorporated into fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/resource-tracker.js",
+      "type": "consolidated",
+      "reason": "Resource tracking functionality merged into fix.js",
+      "replacedBy": "fix.js"
+    },
+    {
+      "path": "js/message-handler.js",
+      "type": "empty",
+      "reason": "Empty file not used by the application",
+      "replacedBy": null
+    },
+    {
+      "path": "js/utils/stateManager.js",
+      "type": "empty",
+      "reason": "Empty file not used by the application",
+      "replacedBy": null
+    },
+    {
+      "path": "js/utils/validation.js",
+      "type": "empty",
+      "reason": "Empty file not used by the application",
+      "replacedBy": null
+    },
+    {
+      "path": "redundant-files/js/sections/dashboard.js",
+      "type": "empty",
+      "reason": "Already moved to redundant-files folder, empty file",
+      "replacedBy": null
+    }
+  ],
+  "requiredFiles": [
+    {
+      "path": "app.js",
+      "description": "Core application logic"
+    },
+    {
+      "path": "royalties.html",
+      "description": "Main entry point HTML file"
+    },
+    {
+      "path": "royalties.css",
+      "description": "Main styles for application"
+    },
+    {
+      "path": "js/chart-manager.js",
+      "description": "Chart management functionality"
+    },
+    {
+      "path": "js/module-loader.js",
+      "description": "Dynamic component loading system"
+    },
+    {
+      "path": "js/component-initializer.js",
+      "description": "Ensures components are properly initialized"
+    },
+    {
+      "path": "js/diagnostics.js",
+      "description": "Diagnostics tools for troubleshooting"
+    },
+    {
+      "path": "js/sidebar-manager.js",
+      "description": "Manages sidebar sections and validation"
+    },
+    {
+      "path": "fix.js",
+      "description": "Consolidated fix script for navigation issues"
+    },
+    {
+      "path": "favicon.svg",
+      "description": "Application icon"
+    },
+    {
+      "path": "manifest.json",
+      "description": "Application manifest for PWA support"
+    }
+  ]
+}

@@ -1,20 +1,28 @@
 /**
  * Cleanup Script for Royalties Database Project
  * 
- * This script identifies which JS files are actually used
- * by analyzing imports and dependencies.
+ * This script identifies redundant files that can be safely removed.
+ * Run with: node cleanup.js
  */
 
-// Core files that are directly loaded by royalties.html
+console.log('=== Mining Royalties Database Cleanup Guide ===');
+
+// Core required files - DO NOT DELETE THESE
 const CORE_FILES = [
     'app.js',
-    'js/module-loader.js',
+    'royalties.html',
+    'royalties.css',
     'js/chart-manager.js',
+    'js/module-loader.js',
     'js/component-initializer.js',
-    'js/diagnostics.js'
+    'js/diagnostics.js',
+    'js/sidebar-manager.js',
+    'fix.js',
+    'manifest.json',
+    'favicon.svg'
 ];
 
-// Components used in the main application
+// Components actually used by royalties.html
 const ACTIVE_COMPONENTS = [
     'components/sidebar.html',
     'components/dashboard.html',
@@ -41,34 +49,66 @@ const CRITICAL_CSS = [
     'css/buttons.css',
     'css/badges.css',
     'css/utilities.css',
-    'css/main.css',
-    'royalties.css',
+    'css/main.css'
 ];
 
-// Files that can be safely removed or moved to backup
+// Redundant files that can be safely removed or backed up
 const REDUNDANT_FILES = [
-    'chart-manager-v2.js',       // Already moved to backup (redundant with js/chart-manager.js)
-    'chart-manager.js',          // Already moved to backup (redundant with js/chart-manager.js)
-    'js/modules/*',              // ES6 module files not directly used by app.js
-    'js/actions/*',              // Functionality has been consolidated into app.js
-    'app.js.bak',                // Backup files
-    'app.js.backup',             // Backup files
-    'app.js.fixed'               // Backup files
+    // Backup files
+    'app.js.backup',
+    'app.js.bak',
+    'app.js.fixed',
+    'app.js.before-fix',
+    
+    // Deprecated Chart Manager files
+    'chart-manager-v2.js',
+    'chart-manager.js', // root directory version
+    
+    // Redundant scripts
+    'update-scripts.js',
+    'update-scripts-improved.js',
+    'js/app-fixer.js',
+    'js/module-loader-fix.js',
+    'js/section-loader-fix.js',
+    'js/section-navigation-fix.js',
+    'js/resource-tracker.js',
+    
+    // Duplicate or empty files
+    'js/message-handler.js',
+    'js/utils/stateManager.js',
+    'js/utils/validation.js',
+    'redundant-files/js/sections/dashboard.js',
+    
+    // Old navigation files
+    'js/navigation.js',
+    
+    // Test files
+    'index.html',  // We have royalties.html as the main entry point
+    'redundant-files/test_app.html',
+    'redundant-files/icon-fix.html',
+    
+    // Files in redundant-files directory
+    'redundant-files/app.js.backup',
+    'redundant-files/app.js.bak',
+    'redundant-files/app.js.fixed'
 ];
 
-// Update these lists as needed
+// Print guides
+console.log('\nCore Files (DO NOT DELETE):');
+CORE_FILES.forEach(file => console.log(`- ${file}`));
 
-console.log('=== Royalties Database Project Cleanup Guide ===');
-console.log('\nCore Files - Keep these:');
-console.log(CORE_FILES.join('\n'));
+console.log('\nActive Components (DO NOT DELETE):');
+ACTIVE_COMPONENTS.forEach(file => console.log(`- ${file}`));
 
-console.log('\nActive Components - Keep these:');
-console.log(ACTIVE_COMPONENTS.join('\n'));
+console.log('\nCritical CSS (DO NOT DELETE):');
+CRITICAL_CSS.forEach(file => console.log(`- ${file}`));
 
-console.log('\nCritical CSS - Keep these:');
-console.log(CRITICAL_CSS.join('\n'));
+console.log('\nRedundant Files (Safe to Remove):');
+REDUNDANT_FILES.forEach(file => console.log(`- ${file}`));
 
-console.log('\nRedundant Files - Consider moving to backup folder:');
-console.log(REDUNDANT_FILES.join('\n'));
-
-console.log('\n=== End of Guide ===');
+console.log('\n=== Cleanup Instructions ===');
+console.log('1. Create a backup of your entire project before proceeding');
+console.log('2. Move the redundant files to a backup directory or delete them');
+console.log('3. Test the application to ensure it functions correctly');
+console.log('4. Use the provided cleanup.bat or cleanup.ps1 script for automated removal');
+console.log('\nFor safe automated cleanup, run: ./cleanup.bat or ./cleanup.ps1');

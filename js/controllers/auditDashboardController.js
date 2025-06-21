@@ -1,286 +1,220 @@
 /**
  * Audit Dashboard Controller
  * 
- * Responsible for managing the audit dashboard functionality and ensuring
- * proper cleanup when navigating away from the audit dashboard section.
+ * This controller handles the audit dashboard functionality and fixes
+ * navigation issues by preventing problematic page reloads.
  */
 
 class AuditDashboardController {
   constructor() {
-    // Track event listeners for proper cleanup
-    this.eventListeners = [];
+    this.tableBody = null;
+    this.filters = {
+      dateRange: 'week',
+      userFilter: 'all',
+      actionFilter: 'all',
+      startDate: null,
+      endDate: null
+    };
+    this.intervals = [];
     this.timers = [];
+    this.initialized = false;
     
-    // Bind methods
+    // Bind methods to ensure proper this context
     this.init = this.init.bind(this);
-    this.cleanup = this.cleanup.bind(this);
     this.setupEventListeners = this.setupEventListeners.bind(this);
-    this.addTrackedListener = this.addTrackedListener.bind(this);
-    this.updateAuditMetrics = this.updateAuditMetrics.bind(this);
-    this.loadAuditEventsData = this.loadAuditEventsData.bind(this);
+    this.removeEventListeners = this.removeEventListeners.bind(this);
     this.updateAuditEvents = this.updateAuditEvents.bind(this);
+    this.loadAuditEventsData = this.loadAuditEventsData.bind(this);
+    this.destroy = this.destroy.bind(this);
   }
   
   /**
    * Initialize the controller
    */
   init() {
-    console.log('Initializing AuditDashboardController...');
+    if (this.initialized) return;
     
-    // Set up event listeners
+    console.log("Initializing audit dashboard controller");
+    
+    // Store original functions if they exist
+    if (typeof window.updateAuditEvents === 'function') {
+      window._originalUpdateAuditEvents = window.updateAuditEvents;
+    }
+    
+    // Override global functions with our safe implementations
+    window.updateAuditEvents = this.updateAuditEvents;
+    window.loadAuditEventsData = this.loadAuditEventsData;
+    
+    this.tableBody = document.getElementById('audit-events-table');
     this.setupEventListeners();
     
-    // Load initial data
-    this.updateAuditMetrics();
-    this.loadAuditEventsData('current');
+    // Listen for navigation away from this section
+    document.addEventListener('sectionChange', this.onSectionChange);
     
-    // Set up cleanup when leaving the section
-    document.addEventListener('sectionChange', (e) => {
-      if (e.detail && e.detail.previousSection === 'audit-dashboard') {
-        this.cleanup();
-      }
-    });
-    
-    // Make methods accessible globally
-    window.loadAuditEventsData = this.loadAuditEventsData;
-    window.updateAuditEvents = this.updateAuditEvents;
-    
-    console.log('AuditDashboardController initialized successfully');
+    this.initialized = true;
+    console.log("Audit dashboard controller initialized");
   }
   
   /**
-   * Clean up resources when leaving the section
+   * Set up event listeners
    */
-  cleanup() {
-    console.log('Cleaning up audit dashboard resources...');
+  setupEventListeners() {
+    const dateRangeSelect = document.getElementById('audit-date-range');
+    if (dateRangeSelect) {
+      dateRangeSelect.addEventListener('change', this.handleDateRangeChange);
+    }
     
-    // Remove event listeners
-    this.eventListeners.forEach(({ element, eventType, handler }) => {
-      if (element) {
-        element.removeEventListener(eventType, handler);
-      }
-    });
-    this.eventListeners = [];
+    const applyFiltersBtn = document.getElementById('apply-audit-filters');
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', () => {
+        const dateRange = document.getElementById('audit-date-range')?.value || 'week';
+        const userFilter = document.getElementById('audit-user-filter')?.value || 'all';
+        const actionFilter = document.getElementById('audit-action-filter')?.value || 'all';
+        
+        this.filters = {
+          ...this.filters,
+          dateRange,
+          userFilter,
+          actionFilter
+        };
+        
+        this.updateAuditEvents(dateRange, userFilter, actionFilter);
+      });
+    }
     
-    // Clear any timers
-    this.timers.forEach(timerId => {
-      clearTimeout(timerId);
-    });
-    this.timers = [];
+    const resetFiltersBtn = document.getElementById('reset-audit-filters');
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', () => {
+        this.resetFilters();
+      });
+    }
     
-    console.log('Audit dashboard cleanup complete');
-  }
-  
-  /**
-   * Add a tracked event listener that will be cleaned up automatically
-   */
-  addTrackedListener(element, eventType, handler) {
-    if (element) {
-      element.addEventListener(eventType, handler);
-      this.eventListeners.push({ element, eventType, handler });
+    const prevPageBtn = document.getElementById('prev-page');
+    if (prevPageBtn) {
+      prevPageBtn.addEventListener('click', () => {
+        this.loadAuditEventsData('prev');
+      });
+    }
+    
+    const nextPageBtn = document.getElementById('next-page');
+    if (nextPageBtn) {
+      nextPageBtn.addEventListener('click', () => {
+        this.loadAuditEventsData('next');
+      });
     }
   }
   
   /**
-   * Set up all event listeners for the audit dashboard
+   * Handle date range change
    */
-  setupEventListeners() {
-    // Date range filter
+  handleDateRangeChange = (e) => {
+    const value = e.target.value;
+    const customDateContainer = document.getElementById('custom-date-range-container');
+    
+    if (customDateContainer) {
+      customDateContainer.style.display = value === 'custom' ? 'block' : 'none';
+    }
+    
+    this.filters.dateRange = value;
+  }
+  
+  /**
+   * Reset filters to default values
+   */
+  resetFilters() {
     const dateRangeSelect = document.getElementById('audit-date-range');
-    this.addTrackedListener(dateRangeSelect, 'change', () => {
-      const customDateContainer = document.getElementById('custom-date-range-container');
-      if (customDateContainer) {
-        customDateContainer.style.display = dateRangeSelect.value === 'custom' ? 'block' : 'none';
-      }
-    });
+    const userFilterSelect = document.getElementById('audit-user-filter');
+    const actionFilterSelect = document.getElementById('audit-action-filter');
     
-    // Apply filters button
-    const applyFiltersBtn = document.getElementById('apply-audit-filters');
-    this.addTrackedListener(applyFiltersBtn, 'click', () => {
-      const dateRange = document.getElementById('audit-date-range')?.value || 'week';
-      const userFilter = document.getElementById('audit-user-filter')?.value || 'all';
-      const actionFilter = document.getElementById('audit-action-filter')?.value || 'all';
-      
-      if (window.notificationManager) {
-        window.notificationManager.show(`Applying filters: ${dateRange}, ${userFilter}, ${actionFilter}`, 'info');
-      }
-      
-      this.updateAuditEvents(dateRange, userFilter, actionFilter);
-    });
+    if (dateRangeSelect) dateRangeSelect.value = 'week';
+    if (userFilterSelect) userFilterSelect.value = 'all';
+    if (actionFilterSelect) actionFilterSelect.value = 'all';
     
-    // Reset filters button
-    const resetFiltersBtn = document.getElementById('reset-audit-filters');
-    this.addTrackedListener(resetFiltersBtn, 'click', () => {
-      const dateRange = document.getElementById('audit-date-range');
-      const userFilter = document.getElementById('audit-user-filter');
-      const actionFilter = document.getElementById('audit-action-filter');
-      
-      if (dateRange) dateRange.value = 'week';
-      if (userFilter) userFilter.value = 'all';
-      if (actionFilter) actionFilter.value = 'all';
-      
-      if (window.notificationManager) {
-        window.notificationManager.show('Audit filters reset', 'info');
-      }
-      
-      this.updateAuditEvents('week', 'all', 'all');
-    });
-    
-    // Custom date range buttons
-    const applyCustomDateBtn = document.getElementById('apply-custom-date');
-    this.addTrackedListener(applyCustomDateBtn, 'click', () => {
-      const startDate = document.getElementById('custom-date-start')?.value;
-      const endDate = document.getElementById('custom-date-end')?.value;
-      
-      if (!startDate || !endDate) {
-        if (window.notificationManager) {
-          window.notificationManager.show('Please select both start and end dates', 'error');
-        }
-        return;
-      }
-      
-      if (window.notificationManager) {
-        window.notificationManager.show(`Applying custom date range: ${startDate} - ${endDate}`, 'info');
-      }
-      
-      this.updateAuditEvents('custom', 'all', 'all', startDate, endDate);
-    });
-    
-    // Other button event listeners...
-    this.setupAdditionalEventListeners();
-  }
-  
-  /**
-   * Set up additional event listeners
-   */
-  setupAdditionalEventListeners() {
-    // Pagination controls
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const pageSizeSelect = document.getElementById('page-size');
-    
-    this.addTrackedListener(prevPageBtn, 'click', () => {
-      if (!prevPageBtn.disabled) {
-        this.loadAuditEventsData('prev');
-      }
-    });
-    
-    this.addTrackedListener(nextPageBtn, 'click', () => {
-      if (!nextPageBtn.disabled) {
-        this.loadAuditEventsData('next');
-      }
-    });
-    
-    this.addTrackedListener(pageSizeSelect, 'change', () => {
-      this.loadAuditEventsData('current');
-    });
-    
-    // Action buttons
-    const refreshAuditBtn = document.getElementById('refresh-audit-btn');
-    this.addTrackedListener(refreshAuditBtn, 'click', () => {
-      if (window.notificationManager) {
-        window.notificationManager.show('Refreshing audit data...', 'info');
-      }
-      
-      this.updateAuditMetrics();
-      this.loadAuditEventsData('current');
-    });
-    
-    const exportAuditBtn = document.getElementById('export-audit-btn');
-    this.addTrackedListener(exportAuditBtn, 'click', () => {
-      const formats = ['CSV', 'PDF', 'Excel'];
-      const selectedFormat = prompt(`Choose export format: ${formats.join(', ')}`, 'CSV');
-      
-      if (selectedFormat && formats.map(f => f.toLowerCase()).includes(selectedFormat.toLowerCase())) {
-        if (window.exportAuditData) {
-          window.exportAuditData(selectedFormat);
-        }
-      }
-    });
-  }
-  
-  /**
-   * Update the metrics in the UI
-   */
-  updateAuditMetrics() {
-    // In a real app, this would fetch from an API
-    // For demo purposes, we'll use random values
-    const metrics = {
-      'active-users-24h': Math.floor(Math.random() * 20) + 10,
-      'login-attempts': Math.floor(Math.random() * 50) + 30,
-      'data-access-events': Math.floor(Math.random() * 200) + 100,
-      'security-alerts': Math.floor(Math.random() * 5) + 1
+    this.filters = {
+      dateRange: 'week',
+      userFilter: 'all',
+      actionFilter: 'all',
+      startDate: null,
+      endDate: null
     };
     
-    Object.entries(metrics).forEach(([id, value]) => {
-      const element = document.getElementById(id);
-      if (element) {
-        element.textContent = value;
-      }
-    });
+    this.updateAuditEvents('week', 'all', 'all');
+  }
+  
+  /**
+   * Remove event listeners
+   */
+  removeEventListeners() {
+    document.removeEventListener('sectionChange', this.onSectionChange);
+    
+    // Remove other specific event listeners if needed
+  }
+  
+  /**
+   * Handle section change event
+   */
+  onSectionChange = (e) => {
+    const { previousSection, newSection } = e.detail;
+    
+    if (previousSection === 'audit-dashboard') {
+      console.log("Leaving audit dashboard, cleaning up...");
+      this.destroy();
+    }
+  }
+  
+  /**
+   * Update audit events based on filters - Fixed version that doesn't reload the page
+   */
+  updateAuditEvents(dateRange, userFilter, actionFilter, startDate = null, endDate = null) {
+    if (!this.tableBody) {
+      this.tableBody = document.getElementById('audit-events-table');
+    }
+    
+    if this.tableBody) {
+      // Show loading state
+      this.tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
+      
+      // Create a tracked timer that will be cleaned up properly
+      const timerId = setTimeout(() => {
+        // Reset pagination when filters change
+        const prevPage = document.getElementById('prev-page');
+        const pageIndicator = document.getElementById('page-indicator');
+        const nextPage = document.getElementById('next-page');
+        
+        if (prevPage) prevPage.disabled = true;
+        if (pageIndicator) pageIndicator.textContent = 'Page 1 of 10';
+        if (nextPage) nextPage.disabled = false;
+        
+        if (window.notificationManager) {
+          window.notificationManager.show('Audit events updated', 'success');
+        }
+        
+        // Instead of location.reload(), load fresh data
+        this.loadAuditEventsData('current');
+      }, 1000);
+      
+      // Track the timer for cleanup
+      this.timers.push(timerId);
+    }
   }
   
   /**
    * Load audit events data
    */
   loadAuditEventsData(navDirection = 'current') {
-    const tableBody = document.getElementById('audit-events-table');
-    if (!tableBody) return;
-    
-    // Show loading indicator
-    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 1rem;">Loading audit events...</td></tr>';
-    
-    // Update pagination controls
-    const pageIndicator = document.getElementById('page-indicator');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    
-    let currentPage = 1;
-    let totalPages = 10;
-    
-    if (pageIndicator) {
-      const match = pageIndicator.textContent.match(/Page (\d+) of (\d+)/);
-      if (match) {
-        currentPage = parseInt(match[1], 10);
-        totalPages = parseInt(match[2], 10);
-        
-        if (navDirection === 'prev' && currentPage > 1) {
-          currentPage--;
-        } else if (navDirection === 'next' && currentPage < totalPages) {
-          currentPage++;
-        }
-      }
+    if (!this.tableBody) {
+      this.tableBody = document.getElementById('audit-events-table');
     }
     
-    // Update pagination display
-    if (pageIndicator) {
-      pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
-    }
-    
-    if (prevPageBtn) {
-      prevPageBtn.disabled = currentPage <= 1;
-    }
-    
-    if (nextPageBtn) {
-      nextPageBtn.disabled = currentPage >= totalPages;
-    }
-    
-    // In a real app, this would be an API call
-    // For demo purposes, we'll use sample data and simulate a delay
-    const timerId = setTimeout(() => {
-      const sampleAuditEvents = [
-        { id: 1, timestamp: '2024-02-10 15:45:32', user: 'admin', action: 'Login', target: 'System', ip: '192.168.1.100', status: 'Success' },
-        { id: 2, timestamp: '2024-02-10 16:12:45', user: 'editor', action: 'Create Record', target: 'Royalty Payment #1045', ip: '192.168.1.120', status: 'Success' },
-        { id: 3, timestamp: '2024-02-10 16:30:22', user: 'viewer', action: 'View Record', target: 'Monthly Report', ip: '192.168.1.130', status: 'Success' },
-        { id: 4, timestamp: '2024-02-10 16:45:18', user: 'unknown', action: 'Login', target: 'System', ip: '203.45.67.89', status: 'Failed' },
-        { id: 5, timestamp: '2024-02-10 17:02:51', user: 'admin', action: 'Update Settings', target: 'System Configuration', ip: '192.168.1.100', status: 'Success' }
-      ];
+    if (this.tableBody) {
+      // Generate sample data
+      const sampleData = this.getSampleAuditEvents();
       
-      // Clear the table
-      tableBody.innerHTML = '';
+      // Clear table
+      this.tableBody.innerHTML = '';
       
-      // Add rows
-      sampleAuditEvents.forEach(event => {
+      // Add sample data to table
+      sampleData.forEach((event, index) => {
         const row = document.createElement('tr');
         
         row.innerHTML = `
@@ -291,94 +225,112 @@ class AuditDashboardController {
           <td>${event.ip}</td>
           <td><span class="status-badge ${event.status.toLowerCase()}">${event.status}</span></td>
           <td>
-            <button class="btn btn-sm btn-info" onclick="viewAuditDetails(${event.id})">
+            <button class="btn btn-sm btn-info" onclick="viewAuditDetails(${index + 1})">
               <i class="fas fa-eye"></i>
             </button>
             ${event.status === 'Failed' ? 
-              `<button class="btn btn-sm btn-warning" onclick="investigateFailedLogin(${event.id})">
+              `<button class="btn btn-sm btn-warning" onclick="investigateFailedLogin(${index + 1})">
                 <i class="fas fa-search"></i>
               </button>` : ''}
           </td>
         `;
         
-        tableBody.appendChild(row);
+        this.tableBody.appendChild(row);
       });
       
-      if (window.notificationManager) {
-        window.notificationManager.show('Audit data loaded successfully', 'success');
+      // Update page indicator based on navigation direction
+      const pageIndicator = document.getElementById('page-indicator');
+      if (pageIndicator) {
+        const currentText = pageIndicator.textContent;
+        const parts = currentText.split(' ');
+        if (parts.length >= 4) {
+          let pageNum = parseInt(parts[1], 10);
+          const totalPages = parseInt(parts[3], 10);
+          
+          if (navDirection === 'next' && pageNum < totalPages) {
+            pageNum++;
+          } else if (navDirection === 'prev' && pageNum > 1) {
+            pageNum--;
+          } else if (navDirection === 'current') {
+            // Keep current page
+          }
+          
+          pageIndicator.textContent = `Page ${pageNum} of ${totalPages}`;
+          
+          // Update button states
+          if (document.getElementById('prev-page')) {
+            document.getElementById('prev-page').disabled = pageNum <= 1;
+          }
+          if (document.getElementById('next-page')) {
+            document.getElementById('next-page').disabled = pageNum >= totalPages;
+          }
+        }
       }
-      
-      // Remove this timer ID from our tracked timers
-      const index = this.timers.indexOf(timerId);
-      if (index !== -1) {
-        this.timers.splice(index, 1);
-      }
-    }, 800);
-    
-    // Track the timer
-    this.timers.push(timerId);
+    }
   }
   
   /**
-   * Update audit events based on filters
+   * Generate sample audit events data
    */
-  updateAuditEvents(dateRange, userFilter, actionFilter, startDate = null, endDate = null) {
-    const tableBody = document.getElementById('audit-events-table');
-    if (tableBody) {
-      // Add loading state
-      tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading audit events...</td></tr>';
-      
-      // In a real implementation, you would fetch filtered data from the server
-      // For now, we'll simulate loading delay and use placeholder data
-      const timerId = setTimeout(() => {
-        // Reset pagination when filters change
-        const prevPageBtn = document.getElementById('prev-page');
-        const pageIndicator = document.getElementById('page-indicator');
-        const nextPageBtn = document.getElementById('next-page');
-        
-        if (prevPageBtn) prevPageBtn.disabled = true;
-        if (pageIndicator) pageIndicator.textContent = 'Page 1 of 10';
-        if (nextPageBtn) nextPageBtn.disabled = false;
-        
-        if (window.notificationManager) {
-          window.notificationManager.show('Audit events updated', 'success');
-        }
-        
-        // Instead of location.reload(), just load the filtered data
-        this.loadAuditEventsData('current');
-        
-        // Remove this timer ID from our tracked timers
-        const index = this.timers.indexOf(timerId);
-        if (index !== -1) {
-          this.timers.splice(index, 1);
-        }
-      }, 1000);
-      
-      // Track the timer
-      this.timers.push(timerId);
+  getSampleAuditEvents() {
+    return [
+      { timestamp: '2024-02-15 14:22:05', user: 'admin', action: 'Login', target: 'System', ip: '192.168.1.100', status: 'Success' },
+      { timestamp: '2024-02-15 14:35:21', user: 'editor', action: 'Created', target: 'Royalty Payment #1045', ip: '192.168.1.120', status: 'Success' },
+      { timestamp: '2024-02-15 15:12:43', user: 'viewer', action: 'Viewed', target: 'Monthly Report', ip: '192.168.1.130', status: 'Success' },
+      { timestamp: '2024-02-15 15:45:18', user: 'unknown', action: 'Login', target: 'System', ip: '203.45.67.89', status: 'Failed' },
+      { timestamp: '2024-02-15 16:30:51', user: 'admin', action: 'Updated', target: 'System Settings', ip: '192.168.1.100', status: 'Success' },
+      { timestamp: '2024-02-15 17:05:22', user: 'editor', action: 'Exported', target: 'Quarterly Report', ip: '192.168.1.120', status: 'Success' },
+      { timestamp: '2024-02-15 17:16:33', user: 'admin', action: 'Created', target: 'User Account', ip: '192.168.1.100', status: 'Success' },
+      { timestamp: '2024-02-15 17:45:14', user: 'hacker', action: 'Login', target: 'System', ip: '186.24.45.12', status: 'Failed' }
+    ];
+  }
+  
+  /**
+   * Clean up resources when navigating away
+   */
+  destroy() {
+    console.log("Destroying audit dashboard controller");
+    this.removeEventListeners();
+    
+    // Clear any timers
+    this.timers.forEach(timerId => {
+      clearTimeout(timerId);
+    });
+    this.timers = [];
+    
+    // Clear any intervals
+    this.intervals.forEach(intervalId => {
+      clearInterval(intervalId);
+    });
+    this.intervals = [];
+    
+    // Restore original functions
+    if (window._originalUpdateAuditEvents) {
+      window.updateAuditEvents = window._originalUpdateAuditEvents;
     }
+    
+    this.initialized = false;
   }
 }
 
 // Create singleton instance
 const auditDashboardController = new AuditDashboardController();
 
-// Initialize on DOM content loaded
+// Initialize when section is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Only initialize if we're in the audit dashboard section
-  if (document.getElementById('audit-dashboard')) {
+  // Check if we are in the audit dashboard section
+  const auditDashboard = document.getElementById('audit-dashboard');
+  if (auditDashboard && window.getComputedStyle(auditDashboard).display !== 'none') {
     auditDashboardController.init();
   }
 });
 
-// Also initialize when the section content is loaded
-document.addEventListener('sectionContentLoaded', function(e) {
-  if (e.detail && e.detail.sectionId === 'audit-dashboard') {
+// Listen for section navigation
+document.addEventListener('sectionShown', function(e) {
+  if (e.detail && e.detail.currentSection === 'audit-dashboard') {
     auditDashboardController.init();
   }
 });
 
 // Export the controller
-if (typeof module !== 'undefined') {
-  module.exports = { AuditDashboardController, auditDashboardController };
-}
+window.auditDashboardController = auditDashboardController;

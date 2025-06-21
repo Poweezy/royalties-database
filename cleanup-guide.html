@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Royalties Codebase Cleanup Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        h2 {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .file-group {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .file-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .file-list li {
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-left: 4px solid #cbd5e0;
+            background-color: #edf2f7;
+        }
+        .file-list li.required {
+            border-left-color: #38a169;
+        }
+        .file-list li.redundant {
+            border-left-color: #e53e3e;
+            text-decoration: line-through;
+            color: #718096;
+        }
+        .description {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        .actions {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        code {
+            background: #2d3748;
+            color: #f7fafc;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .note {
+            background-color: #fffde7;
+            border-left: 4px solid #fbc02d;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mining Royalties Codebase Cleanup Guide</h1>
+        <p>This guide helps identify and remove redundant files to keep the codebase clean and maintainable.</p>
+    </div>
+
+    <div class="note">
+        <p><strong>Note:</strong> The cleanup scripts will move files to a backup directory, not delete them. This allows you to restore files if needed.</p>
+    </div>
+
+    <h2>Backup Files (Safe to Remove)</h2>
+    <div class="file-group">
+        <p class="description">These are backup files of app.js that are no longer needed:</p>
+        <ul class="file-list">
+            <li class="redundant">app.js.backup</li>
+            <li class="redundant">app.js.fixed</li>
+            <li class="redundant">app.js.before-fix</li>
+            <li class="redundant">app.js.bak</li>
+            <li class="required">app.js (keep this)</li>
+        </ul>
+    </div>
+
+    <h2>Chart Manager Duplicates (Safe to Remove)</h2>
+    <div class="file-group">
+        <p class="description">These files delegate to js/chart-manager.js, which is the main implementation:</p>
+        <ul class="file-list">
+            <li class="redundant">chart-manager-v2.js</li>
+            <li class="redundant">chart-manager.js (in root directory)</li>
+            <li class="required">js/chart-manager.js (keep this)</li>
+        </ul>
+    </div>
+
+    <h2>Redundant Fix Scripts (Safe to Remove)</h2>
+    <div class="file-group">
+        <p class="description">These scripts have been consolidated into fix.js:</p>
+        <ul class="file-list">
+            <li class="redundant">update-scripts.js</li>
+            <li class="redundant">update-scripts-improved.js</li>
+            <li class="redundant">js/app-fixer.js</li>
+            <li class="redundant">js/module-loader-fix.js</li>
+            <li class="redundant">js/section-loader-fix.js</li>
+            <li class="redundant">js/section-navigation-fix.js</li>
+            <li class="redundant">js/resource-tracker.js</li>
+            <li class="required">fix.js (keep this)</li>
+        </ul>
+    </div>
+
+    <h2>Empty/Unused Files (Safe to Remove)</h2>
+    <div class="file-group">
+        <p class="description">These files are empty or unused:</p>
+        <ul class="file-list">
+            <li class="redundant">js/message-handler.js</li>
+            <li class="redundant">js/utils/stateManager.js</li>
+            <li class="redundant">js/utils/validation.js</li>
+        </ul>
+    </div>
+
+    <h2>Required Files (Do Not Remove)</h2>
+    <div class="file-group">
+        <p class="description">These are the core files needed for the application to function properly:</p>
+        <ul class="file-list">
+            <li class="required">app.js</li>
+            <li class="required">royalties.html</li>
+            <li class="required">royalties.css</li>
+            <li class="required">js/chart-manager.js</li>
+            <li class="required">js/module-loader.js</li>
+            <li class="required">js/component-initializer.js</li>
+            <li class="required">js/diagnostics.js</li>
+            <li class="required">js/sidebar-manager.js</li>
+            <li class="required">fix.js</li>
+            <li class="required">favicon.svg</li>
+            <li class="required">manifest.json</li>
+        </ul>
+    </div>
+
+    <div class="actions">
+        <h2>How to Clean Up</h2>
+        <p>You can run either of the provided cleanup scripts to move redundant files to a backup directory:</p>
+        <p><strong>PowerShell:</strong> <code>./cleanup-redundant.ps1</code></p>
+        <p><strong>Batch file:</strong> <code>cleanup-redundant.bat</code></p>
+        
+        <h3>Manual Cleanup</h3>
+        <p>If you prefer to clean up manually, delete or move the files marked as "redundant" above.</p>
+    </div>
+
+    <div class="note">
+        <p>After cleanup, make sure to test the application to verify that everything still works correctly.</p>
+    </div>
+</body>
+</html>
