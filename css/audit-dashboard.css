@@ -1,0 +1,168 @@
+/* Ensure audit dashboard visibility */
+#audit-dashboard {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Fix any potential z-index issues */
+.page-header, 
+.dashboard-filters, 
+.charts-grid, 
+.card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Backup notification styling */
+.backup-notification {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Audit Dashboard Specific Styles */
+.security-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.security-metric h6 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.security-metric small {
+  font-size: 0.75rem;
+  color: var(--text-muted, #718096);
+  text-align: center;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  text-align: center;
+}
+
+.config-section h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.config-section p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4a5568);
+}
+
+/* Alert item styles */
+.alert-item {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #718096;
+}
+
+.alert-item.urgent {
+  background-color: rgba(229, 62, 62, 0.1);
+  border-left-color: #e53e3e;
+}
+
+.alert-item.warning {
+  background-color: rgba(214, 158, 46, 0.1);
+  border-left-color: #d69e2e;
+}
+
+.alert-icon {
+  padding-right: 1rem;
+  color: #718096;
+}
+
+.alert-item.urgent .alert-icon {
+  color: #e53e3e;
+}
+
+.alert-item.warning .alert-icon {
+  color: #d69e2e;
+}
+
+.alert-content {
+  flex-grow: 1;
+}
+
+.alert-content h6 {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.alert-content p {
+  margin: 0 0 0.25rem 0;
+}
+
+.alert-content small {
+  color: #718096;
+}
+
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .alert-item {
+        flex-direction: column;
+    }
+    
+    .alert-icon {
+        padding-right: 0;
+        padding-bottom: 0.5rem;
+    }
+    
+    .alert-actions {
+        flex-direction: row;
+        margin-top: 1rem;
+    }
+}
