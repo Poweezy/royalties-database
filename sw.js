@@ -35,6 +35,19 @@ const CACHE_URLS = [
     '/components/compliance.html',
     '/components/regulatory-management.html',
     '/components/profile.html',
+    // Also cache the html/components versions as fallbacks
+    '/html/components/sidebar.html',
+    '/html/components/dashboard.html',
+    '/html/components/user-management.html',
+    '/html/components/royalty-records.html',
+    '/html/components/contract-management.html',
+    '/html/components/audit-dashboard.html',
+    '/html/components/reporting-analytics.html',
+    '/html/components/communication.html',
+    '/html/components/notifications.html',
+    '/html/components/compliance.html',
+    '/html/components/regulatory-management.html',
+    '/html/components/profile.html',
     // External resources
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
@@ -116,6 +129,19 @@ self.addEventListener('fetch', event => {
         
         console.log('Service Worker: Fetching', requestUrl);
         
+        // Special handling for component requests (more robust)
+        const url = new URL(requestUrl);
+        const isComponentRequest = (
+            url.pathname.includes('/components/') ||
+            url.pathname.includes('/html/components/')
+        );
+        
+        if (isComponentRequest) {
+            event.respondWith(handleComponentRequest(event.request));
+            return;
+        }
+        
+        // Standard handling for non-component requests
         event.respondWith(
             caches.match(event.request)
                 .then(response => {
@@ -158,3 +184,70 @@ self.addEventListener('fetch', event => {
         console.debug('SW: General fetch handler error:', error);
     }
 });
+
+// Helper function to handle component requests with multiple paths
+async function handleComponentRequest(request) {
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split('/');
+    const componentName = pathParts[pathParts.length - 1]; // e.g., "sidebar.html"
+    
+    // Try from cache first
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+        console.log(`Service Worker: Serving cached component: ${componentName}`);
+        return cachedResponse;
+    }
+    
+    // Define alternate paths to try
+    let paths = [];
+    if (url.pathname.includes('/components/')) {
+        paths = [
+            request.url,                                  // Original path
+            url.origin + `/html/components/${componentName}`,  // Alternative path
+            url.origin + `/templates/${componentName}`,        // Another possible path
+        ];
+    } else {
+        paths = [
+            request.url,                               // Original path
+            url.origin + `/components/${componentName}`,    // Alternative path
+            url.origin + `/templates/${componentName}`,     // Another possible path
+        ];
+    }
+    
+    // Try each path
+    for (const path of paths) {
+        try {
+            console.log(`Service Worker: Trying to fetch component from ${path}`);
+            const response = await fetch(path);
+            
+            if (response.ok) {
+                console.log(`Service Worker: Successfully fetched component from ${path}`);
+                // Clone the response before caching
+                const responseToCache = response.clone();
+                
+                // Cache the successful response
+                const cache = await caches.open(CACHE_NAME);
+                await cache.put(request, responseToCache);
+                
+                return response;
+            }
+        } catch (error) {
+            console.warn(`Service Worker: Failed to fetch from ${path}:`, error.message);
+            // Continue to next path
+        }
+    }
+    
+    // If all paths failed, return a more user-friendly error
+    console.error(`Service Worker: All component paths failed for ${componentName}`);
+    return new Response(
+        `<div class="component-error">
+            <h3>Component Load Error</h3>
+            <p>Failed to load the "${componentName.replace('.html', '')}" component.</p>
+            <button onclick="window.location.reload()" class="btn btn-primary">Retry</button>
+        </div>`,
+        { 
+            headers: { 'Content-Type': 'text/html' },
+            status: 200 // Return 200 to prevent further errors
+        }
+    );
+}

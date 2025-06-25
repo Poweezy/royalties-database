@@ -1,0 +1,121 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>📋 Contract Management</h1>
+    <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="template-library-btn" title="Access contract templates">
+      <i class="fas fa-file-alt"></i> Template Library
+    </button>
+    <button class="btn btn-secondary" id="export-contracts-btn" title="Export contract data">
+      <i class="fas fa-file-export"></i> Export Contracts
+    </button>
+    <button class="btn btn-success" id="add-contract-btn" title="Add new contract">
+      <i class="fas fa-plus"></i> Add Contract
+    </button>
+  </div>
+</div>
+
+<!-- Contract Management Summary Cards -->
+<div class="charts-grid" id="contract-metrics">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
+    </div>
+    <div class="card-body">
+      <p id="active-contracts-count">0</p>
+      <small><i class="fas fa-handshake text-success"></i> Currently in force</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
+    </div>
+    <div class="card-body">
+      <p id="expiring-contracts-count">0</p>
+      <small><i class="fas fa-exclamation-triangle text-warning"></i> Within 90 days</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-money-bill-wave"></i> Total Contract Value</h3>
+    </div>
+    <div class="card-body">
+      <p id="total-contract-value">E 0.00</p>
+      <small><i class="fas fa-chart-line text-success"></i> Combined portfolio value</small>
+    </div>
+  </div>
+  
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-sync-alt"></i> Pending Renewals</h3>
+    </div>
+    <div class="card-body">
+      <p id="pending-renewals-count">0</p>
+      <small><i class="fas fa-clock text-info"></i> Require attention</small>
+    </div>
+  </div>
+</div>
+
+<!-- Contract Management Table Container -->
+<div id="contracts-table-container">
+  <div class="table-container">
+    <div class="section-header">
+      <h4><i class="fas fa-file-contract"></i> Contract Registry</h4>
+      <div class="table-actions">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="contracts-search" placeholder="Search contracts..." class="search-input">
+        </div>
+        <button class="btn btn-info btn-sm" id="filter-contracts-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-secondary btn-sm" id="sort-contracts-btn">
+          <i class="fas fa-sort"></i> Sort
+        </button>
+        <button class="btn btn-warning btn-sm" id="contract-bulk-actions-btn">
+          <i class="fas fa-tasks"></i> Bulk Actions
+        </button>
+      </div>
+    </div>
+
+    <table class="data-table" id="contracts-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all-contracts" title="Select all contracts"></th>
+          <th sortable data-sort="id">Contract ID</th>
+          <th sortable data-sort="stakeholder">Stakeholder</th>
+          <th sortable data-sort="entity">Entity</th>
+          <th sortable data-sort="contractType">Type</th>
+          <th sortable data-sort="royaltyRate">Royalty Rate</th>
+          <th sortable data-sort="startDate">Start Date</th>
+          <th sortable data-sort="endDate">End Date</th>
+          <th sortable data-sort="status">Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="contracts-tbody">
+        <!-- Will be populated dynamically -->
+      </tbody>
+    </table>
+
+    <div class="table-pagination">
+      <div class="pagination-info">
+        Showing <span id="contracts-showing-start">1</span> to <span id="contracts-showing-end">4</span> of <span id="total-contracts">4</span> contracts
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-secondary" id="contracts-prev-page" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <div class="pagination-pages">
+          <a href="#" class="page-btn active">1</a>
+        </div>
+        <button class="btn btn-sm btn-secondary" id="contracts-next-page" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

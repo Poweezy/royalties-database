@@ -1,0 +1,659 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1>🛡️ Audit Dashboard</h1>
+    <p>Comprehensive audit trail and security monitoring for the mining royalties system</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-info" id="refresh-audit-btn">
+      <i class="fas fa-sync-alt"></i> Refresh Data
+    </button>
+    <button class="btn btn-success" id="export-audit-btn">
+      <i class="fas fa-download"></i> Export Audit Log
+    </button>
+    <button class="btn btn-warning" id="security-scan-btn">
+      <i class="fas fa-shield-alt"></i> Security Scan
+    </button>
+  </div>
+</div>
+
+<!-- Audit Filters -->
+<div class="card dashboard-filters">
+  <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="audit-date-range">Date Range:</label>
+        <select id="audit-date-range">
+          <option value="today">Today</option>
+          <option value="week">Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="quarter">Last Quarter</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="audit-user-filter">User Filter:</label>
+        <select id="audit-user-filter">
+          <option value="all">All Users</option>
+          <option value="admin">Administrators</option>
+          <option value="editor">Editors</option>
+          <option value="viewer">Viewers</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="audit-action-filter">Action Type:</label>
+        <select id="audit-action-filter">
+          <option value="all">All Actions</option>
+          <option value="login">Login/Logout</option>
+          <option value="create">Create Records</option>
+          <option value="update">Update Records</option>
+          <option value="delete">Delete Records</option>
+          <option value="export">Data Export</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="apply-audit-filters">Apply Filters</button>
+        <button class="btn btn-secondary btn-sm" id="reset-audit-filters">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Date Range Selector (initially hidden) -->
+<div class="card dashboard-filters" id="custom-date-range-container" style="display: none; margin-top: 10px;">
+  <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="custom-date-start">Start Date:</label>
+        <input type="date" id="custom-date-start" class="form-control">
+      </div>
+      <div class="filter-group">
+        <label for="custom-date-end">End Date:</label>
+        <input type="date" id="custom-date-end" class="form-control">
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="apply-custom-date">Apply</button>
+        <button class="btn btn-secondary btn-sm" id="cancel-custom-date">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Summary Metrics -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-users"></i> Active Users (24h)</h3>
+    </div>
+    <div class="card-body">
+      <p id="active-users-24h">12</p>
+      <small class="trend-positive">
+        <i class="fas fa-arrow-up"></i> +3 from yesterday
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-sign-in-alt"></i> Login Attempts</h3>
+    </div>
+    <div class="card-body">
+      <p id="login-attempts">45</p>
+      <small class="trend-stable">
+        <i class="fas fa-check-circle"></i> 43 successful, 2 failed
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-database"></i> Data Access Events</h3>
+    </div>
+    <div class="card-body">
+      <p id="data-access-events">156</p>
+      <small class="trend-info">
+        <i class="fas fa-eye"></i> View: 120, Edit: 25, Export: 11
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Security Alerts</h3>
+    </div>
+    <div class="card-body">
+      <p id="security-alerts">3</p>
+      <small class="trend-warning">
+        <i class="fas fa-shield-alt"></i> 1 high, 2 medium priority
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Audit Events -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-history"></i> Recent Audit Events</h5>
+    <div class="card-actions">
+      <button class="btn btn-sm btn-secondary" id="refresh-events-btn">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>IP Address</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="audit-events-table">
+          <!-- Table content will be loaded dynamically -->
+          <tr>
+            <td colspan="7" class="text-center">Loading audit events...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Add pagination to audit events table -->
+  <div class="card-footer">
+    <div class="pagination-controls">
+      <button class="btn btn-sm btn-outline-secondary" id="prev-page" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span id="page-indicator">Page 1 of 10</span>
+      <button class="btn btn-sm btn-outline-secondary" id="next-page">
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+      <select id="page-size" class="form-control form-control-sm">
+        <option value="5">5 per page</option>
+        <option value="10" selected>10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Security Alerts -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-exclamation-triangle"></i> Security Alerts</h5>
+    <div class="card-actions">
+      <button class="btn btn-sm btn-warning" id="acknowledge-all-btn">
+        <i class="fas fa-check"></i> Acknowledge All
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="alerts-container">
+      <div class="alert-item urgent">
+        <div class="alert-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Multiple Failed Login Attempts</h6>
+          <p>5 consecutive failed login attempts detected from IP 203.45.67.89</p>
+          <small>Detected: 2024-02-10 15:25:45 | Risk Level: High</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-danger" data-ip="203.45.67.89" data-action="block">Block IP</button>
+          <button class="btn btn-sm btn-info" data-ip="203.45.67.89" data-action="investigate">Investigate</button>
+        </div>
+      </div>
+      
+      <div class="alert-item warning">
+        <div class="alert-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Unusual Access Pattern</h6>
+          <p>User 'viewer' accessed system outside normal hours (02:30 AM)</p>
+          <small>Detected: 2024-02-10 02:30:15 | Risk Level: Medium</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-warning" data-user="viewer" data-action="contact">Contact User</button>
+          <button class="btn btn-sm btn-info" data-user="viewer" data-action="review">Review Activity</button>
+        </div>
+      </div>
+      
+      <div class="alert-item warning">
+        <div class="alert-icon">
+          <i class="fas fa-download"></i>
+        </div>
+        <div class="alert-content">
+          <h6>Large Data Export</h6>
+          <p>User 'editor' exported 500+ records in single operation</p>
+          <small>Detected: 2024-02-10 14:45:20 | Risk Level: Medium</small>
+        </div>
+        <div class="alert-actions">
+          <button class="btn btn-sm btn-info" data-user="editor" data-export="export-001" data-action="review-export">Review Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add inline styles to ensure visibility -->
+<style>
+/* Audit Dashboard Specific Styles */
+.security-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.security-metric h6 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.security-metric small {
+  font-size: 0.75rem;
+  color: var(--text-muted, #718096);
+  text-align: center;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  text-align: center;
+}
+
+.alert-item {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #718096;
+}
+
+.alert-item.urgent {
+  background-color: rgba(229, 62, 62, 0.1);
+  border-left-color: #e53e3e;
+}
+
+.alert-item.warning {
+  background-color: rgba(214, 158, 46, 0.1);
+  border-left-color: #d69e2e;
+}
+
+.alert-icon {
+  padding-right: 1rem;
+  color: #718096;
+}
+
+.alert-item.urgent .alert-icon {
+  color: #e53e3e;
+}
+
+.alert-item.warning .alert-icon {
+  color: #d69e2e;
+}
+
+.alert-content {
+  flex-grow: 1;
+}
+
+.alert-content h6 {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.alert-content p {
+  margin: 0 0 0.25rem 0;
+}
+
+.alert-content small {
+  color: #718096;
+}
+
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .alert-item {
+    flex-direction: column;
+  }
+  
+  .alert-icon {
+    padding-right: 0;
+    padding-bottom: 0.5rem;
+  }
+  
+  .alert-actions {
+    flex-direction: row;
+    margin-top: 1rem;
+  }
+}
+</style>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Configuration -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-cogs"></i> Audit Configuration</h5>
+  </div>
+  <div class="card-body">
+    <div class="charts-grid">
+      <div class="config-section">
+        <h6>Retention Policy</h6>
+        <p>Audit logs are retained for <strong>365 days</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Alert Thresholds</h6>
+        <p>Failed logins: <strong>3 attempts</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Monitoring Level</h6>
+        <p>Current level: <strong>Comprehensive</strong></p>
+        <button class="btn btn-sm btn-secondary">Configure</button>
+      </div>
+      <div class="config-section">
+        <h6>Backup Status</h6>
+        <p>Last backup: <strong>2024-02-10 00:00:00</strong></p>
+        <button class="btn btn-sm btn-success">Backup Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add inline styles to ensure visibility -->
+<style>
+/* Audit Dashboard Specific Styles */
+.security-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.security-metric h6 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.security-metric small {
+  font-size: 0.75rem;
+  color: var(--text-muted, #718096);
+  text-align: center;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-white, #ffffff);
+  border-radius: var(--border-radius, 8px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  text-align: center;
+}
+
+.config-section h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+}
+
+.config-section p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4a5568);
+}
+
+/* New styles for enhanced components */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#page-indicator {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4a5568);
+}
+
+#page-size {
+  width: auto;
+  max-width: 120px;
+}
+
+.issue-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+
+.issue-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: 0.875rem;
+}
+
+.issue-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.issue-badge.high {
+  background-color: rgba(245, 101, 101, 0.1);
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+}
+
+.issue-badge.medium {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: #dd6b20;
+  border: 1px solid #dd6b20;
+}
+
+.issue-badge.low {
+  background-color: rgba(66, 153, 225, 0.1);
+  color: #3182ce;
+  border: 1px solid #3182ce;
+}
+
+/* Tooltip styles */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.25rem;
+}
+
+.tooltip-icon {
+  color: var(--text-muted, #718096);
+  cursor: help;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.75rem;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Ensure audit dashboard visibility */
+#audit-dashboard {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Fix any potential z-index issues */
+.page-header,
+.dashboard-filters,
+.charts-grid,
+.card {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+</style>
+
+<script>
+// Remove self-executing function to avoid conflicts
+// and ensure proper cleanup
+
+// Define functions in window scope to ensure they're available globally
+window.viewAuditDetails = function(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Viewing details for audit event ${eventId}`, 'info');
+  }
+};
+
+window.investigateFailedLogin = function(eventId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Investigating failed login attempt ${eventId}`, 'warning');
+  }
+};
+
+window.blockIpAddress = function(ip) {
+  if (confirm(`Are you sure you want to block IP address ${ip}?`)) {
+    if (window.notificationManager) {
+      window.notificationManager.show(`IP address ${ip} has been blocked`, 'success');
+    }
+  }
+};
+
+window.investigateIp = function(ip) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Opening investigation for IP ${ip}`, 'info');
+  }
+};
+
+window.contactUser = function(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Contacting user ${username}...`, 'info');
+  }
+};
+
+window.reviewUserActivity = function(username) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing activity for user ${username}`, 'info');
+  }
+};
+
+window.reviewExport = function(username, exportId) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Reviewing export ${exportId} by ${username}`, 'info');
+  }
+};
+
+window.acknowledgeAllAlerts = function() {
+  if (confirm('Are you sure you want to acknowledge all security alerts?')) {
+    if (window.notificationManager) {
+      window.notificationManager.show('All security alerts acknowledged', 'success');
+    }
+  }
+};
+
+window.runSecurityScan = function() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Running comprehensive security scan...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Security scan completed - 2 issues found', 'warning');
+    }, 3000);
+  }
+};
+
+window.refreshAuditEvents = function() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Refreshing audit events...', 'info');
+  }
+};
+
+window.exportAuditData = function(format) {
+  if (window.notificationManager) {
+    window.notificationManager.show(`Exporting audit data in ${format} format...`, 'info');
+  }
+  
+  setTimeout(() => {
+    if (window.notificationManager) {
+      window.notificationManager.show(`Audit data exported successfully as ${format}`, 'success');
+    }
+  }, 1500);
+};
+</script>
+
+<!-- 
+IMPORTANT: This component has known navigation issues.
+The updateAuditEvents function calling location.reload() breaks navigation after visiting this section.
+-->

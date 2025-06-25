@@ -125,6 +125,164 @@ const RoyaltiesDiagnostics = {
   },
   
   /**
+   * Check for component availability and repair paths if needed
+   */
+  checkAndRepairComponentPaths: async function() {
+    console.group('Component Path Check and Repair');
+    
+    const componentIds = [
+      'sidebar',
+      'dashboard',
+      'user-management',
+      'royalty-records',
+      'contract-management',
+      'audit-dashboard',
+      'reporting-analytics',
+      'communication',
+      'notifications',
+      'compliance',
+      'regulatory-management',
+      'profile'
+    ];
+    
+    const results = {
+      components: {},
+      htmlComponents: {},
+      fixed: 0,
+      errors: []
+    };
+    
+    // Check components in both paths
+    for (const id of componentIds) {
+      try {
+        // Check components/ directory
+        const compResponse = await fetch(`components/${id}.html`);
+        results.components[id] = compResponse.ok;
+        console.log(`components/${id}.html: ${compResponse.ok ? '✅ Available' : '❌ Not found or empty'}`);
+        
+        // Check html/components/ directory
+        const htmlCompResponse = await fetch(`html/components/${id}.html`);
+        results.htmlComponents[id] = htmlCompResponse.ok;
+        console.log(`html/components/${id}.html: ${htmlCompResponse.ok ? '✅ Available' : '❌ Not found or empty'}`);
+        
+        // If available in components/ but not in html/components/, try to fix
+        if (compResponse.ok && !htmlCompResponse.ok) {
+          if (window.moduleLoader && window.moduleLoader.cache) {
+            const content = await compResponse.text();
+            // Create a blob to create a temporary element for copying
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            try {
+              // Attempt to manually copy via fetch API - this won't actually work client-side
+              // but we can at least cache the content from the primary location
+              if (window.moduleLoader && window.moduleLoader.cache) {
+                window.moduleLoader.cache.set(id, content);
+                console.log(`✅ Fixed: Cached content for ${id} from components/ directory`);
+                results.fixed++;
+              }
+            } catch (fixError) {
+              console.error(`Failed to repair ${id}:`, fixError);
+              results.errors.push(id);
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Error checking ${id}:`, error);
+        results.errors.push(id);
+      }
+    }
+    
+    console.groupEnd();
+    return results;
+  },
+
+  /**
+   * Force loading of essential components from fall-back sources
+   */
+  forceLoadEssentialComponents: async function() {
+    console.group('Force Loading Essential Components');
+    const results = { success: {}, error: {} };
+    
+    const essentialComponents = ['sidebar', 'dashboard'];
+    
+    for (const id of essentialComponents) {
+      try {
+        console.log(`Attempting to force-load ${id}...`);
+        
+        // Try to get the component element
+        const element = document.getElementById(id);
+        if (!element) {
+          console.error(`Element #${id} not found in the DOM`);
+          results.error[id] = 'Element not found';
+          continue;
+        }
+        
+        // Try both paths
+        let content = null;
+        let source = null;
+        
+        try {
+          const resp1 = await fetch(`components/${id}.html?nocache=${Date.now()}`);
+          if (resp1.ok) {
+            content = await resp1.text();
+            if (content && content.trim() !== '') {
+              source = `components/${id}.html`;
+            }
+          }
+        } catch (e) {
+          console.warn(`Failed to fetch from components/ directory`, e);
+        }
+        
+        if (!content) {
+          try {
+            const resp2 = await fetch(`html/components/${id}.html?nocache=${Date.now()}`);
+            if (resp2.ok) {
+              content = await resp2.text();
+              if (content && content.trim() !== '') {
+                source = `html/components/${id}.html`;
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to fetch from html/components/ directory`, e);
+          }
+        }
+        
+        // If we found content, use it
+        if (content && content.trim() !== '') {
+          element.innerHTML = content;
+          console.log(`✅ Successfully loaded ${id} from ${source}`);
+          
+          // Cache the content if moduleLoader exists
+          if (window.moduleLoader && window.moduleLoader.cache) {
+            window.moduleLoader.cache.set(id, content);
+            console.log(`✅ Cached content for ${id}`);
+          }
+          
+          results.success[id] = source;
+        } else {
+          // Try fallback content
+          if (window.moduleLoader && window.moduleLoader.fallbackComponents && 
+              window.moduleLoader.fallbackComponents[id]) {
+            element.innerHTML = window.moduleLoader.fallbackComponents[id];
+            console.log(`⚠️ Used fallback content for ${id}`);
+            results.success[id] = 'fallback';
+          } else {
+            console.error(`Failed to load ${id} - no content found`);
+            results.error[id] = 'No content found';
+          }
+        }
+      } catch (error) {
+        console.error(`Error force-loading ${id}:`, error);
+        results.error[id] = error.message;
+      }
+    }
+    
+    console.groupEnd();
+    return results;
+  },
+
+  /**
    * Run all diagnostics
    */
   runAll: function() {
@@ -141,7 +299,62 @@ const RoyaltiesDiagnostics = {
     console.groupEnd();
     
     console.log('Diagnostics complete! For issues, check the "Running the Application" section in README.md');
-  }
+  },
+  
+  /**
+   * Run all diagnostics and fix issues where possible
+   */
+  runAllDiagnostics: async function() {
+    console.group('🔍 MINING ROYALTIES MANAGER - COMPLETE SYSTEM DIAGNOSTICS');
+    console.log('Starting comprehensive diagnostics...');
+    
+    // 1. Check components
+    const componentCheck = this.checkComponents();
+    
+    // 2. Check scripts
+    const scriptCheck = this.checkScripts();
+    
+    // 3. Check and repair component paths
+    const pathCheck = await this.checkAndRepairComponentPaths();
+    
+    // 4. Force load essential components if needed
+    let forceLoadResults = {};
+    if (!componentCheck.sidebar || !componentCheck.dashboard) {
+      console.log('Essential components missing, attempting force load...');
+      forceLoadResults = await this.forceLoadEssentialComponents();
+    } else {
+      console.log('Essential components found, skipping force load');
+    }
+    
+    // 5. Check service worker
+    const swCheck = this.checkServiceWorker();
+    
+    // 6. Run app initialization check
+    const appCheck = this.checkAppInitialization();
+    
+    // 7. Generate report
+    const report = {
+      timestamp: new Date().toISOString(),
+      components: componentCheck,
+      scripts: scriptCheck,
+      componentPaths: pathCheck,
+      forceLoad: forceLoadResults,
+      serviceWorker: swCheck,
+      appInitialization: appCheck,
+      summary: {
+        status: componentCheck.app && componentCheck.moduleLoader && 
+                (componentCheck.sidebar || (forceLoadResults.success && forceLoadResults.success.sidebar)) && 
+                (componentCheck.dashboard || (forceLoadResults.success && forceLoadResults.success.dashboard)) ? 
+                'OPERATIONAL' : 'ISSUES DETECTED'
+      }
+    };
+    
+    console.log('📊 Diagnostics Summary:', report.summary.status);
+    console.log('See full report object for details');
+    console.groupEnd();
+    
+    return report;
+  },
 };
 
 // Run diagnostics automatically

@@ -84,6 +84,11 @@ class ModuleLoader {
                             const response = await fetch(`${componentPath}/${componentId}.html?v=${Date.now()}`);
                             if (response.ok) {
                                 content = await response.text();
+                                // Check if the content is empty
+                                if (content.trim() === '') {
+                                    console.warn(`ModuleLoader: Component '${componentId}' in ${componentPath} is empty`);
+                                    continue;
+                                }
                                 loaded = true;
                                 console.log(`ModuleLoader: Found component '${componentId}' in ${componentPath}`);
                                 // Remember the successful path for this component
@@ -103,6 +108,11 @@ class ModuleLoader {
                                 const response = await fetch(`${componentPath}/${componentId}.html`);
                                 if (response.ok) {
                                     content = await response.text();
+                                    // Check if the content is empty
+                                    if (content.trim() === '') {
+                                        console.warn(`ModuleLoader: Component '${componentId}' in ${componentPath} is empty (without cache-busting)`);
+                                        continue;
+                                    }
                                     loaded = true;
                                     console.log(`ModuleLoader: Found component '${componentId}' in ${componentPath} without cache-busting`);
                                     this.componentRoot = componentPath;
@@ -177,6 +187,11 @@ class ModuleLoader {
                         const response = await fetch(`${componentPath}/${componentId}.html?v=${Date.now()}`);
                         if (response.ok) {
                             const content = await response.text();
+                            // Check if the content is empty
+                            if (content.trim() === '') {
+                                console.warn(`ModuleLoader: Preloaded component '${componentId}' in ${componentPath} is empty`);
+                                continue;
+                            }
                             this.cache.set(componentId, content);
                             this.pendingModules.delete(componentId);
                             console.log(`ModuleLoader: Preloaded component '${componentId}' from ${componentPath}`);

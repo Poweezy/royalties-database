@@ -102,6 +102,56 @@ Last updated: June 21, 2025
    - These are usually harmless messages about communication channels
    - Can be safely ignored if the application functions correctly
 
+### HTTP 500 Errors When Loading Components
+If you encounter HTTP 500 errors in the console when components are loading, it may be due to issues with the component paths. The application tries to load components from both `components/` and `html/components/` directories.
+
+**Solution:**
+1. Make sure all component HTML files exist in both directories
+2. Run the diagnostics helper in the console to identify and fix issues:
+
+```javascript
+// Load the diagnostics helper (if not already loaded)
+const script = document.createElement('script');
+script.src = 'diagnostics-helper.js';
+document.head.appendChild(script);
+
+// Once loaded, run the diagnostics
+setTimeout(() => {
+  if (window.RoyaltiesDiagnostics) {
+    RoyaltiesDiagnostics.runAllDiagnostics();
+  } else {
+    console.error('Diagnostics helper not loaded');
+  }
+}, 1000);
+```
+
+3. If needed, force-load the essential components:
+```javascript
+RoyaltiesDiagnostics.forceLoadEssentialComponents();
+```
+
+### Empty Component Files
+If component files exist but are empty:
+
+1. Copy the content from the `components/` directory to `html/components/` using this PowerShell command:
+```powershell
+Get-ChildItem -Path ".\components\*.html" | ForEach-Object { Copy-Item -Path $_.FullName -Destination ".\html\components\$($_.Name)" -Force }
+```
+
+2. Refresh the page and try again.
+
+### Component Test Page
+If you're experiencing issues with component loading, use the included component test page:
+
+1. Open `component-test.html` in your browser
+2. This page will test all components in all directories and show which ones are available
+3. Fix any missing or empty component files
+
+The test will check for components in:
+- `components/` directory
+- `html/components/` directory
+- `templates/` directory
+
 ### Running Diagnostics
 
 The application includes built-in diagnostics tools:

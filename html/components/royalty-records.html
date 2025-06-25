@@ -1,0 +1,455 @@
+<div class="page-header">
+  <div class="page-title">
+    <h1><i class="fas fa-money-bill-wave"></i> Royalty Records Management</h1>
+    <p>Comprehensive management of mining royalty records, payments, and compliance tracking</p>
+  </div>
+  <div class="page-actions">
+    <button class="btn btn-success" id="add-record-btn">
+      <i class="fas fa-plus"></i> Add New Record
+    </button>
+    <button class="btn btn-info" id="refresh-records-btn">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
+    <button class="btn btn-warning" id="export-records-btn">
+      <i class="fas fa-download"></i> Export Records
+    </button>
+    <button class="btn btn-secondary" id="bulk-action-btn">
+      <i class="fas fa-tasks"></i> Bulk Actions
+    </button>
+  </div>
+</div>
+
+<!-- Records Summary -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-list-ol"></i> Total Records</h3>
+    </div>
+    <div class="card-body">
+      <p id="total-records-count">0</p>
+      <small class="trend-info">
+        <i class="fas fa-info-circle"></i> All time records
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-money-bill-wave"></i> Total Royalties</h3>
+    </div>
+    <div class="card-body">
+      <p id="total-royalties-amount">E 0</p>
+      <small class="trend-positive">
+        <i class="fas fa-arrow-up"></i> Cumulative value
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-check-circle"></i> Paid Records</h3>
+    </div>
+    <div class="card-body">
+      <p id="paid-records-count">0</p>
+      <small class="trend-positive">
+        <i class="fas fa-check"></i> Successfully paid
+      </small>
+    </div>
+  </div>
+
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-clock"></i> Pending/Overdue</h3>
+    </div>
+    <div class="card-body">
+      <p><span id="pending-records-count">0</span>/<span id="overdue-records-count">0</span></p>
+      <small class="trend-warning">
+        <i class="fas fa-exclamation-triangle"></i> Requires attention
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Compliance Overview -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-chart-line"></i> Payment Compliance Overview</h5>
+  </div>
+  <div class="card-body">
+    <div class="charts-grid">
+      <div class="compliance-metric">
+        <h6>Overall Compliance Rate</h6>
+        <p id="records-compliance-rate">0%</p>
+        <div class="mini-progress">
+          <div class="progress-bar" id="records-compliance-progress" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="compliance-metric">
+        <h6>Average Payment Time</h6>
+        <p>15 days</p>
+        <small>Industry benchmark: 30 days</small>
+      </div>
+      <div class="compliance-metric">
+        <h6>On-time Payment Rate</h6>
+        <p>85%</p>
+        <small>Target: 95%</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="card">
+  <div class="card-body">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Filter by Status:</label>
+        <div class="filter-buttons">
+          <button class="btn btn-sm btn-secondary filter-btn active" data-filter="all">All Records</button>
+          <button class="btn btn-sm btn-success filter-btn" data-filter="paid">Paid</button>
+          <button class="btn btn-sm btn-warning filter-btn" data-filter="pending">Pending</button>
+          <button class="btn btn-sm btn-danger filter-btn" data-filter="overdue">Overdue</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label for="records-search">Search Records:</label>
+        <input type="text" id="records-search" placeholder="Search by reference, entity, or mineral..." class="form-control">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Records Table -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-table"></i> Royalty Records</h5>
+    <div class="card-actions">
+      <select class="metric-period" id="records-per-page">
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" id="select-all-records">
+            </th>
+            <th>Reference Number</th>
+            <th>Entity</th>
+            <th>Mineral</th>
+            <th>Volume</th>
+            <th>Royalties (E)</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="royalty-records-table-body">
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem;">
+              <i class="fas fa-spinner fa-spin"></i> Loading royalty records...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing 1-4 of 4 records
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-secondary" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <button class="btn btn-sm btn-primary">1</button>
+        <button class="btn btn-sm btn-secondary" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+  </div>
+  <div class="card-body">
+    <div class="quick-actions-grid">
+      <button class="btn btn-primary quick-action-btn" onclick="generatePaymentReminders()">
+        <i class="fas fa-envelope"></i>
+        <span>Send Payment Reminders</span>
+      </button>
+      <button class="btn btn-success quick-action-btn" onclick="generateComplianceReport()">
+        <i class="fas fa-file-chart-line"></i>
+        <span>Compliance Report</span>
+      </button>
+      <button class="btn btn-warning quick-action-btn" onclick="reviewOverdueRecords()">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Review Overdue</span>
+      </button>
+      <button class="btn btn-info quick-action-btn" onclick="reconcilePayments()">
+        <i class="fas fa-balance-scale"></i>
+        <span>Reconcile Payments</span>
+      </button>
+      <button class="btn btn-secondary quick-action-btn" onclick="exportToExcel()">
+        <i class="fas fa-file-excel"></i>
+        <span>Export to Excel</span>
+      </button>
+      <button class="btn btn-dark quick-action-btn" onclick="auditTrail()">
+        <i class="fas fa-history"></i>
+        <span>Audit Trail</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Royalty Records Specific Styles */
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+.compliance-metric {
+  text-align: center;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.compliance-metric h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.compliance-metric p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 0 0 0.25rem 0;
+}
+
+.compliance-metric small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-xl);
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.5rem;
+}
+
+.modal-close:hover {
+  color: var(--primary-color);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    flex-direction: column;
+  }
+  
+  .filter-buttons {
+    justify-content: flex-start;
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+// Royalty Records Component Functions
+function generatePaymentReminders() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Generating payment reminders for overdue records...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Payment reminders sent to 3 entities', 'success');
+    }, 2000);
+  }
+}
+
+function generateComplianceReport() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Generating compliance report...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Compliance report generated successfully', 'success');
+    }, 2500);
+  }
+}
+
+function reviewOverdueRecords() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Reviewing overdue records...', 'warning');
+  }
+  
+  // Filter to show only overdue records
+  const overdueBtn = document.querySelector('.filter-btn[data-filter="overdue"]');
+  if (overdueBtn) {
+    overdueBtn.click();
+  }
+}
+
+function reconcilePayments() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Starting payment reconciliation process...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Payment reconciliation completed - 2 discrepancies found', 'warning');
+    }, 3000);
+  }
+}
+
+function exportToExcel() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Exporting records to Excel format...', 'info');
+    setTimeout(() => {
+      window.notificationManager.show('Excel file downloaded successfully', 'success');
+    }, 1500);
+  }
+}
+
+function auditTrail() {
+  if (window.notificationManager) {
+    window.notificationManager.show('Opening audit trail for royalty records...', 'info');
+  }
+  
+  // Navigate to audit dashboard
+  if (window.royaltiesApp) {
+    setTimeout(() => {
+      window.royaltiesApp.showSection('audit-dashboard');
+    }, 1000);
+  }
+}
+
+// Select all checkbox functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('select-all-records');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const recordCheckboxes = document.querySelectorAll('.record-checkbox');
+      recordCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+  }
+  
+  // Records per page selector
+  const recordsPerPage = document.getElementById('records-per-page');
+  if (recordsPerPage) {
+    recordsPerPage.addEventListener('change', function() {
+      if (window.notificationManager) {
+        window.notificationManager.show(`Showing ${this.value} records per page`, 'info');
+      }
+    });
+  }
+});
+</script>
