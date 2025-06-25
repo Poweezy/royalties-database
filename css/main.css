@@ -371,6 +371,9 @@ body {
     font-size: 1.2rem !important;
   }
 }
+
+/* Page header styling */
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1817,6 +1820,10 @@ body {
 .modal-overlay ~ .notification {
   z-index: 10001;
 }
+
+/* Additional print style adjustments */
+@media print {
+  .chart-container {
     height: 200px !important;
   }
   
