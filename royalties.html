@@ -271,23 +271,39 @@
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>
-      // Display protocol information for debugging      console.log("Current protocol: " + window.location.protocol);
+      // Display protocol information for debugging
+      console.log("Current protocol: " + window.location.protocol);
       console.log("Current origin: " + window.location.origin);
 
-      // Add a dedicated error handler for message channel errors
+      // Enhanced error handling for service worker message channel errors
       window.addEventListener('unhandledrejection', function(event) {
+        // Check for service worker message channel errors (multiple patterns)
         if (event.reason && 
             event.reason.message && 
-            event.reason.message.includes('message channel closed')) {
-          console.warn('Service Worker message channel error caught:', event.reason);
+            (event.reason.message.includes('message channel closed') || 
+             event.reason.message.includes('ServiceWorker') || 
+             event.reason.message.includes('service worker'))) {
+          console.debug('Service Worker message suppressed:', event.reason.message);
           event.preventDefault(); // Prevents the default error handling
+          event.stopPropagation(); // Stops propagation to other handlers
+          return false; // Explicitly return false
+        }
+      });
+
+      // Additional error listener for console cleanup
+      window.addEventListener('error', function(event) {
+        if (event.filename && event.filename.includes('sw.js')) {
+          console.debug('Service Worker error suppressed:', event.message);
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
         }
       });
 
       if ('serviceWorker' in navigator) {
           if (window.location.protocol !== 'file:') {
               // Only register the service worker if we're not on file:// protocol
-              navigator.serviceWorker.register('sw.js?v=3.4')
+              navigator.serviceWorker.register('sw.js?v=3.5')
                   .then(registration => {
                       console.log('SW registered successfully: ', registration);
                       
@@ -298,6 +314,19 @@
                       }
                       
                       // Listen for new SW installing
+                      
+                      // Suppress any message channel errors
+                      const originalPostMessage = navigator.serviceWorker.controller?.postMessage;
+                      if (originalPostMessage) {
+                          navigator.serviceWorker.controller.postMessage = function() {
+                              try {
+                                  return originalPostMessage.apply(this, arguments);
+                              } catch (err) {
+                                  console.debug('Suppressed SW postMessage error');
+                                  return Promise.resolve(); // Return resolved promise
+                              }
+                          };
+                      }
                       registration.addEventListener('updatefound', () => {
                           const newWorker = registration.installing;
                           console.log('SW: New version installing');
@@ -370,6 +399,37 @@
       });
   </script>
 
+  <!-- Dashboard Initialization Script -->
+  <script>
+    // This script ensures that the dashboard content loads properly
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for app initialization
+      setTimeout(function checkDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard && dashboard.innerHTML.trim() === '') {
+          console.log('Dashboard content empty, attempting to initialize...');
+          // Try to trigger component loading if available
+          if (window.moduleLoader && window.moduleLoader.loadComponent) {
+            console.log('Loading dashboard component via moduleLoader');
+            window.moduleLoader.loadComponent('dashboard', dashboard)
+              .then(result => {
+                console.log('Dashboard component load result:', result.success ? 'success' : 'failed');
+              })
+              .catch(err => {
+                console.warn('Error loading dashboard component:', err);
+              });
+          } else if (window.app && window.app.loadSectionContent) {
+            console.log('Loading dashboard content via app.loadSectionContent');
+            window.app.loadSectionContent('dashboard');
+          } else if (window.royaltiesApp && window.royaltiesApp.loadSectionContent) {
+            console.log('Loading dashboard content via royaltiesApp.loadSectionContent');
+            window.royaltiesApp.loadSectionContent('dashboard');
+          }
+        }
+      }, 3000); // Check after 3 seconds to ensure everything has had time to load
+    });
+  </script>
+  
   <!-- 
 SUGGESTED SCRIPT IMPROVEMENT:
 

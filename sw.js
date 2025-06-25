@@ -87,87 +87,74 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
-// Fetch event
-self.addEventListener('fetch', event => {
-    const requestUrl = event.request.url;
-    
-    if (!shouldCache(requestUrl)) {
-        console.log('Service Worker: Skipping unsupported URL:', requestUrl);
-        return;
-    }
-    
-    console.log('Service Worker: Fetching', requestUrl);
-    
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    console.log('Service Worker: Serving from cache:', requestUrl);
-                    return response;
-                }
-                
-                console.log('Service Worker: Fetching from network:', requestUrl);
-                return fetch(event.request)
-                    .then(response => {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-                        
-                        if (shouldCache(requestUrl)) {
-                            const responseToCache = response.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    cache.put(event.request, responseToCache);
-                                })
-                                .catch(error => {
-                                    console.warn('Service Worker: Cache put failed:', error);
-                                });
-                        }
-                        
-                        return response;
-                    })
-                    .catch(error => {
-                        console.error('Service Worker: Fetch failed:', requestUrl, error);
-                        return new Response('Network error', { 
-                            status: 500, 
-                            statusText: 'Network Error' 
-                        });
-                    });
-            })
-    );
-});
-
-// Message event - fixed to avoid message channel errors
+// Handle message events - this helps with message channel errors
 self.addEventListener('message', event => {
-    console.log('Service Worker: Message received:', event.data);
-    
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    } else if (event.data && event.data.type === 'CACHE_UPDATE') {
-        // Don't use waitUntil for messages to avoid keeping the message channel open
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Service Worker: Updating cache for CACHE_UPDATE message');
-                return cache.addAll(CACHE_URLS.filter(shouldCache));
-            })
-            .catch(error => {
-                console.error('Service Worker: Cache update failed:', error);
-            });
-    } else if (event.data && event.data.type === 'REQUEST_VERSION') {
-        console.log('Service Worker: Received version request');
-        // Don't respond through the message channel - it might be closed before response
+    try {
+        if (event.data && event.data.type === 'SKIP_WAITING') {
+            self.skipWaiting();
+        }
+    } catch (error) {
+        console.debug('SW: Error handling message:', error);
     }
-    
-    // IMPORTANT: Never return a Promise or true from this handler
-    // to avoid "message channel closed before response" errors
 });
 
-// Error handlers
+// Error handler for the service worker
 self.addEventListener('error', event => {
-    console.error('Service Worker: Error occurred:', event.error);
+    console.debug('SW: Error caught in service worker:', event.message);
+    event.preventDefault();
 });
 
-self.addEventListener('unhandledrejection', event => {
-    console.error('Service Worker: Unhandled promise rejection:', event.reason);
-    event.preventDefault();
+// Enhanced fetch event with better error handling
+self.addEventListener('fetch', event => {
+    try {
+        const requestUrl = event.request.url;
+        
+        if (!shouldCache(requestUrl)) {
+            console.log('Service Worker: Skipping unsupported URL:', requestUrl);
+            return;
+        }
+        
+        console.log('Service Worker: Fetching', requestUrl);
+        
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    if (response) {
+                        console.log('Service Worker: Serving from cache:', requestUrl);
+                        return response;
+                    }
+                    
+                    console.log('Service Worker: Fetching from network:', requestUrl);
+                    return fetch(event.request)
+                        .then(response => {
+                            if (!response || response.status !== 200 || response.type !== 'basic') {
+                                return response;
+                            }
+                            
+                            if (shouldCache(requestUrl)) {
+                                const responseToCache = response.clone();
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+                                        cache.put(event.request, responseToCache);
+                                    })
+                                    .catch(error => {
+                                        console.debug('SW: Cache put error:', error);
+                                    });
+                            }
+                            
+                            return response;
+                        })
+                        .catch(error => {
+                            console.debug('SW: Network fetch error:', error);
+                            return new Response('Network error', { status: 408, statusText: 'Network error' });
+                        });
+                })
+                .catch(error => {
+                    console.debug('SW: Cache match error:', error);
+                    return new Response('Service worker error', { status: 500, statusText: 'SW Error' });
+                })
+        );
+    } catch (error) {
+        console.debug('SW: General fetch handler error:', error);
+    }
 });

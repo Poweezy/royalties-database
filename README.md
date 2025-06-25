@@ -104,6 +104,19 @@ Last updated: June 21, 2025
 
 ### Running Diagnostics
 
-The application includes a built-in diagnostics tool:
-1. Add `?diagnostics=true` to the URL (e.g., `http://localhost:8000/royalties.html?diagnostics=true`)
-2. Open browser console (F12 or Ctrl+Shift+I) to view results
+The application includes built-in diagnostics tools:
+
+1. **URL Parameter Method**:
+   - Add `?diagnostics=true` to the URL (e.g., `http://localhost:8000/royalties.html?diagnostics=true`)
+   - Open browser console (F12 or Ctrl+Shift+I) to view results
+
+2. **Diagnostics Helper Script**:
+   - Open browser console (F12 or Ctrl+Shift+I)
+   - Load the diagnostics helper: `fetch('diagnostics-helper.js').then(r => r.text()).then(eval)`
+   - Or run it directly by opening diagnostics-helper.js in the browser
+
+The diagnostics tools will:
+- Check if all required components are available
+- Verify that all script files are loaded
+- Attempt to fix common issues automatically
+- Provide detailed information about the application state
