@@ -743,8 +743,7 @@ class RoyaltiesApp {
                                 <i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
                             <li><a href="#contract-management" class="nav-link" data-section="contract-management">
                                 <i class="fas fa-file-contract"></i> Contract Management</a></li>
-                            <li><a href="#audit-dashboard" class="nav-link" data-section="audit-dashboard">
-                                <i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
+                            <!-- Audit Dashboard removed in cleanup -->
                             <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics">
                                 <i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
                             <li><a href="#communication" class="nav-link" data-section="communication">

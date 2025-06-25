@@ -86,7 +86,7 @@
                 
                 const components = [
                     'sidebar', 'dashboard', 'user-management', 'royalty-records',
-                    'contract-management', 'audit-dashboard', 'reporting-analytics',
+                    'contract-management', 'reporting-analytics', /* audit-dashboard removed */
                     'communication', 'notifications', 'compliance', 'regulatory-management', 'profile'
                 ];
                 
@@ -223,17 +223,7 @@
                 }
             });
             
-            // Check audit dashboard specifically
-            const auditDashboard = document.getElementById('audit-dashboard');
-            if (auditDashboard) {
-                const scriptTags = auditDashboard.querySelectorAll('script');
-                scriptTags.forEach(script => {
-                    if (script.textContent.includes('location.reload()')) {
-                        console.error('❌ Found location.reload() in audit-dashboard section: This will break navigation!');
-                        potentialIssues++;
-                    }
-                });
-            }
+            // Audit dashboard check removed - audit dashboard functionality has been removed
             
             if (potentialIssues === 0) {
                 console.log('✓ No obvious navigation issues detected');
