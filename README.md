@@ -12,6 +12,19 @@ The Mining Royalties Manager is a comprehensive system for managing royalty paym
 - Compliance Monitoring
 - Regulatory Management
 
+## Running the Application
+
+The Mining Royalties Manager is designed to work best when served through a web server. You can:
+
+1. **Use a local web server**:
+   - Python: `python -m http.server`
+   - Node.js: `npx http-server`
+   - VS Code: Install the "Live Server" extension and click "Go Live"
+
+2. **Open directly**:
+   - Open `royalties.html` in your web browser
+   - Note: Some features may be limited when opening directly from the file system
+
 ## Project Structure
 The project follows a modular structure with clear separation of concerns:
 
@@ -62,3 +75,35 @@ Last updated: June 21, 2025
 - Added diagnostics.js for troubleshooting and monitoring component loading
 - Improved error handling in module-loader.js and app.js
 - Updated service worker cache configuration
+- Fixed CSS syntax errors in main.css
+- Consolidated to using royalties.html as the main entry point
+- Improved service worker error handling
+- Enhanced component loading system with fallbacks
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"This file does not exist" errors in console**:
+   - Make sure all component files are in the correct locations
+   - Try serving through a web server instead of opening directly
+
+2. **Login doesn't work**:
+   - Make sure JavaScript is enabled in your browser
+   - Try clearing browser cache and cookies
+   - Ensure you're using the correct credentials
+
+3. **Charts or metrics don't load**:
+   - Check if Chart.js is loading correctly
+   - Check browser console for any specific errors
+   - Try a different browser
+
+4. **Service worker errors**:
+   - These are usually harmless messages about communication channels
+   - Can be safely ignored if the application functions correctly
+
+### Running Diagnostics
+
+The application includes a built-in diagnostics tool:
+1. Add `?diagnostics=true` to the URL (e.g., `http://localhost:8000/royalties.html?diagnostics=true`)
+2. Open browser console (F12 or Ctrl+Shift+I) to view results
