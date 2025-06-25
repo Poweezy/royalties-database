@@ -13,6 +13,10 @@ This document outlines the cleanup and fixes that were performed to make the Min
    - Moved redundant files to the `redundant-files` directory
    - Ensured that `app.js` is the main JavaScript file
    - Ensured `royalties.html` is the main entry point
+   - Removed backup files from root directory
+   - Removed empty utility files
+   - Removed duplicate chart manager files
+   - Consolidated utility functions in `js/utils.js`
 
 ## Key Application Files
 
@@ -34,6 +38,7 @@ This document outlines the cleanup and fixes that were performed to make the Min
 - `js/sidebar-manager.js` - Sidebar functionality
 - `js/diagnostics.js` - System diagnostics
 - `js/startup.js` - Application startup sequence
+- `js/utils.js` - Utility functions for the application
 
 ## How to Use the Application
 

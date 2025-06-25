@@ -1,6 +1,9 @@
 /**
  * Diagnostics Tool for Mining Royalties Manager
- * v1.2.1 - 2023-06-26 (Fixed version)
+ * @version 1.2.2
+ * @date 2025-06-26
+ * @description Provides diagnostic tools to troubleshoot issues with the application
+ * @usage Run appDiagnostics.runAll() from the browser console
  */
 (function() {
     'use strict';

@@ -1,10 +1,25 @@
-// Mining Royalties Manager - Main Application
+/**
+ * Mining Royalties Manager - Main Application
+ * @version 2.0.3
+ * @date 2025-06-27
+ * @description Core application functionality for the Mining Royalties Manager
+ */
+
 console.log('Mining Royalties Manager v2.0 - Loading...');
-console.log('App.js syntax fixes applied - 2025-06-20');
+
+// Initialize Utils
+if (typeof Utils !== 'undefined') {
+    Utils.suppressNonCriticalErrors();
+} else {
+    console.warn('Utils module not loaded, falling back to basic functionality');
+}
 
 // ===== CORE CLASSES =====
 
-// Simple ChartManager for fallback
+/**
+ * Simple ChartManager class for fallback when Chart.js is unavailable
+ * @class SimpleChartManager
+ */
 class SimpleChartManager {
     constructor() {
         this.charts = new Map();

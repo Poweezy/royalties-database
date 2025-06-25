@@ -1,8 +1,10 @@
 /**
  * Component Initialization Script
- * v1.1.0 - 2025-06-25
- * 
- * This script ensures all components are properly loaded and initialized
+ * @version 1.1.1
+ * @date 2025-06-26
+ * @description Ensures all components are properly loaded and initialized
+ * @requires module-loader.js
+ * @requires sidebar-manager.js
  */
 (function() {
     'use strict';

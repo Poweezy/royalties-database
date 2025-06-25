@@ -261,13 +261,16 @@
         <!-- Profile content will be loaded dynamically -->
       </section>
     </main>  </div>  <!-- Scripts -->
-  <!-- Load core modules and scripts in correct order -->  <script src="js/module-loader.js?v=20250627" type="text/javascript"></script>
+  <!-- Load core modules and scripts in correct order -->
+  <script src="js/utils.js?v=20250627" type="text/javascript"></script>
+  <script src="js/module-loader.js?v=20250627" type="text/javascript"></script>
   <script src="app.js?v=20250627" type="text/javascript"></script>
   <script src="js/chart-manager.js?v=20250627" type="text/javascript"></script>
   <script src="js/component-initializer.js?v=20250627" type="text/javascript"></script>
   <script src="js/sidebar-manager.js?v=20250627" type="text/javascript"></script>
   <script src="js/diagnostics.js?v=20250627" type="text/javascript"></script>
   <script src="js/startup.js?v=20250627" type="text/javascript"></script>
+  <script src="js/cleanup-diagnostics.js?v=20250627" type="text/javascript"></script>
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>
@@ -429,17 +432,5 @@
       }, 3000); // Check after 3 seconds to ensure everything has had time to load
     });
   </script>
-  
-  <!-- 
-SUGGESTED SCRIPT IMPROVEMENT:
-
-For improved script loading, consider replacing the individual script tags with:
-
-<script src="app.js"></script>
-<script src="js/main.js"></script>
-<script src="fix.js"></script>
-
-This will streamline script loading and ensure the navigation fix is applied.
--->
 </body>
 </html>

@@ -1,6 +1,8 @@
 /**
- * Enhanced Chart Manager - Unified charting system
- * v3.0.0 - 2025-06-21
+ * Enhanced Chart Manager - Unified charting system for Mining Royalties Manager
+ * @version 3.0.1
+ * @date 2025-06-26
+ * @description Provides chart creation, management, and rendering capabilities with fallbacks
  */
 
 (function(window) {

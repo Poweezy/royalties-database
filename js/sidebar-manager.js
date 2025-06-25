@@ -1,8 +1,9 @@
 /**
  * Sidebar Manager for Mining Royalties Manager
- * v1.0.0 - 2025-06-25
- * 
- * This script ensures the sidebar is properly loaded and all section links are valid
+ * @version 1.0.1
+ * @date 2025-06-26
+ * @description Ensures the sidebar is properly loaded and all section links are valid
+ * @details Manages component availability validation, active section tracking, and sidebar interactivity
  */
 (function() {
     'use strict';

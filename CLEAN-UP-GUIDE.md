@@ -5,14 +5,14 @@ This document lists redundant files that can be safely removed from the codebase
 ## Redundant Files to Delete
 
 ### Backup Files
-- `app.js.backup`
-- `app.js.fixed`
+- ✓ `app.js.backup` (REMOVED)
+- `app.js.fixed` (in redundant-files/)
 - `app.js.before-fix`
-- `app.js.bak`
+- `app.js.bak` (in redundant-files/)
 
 ### Chart Manager Duplicates
-- `chart-manager-v2.js` (functionality moved to `js/chart-manager.js`)
-- `chart-manager.js` (root folder version - functionality moved to `js/chart-manager.js`)
+- ✓ `chart-manager-v2.js` (REMOVED - functionality moved to `js/chart-manager.js`)
+- ✓ `chart-manager.js` (REMOVED - functionality moved to `js/chart-manager.js`)
 
 ### Redundant Fix Scripts
 - `update-scripts.js` (replaced by simplified `fix.js`)
@@ -25,8 +25,8 @@ This document lists redundant files that can be safely removed from the codebase
 
 ### Empty/Unused Files
 - `js/message-handler.js` (empty file)
-- `js/utils/stateManager.js` (empty file)
-- `js/utils/validation.js` (empty file)
+- ✓ `js/utils/stateManager.js` (REMOVED)
+- ✓ `js/utils/validation.js` (REMOVED)
 - `redundant-files/js/sections/dashboard.js` (empty file)
 
 ### Redundant Module Files
@@ -41,6 +41,7 @@ These files in the redundant-files directory are duplicated by proper implementa
    - `js/module-loader.js`
    - `js/component-initializer.js`
    - `js/diagnostics.js`
+   - `js/utils.js` (Added - consolidated utility functions)
 
 2. For better organization, consider moving all JS files to the js directory.
 
