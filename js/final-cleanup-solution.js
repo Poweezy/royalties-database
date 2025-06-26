@@ -1,10 +1,10 @@
 /**
- * FINAL AUDIT DASHBOARD CLEANUP SOLUTION
- * This script handles complete removal of all audit dashboard traces
+ * FINAL SYSTEM CLEANUP SOLUTION
+ * This script handles complete removal of all legacy components
  * from the Mining Royalties Manager application.
  * 
  * @version 1.0.0
- * @date 2025-07-01
+ * @date 2025-07-04
  */
 
 (function() {

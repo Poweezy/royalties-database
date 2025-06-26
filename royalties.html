@@ -15,11 +15,17 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-  <!-- Final Audit-Dashboard Cleanup Solution - Load BEFORE other scripts -->
+  <!-- Chart Cache Cleanup - Clear any cached chart instances -->
+  <script src="js/chart-cache-cleanup.js?v=20250704"></script>
+  
+  <!-- Final System Cleanup Solution - Load BEFORE other scripts -->
   <script src="js/final-cleanup-solution.js?v=1.0.0"></script>
   
   <!-- Dashboard Canvas Fix - Ensures all chart canvases exist -->
   <script src="js/dashboard-canvas-fix.js?v=1.0.0"></script>
+  
+  <!-- Dashboard Chart Canvas Creator - More comprehensive canvas creation -->
+  <script src="js/dashboard-chart-canvas-creator.js?v=20250704"></script>
   
   <!-- Chart Alias Fixer - Resolves chart ID inconsistencies -->
   <script src="js/chart-alias-fixer.js?v=20250701"></script>
@@ -29,6 +35,15 @@
   
   <!-- Dashboard Charts Initialization -->
   <script src="js/dashboard-charts-init.js?v=20250703"></script>
+  
+  <!-- Chart Method Verification - Checks for required methods -->
+  <script src="js/chart-method-verification.js?v=20250704"></script>
+  
+  <!-- Production Chart Fix - Ensures createProductionChart method works properly -->
+  <script src="js/production-chart-fix.js?v=20250705"></script>
+  
+  <!-- Dashboard Chart Navigation Reinitializer - Ensures charts rerender when navigating -->
+  <script src="js/dashboard-chart-navigation.js?v=20250704"></script>
   
   <!-- Local CSS Files -->
   <link rel="stylesheet" href="css/base.css">
@@ -276,6 +291,7 @@
   <script src="js/module-loader.js?v=20250627" type="text/javascript"></script>
   <script src="app.js?v=20250627" type="text/javascript"></script>
   <script src="js/chart-manager.js?v=20250627" type="text/javascript"></script>
+  <script src="js/chart-manager-fix.js?v=20250704" type="text/javascript"></script>
   <script src="js/component-initializer.js?v=20250627" type="text/javascript"></script>
   <script src="js/sidebar-manager.js?v=20250627" type="text/javascript"></script>
   <script src="js/diagnostics.js?v=20250627" type="text/javascript"></script>

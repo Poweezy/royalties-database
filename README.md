@@ -7,7 +7,6 @@ The Mining Royalties Manager is a comprehensive system for managing royalty paym
 - User Management
 - Royalty Records Management
 - Contract Management
-- Audit Dashboard
 - Reporting & Analytics
 - Compliance Monitoring
 - Regulatory Management

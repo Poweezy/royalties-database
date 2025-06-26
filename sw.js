@@ -58,7 +58,7 @@ function shouldCache(url) {
     if (url.startsWith('chrome-extension://') || 
         url.startsWith('moz-extension://') || 
         url.startsWith('safari-extension://') ||
-        url.includes('audit-dashboard')) {
+        url.includes('removed-')) {
         return false;
     }
     return true;
@@ -216,9 +216,9 @@ async function handleComponentRequest(request) {
     // Try each path
     for (const path of paths) {
         try {
-            // Skip audit-dashboard completely
-            if (path.includes('audit-dashboard')) {
-                console.log(`Service Worker: Skipping audit-dashboard component: ${path}`);
+            // Skip any paths in removed or archived directories
+            if (path.includes('removed-') || path.includes('archive-')) {
+                console.log(`Service Worker: Skipping removed component: ${path}`);
                 continue;
             }
             

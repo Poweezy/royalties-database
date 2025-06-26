@@ -86,7 +86,7 @@
                 
                 const components = [
                     'sidebar', 'dashboard', 'user-management', 'royalty-records',
-                    'contract-management', 'reporting-analytics', /* audit-dashboard removed */
+                    'contract-management', 'reporting-analytics',
                     'communication', 'notifications', 'compliance', 'regulatory-management', 'profile'
                 ];
                 
@@ -223,7 +223,7 @@
                 }
             });
             
-            // Audit dashboard check removed - audit dashboard functionality has been removed
+            // Legacy component checks removed
             
             if (potentialIssues === 0) {
                 console.log('✓ No obvious navigation issues detected');
@@ -263,11 +263,14 @@
         fixSections: function() {
             console.group('Section Repair');
             
-            // First, explicitly check for and remove any audit-dashboard section
-            const auditDashboardSection = document.getElementById('audit-dashboard');
-            if (auditDashboardSection) {
-                console.log('Found orphaned audit-dashboard section - removing it');
-                auditDashboardSection.remove();
+            // Check for and remove any orphaned sections
+            const removedSectionIds = ['audit-dashboard', 'legacy-component'];
+            for (const id of removedSectionIds) {
+                const section = document.getElementById(id);
+                if (section) {
+                    console.log(`Found orphaned section "${id}" - removing it`);
+                    section.remove();
+                }
             }
             
             const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link');

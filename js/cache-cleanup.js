@@ -1,14 +1,14 @@
 /**
- * Service Worker Cache and Audit Dashboard Cleanup Script
- * This script helps with complete removal of audit dashboard components
- * @version 2.0.0
- * @date 2025-06-30
+ * Service Worker Cache Cleanup Script
+ * This script helps with complete removal of legacy components
+ * @version 2.1.0
+ * @date 2025-07-04
  */
 
 (function() {
     'use strict';
     
-    console.log('=== COMPLETE AUDIT DASHBOARD CLEANUP STARTING ===');
+    console.log('=== COMPLETE CACHE CLEANUP STARTING ===');
     
     // PART 1: Service Worker Cache Cleanup
     async function cleanServiceWorkerCache() {
@@ -43,15 +43,16 @@
                     const cache = await caches.open(cacheName);
                     const requests = await cache.keys();
                     
-                    // First remove audit-dashboard entries
-                    const auditRequests = requests.filter(req => 
-                        req.url.includes('audit-dashboard') || 
-                        req.url.includes('audit') && req.url.includes('dashboard')
+                    // First remove legacy entries
+                    const legacyRequests = requests.filter(req => 
+                        req.url.includes('removed-') || 
+                        req.url.includes('legacy-') || 
+                        req.url.includes('archived-')
                     );
                     
-                    console.log(`Found ${auditRequests.length} audit dashboard related requests in ${cacheName}`);
+                    console.log(`Found ${legacyRequests.length} legacy component requests in ${cacheName}`);
                     
-                    // Delete each audit-dashboard request
+                    // Delete each legacy request
                     await Promise.all(auditRequests.map(async req => {
                         console.log(`Removing: ${req.url}`);
                         await cache.delete(req);
@@ -78,36 +79,36 @@
     
     // PART 2: DOM Cleanup and Fixup
     function cleanupDOM() {
-        console.log('Performing DOM cleanup for audit-dashboard elements...');
+        console.log('Performing DOM cleanup for legacy elements...');
         
-        // Remove the audit-dashboard section if it exists
-        const auditDashboardSection = document.getElementById('audit-dashboard');
-        if (auditDashboardSection) {
-            console.log('Found and removing audit-dashboard section');
-            auditDashboardSection.remove();
+        // Remove any legacy sections if they exist
+        const legacySections = document.getElementById('audit-dashboard');
+        if (legacySections) {
+            console.log('Found and removing legacy section');
+            legacySections.remove();
         }
         
-        // Remove any sidebar links to audit-dashboard
-        const auditDashboardLinks = document.querySelectorAll('a[href="#audit-dashboard"], a[data-section="audit-dashboard"]');
-        auditDashboardLinks.forEach(link => {
-            console.log('Found and removing audit-dashboard link:', link);
+        // Remove any sidebar links to legacy components
+        const legacyLinks = document.querySelectorAll('a[href="#audit-dashboard"], a[data-section="audit-dashboard"]');
+        legacyLinks.forEach(link => {
+            console.log('Found and removing legacy link:', link);
             link.remove();
         });
         
-        // Check for and fix any other audit-dashboard references
+        // Check for and fix any other legacy references
         const possibleContainers = Array.from(document.querySelectorAll('*'));
         possibleContainers.forEach(el => {
             // Check element text content
             if (el.textContent && el.textContent.includes('audit dashboard') && 
                 !el.closest('script') && el.tagName !== 'SCRIPT') {
-                console.log('Found element with audit dashboard text:', el);
+                console.log('Found element with legacy text:', el);
                 el.textContent = el.textContent.replace(/audit dashboard/gi, 'compliance');
             }
             
-            // Check attributes for audit-dashboard references
+            // Check attributes for legacy references
             Array.from(el.attributes).forEach(attr => {
                 if (attr.value && attr.value.includes('audit-dashboard')) {
-                    console.log(`Found audit-dashboard in ${attr.name} attribute:`, el);
+                    console.log(`Found legacy reference in ${attr.name} attribute:`, el);
                     if (attr.name === 'href' && attr.value === '#audit-dashboard') {
                         el.setAttribute(attr.name, '#compliance');
                     } else if (attr.name === 'data-section' && attr.value === 'audit-dashboard') {

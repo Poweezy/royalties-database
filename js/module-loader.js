@@ -11,6 +11,7 @@ class ModuleLoader {
         this.initialized = false;
         this.pendingModules = new Set();
         this.isFileProtocol = window.location.protocol === 'file:';
+        this.removedComponents = ['audit-dashboard']; // List of explicitly removed components
         
         // Predefined fallback content for file:// protocol
         this.fallbackComponents = {
@@ -27,7 +28,7 @@ class ModuleLoader {
         console.log('ModuleLoader: Initializing component system');
         this.initialized = true;
         
-        // Pre-register known components (audit-dashboard explicitly removed)
+        // Pre-register known components (legacy components removed)
         this.registerComponents([
             'dashboard', 'user-management', 'royalty-records', 'contract-management',
             'reporting-analytics', 'communication',
@@ -63,10 +64,10 @@ class ModuleLoader {
         try {
             if (!this.initialized) this.initialize();
             
-            // Explicitly prevent loading of the removed audit-dashboard component
-            if (componentId === 'audit-dashboard') {
-                console.warn(`ModuleLoader: Attempt to load removed 'audit-dashboard' component was blocked`);
-                return { success: false, message: 'Component audit-dashboard has been removed from the system' };
+            // Block loading of any removed/legacy components
+            if (componentId.includes('removed-') || this.removedComponents.includes(componentId)) {
+                console.warn(`ModuleLoader: Attempt to load removed component '${componentId}' was blocked`);
+                return { success: false, message: `Component ${componentId} has been removed from the system` };
             }
             
             console.log(`ModuleLoader: Loading component '${componentId}'`);

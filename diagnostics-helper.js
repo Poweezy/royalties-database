@@ -136,7 +136,6 @@ const RoyaltiesDiagnostics = {
       'user-management',
       'royalty-records',
       'contract-management',
-      'audit-dashboard',
       'reporting-analytics',
       'communication',
       'notifications',

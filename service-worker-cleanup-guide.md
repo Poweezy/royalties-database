@@ -1,17 +1,17 @@
 # Service Worker Cleanup and Cache Clearing Guide
 **Date: July 1, 2025**
 
-This document provides instructions for completely removing the service worker and clearing cache for the Mining Royalties Manager application. These steps are useful if you encounter any persistent issues with cached content, especially after the removal of the audit-dashboard component.
+This document provides instructions for completely removing the service worker and clearing cache for the Mining Royalties Manager application. These steps are useful if you encounter any persistent issues with cached content or legacy components.
 
 ## Automatic Cleanup
 
 The application now includes a comprehensive cleanup solution that should automatically:
 - Unregister any existing service workers
 - Clear all application caches
-- Remove audit-dashboard components from the DOM
-- Fix navigation to redirect any audit-dashboard requests
-- Block loading of audit-dashboard components
-- Clean localStorage of audit-dashboard references
+- Remove legacy components from the DOM
+- Fix navigation to redirect any legacy component requests
+- Block loading of deprecated components
+- Clean localStorage of legacy references
 
 This happens automatically when you load the application. If you still encounter issues, follow the manual steps below.
 
@@ -35,7 +35,7 @@ This happens automatically when you load the application. If you still encounter
 
 4. **Clear Application Data:**
    - In the left sidebar, click on "Local Storage"
-   - Delete any keys related to audit-dashboard
+   - Delete any keys related to legacy components
    - Also check "Session Storage" and "IndexedDB" if available
 
 5. **Hard Reload:**
@@ -100,7 +100,7 @@ After performing the cleanup, you can verify it worked by:
 2. Checking for messages like:
    - "Service Worker: Activating..."
    - "Service Worker: Caching files"
-3. Verify no audit-dashboard related errors appear
+3. Verify no legacy component related errors appear
 4. Verify all sections in the sidebar load correctly
 
 ## Troubleshooting Persistent Issues

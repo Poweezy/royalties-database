@@ -743,7 +743,7 @@ class RoyaltiesApp {
                                 <i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
                             <li><a href="#contract-management" class="nav-link" data-section="contract-management">
                                 <i class="fas fa-file-contract"></i> Contract Management</a></li>
-                            <!-- Audit Dashboard removed in cleanup -->
+
                             <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics">
                                 <i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
                             <li><a href="#communication" class="nav-link" data-section="communication">
@@ -785,10 +785,10 @@ class RoyaltiesApp {
     
     async showSection(sectionId) {
         try {
-            // Redirect audit-dashboard to compliance section
-            if (sectionId === 'audit-dashboard') {
-                console.log('Redirecting from removed audit-dashboard to compliance section');
-                this.notificationManager.show('Audit Dashboard has been replaced by the Compliance section', 'info');
+            // Redirect legacy sections to active sections as needed
+            if (!this.availableSections.includes(sectionId)) {
+                console.log('Redirecting from unavailable section to default section');
+                this.notificationManager.show('The requested section is not available', 'info');
                 sectionId = 'compliance';
             }
             
