@@ -1,11 +1,15 @@
 /**
  * Mining Royalties Manager - Main Application
- * @version 2.0.3
- * @date 2025-06-27
+ * @version 2.0.4
+ * @date 2025-07-01
  * @description Core application functionality for the Mining Royalties Manager
+ * 
+ * IMPORTANT: This file now delegates chart and notification functionality
+ * to the unified systems. The SimpleChartManager class is kept only for fallback
+ * and compatibility with legacy code.
  */
 
-console.log('Mining Royalties Manager v2.0 - Loading...');
+console.log('Mining Royalties Manager v2.0.4 - Loading with unified systems...');
 
 // Initialize Utils
 if (typeof Utils !== 'undefined') {
@@ -14,19 +18,30 @@ if (typeof Utils !== 'undefined') {
     console.warn('Utils module not loaded, falling back to basic functionality');
 }
 
-// ===== CORE CLASSES =====
+// ===== LEGACY CHART MANAGER (KEPT FOR COMPATIBILITY) =====
+// Note: All chart operations should use the unified chart solution whenever possible
 
 /**
- * Simple ChartManager class for fallback when Chart.js is unavailable
+ * Simple ChartManager class for fallback when unified systems are unavailable
  * @class SimpleChartManager
  */
 class SimpleChartManager {
     constructor() {
+        console.log('Creating SimpleChartManager (fallback/compatibility mode)');
         this.charts = new Map();
         this.isChartJsLoaded = typeof Chart !== 'undefined';
     }
 
+    // This method now delegates to the unified chart solution if available
     createChart(canvasId, config) {
+        // First try to use the unified chart solution
+        if (window.chartManager && window.chartManager.create && typeof window.chartManager.create === 'function') {
+            console.log('Delegating chart creation to unified system');
+            return window.chartManager.create(canvasId, config);
+        }
+
+        // Fallback if unified system is not available
+        console.log('Falling back to SimpleChartManager implementation');
         if (!this.isChartJsLoaded) {
             this.showFallbackChart(canvasId);
             return null;
@@ -48,7 +63,14 @@ class SimpleChartManager {
             this.showFallbackChart(canvasId);
             return null;
         }
-    }    createRevenueChart(canvasId) {
+    }
+
+    // All other methods delegate to unified chart solution
+    createRevenueChart(canvasId) {
+        if (window.chartManager && window.chartManager.createRevenueChart && typeof window.chartManager.createRevenueChart === 'function') {
+            return window.chartManager.createRevenueChart(canvasId);
+        }
+        
         console.log('SimpleChartManager: Creating revenue chart on canvas', canvasId);
         return this.createChart(canvasId, {
             type: 'line',
@@ -80,6 +102,10 @@ class SimpleChartManager {
     }
 
     createProductionChart(canvasId, entityData) {
+        if (window.chartManager && window.chartManager.createProductionChart && typeof window.chartManager.createProductionChart === 'function') {
+            return window.chartManager.createProductionChart(canvasId, entityData);
+        }
+        
         const data = entityData || {
             'Diamond Mining Corp': 150,
             'Gold Rush Ltd': 85,
@@ -98,9 +124,6 @@ class SimpleChartManager {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
             }
         });
     }
@@ -525,6 +548,20 @@ class RoyaltiesApp {
         this.mobileNav = null;
         this.currentSection = 'dashboard';
         this.isInitialized = false;
+        
+        // Define available sections for navigation
+        this.availableSections = [
+            'dashboard', 
+            'user-management', 
+            'royalty-records', 
+            'contract-management', 
+            'reporting-analytics', 
+            'communication', 
+            'notifications', 
+            'compliance', 
+            'regulatory-management', 
+            'profile'
+        ];
     }
 
     async initialize() {
@@ -665,127 +702,30 @@ class RoyaltiesApp {
     
     async loadSidebar() {
         const sidebar = document.getElementById('sidebar');
-        if (!sidebar) return;
-        
-        // Check if we're using file:// protocol
-        const isFileProtocol = window.location.protocol === 'file:';
-        
-        // If we have moduleLoader with fallback components and we're on file:// protocol, use that first
-        if (isFileProtocol && window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents['sidebar']) {
-            console.log('Using fallback sidebar from moduleLoader for file:// protocol');
-            sidebar.innerHTML = window.moduleLoader.fallbackComponents['sidebar'];
+        if (!sidebar) {
+            console.error('Sidebar element not found');
             return;
         }
         
-        try {
-            // Use the component path fix if available
-            let path = 'components/sidebar.html';
-            if (window.getCorrectComponentPath) {
-                path = window.getCorrectComponentPath('sidebar');
-                console.log(`Using optimized component path for sidebar: ${path}`);
-            }
-            
-            // Add cache busting
-            const cacheBusterPath = `${path}?v=${Date.now()}`;
-            console.log(`Loading sidebar from: ${cacheBusterPath}`);
-            
-            const response = await fetch(cacheBusterPath);
-            if (response.ok) {
-                const content = await response.text();
-                sidebar.innerHTML = content;
-                console.log(`Sidebar loaded successfully from ${path}`);
-                if (window.workingComponentPaths) {
-                    window.workingComponentPaths['sidebar'] = path;
-                }
-                return;
-            } else {
-                // If the path failed, record it for future reference
-                if (window.recordFailedComponentPath) {
-                    window.recordFailedComponentPath(path);
-                }
-                
-                // Try alternative path
-                const altPath = path.includes('html/components') ? 
-                    path.replace('html/components', 'components') :
-                    path.replace('components', 'html/components');
-                
-                console.log(`Trying alternative path for sidebar: ${altPath}`);
-                const altResponse = await fetch(`${altPath}?v=${Date.now()}`);
-                if (altResponse.ok) {
-                    const content = await altResponse.text();
-                    sidebar.innerHTML = content;
-                    console.log(`Sidebar loaded successfully from alternative path ${altPath}`);
-                    if (window.workingComponentPaths) {
-                        window.workingComponentPaths['sidebar'] = altPath;
-                    }
+        console.log('Loading sidebar using unified component loader');
+        
+        // ALWAYS use unified component loader for sidebar
+        if (window.unifiedComponentLoader) {
+            try {
+                const result = await window.unifiedComponentLoader.loadComponent('sidebar', sidebar);
+                if (result && result.success) {
+                    console.log(`Sidebar loaded successfully using unified component loader (source: ${result.source})`);
                     return;
-                } else {
-                    throw new Error('Failed to load sidebar from any path');
                 }
+            } catch (error) {
+                console.error('Failed to load sidebar with unified component loader:', error);
             }
-        } catch (error) {
-            console.error('Error loading sidebar:', error);
-            
-            // Simplified fallback sidebar for file:// protocol
-            if (isFileProtocol) {
-                console.log('Using simplified sidebar for file:// protocol');
-                sidebar.innerHTML = `
-                    <div class="sidebar-header">
-                        <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
-                        <h2>Royalties Manager</h2>
-                    </div>
-                    <nav>
-                        <ul>
-                            <!-- Core sections only for file:// protocol -->
-                            <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                            <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">
-                                <i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
-                            <li><a href="#contract-management" class="nav-link" data-section="contract-management">
-                                <i class="fas fa-file-contract"></i> Contract Management</a></li>
-                            <li><a href="#logout" class="nav-link" data-section="logout">
-                                <i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                        </ul>
-                    </nav>
-                `;
-            } else {
-                // Complete fallback sidebar for server mode
-                sidebar.innerHTML = `
-                    <div class="sidebar-header">
-                        <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
-                        <h2>Royalties Manager</h2>
-                    </div>
-                    <nav>
-                        <ul>
-                            <!-- Sections verified to exist -->
-                            <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                            <li><a href="#user-management" class="nav-link" data-section="user-management">
-                                <i class="fas fa-users"></i> User Management</a></li>
-                            <li><a href="#royalty-records" class="nav-link" data-section="royalty-records">
-                                <i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
-                            <li><a href="#contract-management" class="nav-link" data-section="contract-management">
-                                <i class="fas fa-file-contract"></i> Contract Management</a></li>
-
-                            <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics">
-                                <i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
-                            <li><a href="#communication" class="nav-link" data-section="communication">
-                                <i class="fas fa-envelope"></i> Communication</a></li>
-                            <li><a href="#notifications" class="nav-link" data-section="notifications">
-                                <i class="fas fa-bell"></i> Notifications <span id="notification-count">3</span></a></li>
-                            <li><a href="#compliance" class="nav-link" data-section="compliance">
-                                <i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
-                            <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management">
-                                <i class="fas fa-gavel"></i> Regulatory Management</a></li>
-                            <li><a href="#profile" class="nav-link" data-section="profile">
-                                <i class="fas fa-user"></i> My Profile</a></li>
-                            <li><a href="#logout" class="nav-link" data-section="logout">
-                                <i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                        </ul>
-                    </nav>
-                `;
-            }
+        } else {
+            console.error('Unified component loader not available for sidebar loading!');
         }
+        
+        // If we get here, there's a serious problem - unified loader should always work
+        console.error('CRITICAL: Sidebar could not be loaded via unified component loader');
     }
 
     setupNavigation() {
@@ -801,18 +741,37 @@ class RoyaltiesApp {
                         this.handleLogout();
                     } else {
                         this.showSection(section);
-                    }                }
+                    }
+                }
             });
         }
     }
     
     async showSection(sectionId) {
         try {
+            // Prevent infinite recursion
+            if (this._currentlyLoading === sectionId) {
+                console.warn(`Already loading section ${sectionId}, skipping duplicate request`);
+                return;
+            }
+            this._currentlyLoading = sectionId;
+            
+            // Ensure availableSections is defined
+            if (!this.availableSections) {
+                this.availableSections = [
+                    'dashboard', 'user-management', 'royalty-records', 
+                    'contract-management', 'reporting-analytics', 'communication', 
+                    'notifications', 'compliance', 'regulatory-management', 'profile'
+                ];
+            }
+            
             // Redirect legacy sections to active sections as needed
             if (!this.availableSections.includes(sectionId)) {
                 console.log('Redirecting from unavailable section to default section');
-                this.notificationManager.show('The requested section is not available', 'info');
-                sectionId = 'compliance';
+                if (this.notificationManager && this.notificationManager.show) {
+                    this.notificationManager.show('The requested section is not available', 'info');
+                }
+                sectionId = 'dashboard';
             }
             
             // Hide all sections
@@ -823,11 +782,14 @@ class RoyaltiesApp {
             const targetSection = document.getElementById(sectionId);
             if (!targetSection) {
                 console.error(`Section ${sectionId} not found in DOM`);
-                this.notificationManager.show(`The ${sectionId.replace('-', ' ')} section is not available`, 'warning');
+                if (this.notificationManager && this.notificationManager.show) {
+                    this.notificationManager.show(`The ${sectionId.replace('-', ' ')} section is not available`, 'warning');
+                }
                 
-                // Fallback to dashboard
+                // Fallback to dashboard only if not already trying dashboard
                 if (sectionId !== 'dashboard') {
                     console.log('Falling back to dashboard');
+                    this._currentlyLoading = null; // Reset loading flag
                     this.showSection('dashboard');
                 }
                 return;
@@ -844,13 +806,23 @@ class RoyaltiesApp {
             } else {
                 console.log(`Section ${sectionId} already has content, skipping load`);
             }
+            
+            // Reset loading flag
+            this._currentlyLoading = null;
+            
         } catch (error) {
             console.error(`Error loading section ${sectionId}:`, error);
-            this.notificationManager.show(`Error loading ${sectionId.replace('-', ' ')}`, 'error');
+            if (this.notificationManager && this.notificationManager.show) {
+                this.notificationManager.show(`Error loading ${sectionId.replace('-', ' ')}`, 'error');
+            }
+            
+            // Reset loading flag on error
+            this._currentlyLoading = null;
             
             // Fallback to dashboard on error
             if (sectionId !== 'dashboard') {
-                console.log('Falling back to dashboard due to error');                this.showSection('dashboard');
+                console.log('Falling back to dashboard due to error');
+                this.showSection('dashboard');
             }
         }
     }
@@ -865,68 +837,31 @@ class RoyaltiesApp {
                 return;
             }
             
-            // Check if we're on file:// protocol
-            const isFileProtocol = window.location.protocol === 'file:';
-            let componentLoaded = false;
-            
-            // Special handling for file:// protocol
-            if (isFileProtocol) {
-                console.log(`File:// protocol detected for ${sectionId} - checking for fallback content`);
-                // First try moduleLoader with its fallbacks
-                if (window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents[sectionId]) {
-                    console.log(`Using fallback content for ${sectionId} (file:// protocol)`);
-                    section.innerHTML = window.moduleLoader.fallbackComponents[sectionId];
-                    componentLoaded = true;
-                    this.initializeSectionComponent(sectionId);
-                    return;
-                }
-            }
-            
-            // First try to use moduleLoader if available
-            if (window.moduleLoader) {
-                console.log(`Using ModuleLoader to load component: ${sectionId}`);
-                const result = await window.moduleLoader.loadComponent(sectionId, section);
-                if (result.success) {
-                    console.log(`Component ${sectionId} loaded successfully via ModuleLoader`);
-                    componentLoaded = true;
-                    this.initializeSectionComponent(sectionId);
-                } else {
-                    console.warn(`ModuleLoader failed for ${sectionId}, trying alternative paths`);
-                }
-            }
-            
-            // If module loader didn't work, try the direct approach with multiple possible paths
-            if (!componentLoaded) {
-                const componentPaths = ['components', 'html/components'];
-                
-                for (const path of componentPaths) {
-                    try {
-                        const response = await fetch(`${path}/${sectionId}.html?v=${Date.now()}`);
-                        if (response.ok) {
-                            const html = await response.text();
-                            section.innerHTML = html;
-                            console.log(`Component ${sectionId} loaded successfully from ${path}`);
-                            componentLoaded = true;
-                            this.initializeSectionComponent(sectionId);
-                            break;
-                        }
-                    } catch (pathError) {
-                        if (isFileProtocol) {
-                            console.warn(`Fetch failed for ${path}/${sectionId}.html - this is normal for file:// protocol`);
-                        } else {
-                            console.warn(`Failed to load ${path}/${sectionId}.html: ${pathError.message}`);
-                        }
-                        // Continue to next path
+            // ALWAYS use unified component loader as primary method
+            if (window.unifiedComponentLoader) {
+                console.log(`Using unified component loader to load: ${sectionId}`);
+                try {
+                    const result = await window.unifiedComponentLoader.loadComponent(sectionId, section);
+                    if (result && result.success) {
+                        console.log(`Component ${sectionId} loaded successfully via unified component loader (source: ${result.source})`);
+                        this.initializeSectionComponent(sectionId);
+                        return;
+                    } else {
+                        console.warn(`Unified component loader failed for ${sectionId}: ${result?.error || 'Unknown error'}`);
                     }
+                } catch (error) {
+                    console.warn(`Unified component loader error for ${sectionId}:`, error);
                 }
+            } else {
+                console.error('Unified component loader not available!');
             }
             
-            // If still not loaded, use fallback content
-            if (!componentLoaded) {
-                console.warn(`Component ${sectionId}.html not found in any path, using fallback content`);
-                this.loadFallbackSection(sectionId);
-            }        } catch (error) {
-            console.warn(`Failed to load component ${sectionId}.html:`, error);
+            // If we get here, unified loader failed - use fallback
+            console.warn(`Component ${sectionId} not loaded, using fallback content`);
+            this.loadFallbackSection(sectionId);
+            
+        } catch (error) {
+            console.error(`Failed to load component ${sectionId}:`, error);
             this.loadFallbackSection(sectionId);
         }
     }
@@ -1577,7 +1512,7 @@ async function initializeApp() {
         
         // Verify dependencies
         const dependencies = [
-            { name: 'moduleLoader', global: 'moduleLoader' },
+            { name: 'unifiedComponentLoader', global: 'unifiedComponentLoader' },
             { name: 'Chart.js', global: 'Chart' },
             { name: 'chartManager', global: 'chartManager' }
         ];

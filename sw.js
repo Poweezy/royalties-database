@@ -1,27 +1,37 @@
-const CACHE_NAME = 'mining-royalties-v4.0';
-const CACHE_URLS = [
-    '/',
-    '/index.html',
-    '/royalties.html',    
-    '/app.js',    
-    '/js/chart-manager.js',
-    '/js/module-loader.js',
-    '/js/component-initializer.js',
-    '/js/sidebar-manager.js',
-    '/js/diagnostics.js',
-    '/js/startup.js',
-    // CSS files
-    '/css/main.css',
-    '/royalties.css',
-    '/css/base.css',
-    '/css/variables.css',
-    '/css/layout.css',
-    '/css/components.css',
-    '/css/forms.css',
-    '/css/tables.css',
-    '/css/buttons.css',
-    '/css/badges.css',
-    '/css/utilities.css',
+/**
+ * Mining Royalties Manager - Service Worker
+ * @version 4.1.0
+ * @date 2025-06-26
+ */
+
+const CACHE_NAME = 'mining-royalties-v4.1';
+const APP_SHELL = [
+  '/',
+  '/index.html',
+  '/royalties.html',
+  '/app.js',
+  '/royalties.css',
+  '/favicon.svg',
+  '/manifest.json',
+  '/js/utils.js',
+  '/js/unified-component-loader.js',
+  '/js/charts-consolidated.js',
+  '/js/component-initializer.js',
+  '/js/sidebar-manager.js',
+  '/js/chart-manager.js',
+  '/js/diagnostics.js',
+  '/js/startup.js',
+  // CSS files
+  '/css/main.css',
+  '/css/base.css',
+  '/css/variables.css',
+  '/css/layout.css',
+  '/css/components.css',
+  '/css/forms.css',
+  '/css/tables.css',
+  '/css/buttons.css',
+  '/css/badges.css',
+  '/css/utilities.css',
     // Components - only keeping the ones used in royalties.html
     '/components/sidebar.html',
     '/components/dashboard.html',
@@ -53,135 +63,136 @@ const CACHE_URLS = [
     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];
 
-// Helper function to check if URL should be cached
-function shouldCache(url) {
-    if (url.startsWith('chrome-extension://') || 
-        url.startsWith('moz-extension://') || 
-        url.startsWith('safari-extension://') ||
-        url.includes('removed-')) {
-        return false;
-    }
-    return true;
-}
-
-// Install event
+// Install event - Cache core app shell files
 self.addEventListener('install', event => {
-    console.log('Service Worker: Installing...');
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Service Worker: Caching files');
-                const validUrls = CACHE_URLS.filter(shouldCache);
-                return cache.addAll(validUrls);
-            })
-            .catch(error => {
-                console.error('Service Worker: Cache failed', error);
-            })
-    );
-    self.skipWaiting();
+  console.log('Service Worker: Installing...');
+  
+  // Skip waiting to activate immediately
+  self.skipWaiting();
+  
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Service Worker: Caching app shell');
+        const validUrls = APP_SHELL.filter(url => 
+          !url.startsWith('chrome-extension://') && 
+          !url.startsWith('moz-extension://') && 
+          !url.includes('removed-')
+        );
+        return cache.addAll(validUrls);
+      })
+      .catch(error => {
+        console.error('Service Worker: Cache error:', error);
+      })
+  );
 });
 
-// Activate event
+// Activate event - Clean old caches
 self.addEventListener('activate', event => {
-    console.log('Service Worker: Activating...');
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cache => {
-                    if (cache !== CACHE_NAME) {
-                        console.log('Service Worker: Clearing old cache');
-                        return caches.delete(cache);
+  console.log('Service Worker: Activating...');
+  
+  // Take control of all clients immediately
+  self.clients.claim();
+  
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Service Worker: Deleting old cache', cacheName);
+                        return caches.delete(cacheName);
                     }
-                })
+                }).filter(Boolean)
             );
         })
     );
-    self.clients.claim();
 });
 
-// Handle message events - this helps with message channel errors
+// Handle message events
 self.addEventListener('message', event => {
-    try {
-        if (event.data && event.data.type === 'SKIP_WAITING') {
-            self.skipWaiting();
-        }
-    } catch (error) {
-        console.debug('SW: Error handling message:', error);
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
     }
 });
 
-// Error handler for the service worker
-self.addEventListener('error', event => {
-    console.debug('SW: Error caught in service worker:', event.message);
-    event.preventDefault();
-});
-
-// Enhanced fetch event with better error handling
+// Fetch event - Serve from cache or network
 self.addEventListener('fetch', event => {
-    try {
-        const requestUrl = event.request.url;
-        
-        if (!shouldCache(requestUrl)) {
-            console.log('Service Worker: Skipping unsupported URL:', requestUrl);
-            return;
+  const requestUrl = new URL(event.request.url);
+  
+  // Log fetch for debugging
+  console.log('Service Worker: Fetching', requestUrl.pathname);
+  
+  // Skip non-GET requests and browser extensions
+  if (event.request.method !== 'GET' || 
+      requestUrl.pathname.startsWith('/browser-sync/') ||
+      requestUrl.protocol === 'chrome-extension:') {
+    return;
+  }
+  
+  // Special handling for component requests (try both paths)
+  if (requestUrl.pathname.includes('/components/') || requestUrl.pathname.includes('/html/components/')) {
+    event.respondWith(handleComponentRequest(event.request));
+    return;
+  }
+  
+  // For other assets - stale-while-revalidate strategy
+  event.respondWith(
+    caches.match(event.request)
+      .then(cachedResponse => {
+        // Return cached version if we have it
+        if (cachedResponse) {
+          console.log('Service Worker: Serving from cache:', requestUrl.pathname);
+          
+          // Revalidate in the background unless it's a versioned asset
+          if (!requestUrl.search.includes('v=')) {
+            const fetchPromise = fetch(event.request)
+              .then(networkResponse => {
+                // Update the cache with the new version
+                if (networkResponse && networkResponse.ok && networkResponse.type !== 'opaque') {
+                  caches.open(CACHE_NAME)
+                    .then(cache => cache.put(event.request, networkResponse.clone()))
+                    .catch(error => console.error('Cache update error:', error));
+                }
+                return networkResponse;
+              })
+              .catch(() => {
+                // Network fetch failed, just serve cached version
+                return cachedResponse;
+              });
+              
+            // Return cached version while updating in the background
+            return cachedResponse;
+          }
+          
+          return cachedResponse;
         }
         
-        console.log('Service Worker: Fetching', requestUrl);
-        
-        // Special handling for component requests (more robust)
-        const url = new URL(requestUrl);
-        const isComponentRequest = (
-            url.pathname.includes('/components/') ||
-            url.pathname.includes('/html/components/')
-        );
-        
-        if (isComponentRequest) {
-            event.respondWith(handleComponentRequest(event.request));
-            return;
-        }
-        
-        // Standard handling for non-component requests
-        event.respondWith(
-            caches.match(event.request)
-                .then(response => {
-                    if (response) {
-                        console.log('Service Worker: Serving from cache:', requestUrl);
-                        return response;
-                    }
-                    
-                    console.log('Service Worker: Fetching from network:', requestUrl);
-                    return fetch(event.request)
-                        .then(response => {
-                            if (!response || response.status !== 200 || response.type !== 'basic') {
-                                return response;
-                            }
-                            
-                            if (shouldCache(requestUrl)) {
-                                const responseToCache = response.clone();
-                                caches.open(CACHE_NAME)
-                                    .then(cache => {
-                                        cache.put(event.request, responseToCache);
-                                    })
-                                    .catch(error => {
-                                        console.debug('SW: Cache put error:', error);
-                                    });
-                            }
-                            
-                            return response;
-                        })
-                        .catch(error => {
-                            console.debug('SW: Network fetch error:', error);
-                            return new Response('Network error', { status: 408, statusText: 'Network error' });
-                        });
-                })
-                .catch(error => {
-                    console.debug('SW: Cache match error:', error);
-                    return new Response('Service worker error', { status: 500, statusText: 'SW Error' });
-                })
-        );
-    } catch (error) {
-        console.debug('SW: General fetch handler error:', error);
-    }
+        // If not in cache, get from network
+        return fetch(event.request)
+          .then(networkResponse => {
+            // Don't cache non-successful responses or opaque responses
+            if (!networkResponse || !networkResponse.ok || networkResponse.type === 'opaque') {
+              return networkResponse;
+            }
+            
+            // Cache successful responses
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, responseToCache))
+              .catch(error => console.error('Cache update error:', error));
+              
+            return networkResponse;
+          })
+          .catch(error => {
+            console.error('Network fetch failed:', error);
+            return new Response('Network error', { status: 408 });
+          });
+      })
+      .catch(error => {
+        console.error('Cache match error:', error);
+        return new Response('Service Worker error', { status: 500 });
+      })
+  );
 });
 
 // Helper function to handle component requests with multiple paths

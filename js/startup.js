@@ -35,18 +35,18 @@
         if (!sidebar || sidebar.children.length === 0) {
             console.log('Startup: Sidebar empty or not loaded, triggering load...');
             
-            // Special handling for file:// protocol
-            if (isFileProtocol && window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents['sidebar']) {
-                console.log('Startup: Using fallback sidebar for file:// protocol');
-                sidebar.innerHTML = window.moduleLoader.fallbackComponents['sidebar'];
+            // Special handling for file:// protocol - use unified component loader
+            if (isFileProtocol && window.unifiedComponentLoader) {
+                console.log('Startup: Using unified component loader for file:// protocol');
+                window.unifiedComponentLoader.loadComponent('sidebar', sidebar);
             } else {
                 window.app.loadSidebar().catch(error => {
                     console.error('Startup: Failed to load sidebar:', error);
                     
-                    // Try fallback on error if we have it
-                    if (window.moduleLoader && window.moduleLoader.fallbackComponents && window.moduleLoader.fallbackComponents['sidebar']) {
-                        console.log('Startup: Using fallback sidebar after load failure');
-                        sidebar.innerHTML = window.moduleLoader.fallbackComponents['sidebar'];
+                    // Try unified component loader fallback on error
+                    if (window.unifiedComponentLoader) {
+                        console.log('Startup: Using unified component loader fallback after load failure');
+                        window.unifiedComponentLoader.loadComponent('sidebar', sidebar);
                     }
                 });
             }
@@ -54,10 +54,10 @@
             console.log('Startup: Sidebar already loaded');
         }
         
-        // Step 3: Initialize module loader if not already done
-        if (window.moduleLoader && !window.moduleLoader.initialized) {
-            console.log('Startup: Initializing module loader...');
-            window.moduleLoader.initialize();
+        // Step 3: Initialize unified component loader if not already done
+        if (window.unifiedComponentLoader && !window.unifiedComponentLoader.state.initialized) {
+            console.log('Startup: Initializing unified component loader...');
+            window.unifiedComponentLoader.initialize();
         }
           // Step 4: Run diagnostics in the background
         setTimeout(() => {

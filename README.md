@@ -2,6 +2,37 @@
 
 The Mining Royalties Manager is a comprehensive system for managing royalty payments, user access, compliance, and reporting in the mining sector. It is designed to streamline operations, ensure regulatory adherence, and provide actionable insights through analytics, with a focus on Eswatini's mining industry and SADC regional standards.
 
+## 🚀 ENHANCED: Unified Chart and Notification Systems (July 2025)
+
+The application has been completely transformed with:
+
+1. **Unified Chart System**
+   - Robust chart initialization across all navigation scenarios
+   - Automatic canvas creation and validation
+   - Fallback data when real data is unavailable
+   - Beautiful, consistent chart styling
+   - See `unified-chart-solution.js` for details
+
+2. **Enhanced Notification System**
+   - Beautiful toast notifications with smooth animations
+   - Consistent styling across all notification types
+   - Advanced features: stacking, grouping, actions, sounds
+   - Accessibility support for screen readers
+   - See `enhanced-notification-system.js` for details
+
+3. **System Unification**
+   - All redundant scripts have been consolidated (22+ scripts removed)
+   - Legacy methods redirect to the unified systems
+   - Cleaner codebase with improved performance
+   - Backward compatibility for all components
+   - See `final-system-unification.js` for details
+
+For more information, check:
+- `unified-system-guide.md` - Guide to using the unified systems
+- `final-enhancement-report.md` - Complete summary of enhancements
+- `notification-system-documentation.md` - Documentation of the notification system
+- `final-chart-solution-documentation.md` - Documentation of the chart system
+
 ## Main Features
 - Dashboard with key metrics and charts
 - User Management

@@ -15,307 +15,65 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-  <!-- UNIFIED CHART SOLUTION - Comprehensive fix for all chart issues -->
-  <script src="js/unified-chart-solution.js?v=1.0.0"></script>
+  <!-- ==== UNIFIED SYSTEM STACK - PROPERLY ORDERED ==== -->
   
-  <!-- Component Path Fix - Resolve component path loading issues -->
-  <script src="js/component-path-fix.js?v=20250626"></script>
+  <!-- 1. First load the core notification system -->
+  <script src="js/enhanced-notification-system.js?v=1.0.2"></script>
   
-  <!-- Chart Method Guarantee - Ensures chart methods exist at all stages -->
-  <script src="js/chart-method-guarantee.js?v=20250706"></script>
+  <!-- 2. Then the core chart system -->
+  <script src="js/unified-chart-solution.js?v=1.0.2"></script>
   
-  <!-- Dashboard Canvas Creator - Ensures chart canvases exist before initialization -->
-  <script src="js/dashboard-canvas-creator.js?v=20250706"></script>
+  <!-- 3. Advanced chart solutions for improved reliability -->
+  <script src="js/ultimate-chart-solution.js?v=1.0.2"></script>
+  <script src="js/magical-chart-solution.js?v=1.0.2"></script>
   
-  <!-- Chart Cache Cleanup - Clear any cached chart instances -->
-  <script src="js/chart-cache-cleanup.js?v=20250704"></script>
+  <!-- 4. Finally the system unification script to redirect all legacy methods -->
+  <script src="js/final-system-unification.js?v=1.0.2"></script>
   
-  <!-- Final System Cleanup Solution - Load BEFORE other scripts -->
-  <script src="js/final-cleanup-solution.js?v=1.0.0"></script>
-  
-  <!-- Dashboard Canvas Fix - Ensures all chart canvases exist -->
-  <script src="js/dashboard-canvas-fix.js?v=1.0.0"></script>
-  
-  <!-- Dashboard Chart Canvas Creator - More comprehensive canvas creation -->
-  <script src="js/dashboard-chart-canvas-creator.js?v=20250704"></script>
-  
-  <!-- Chart Canvas Creator - Ensures all needed canvases exist -->
-  <script src="js/chart-canvas-creator.js?v=20231018"></script>
-  
-  <!-- Chart Alias Fixer - Resolves chart ID inconsistencies -->
-  <script src="js/chart-alias-fixer.js?v=20250701"></script>
-  
-  <!-- Emergency Chart Fix - Final Solution -->
-  <script src="js/chart-emergency-fix.js?v=20250703"></script>
-  
-  <!-- Dashboard Charts Initialization -->
-  <script src="js/dashboard-charts-init.js?v=20250703"></script>
-  
-  <!-- New Dashboard Chart Initializer - Robustly initializes all charts -->
-  <script src="js/dashboard-chart-initializer.js?v=20250706"></script>
-  
-  <!-- Chart Method Verification - Checks for required methods -->
-  <script src="js/chart-method-verification.js?v=20250704"></script>
-  
-  <!-- Production Chart Fix - Ensures createProductionChart method works properly -->
-  <script src="js/production-chart-fix.js?v=20250630"></script>
-  
-  <!-- Production Chart Complete Fix - Final solution for production chart issues -->
-  <script src="js/production-chart-complete-fix.js?v=20250706"></script>
-  
-  <!-- CRITICAL OVERRIDE: Force createProductionChart method -->
+  <!-- Base chart manager instantiation - keep for compatibility -->
   <script>
     (function() {
-      console.log("=== CRITICAL PRODUCTION CHART METHOD OVERRIDE ===");
+      console.log('=== CHART MANAGER BASE SETUP ===');
       
-      function applyForcedMethodPatch() {
-        console.log("Applying critical production chart method override");
-        
-        // Ensure chartManager exists
-        if (!window.chartManager) {
-          console.warn("Chart manager not found yet, creating skeleton");
-          window.chartManager = {
-            charts: new Map(),
-            isChartJsLoaded: typeof Chart !== 'undefined',
-            colorSchemes: {
-              primary: ['#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', '#adc8f5']
-            }
-          };
-        }
-        
-        // Add createProductionChart directly to the object
-        console.log("Adding createProductionChart method directly to chartManager object");
-        window.chartManager.createProductionChart = function(canvasId, data) {
-          console.log("OVERRIDE: Creating production chart on canvas '" + canvasId + "'");
-          
-          // Try to use the entity chart if available
-          if (typeof this.createEntityChart === 'function') {
-            console.log("OVERRIDE: Using createEntityChart as implementation");
-            return this.createEntityChart(canvasId, data);
-          } else {
-            console.log("OVERRIDE: Creating basic doughnut chart");
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) {
-              console.error("OVERRIDE: Canvas not found: " + canvasId);
-              return null;
-            }
-            
-            // Create basic chart data
-            const chartData = {
-              labels: data ? Object.keys(data) : ['Diamond Mining Corp', 'Gold Rush Ltd', 'Copper Valley Mining'],
-              datasets: [{
-                data: data ? Object.values(data) : [150, 85, 250],
-                backgroundColor: ['#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', '#adc8f5']
-              }]
-            };
-            
-            return this.create ? this.create(canvasId, {
-              type: 'doughnut',
-              data: chartData,
-              options: {
-                responsive: true,
-                maintainAspectRatio: false
-              }
-            }) : null;
-          }
+      // Ensure chart manager exists with required methods
+      if (!window.chartManager) {
+        window.chartManager = {
+          charts: new Map(),
+          isChartJsLoaded: typeof Chart !== 'undefined'
         };
-        
-        // For good measure, also add it to the prototype
-        if (window.chartManager.__proto__) {
-          window.chartManager.__proto__.createProductionChart = window.chartManager.createProductionChart;
-        }
-        
-        console.log("Critical production chart method override complete");
       }
       
-      // Apply immediately
-      applyForcedMethodPatch();
-      
-      // Also apply after a short delay to ensure it works
-      setTimeout(applyForcedMethodPatch, 1000);
-      
-      // Also apply when DOM is loaded
-      document.addEventListener('DOMContentLoaded', applyForcedMethodPatch);
-      
-      // And when page is fully loaded
-      window.addEventListener('load', applyForcedMethodPatch);
-    })();
-  </script>
-  
-  <!-- Chart Initialization Helper - Ensures charts are properly initialized -->
-  <script src="js/chart-initialization-helper.js?v=20250626"></script>
-  
-  <!-- Dashboard Charts Trigger - Ensures charts are initialized after dashboard loads -->
-  <script src="js/dashboard-charts-trigger.js?v=20250626"></script>
-  
-  <!-- Unified Chart Fix - Comprehensive fix for all chart issues -->
-  <script src="js/chart-unified-fix.js?v=20231018"></script>
-  
-  <!-- Dashboard Chart Navigation Reinitializer - Ensures charts rerender when navigating -->
-  <script src="js/dashboard-chart-navigation.js?v=20250704"></script>
-  
-  <!-- Chart Diagnostic Tool - For debugging charts -->
-  <script src="js/chart-diagnostic.js?v=20231018"></script>
-  
-  <!-- Chart Tester Tool - Manual chart testing from console -->
-  <script src="js/chart-tester.js?v=20231018"></script>
-  
-  <!-- Inline Chart Fix - Directly patches missing methods -->
-  <script>
-    (function() {
-      'use strict';
-      
-      console.log('=== INLINE CHART METHOD PATCH STARTING ===');
-      
-      // Ensure method is added once DOM is loaded
-      function applyChartMethodPatch() {
-        console.log('Applying chart method patch...');
-        
-        // Ensure chartManager exists
-        if (!window.chartManager) {
-          console.warn('chartManager not found, creating a basic instance');
-          window.chartManager = {
-            charts: new Map(),
-            isChartJsLoaded: typeof Chart !== 'undefined',
-            colorSchemes: {
-              primary: [
-                '#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', '#adc8f5',
-                '#6b32a8', '#8a41d8', '#a463f3', '#bc86f8', '#d1a9fc', '#e5ccfe'
-              ]
-            }
-          };
-        }
-        
-        // Add the missing createProductionChart method
-        if (typeof window.chartManager.createProductionChart !== 'function') {
-          console.log('Adding missing createProductionChart method');
-          window.chartManager.createProductionChart = function(canvasId, entityData) {
-            console.log(`Creating production chart on ${canvasId}`);
-            
-            // Try to find the canvas with the given ID or known alias
-            let canvas = document.getElementById(canvasId);
-            if (!canvas && canvasId === 'production-by-entity-chart') {
-              console.log('Using revenue-by-entity-chart as alias for production chart');
-              canvas = document.getElementById('revenue-by-entity-chart');
-              if (canvas) canvasId = 'revenue-by-entity-chart';
-            } else if (!canvas && canvasId === 'revenue-by-entity-chart') {
-              console.log('Using production-by-entity-chart as alias for revenue chart');
-              canvas = document.getElementById('production-by-entity-chart');
-              if (canvas) canvasId = 'production-by-entity-chart';
-            }
-            
-            if (!canvas) {
-              console.error(`Canvas with id '${canvasId}' not found for production chart`);
-              return null;
-            }
-            
-            if (!entityData || typeof entityData !== 'object' || Object.keys(entityData).length === 0) {
-              console.log('Using sample entity data for production chart');
-              entityData = {
-                'Diamond Mining Corp': 150,
-                'Gold Rush Ltd': 85, 
-                'Copper Valley Mining': 2500,
-                'Rock Aggregates': 350,
-                'Mountain Iron': 1220
-              };
-            }
-            
-            const labels = Object.keys(entityData);
-            const values = Object.values(entityData);
-            
-            // Use colorSchemes if available or generate default colors
-            const colors = [];
-            if (this.colorSchemes && this.colorSchemes.primary) {
-              for (let i = 0; i < labels.length; i++) {
-                colors.push(this.colorSchemes.primary[i % this.colorSchemes.primary.length]);
-              }
-            } else {
-              const defaultColors = [
-                '#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', 
-                '#6b32a8', '#8a41d8', '#a463f3', '#bc86f8', '#d1a9fc'
-              ];
-              for (let i = 0; i < labels.length; i++) {
-                colors.push(defaultColors[i % defaultColors.length]);
-              }
-            }
-            
-            if (typeof this.create === 'function') {
-              return this.create(canvasId, {
-                type: 'doughnut',
-                data: {
-                  labels: labels,
-                  datasets: [{
-                    data: values,
-                    backgroundColor: colors
-                  }]
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'bottom'
-                    },
-                    tooltip: {
-                      callbacks: {
-                        label: function(context) {
-                          const value = context.raw;
-                          const total = values.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
-                        }
-                      }
-                    }
-                  }
-                }
-              });
-            } else if (typeof Chart !== 'undefined') {
-              // If create method doesn't exist, try direct Chart.js approach
-              const ctx = canvas.getContext('2d');
-              return new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                  labels: labels,
-                  datasets: [{
-                    data: values,
-                    backgroundColor: colors
-                  }]
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                }
-              });
-            }
-            
-            return null;
-          };
-        }
-        
-        console.log('Chart method patch applied');
-      }
-      
-      // Apply patch immediately if document is already loaded
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        applyChartMethodPatch();
+      // Run initialization when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (window.initializeAllDashboardCharts) {
+            setTimeout(window.initializeAllDashboardCharts, 500);
+          }
+        });
       } else {
-        // Otherwise wait for DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', applyChartMethodPatch);
+        if (window.initializeAllDashboardCharts) {
+          setTimeout(window.initializeAllDashboardCharts, 100);
+        }
       }
       
-      // Also apply when window is fully loaded as a failsafe
-      window.addEventListener('load', applyChartMethodPatch);
+      // Also run on window load
+      window.addEventListener('load', function() {
+        if (window.initializeAllDashboardCharts) {
+          setTimeout(window.initializeAllDashboardCharts, 1000);
+        }
+      });
       
-      console.log('=== INLINE CHART METHOD PATCH LOADED ===');
+      console.log('=== CHART MANAGER BASE SETUP: COMPLETE ===');
     })();
   </script>
   
-  <!-- Local CSS Files -->
+  <!-- Unified Component Loader - Single solution for all component loading -->
+  <script src="js/unified-component-loader.js?v=1.0.1"></script>
+  
+  <!-- Component Loading Diagnostics -->
+  <script src="js/component-diagnostics.js?v=1.0.1"></script>
+  
+  <!-- CSS Files -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -558,18 +316,11 @@
     </main>  </div>  <!-- Scripts -->
   <!-- Load core modules and scripts in correct order -->
   <script src="js/utils.js?v=20250627" type="text/javascript"></script>
-  <script src="js/module-loader.js?v=20250627" type="text/javascript"></script>
+  <!-- Note: unified-component-loader.js is loaded in the head section and replaces module-loader.js -->
   <script src="app.js?v=20250627" type="text/javascript"></script>
-  <script src="js/chart-manager.js?v=20250627" type="text/javascript"></script>
-  <script src="js/chart-manager-fix.js?v=20250704" type="text/javascript"></script>
   <script src="js/component-initializer.js?v=20250627" type="text/javascript"></script>
   <script src="js/sidebar-manager.js?v=20250627" type="text/javascript"></script>
-  <script src="js/diagnostics.js?v=20250627" type="text/javascript"></script>
   <script src="js/startup.js?v=20250627" type="text/javascript"></script>
-  <script src="js/cleanup-diagnostics.js?v=20250627" type="text/javascript"></script>
-  <script src="js/chart-diagnostic.js?v=20250629" type="text/javascript"></script>
-  <script src="js/chart-fix.js?v=20250629" type="text/javascript"></script>
-  <script src="js/cache-cleanup.js?v=20250626" type="text/javascript"></script>
   <script src="js/dashboard.js?v=20250630" type="text/javascript"></script>
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
@@ -773,8 +524,17 @@
         if (dashboard && dashboard.innerHTML.trim() === '') {
           console.log('Dashboard content empty, attempting to initialize...');
           // Try to trigger component loading if available
-          if (window.moduleLoader && window.moduleLoader.loadComponent) {
-            console.log('Loading dashboard component via moduleLoader');
+          if (window.unifiedComponentLoader) {
+            console.log('Loading dashboard component via unifiedComponentLoader');
+            window.unifiedComponentLoader.loadComponent('dashboard', dashboard)
+              .then(result => {
+                console.log('Dashboard component load result:', result.success ? 'success' : 'failed');
+              })
+              .catch(err => {
+                console.warn('Error loading dashboard component:', err);
+              });
+          } else if (window.moduleLoader && window.moduleLoader.loadComponent) {
+            console.log('Loading dashboard component via moduleLoader (fallback)');
             window.moduleLoader.loadComponent('dashboard', dashboard)
               .then(result => {
                 console.log('Dashboard component load result:', result.success ? 'success' : 'failed');
