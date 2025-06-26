@@ -30,7 +30,7 @@ class ModuleLoader {
         // Pre-register known components
         this.registerComponents([
             'dashboard', 'user-management', 'royalty-records', 'contract-management',
-            'audit-dashboard', 'reporting-analytics', 'communication',
+            'reporting-analytics', 'communication',
             'notifications', 'compliance', 'regulatory-management', 'profile'
         ]);
         
@@ -299,7 +299,7 @@ window.moduleLoader.initialize();
 window.checkComponentsAvailability = async function() {
     const components = [
         'sidebar', 'dashboard', 'user-management', 'royalty-records',
-        'contract-management', 'audit-dashboard', 'reporting-analytics',
+        'contract-management', 'reporting-analytics',
         'communication', 'notifications', 'compliance', 'regulatory-management', 'profile'
     ];
     

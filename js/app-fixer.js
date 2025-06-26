@@ -40,10 +40,8 @@
                         detail: { previousSection, newSection: sectionId }
                     }));
                     
-                    // Special handling for audit dashboard section
-                    if (previousSection === 'audit-dashboard') {
-                        cleanupAuditDashboard();
-                    }
+                    // Special handling for cleanup (audit dashboard section removed)
+                    // No special section cleanup needed
                 }
                 
                 // Call original showSection function
@@ -70,13 +68,12 @@
             try {
                 console.log(`Enhanced loading of section content: ${sectionId}`);
                 
-                // Special handling for audit dashboard
-                if (sectionId === 'audit-dashboard') {
-                    console.log('Special handling for audit dashboard section');
-                    // Set up post-load handling
+                // Special handling for sections (audit dashboard removed)
+                // No special section handling needed
+                if (false) {
+                    // This code block will never execute (placeholding the structure)
                     document.addEventListener('DOMContentLoaded', function onLoad() {
-                        initializeAuditDashboard();
-                        // Remove this listener once it's fired
+                        // Placeholder for any future section-specific initialization
                         document.removeEventListener('DOMContentLoaded', onLoad);
                     });
                 }
@@ -92,50 +89,16 @@
         };
         
         // Add cleanup for audit dashboard resources
+        // These functions have been removed as part of the audit dashboard cleanup
+        // Keeping stub functions for backwards compatibility with any remaining references
         function cleanupAuditDashboard() {
-            console.log('Cleaning up audit dashboard resources...');
-            
-            // Clean up timers
-            if (window._auditDashboardTimers) {
-                window._auditDashboardTimers.forEach(timerId => {
-                    clearTimeout(timerId);
-                });
-                window._auditDashboardTimers = [];
-            }
-            
-            // Clean up any global event listeners added by audit dashboard
-            try {
-                // Reset any problematic audit dashboard functions to no-ops
-                // This prevents errors when they're called after navigation
-                ['viewAuditDetails', 'investigateFailedLogin', 'blockIpAddress', 
-                 'investigateIp', 'contactUser', 'reviewUserActivity', 
-                 'reviewExport', 'acknowledgeAllAlerts', 'runSecurityScan', 
-                 'refreshAuditEvents', 'exportAuditData'].forEach(fnName => {
-                    if (window[fnName]) {
-                        window[fnName] = function() {
-                            console.warn(`${fnName} called after leaving audit dashboard`);
-                        };
-                    }
-                });
-            } catch (e) {
-                console.error('Error cleaning up audit dashboard functions:', e);
-            }
+            console.log('Audit dashboard cleanup function called - this is a stub as audit dashboard has been removed');
+            // No-op function - audit dashboard has been removed
         }
         
-        // Initialize audit dashboard properly
         function initializeAuditDashboard() {
-            console.log('Initializing audit dashboard...');
-            
-            // Initialize tracked timers array if not already present
-            window._auditDashboardTimers = window._auditDashboardTimers || [];
-            
-            // Override setTimeout for the audit dashboard to track timers
-            const originalSetTimeout = window.setTimeout;
-            window.setTimeout = function(callback, delay) {
-                const timerId = originalSetTimeout(callback, delay);
-                window._auditDashboardTimers.push(timerId);
-                return timerId;
-            };
+            console.log('Audit dashboard initialize function called - this is a stub as audit dashboard has been removed');
+            // No-op function - audit dashboard has been removed
         }
         
         console.log('App.js fixes applied successfully');

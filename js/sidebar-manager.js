@@ -39,7 +39,7 @@
             // Define all possible sections
             const allSections = [
                 'dashboard', 'user-management', 'royalty-records', 'contract-management', 
-                'audit-dashboard', 'reporting-analytics', 'communication', 'notifications',
+                'reporting-analytics', 'communication', 'notifications',
                 'compliance', 'regulatory-management', 'profile'
             ];
             
