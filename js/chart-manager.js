@@ -296,6 +296,34 @@
     ChartManager.prototype.createProductionChart = function(canvasId, entityData) {
         console.log(`ChartManager: Creating production chart on ${canvasId}`);
         
+        // Try to find the canvas with the given ID or known alias
+        let canvas = document.getElementById(canvasId);
+        if (!canvas && canvasId === 'production-by-entity-chart') {
+            console.log('Trying revenue-by-entity-chart as alias for production chart');
+            canvas = document.getElementById('revenue-by-entity-chart');
+            if (canvas) canvasId = 'revenue-by-entity-chart';
+        } else if (!canvas && canvasId === 'revenue-by-entity-chart') {
+            console.log('Trying production-by-entity-chart as alias for revenue chart');
+            canvas = document.getElementById('production-by-entity-chart');
+            if (canvas) canvasId = 'production-by-entity-chart';
+        }
+        
+        if (!canvas) {
+            console.error(`ChartManager: Canvas with id '${canvasId}' not found for production chart`);
+            return null;
+        }
+        
+        if (!entityData || typeof entityData !== 'object' || Object.keys(entityData).length === 0) {
+            console.warn('ChartManager: Invalid entity data for production chart, using sample data');
+            entityData = {
+                'Diamond Mining Corp': 150,
+                'Gold Rush Ltd': 85, 
+                'Copper Valley Mining': 2500,
+                'Rock Aggregates': 350,
+                'Mountain Iron': 1220
+            };
+        }
+        
         const labels = Object.keys(entityData);
         const values = Object.values(entityData);
         
@@ -345,7 +373,14 @@
             
             // Entity distribution chart
             const entityData = this.aggregateEntityData(records);
-            this.createEntityChart('production-by-entity-chart', entityData);
+            
+            // Support both canvas IDs for backward compatibility
+            const entityCanvas = document.getElementById('revenue-by-entity-chart') || 
+                                document.getElementById('production-by-entity-chart');
+                                
+            if (entityCanvas) {
+                this.createProductionChart(entityCanvas.id, entityData);
+            }
             
             // Status distribution chart
             this.createStatusChart('status-distribution-chart', records);

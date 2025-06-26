@@ -29,9 +29,17 @@
             { id: 'mineral-performance-chart', container: '.chart-container', title: 'Mineral Performance' }
         ];
         
+        // Alias mapping for backward compatibility
+        const canvasAliases = {
+            'revenue-by-entity-chart': 'production-by-entity-chart',
+            'production-by-entity-chart': 'revenue-by-entity-chart'
+        };
+
         // Check each expected canvas
         expectedCanvases.forEach(canvasInfo => {
-            const canvas = document.getElementById(canvasInfo.id);
+            const canvas = document.getElementById(canvasInfo.id) || 
+                           (canvasAliases[canvasInfo.id] && document.getElementById(canvasAliases[canvasInfo.id]));
+            
             if (!canvas) {
                 console.log(`Canvas element '${canvasInfo.id}' not found, creating it...`);
                 
@@ -92,6 +100,9 @@
         }
         
         console.log('=== DASHBOARD CANVAS FIX COMPLETE ===');
+        
+        // Dispatch event to notify that canvas setup is complete
+        window.dispatchEvent(new CustomEvent('chart-canvases-fixed'));
     }
     
     // Run when DOM is loaded
