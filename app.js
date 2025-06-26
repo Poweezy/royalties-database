@@ -785,6 +785,13 @@ class RoyaltiesApp {
     
     async showSection(sectionId) {
         try {
+            // Redirect audit-dashboard to compliance section
+            if (sectionId === 'audit-dashboard') {
+                console.log('Redirecting from removed audit-dashboard to compliance section');
+                this.notificationManager.show('Audit Dashboard has been replaced by the Compliance section', 'info');
+                sectionId = 'compliance';
+            }
+            
             // Hide all sections
             const sections = document.querySelectorAll('main section');
             sections.forEach(section => section.style.display = 'none');

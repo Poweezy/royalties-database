@@ -27,7 +27,7 @@ class ModuleLoader {
         console.log('ModuleLoader: Initializing component system');
         this.initialized = true;
         
-        // Pre-register known components
+        // Pre-register known components (audit-dashboard explicitly removed)
         this.registerComponents([
             'dashboard', 'user-management', 'royalty-records', 'contract-management',
             'reporting-analytics', 'communication',
@@ -62,6 +62,12 @@ class ModuleLoader {
      */    async loadComponent(componentId, container) {
         try {
             if (!this.initialized) this.initialize();
+            
+            // Explicitly prevent loading of the removed audit-dashboard component
+            if (componentId === 'audit-dashboard') {
+                console.warn(`ModuleLoader: Attempt to load removed 'audit-dashboard' component was blocked`);
+                return { success: false, message: 'Component audit-dashboard has been removed from the system' };
+            }
             
             console.log(`ModuleLoader: Loading component '${componentId}'`);
             

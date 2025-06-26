@@ -263,6 +263,13 @@
         fixSections: function() {
             console.group('Section Repair');
             
+            // First, explicitly check for and remove any audit-dashboard section
+            const auditDashboardSection = document.getElementById('audit-dashboard');
+            if (auditDashboardSection) {
+                console.log('Found orphaned audit-dashboard section - removing it');
+                auditDashboardSection.remove();
+            }
+            
             const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link');
             const mainContent = document.querySelector('main.main-content');
             

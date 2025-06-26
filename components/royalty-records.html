@@ -419,13 +419,13 @@ function exportToExcel() {
 
 function auditTrail() {
   if (window.notificationManager) {
-    window.notificationManager.show('Opening audit trail for royalty records...', 'info');
+    window.notificationManager.show('Opening compliance details for royalty records...', 'info');
   }
   
-  // Navigate to audit dashboard
+  // Navigate to compliance section instead of removed audit dashboard
   if (window.royaltiesApp) {
     setTimeout(() => {
-      window.royaltiesApp.showSection('audit-dashboard');
+      window.royaltiesApp.showSection('compliance');
     }, 1000);
   }
 }

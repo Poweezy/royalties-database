@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mining-royalties-v3.5';
+const CACHE_NAME = 'mining-royalties-v4.0';
 const CACHE_URLS = [
     '/',
     '/index.html',
@@ -57,7 +57,8 @@ const CACHE_URLS = [
 function shouldCache(url) {
     if (url.startsWith('chrome-extension://') || 
         url.startsWith('moz-extension://') || 
-        url.startsWith('safari-extension://')) {
+        url.startsWith('safari-extension://') ||
+        url.includes('audit-dashboard')) {
         return false;
     }
     return true;
@@ -215,6 +216,12 @@ async function handleComponentRequest(request) {
     // Try each path
     for (const path of paths) {
         try {
+            // Skip audit-dashboard completely
+            if (path.includes('audit-dashboard')) {
+                console.log(`Service Worker: Skipping audit-dashboard component: ${path}`);
+                continue;
+            }
+            
             console.log(`Service Worker: Trying to fetch component from ${path}`);
             const response = await fetch(path);
             

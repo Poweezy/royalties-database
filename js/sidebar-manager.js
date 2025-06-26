@@ -36,7 +36,7 @@
         async validateAvailableComponents() {
             console.log('SidebarManager: Validating available components...');
             
-            // Define all possible sections
+            // Define all possible sections (audit-dashboard removed)
             const allSections = [
                 'dashboard', 'user-management', 'royalty-records', 'contract-management', 
                 'reporting-analytics', 'communication', 'notifications',

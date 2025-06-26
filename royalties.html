@@ -15,6 +15,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
+  <!-- Final Audit-Dashboard Cleanup Solution - Load BEFORE other scripts -->
+  <script src="js/final-cleanup-solution.js?v=1.0.0"></script>
+  
+  <!-- Dashboard Canvas Fix - Ensures all chart canvases exist -->
+  <script src="js/dashboard-canvas-fix.js?v=1.0.0"></script>
+  
   <!-- Local CSS Files -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/variables.css">
@@ -268,6 +274,8 @@
   <script src="js/cleanup-diagnostics.js?v=20250627" type="text/javascript"></script>
   <script src="js/chart-diagnostic.js?v=20250629" type="text/javascript"></script>
   <script src="js/chart-fix.js?v=20250629" type="text/javascript"></script>
+  <script src="js/cache-cleanup.js?v=20250626" type="text/javascript"></script>
+  <script src="js/dashboard.js?v=20250630" type="text/javascript"></script>
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>

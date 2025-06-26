@@ -288,6 +288,48 @@
     };
     
     /**
+     * Create a production chart
+     * @param {string} canvasId - Canvas element ID
+     * @param {Object} entityData - Entity production data
+     * @returns {Object} - Chart instance
+     */
+    ChartManager.prototype.createProductionChart = function(canvasId, entityData) {
+        console.log(`ChartManager: Creating production chart on ${canvasId}`);
+        
+        const labels = Object.keys(entityData);
+        const values = Object.values(entityData);
+        
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: labels.map((_, i) => this.colorSchemes.primary[i % this.colorSchemes.primary.length])
+            }]
+        };
+        
+        return this.create(canvasId, {
+            type: 'doughnut',
+            data: chartData,
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const percentage = ((value / values.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+    
+    /**
      * Create all dashboard charts
      * @param {Object} dataManager - Data manager instance
      */
