@@ -34,38 +34,50 @@
             window.chartManager.createProductionChart = function(canvasId, entityData) {
                 console.log(`Chart Manager Production Fix: Creating production chart on ${canvasId}`);
                 
-                // Try to find the canvas with the given ID or known alias
+                // Check for canvas
                 let canvas = document.getElementById(canvasId);
-                if (!canvas && canvasId === 'production-by-entity-chart') {
-                    console.log('Using revenue-by-entity-chart as alias for production chart');
-                    canvas = document.getElementById('revenue-by-entity-chart');
-                    if (canvas) canvasId = 'revenue-by-entity-chart';
-                } else if (!canvas && canvasId === 'revenue-by-entity-chart') {
-                    console.log('Using production-by-entity-chart as alias for revenue chart');
-                    canvas = document.getElementById('production-by-entity-chart');
-                    if (canvas) canvasId = 'production-by-entity-chart';
-                }
                 
-                // If we still don't have a canvas, try finding any chart container and create a canvas
-                if (!canvas) {
-                    console.warn(`Canvas with id '${canvasId}' not found for production chart, attempting to create it`);
-                    const chartContainers = document.querySelectorAll('.chart-container');
-                    for (const container of chartContainers) {
-                        // Skip if container already has a canvas
-                        if (container.querySelector('canvas')) continue;
+                // Handle special case when called with revenue-by-entity-chart
+                if (!canvas && canvasId === 'revenue-by-entity-chart') {
+                    // Try to create the canvas if it doesn't exist
+                    console.log('Chart Manager Production Fix: Canvas not found, attempting to create it');
+                    
+                    // Find dashboard
+                    const dashboard = document.getElementById('dashboard');
+                    if (dashboard) {
+                        // Find a chart container
+                        let container = dashboard.querySelector('.chart-container');
+                        if (!container) {
+                            // Create chart container
+                            const chartSection = document.createElement('div');
+                            chartSection.className = 'chart-section';
+                            container = document.createElement('div');
+                            container.className = 'chart-container';
+                            chartSection.appendChild(container);
+                            dashboard.appendChild(chartSection);
+                        }
                         
-                        // Create canvas in this empty container
+                        // Create canvas
                         canvas = document.createElement('canvas');
                         canvas.id = canvasId;
                         container.appendChild(canvas);
-                        console.log(`Created canvas '${canvasId}' in empty chart container`);
-                        break;
+                        console.log(`Chart Manager Production Fix: Created canvas '${canvasId}'`);
                     }
                 }
                 
+                // If still no canvas, try alternative ID
                 if (!canvas) {
-                    console.error(`Canvas with id '${canvasId}' not found for production chart and couldn't be created`);
-                    return null;
+                    const alternativeId = 'production-by-entity-chart';
+                    console.log(`Chart Manager Production Fix: Trying alternative ID '${alternativeId}'`);
+                    canvas = document.getElementById(alternativeId);
+                    
+                    if (canvas) {
+                        console.log(`Chart Manager Production Fix: Found canvas with alternative ID '${alternativeId}'`);
+                        canvasId = alternativeId;
+                    } else {
+                        console.error(`Chart Manager Production Fix: No canvas found for '${canvasId}' or alternative`);
+                        return null;
+                    }
                 }
                 
                 if (!entityData || typeof entityData !== 'object' || Object.keys(entityData).length === 0) {
