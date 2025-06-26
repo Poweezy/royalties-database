@@ -108,7 +108,35 @@ class ModuleLoader {
                         }
                     }
                     
-                    // If not found in any path, try without cache busting
+                    // If not found in any path, try using component-path-fix
+                    if (!loaded && window.getCorrectComponentPath) {
+                        try {
+                            const optimizedPath = window.getCorrectComponentPath(componentId);
+                            console.log(`ModuleLoader: Trying optimized component path: ${optimizedPath}`);
+                            
+                            const response = await fetch(optimizedPath);
+                            if (response.ok) {
+                                content = await response.text();
+                                // Check if the content is empty
+                                if (content.trim() === '') {
+                                    console.warn(`ModuleLoader: Component '${componentId}' in optimized path is empty`);
+                                } else {
+                                    loaded = true;
+                                    console.log(`ModuleLoader: Found component '${componentId}' using optimized path`);
+                                    
+                                    // Extract root path from successful path
+                                    const pathParts = optimizedPath.split('/');
+                                    if (pathParts.length >= 2) {
+                                        this.componentRoot = pathParts.slice(0, -1).join('/');
+                                    }
+                                }
+                            }
+                        } catch (optimizedError) {
+                            console.warn(`ModuleLoader: Failed to load from optimized path: ${optimizedError.message}`);
+                        }
+                    }
+                    
+                    // If still not found, try without cache busting
                     if (!loaded) {
                         for (const componentPath of this.componentPaths) {
                             try {

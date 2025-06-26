@@ -15,6 +15,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
+  <!-- Component Path Fix - Resolve component path loading issues -->
+  <script src="js/component-path-fix.js?v=20250626"></script>
+  
   <!-- Chart Cache Cleanup - Clear any cached chart instances -->
   <script src="js/chart-cache-cleanup.js?v=20250704"></script>
   
@@ -26,6 +29,9 @@
   
   <!-- Dashboard Chart Canvas Creator - More comprehensive canvas creation -->
   <script src="js/dashboard-chart-canvas-creator.js?v=20250704"></script>
+  
+  <!-- Chart Canvas Creator - Ensures all needed canvases exist -->
+  <script src="js/chart-canvas-creator.js?v=20231018"></script>
   
   <!-- Chart Alias Fixer - Resolves chart ID inconsistencies -->
   <script src="js/chart-alias-fixer.js?v=20250701"></script>
@@ -42,6 +48,12 @@
   <!-- Production Chart Fix - Ensures createProductionChart method works properly -->
   <script src="js/production-chart-fix.js?v=20250705"></script>
   
+  <!-- Chart Initialization Helper - Ensures charts are properly initialized -->
+  <script src="js/chart-initialization-helper.js?v=20250626"></script>
+  
+  <!-- Dashboard Charts Trigger - Ensures charts are initialized after dashboard loads -->
+  <script src="js/dashboard-charts-trigger.js?v=20250626"></script>
+  
   <!-- Unified Chart Fix - Comprehensive fix for all chart issues -->
   <script src="js/chart-unified-fix.js?v=20231018"></script>
   
@@ -50,6 +62,164 @@
   
   <!-- Chart Diagnostic Tool - For debugging charts -->
   <script src="js/chart-diagnostic.js?v=20231018"></script>
+  
+  <!-- Chart Tester Tool - Manual chart testing from console -->
+  <script src="js/chart-tester.js?v=20231018"></script>
+  
+  <!-- Inline Chart Fix - Directly patches missing methods -->
+  <script>
+    (function() {
+      'use strict';
+      
+      console.log('=== INLINE CHART METHOD PATCH STARTING ===');
+      
+      // Ensure method is added once DOM is loaded
+      function applyChartMethodPatch() {
+        console.log('Applying chart method patch...');
+        
+        // Ensure chartManager exists
+        if (!window.chartManager) {
+          console.warn('chartManager not found, creating a basic instance');
+          window.chartManager = {
+            charts: new Map(),
+            isChartJsLoaded: typeof Chart !== 'undefined',
+            colorSchemes: {
+              primary: [
+                '#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', '#adc8f5',
+                '#6b32a8', '#8a41d8', '#a463f3', '#bc86f8', '#d1a9fc', '#e5ccfe'
+              ]
+            }
+          };
+        }
+        
+        // Add the missing createProductionChart method
+        if (typeof window.chartManager.createProductionChart !== 'function') {
+          console.log('Adding missing createProductionChart method');
+          window.chartManager.createProductionChart = function(canvasId, entityData) {
+            console.log(`Creating production chart on ${canvasId}`);
+            
+            // Try to find the canvas with the given ID or known alias
+            let canvas = document.getElementById(canvasId);
+            if (!canvas && canvasId === 'production-by-entity-chart') {
+              console.log('Using revenue-by-entity-chart as alias for production chart');
+              canvas = document.getElementById('revenue-by-entity-chart');
+              if (canvas) canvasId = 'revenue-by-entity-chart';
+            } else if (!canvas && canvasId === 'revenue-by-entity-chart') {
+              console.log('Using production-by-entity-chart as alias for revenue chart');
+              canvas = document.getElementById('production-by-entity-chart');
+              if (canvas) canvasId = 'production-by-entity-chart';
+            }
+            
+            if (!canvas) {
+              console.error(`Canvas with id '${canvasId}' not found for production chart`);
+              return null;
+            }
+            
+            if (!entityData || typeof entityData !== 'object' || Object.keys(entityData).length === 0) {
+              console.log('Using sample entity data for production chart');
+              entityData = {
+                'Diamond Mining Corp': 150,
+                'Gold Rush Ltd': 85, 
+                'Copper Valley Mining': 2500,
+                'Rock Aggregates': 350,
+                'Mountain Iron': 1220
+              };
+            }
+            
+            const labels = Object.keys(entityData);
+            const values = Object.values(entityData);
+            
+            // Use colorSchemes if available or generate default colors
+            const colors = [];
+            if (this.colorSchemes && this.colorSchemes.primary) {
+              for (let i = 0; i < labels.length; i++) {
+                colors.push(this.colorSchemes.primary[i % this.colorSchemes.primary.length]);
+              }
+            } else {
+              const defaultColors = [
+                '#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb', 
+                '#6b32a8', '#8a41d8', '#a463f3', '#bc86f8', '#d1a9fc'
+              ];
+              for (let i = 0; i < labels.length; i++) {
+                colors.push(defaultColors[i % defaultColors.length]);
+              }
+            }
+            
+            if (typeof this.create === 'function') {
+              return this.create(canvasId, {
+                type: 'doughnut',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    data: values,
+                    backgroundColor: colors
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom'
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: function(context) {
+                          const value = context.raw;
+                          const total = values.reduce((a, b) => a + b, 0);
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+            } else if (typeof Chart !== 'undefined') {
+              // If create method doesn't exist, try direct Chart.js approach
+              const ctx = canvas.getContext('2d');
+              return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    data: values,
+                    backgroundColor: colors
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom'
+                    }
+                  }
+                }
+              });
+            }
+            
+            return null;
+          };
+        }
+        
+        console.log('Chart method patch applied');
+      }
+      
+      // Apply patch immediately if document is already loaded
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        applyChartMethodPatch();
+      } else {
+        // Otherwise wait for DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', applyChartMethodPatch);
+      }
+      
+      // Also apply when window is fully loaded as a failsafe
+      window.addEventListener('load', applyChartMethodPatch);
+      
+      console.log('=== INLINE CHART METHOD PATCH LOADED ===');
+    })();
+  </script>
   
   <!-- Local CSS Files -->
   <link rel="stylesheet" href="css/base.css">

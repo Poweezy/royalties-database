@@ -236,6 +236,17 @@
     };
     
     /**
+     * Create a production chart (alias for createEntityChart for compatibility)
+     * @param {string} canvasId - Canvas element ID
+     * @param {Object} data - Entity data object
+     * @returns {Object} - Chart instance
+     */
+    ChartManager.prototype.createProductionChart = function(canvasId, data) {
+        console.log(`ChartManager: Creating production chart (using alias for entity chart) on canvas '${canvasId}'`);
+        return this.createEntityChart(canvasId, data);
+    };
+    
+    /**
      * Create a status distribution chart
      * @param {string} canvasId - Canvas element ID
      * @param {Array} records - Royalty records
@@ -281,76 +292,6 @@
                 plugins: {
                     legend: {
                         position: 'bottom'
-                    }
-                }
-            }
-        });
-    };
-    
-    /**
-     * Create a production chart
-     * @param {string} canvasId - Canvas element ID
-     * @param {Object} entityData - Entity production data
-     * @returns {Object} - Chart instance
-     */
-    ChartManager.prototype.createProductionChart = function(canvasId, entityData) {
-        console.log(`ChartManager: Creating production chart on ${canvasId}`);
-        
-        // Try to find the canvas with the given ID or known alias
-        let canvas = document.getElementById(canvasId);
-        if (!canvas && canvasId === 'production-by-entity-chart') {
-            console.log('Trying revenue-by-entity-chart as alias for production chart');
-            canvas = document.getElementById('revenue-by-entity-chart');
-            if (canvas) canvasId = 'revenue-by-entity-chart';
-        } else if (!canvas && canvasId === 'revenue-by-entity-chart') {
-            console.log('Trying production-by-entity-chart as alias for revenue chart');
-            canvas = document.getElementById('production-by-entity-chart');
-            if (canvas) canvasId = 'production-by-entity-chart';
-        }
-        
-        if (!canvas) {
-            console.error(`ChartManager: Canvas with id '${canvasId}' not found for production chart`);
-            return null;
-        }
-        
-        if (!entityData || typeof entityData !== 'object' || Object.keys(entityData).length === 0) {
-            console.warn('ChartManager: Invalid entity data for production chart, using sample data');
-            entityData = {
-                'Diamond Mining Corp': 150,
-                'Gold Rush Ltd': 85, 
-                'Copper Valley Mining': 2500,
-                'Rock Aggregates': 350,
-                'Mountain Iron': 1220
-            };
-        }
-        
-        const labels = Object.keys(entityData);
-        const values = Object.values(entityData);
-        
-        const chartData = {
-            labels: labels,
-            datasets: [{
-                data: values,
-                backgroundColor: labels.map((_, i) => this.colorSchemes.primary[i % this.colorSchemes.primary.length])
-            }]
-        };
-        
-        return this.create(canvasId, {
-            type: 'doughnut',
-            data: chartData,
-            options: {
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                const percentage = ((value / values.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
-                                return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
-                            }
-                        }
                     }
                 }
             }

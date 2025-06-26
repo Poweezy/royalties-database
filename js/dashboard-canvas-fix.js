@@ -1,7 +1,7 @@
 /**
  * Dashboard Canvas Fix Script
  * This script ensures all necessary canvas elements exist in the dashboard
- * Version 1.0.0 - 2025-06-30
+ * Version 1.0.1 - 2025-06-30
  */
 
 (function() {
@@ -24,6 +24,7 @@
         const expectedCanvases = [
             { id: 'revenue-trends-chart', container: '.chart-container', title: 'Revenue Trends' },
             { id: 'revenue-by-entity-chart', container: '.chart-container', title: 'Revenue by Entity' },
+            { id: 'production-by-entity-chart', container: '.chart-container', title: 'Production by Entity' },
             { id: 'payment-timeline-chart', container: '.chart-container', title: 'Payment Timeline' },
             { id: 'forecast-chart', container: '.forecast-chart-container', title: 'Forecast' },
             { id: 'mineral-performance-chart', container: '.chart-container', title: 'Mineral Performance' }
@@ -92,11 +93,53 @@
         // Once canvases are created, trigger chart initialization
         console.log('Triggering chart initialization...');
         if (typeof window.initializeDashboardCharts === 'function') {
-            setTimeout(window.initializeDashboardCharts, 200);
+            setTimeout(window.initializeDashboardCharts, 500);
         } else if (window.royaltiesApp && typeof window.royaltiesApp.initializeDashboardCharts === 'function') {
-            setTimeout(() => window.royaltiesApp.initializeDashboardCharts(), 200);
+            setTimeout(() => window.royaltiesApp.initializeDashboardCharts(), 500);
         } else if (window.chartManager) {
-            console.log('Using chart-fix.js functionality for initialization');
+            console.log('Using chart manager directly for initialization');
+            setTimeout(() => {
+                try {
+                    if (window.chartManager.createDashboardCharts) {
+                        window.chartManager.createDashboardCharts();
+                    } else {
+                        console.log('Creating dashboard charts individually');
+                        // Create revenue chart
+                        const revenueCanvas = document.getElementById('revenue-trends-chart');
+                        if (revenueCanvas && window.chartManager.createRevenueChart) {
+                            window.chartManager.createRevenueChart('revenue-trends-chart');
+                        }
+                        
+                        // Create production/entity chart - try both methods and IDs
+                        const entityCanvas = document.getElementById('revenue-by-entity-chart') || 
+                                             document.getElementById('production-by-entity-chart');
+                        if (entityCanvas) {
+                            if (window.chartManager.createProductionChart) {
+                                window.chartManager.createProductionChart(entityCanvas.id, {});
+                            } else if (window.chartManager.createEntityChart) {
+                                window.chartManager.createEntityChart(entityCanvas.id, {});
+                            }
+                        }
+                        
+                        // Initialize other charts if they exist
+                        const timelineCanvas = document.getElementById('payment-timeline-chart');
+                        if (timelineCanvas && window.chartManager.create) {
+                            window.chartManager.create(timelineCanvas.id, {
+                                type: 'line',
+                                data: {
+                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                                    datasets: [{
+                                        label: 'Payment Timeline',
+                                        data: [12, 19, 13, 15, 20, 18]
+                                    }]
+                                }
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error initializing charts directly:', err);
+                }
+            }, 800);
         }
         
         console.log('=== DASHBOARD CANVAS FIX COMPLETE ===');

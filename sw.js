@@ -199,17 +199,26 @@ async function handleComponentRequest(request) {
     
     // Define alternate paths to try
     let paths = [];
-    if (url.pathname.includes('/components/')) {
+    if (url.pathname.includes('/html/components/')) {
+        // If we're looking in html/components, also try regular components
         paths = [
             request.url,                                  // Original path
-            url.origin + `/html/components/${componentName}`,  // Alternative path
+            url.origin + `/components/${componentName}`,       // Alternative path without html/
+            url.origin + `/templates/${componentName}`,        // Another possible path
+        ];
+    } else if (url.pathname.includes('/components/')) {
+        // If we're looking in components, also try html/components
+        paths = [
+            request.url,                                       // Original path
+            url.origin + `/html/components/${componentName}`,  // Alternative path with html/
             url.origin + `/templates/${componentName}`,        // Another possible path
         ];
     } else {
+        // For any other path, try both components directories
         paths = [
-            request.url,                               // Original path
-            url.origin + `/components/${componentName}`,    // Alternative path
-            url.origin + `/templates/${componentName}`,     // Another possible path
+            request.url,                                       // Original path
+            url.origin + `/components/${componentName}`,       // Alternative path
+            url.origin + `/html/components/${componentName}`,  // Another alternative path
         ];
     }
     

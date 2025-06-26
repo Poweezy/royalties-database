@@ -46,8 +46,25 @@
                     if (canvas) canvasId = 'production-by-entity-chart';
                 }
                 
+                // If we still don't have a canvas, try finding any chart container and create a canvas
                 if (!canvas) {
-                    console.error(`Canvas with id '${canvasId}' not found for production chart`);
+                    console.warn(`Canvas with id '${canvasId}' not found for production chart, attempting to create it`);
+                    const chartContainers = document.querySelectorAll('.chart-container');
+                    for (const container of chartContainers) {
+                        // Skip if container already has a canvas
+                        if (container.querySelector('canvas')) continue;
+                        
+                        // Create canvas in this empty container
+                        canvas = document.createElement('canvas');
+                        canvas.id = canvasId;
+                        container.appendChild(canvas);
+                        console.log(`Created canvas '${canvasId}' in empty chart container`);
+                        break;
+                    }
+                }
+                
+                if (!canvas) {
+                    console.error(`Canvas with id '${canvasId}' not found for production chart and couldn't be created`);
                     return null;
                 }
                 
@@ -80,6 +97,13 @@
                     }]
                 };
                 
+                // Try to use createEntityChart if it exists
+                if (typeof this.createEntityChart === 'function') {
+                    console.log('Using createEntityChart to create production chart');
+                    return this.createEntityChart(canvasId, entityData);
+                }
+                
+                // Fallback to using the create method
                 return this.create(canvasId, {
                     type: 'doughnut',
                     data: chartData,

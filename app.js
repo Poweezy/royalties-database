@@ -678,27 +678,50 @@ class RoyaltiesApp {
         }
         
         try {
-            // Try each possible sidebar location with cache-busting
-            const paths = ['components/sidebar.html', 'html/components/sidebar.html'];
-            let loaded = false;
-            
-            for (const path of paths) {
-                try {
-                    const response = await fetch(`${path}?v=${Date.now()}`);
-                    if (response.ok) {
-                        const content = await response.text();
-                        sidebar.innerHTML = content;
-                        console.log(`Sidebar loaded successfully from ${path}`);
-                        loaded = true;
-                        break;
-                    }
-                } catch (pathError) {
-                    console.warn(`Failed to load sidebar from ${path}:`, pathError.message);
-                }
+            // Use the component path fix if available
+            let path = 'components/sidebar.html';
+            if (window.getCorrectComponentPath) {
+                path = window.getCorrectComponentPath('sidebar');
+                console.log(`Using optimized component path for sidebar: ${path}`);
             }
             
-            if (!loaded) {
-                throw new Error('Failed to load sidebar from any path');
+            // Add cache busting
+            const cacheBusterPath = `${path}?v=${Date.now()}`;
+            console.log(`Loading sidebar from: ${cacheBusterPath}`);
+            
+            const response = await fetch(cacheBusterPath);
+            if (response.ok) {
+                const content = await response.text();
+                sidebar.innerHTML = content;
+                console.log(`Sidebar loaded successfully from ${path}`);
+                if (window.workingComponentPaths) {
+                    window.workingComponentPaths['sidebar'] = path;
+                }
+                return;
+            } else {
+                // If the path failed, record it for future reference
+                if (window.recordFailedComponentPath) {
+                    window.recordFailedComponentPath(path);
+                }
+                
+                // Try alternative path
+                const altPath = path.includes('html/components') ? 
+                    path.replace('html/components', 'components') :
+                    path.replace('components', 'html/components');
+                
+                console.log(`Trying alternative path for sidebar: ${altPath}`);
+                const altResponse = await fetch(`${altPath}?v=${Date.now()}`);
+                if (altResponse.ok) {
+                    const content = await altResponse.text();
+                    sidebar.innerHTML = content;
+                    console.log(`Sidebar loaded successfully from alternative path ${altPath}`);
+                    if (window.workingComponentPaths) {
+                        window.workingComponentPaths['sidebar'] = altPath;
+                    }
+                    return;
+                } else {
+                    throw new Error('Failed to load sidebar from any path');
+                }
             }
         } catch (error) {
             console.error('Error loading sidebar:', error);
