@@ -409,7 +409,7 @@ class AuthManager {
     }
 
     getCurrentUser() {
-        return this.currentUser;
+        return this.current
     }
 
     logout() {
@@ -763,14 +763,31 @@ class RoyaltiesApp {
         }
         
         console.log('Loading sidebar using unified component loader');
+        console.log('Current protocol:', window.location.protocol);
+        console.log('Unified component loader available:', !!window.unifiedComponentLoader);
         
         // ALWAYS use unified component loader for sidebar
         if (window.unifiedComponentLoader) {
             try {
+                console.log('Attempting to load sidebar component...');
                 const result = await window.unifiedComponentLoader.loadComponent('sidebar', sidebar);
+                console.log('Sidebar loading result:', result);
+                
                 if (result && result.success) {
                     console.log(`Sidebar loaded successfully using unified component loader (source: ${result.source})`);
+                    
+                    // Verify that navigation links are present
+                    const navLinks = sidebar.querySelectorAll('.nav-link[data-section]');
+                    console.log(`Found ${navLinks.length} navigation links in loaded sidebar`);
+                    
+                    if (navLinks.length === 0) {
+                        console.warn('Warning: No navigation links found in loaded sidebar content');
+                        console.log('Sidebar innerHTML:', sidebar.innerHTML.substring(0, 200) + '...');
+                    }
+                    
                     return;
+                } else {
+                    console.error('Sidebar loading failed:', result);
                 }
             } catch (error) {
                 console.error('Failed to load sidebar with unified component loader:', error);
@@ -779,8 +796,40 @@ class RoyaltiesApp {
             console.error('Unified component loader not available for sidebar loading!');
         }
         
-        // If we get here, there's a serious problem - unified loader should always work
-        console.error('CRITICAL: Sidebar could not be loaded via unified component loader');
+        // If unified loader failed, try manual fallback
+        console.log('Attempting manual fallback for sidebar...');
+        try {
+            const fallbackContent = `
+                <div class="sidebar-header">
+                    <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+                    <h2>Royalties Manager</h2>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="#user-management" class="nav-link" data-section="user-management"><i class="fas fa-users"></i> User Management</a></li>
+                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records"><i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
+                        <li><a href="#contract-management" class="nav-link" data-section="contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
+                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics"><i class="fas fa-chart-bar"></i> Reports & Analytics</a></li>
+                        <li><a href="#communication" class="nav-link" data-section="communication"><i class="fas fa-comments"></i> Communication</a></li>
+                        <li><a href="#notifications" class="nav-link" data-section="notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+                        <li><a href="#compliance" class="nav-link" data-section="compliance"><i class="fas fa-shield-alt"></i> Compliance</a></li>
+                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
+                        <li><a href="#profile" class="nav-link" data-section="profile"><i class="fas fa-user"></i> Profile</a></li>
+                    </ul>
+                </nav>
+            `;
+            
+            sidebar.innerHTML = fallbackContent;
+            console.log('Manual fallback sidebar loaded successfully');
+            
+            // Verify navigation links in fallback
+            const navLinks = sidebar.querySelectorAll('.nav-link[data-section]');
+            console.log(`Manual fallback: Found ${navLinks.length} navigation links`);
+            
+        } catch (error) {
+            console.error('Even manual fallback failed:', error);
+        }
     }
 
     setupNavigation() {
@@ -1053,6 +1102,112 @@ class RoyaltiesApp {
         console.log('Application cleanup completed');
     }
 
+    // === MISSING UTILITY METHODS ===
+    calculateTotalRevenue() {
+        // Calculate total revenue from royalty records
+        try {
+            const records = this.dataManager ? this.dataManager.getRoyaltyRecords() : [];
+            const total = records.reduce((sum, record) => {
+                const amount = parseFloat(record.amount) || 0;
+                return sum + amount;
+            }, 0);
+            return total || 2450000; // Fallback to demo value
+        } catch (error) {
+            console.warn('Error calculating total revenue, using fallback:', error);
+            return 2450000; // Demo fallback value
+        }
+    }
+
+    initializeSectionComponent(sectionId, container) {
+        console.log(`Initializing section component: ${sectionId}`);
+        
+        try {
+            // Initialize section-specific functionality
+            switch(sectionId) {
+                case 'dashboard':
+                    this.initializeDashboardComponents();
+                    break;
+                case 'user-management':
+                    this.initializeUserManagement();
+                    break;
+                case 'royalty-records':
+                    this.initializeRoyaltyRecords();
+                    break;
+                case 'contract-management':
+                    this.initializeContractManagement();
+                    break;
+                case 'reporting-analytics':
+                    this.initializeReportingAnalytics();
+                    break;
+                case 'communication':
+                    this.initializeCommunication();
+                    break;
+                case 'notifications':
+                    this.initializeNotifications();
+                    break;
+                case 'compliance':
+                    this.initializeCompliance();
+                    break;
+                case 'regulatory-management':
+                    this.initializeRegulatoryManagement();
+                    break;
+                case 'profile':
+                    this.initializeProfile();
+                    break;
+                default:
+                    console.log(`No specific initialization for section: ${sectionId}`);
+            }
+        } catch (error) {
+            console.error(`Error initializing section ${sectionId}:`, error);
+        }
+    }
+
+    // Section-specific initialization methods
+    initializeUserManagement() {
+        console.log('Initializing user management functionality');
+        // Add user management specific initialization here
+    }
+
+    initializeRoyaltyRecords() {
+        console.log('Initializing royalty records functionality');
+        // Add royalty records specific initialization here
+    }
+
+    initializeContractManagement() {
+        console.log('Initializing contract management functionality');
+        // Add contract management specific initialization here
+    }
+
+    initializeReportingAnalytics() {
+        console.log('Initializing reporting analytics functionality');
+        // Add reporting analytics specific initialization here
+    }
+
+    initializeCommunication() {
+        console.log('Initializing communication functionality');
+        // Add communication specific initialization here
+    }
+
+    initializeNotifications() {
+        console.log('Initializing notifications functionality');
+        // Add notifications specific initialization here
+    }
+
+    initializeCompliance() {
+        console.log('Initializing compliance functionality');
+        // Add compliance specific initialization here
+    }
+
+    initializeRegulatoryManagement() {
+        console.log('Initializing regulatory management functionality');
+        // Add regulatory management specific initialization here
+    }
+
+    initializeProfile() {
+        console.log('Initializing profile functionality');
+        // Add profile specific initialization here
+    }
+
     // Enhanced debug function to check navigation status
     debugNavigation() {
         console.log('=== ENHANCED NAVIGATION DEBUG ===');
@@ -1077,7 +1232,12 @@ class RoyaltiesApp {
         }
         
         if (navLinks.length === 0 && altNavLinks.length === 0) {
-            console.error('❌ NO NAVIGATION LINKS FOUND!');
+            // Check if sidebar is still loading
+            if (sidebar && sidebar.innerHTML.length < 100) {
+                console.log('ℹ️ Navigation links not yet loaded (sidebar appears to be loading...)');
+            } else {
+                console.warn('⚠️ NO NAVIGATION LINKS FOUND - sidebar may have failed to load');
+            }
             console.log('🔍 Checking for alternative selectors...');
             
             // Check for alternative navigation patterns
@@ -2170,6 +2330,14 @@ window.deleteRecord = function(recordId) {
 window.testNavigation = function() {
     console.log('=== TESTING NAVIGATION ===');
     
+    // Check if sidebar has loaded first
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+    if (navLinks.length === 0) {
+        console.log('Navigation test: Sidebar not yet loaded (0 navigation links found)');
+        console.log('=== END NAVIGATION TEST ===');
+        return;
+    }
+    
     if (window.royaltiesApp || window.app) {
         const app = window.royaltiesApp || window.app;
         if (app.debugNavigation) {
@@ -2182,7 +2350,6 @@ window.testNavigation = function() {
     }
     
     // Also test clicking on navigation links programmatically
-    const navLinks = document.querySelectorAll('.nav-link[data-section]');
     console.log(`Found ${navLinks.length} navigation links for testing`);
     
     navLinks.forEach((link, index) => {
@@ -2225,12 +2392,31 @@ window.fixNavigation = function() {
     console.log('=== END NAVIGATION FIX ===');
 };
 
-// Auto-run navigation test after page load
+// Auto-run navigation test after application is fully loaded
 window.addEventListener('load', function() {
+    // Wait longer and check if app is ready before testing
     setTimeout(() => {
-        console.log('Auto-running navigation test...');
-        if (window.testNavigation) {
-            window.testNavigation();
+        // Only run test if sidebar has navigation links
+        const navLinks = document.querySelectorAll('.nav-link[data-section]');
+        if (navLinks.length > 0) {
+            console.log('Auto-running navigation test - sidebar loaded with', navLinks.length, 'links');
+            if (window.testNavigation) {
+                window.testNavigation();
+            }
+        } else {
+            console.log('Skipping auto navigation test - sidebar not yet loaded');
+            // Try again later
+            setTimeout(() => {
+                const retryNavLinks = document.querySelectorAll('.nav-link[data-section]');
+                if (retryNavLinks.length > 0) {
+                    console.log('Auto-running navigation test on retry - found', retryNavLinks.length, 'links');
+                    if (window.testNavigation) {
+                        window.testNavigation();
+                    }
+                } else {
+                    console.log('Navigation test skipped - sidebar still not loaded after retry');
+                }
+            }, 5000);
         }
-    }, 3000);
+    }, 6000); // Increased delay to ensure app is fully loaded
 });

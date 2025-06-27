@@ -226,6 +226,12 @@
                     // Safely resolve the target path
                     if (target === 'window.chartManager') {
                         targetObject = window.chartManager;
+                        
+                        // Prevent infinite recursion by checking if this is already a redirect
+                        if (targetObject && targetObject[method] && targetObject[method]._isRedirect) {
+                            console.warn(`SYSTEM UNIFICATION: Preventing infinite recursion for ${target}.${method}`);
+                            return null;
+                        }
                     } else if (target === 'window.notificationSystem') {
                         // For notification system, use either notificationSystem or notificationManager as fallback
                         targetObject = window.notificationSystem || window.notificationManager || window.enhancedNotificationSystem;
@@ -259,6 +265,9 @@
                         return null;
                     }
                 };
+                
+                // Mark as redirect to prevent infinite recursion
+                redirectFunction._isRedirect = true;
                 
                 // Add the redirect to both the main object and its instance
                 window[legacyObject][method] = redirectFunction;
