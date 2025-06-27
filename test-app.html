@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Royalties Manager - Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .section { display: none; }
+        #dashboard { display: block; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Mining Royalties Manager - Application Test</h1>
+        
+        <div id="test-results">
+            <h2>Test Results</h2>
+        </div>
+        
+        <!-- Mock sections for testing -->
+        <div id="app-container" style="display: none;">
+            <section id="dashboard" class="section">
+                <h3>Dashboard Test Section</h3>
+                <p>This is a test dashboard section.</p>
+            </section>
+            <section id="user-management" class="section">
+                <h3>User Management Test Section</h3>
+            </section>
+        </div>
+        
+        <button onclick="runTests()">Run Tests</button>
+        <button onclick="testShowSection()">Test showSection()</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <!-- Include only essential scripts for testing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/utils.js?v=20250627"></script>
+    <script src="app.js?v=20250627"></script>
+    
+    <script>
+        function addTestResult(message, type = 'info') {
+            const container = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+        
+        function clearResults() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '<h2>Test Results</h2>';
+        }
+        
+        async function runTests() {
+            clearResults();
+            addTestResult('Starting application tests...', 'info');
+            
+            try {
+                // Test 1: Check if app classes are available
+                if (typeof RoyaltiesApp !== 'undefined') {
+                    addTestResult('✅ RoyaltiesApp class is available', 'success');
+                } else {
+                    addTestResult('❌ RoyaltiesApp class is not available', 'error');
+                    return;
+                }
+                
+                // Test 2: Try to create app instance
+                let testApp;
+                try {
+                    testApp = new RoyaltiesApp();
+                    addTestResult('✅ RoyaltiesApp instance created successfully', 'success');
+                } catch (error) {
+                    addTestResult(`❌ Failed to create RoyaltiesApp instance: ${error.message}`, 'error');
+                    return;
+                }
+                
+                // Test 3: Check if availableSections is properly initialized
+                if (testApp.availableSections && Array.isArray(testApp.availableSections)) {
+                    addTestResult(`✅ availableSections initialized with ${testApp.availableSections.length} sections`, 'success');
+                } else {
+                    addTestResult('❌ availableSections not properly initialized', 'error');
+                }
+                
+                // Test 4: Try to call showSection method
+                try {
+                    await testApp.showSection('dashboard');
+                    addTestResult('✅ showSection() method executed without errors', 'success');
+                } catch (error) {
+                    addTestResult(`❌ showSection() failed: ${error.message}`, 'error');
+                }
+                
+                // Test 5: Check global app assignment
+                if (window.royaltiesApp || window.app) {
+                    addTestResult('✅ Global app reference exists', 'success');
+                } else {
+                    addTestResult('⚠️ No global app reference found', 'warning');
+                }
+                
+                addTestResult('Test suite completed!', 'info');
+                
+            } catch (error) {
+                addTestResult(`❌ Test suite failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testShowSection() {
+            if (window.royaltiesApp) {
+                window.royaltiesApp.showSection('user-management').then(() => {
+                    addTestResult('✅ Section switching test completed', 'success');
+                }).catch(error => {
+                    addTestResult(`❌ Section switching failed: ${error.message}`, 'error');
+                });
+            } else {
+                addTestResult('❌ No app instance available for testing', 'error');
+            }
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>

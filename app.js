@@ -569,6 +569,22 @@ class RoyaltiesApp {
 
         try {
             console.log('Initializing application...');
+            
+            // Ensure availableSections is always properly initialized
+            if (!this.availableSections || !Array.isArray(this.availableSections)) {
+                console.warn('Re-initializing availableSections during initialize()');
+                this.availableSections = [
+                    'dashboard', 'user-management', 'royalty-records', 
+                    'contract-management', 'reporting-analytics', 'communication', 
+                    'notifications', 'compliance', 'regulatory-management', 'profile'
+                ];
+            }
+            
+            // Initialize the data manager
+            if (this.dataManager && typeof this.dataManager.initialize === 'function') {
+                this.dataManager.initialize();
+            }
+            
             this.startLoadingSequence();
             this.isInitialized = true;
         } catch (error) {
@@ -756,8 +772,9 @@ class RoyaltiesApp {
             }
             this._currentlyLoading = sectionId;
             
-            // Ensure availableSections is defined
-            if (!this.availableSections) {
+            // Ensure availableSections is defined - defensive programming
+            if (!this.availableSections || !Array.isArray(this.availableSections)) {
+                console.warn('availableSections not properly initialized, reinitializing...');
                 this.availableSections = [
                     'dashboard', 'user-management', 'royalty-records', 
                     'contract-management', 'reporting-analytics', 'communication', 
@@ -765,9 +782,15 @@ class RoyaltiesApp {
                 ];
             }
             
+            // Validate sectionId before using includes
+            if (!sectionId || typeof sectionId !== 'string') {
+                console.error('Invalid sectionId provided:', sectionId);
+                sectionId = 'dashboard';
+            }
+            
             // Redirect legacy sections to active sections as needed
             if (!this.availableSections.includes(sectionId)) {
-                console.log('Redirecting from unavailable section to default section');
+                console.log(`Redirecting from unavailable section '${sectionId}' to default section`);
                 if (this.notificationManager && this.notificationManager.show) {
                     this.notificationManager.show('The requested section is not available', 'info');
                 }
@@ -801,11 +824,15 @@ class RoyaltiesApp {
 
             // Check if section is empty and needs content
             if (targetSection.children.length === 0 || !targetSection.hasAttribute('data-loaded')) {
+                console.log(`Section ${sectionId} needs content loading...`);
                 await this.loadSectionContent(sectionId);
                 targetSection.setAttribute('data-loaded', 'true');
             } else {
                 console.log(`Section ${sectionId} already has content, skipping load`);
             }
+            
+            // Force section initialization even if content exists
+            this.initializeSectionComponent(sectionId);
             
             // Reset loading flag
             this._currentlyLoading = null;
@@ -837,28 +864,27 @@ class RoyaltiesApp {
                 return;
             }
             
-            // ALWAYS use unified component loader as primary method
+            // First, always load fallback content immediately to prevent empty sections
+            this.loadFallbackSection(sectionId);
+            
+            // Then try to enhance with unified component loader
             if (window.unifiedComponentLoader) {
-                console.log(`Using unified component loader to load: ${sectionId}`);
+                console.log(`Attempting to enhance ${sectionId} with unified component loader...`);
                 try {
                     const result = await window.unifiedComponentLoader.loadComponent(sectionId, section);
                     if (result && result.success) {
-                        console.log(`Component ${sectionId} loaded successfully via unified component loader (source: ${result.source})`);
+                        console.log(`Component ${sectionId} enhanced successfully via unified component loader (source: ${result.source})`);
                         this.initializeSectionComponent(sectionId);
                         return;
                     } else {
-                        console.warn(`Unified component loader failed for ${sectionId}: ${result?.error || 'Unknown error'}`);
+                        console.log(`Unified component loader returned no enhancement for ${sectionId}, keeping fallback`);
                     }
                 } catch (error) {
-                    console.warn(`Unified component loader error for ${sectionId}:`, error);
+                    console.log(`Unified component loader enhancement failed for ${sectionId}, keeping fallback:`, error.message);
                 }
             } else {
-                console.error('Unified component loader not available!');
+                console.log('Unified component loader not available, using fallback content only');
             }
-            
-            // If we get here, unified loader failed - use fallback
-            console.warn(`Component ${sectionId} not loaded, using fallback content`);
-            this.loadFallbackSection(sectionId);
             
         } catch (error) {
             console.error(`Failed to load component ${sectionId}:`, error);
@@ -870,31 +896,127 @@ class RoyaltiesApp {
         const section = document.getElementById(sectionId);
         if (!section) return;
 
-        switch (sectionId) {
-            case 'dashboard':
-                this.loadDashboardContent(section);
-                break;
-            case 'user-management':
-                this.loadUserManagementContent(section);
-                break;
-            case 'royalty-records':
-                this.loadRoyaltyRecordsContent(section);
-                break;
-            default:
-                section.innerHTML = `
-                    <div class="page-header">
-                        <div class="page-title">
-                            <h1>${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
-                            <p>This section is under development</p>
+        console.log(`Loading fallback content for: ${sectionId}`);
+
+        // Comprehensive fallback content for all sections
+        const fallbackContent = {
+            'dashboard': () => this.loadDashboardContent(section),
+            'user-management': () => this.loadUserManagementContent(section),
+            'royalty-records': () => this.loadRoyaltyRecordsContent(section),
+            'contract-management': () => this.loadContractManagementContent(section),
+            'reporting-analytics': () => this.loadReportingAnalyticsContent(section),
+            'communication': () => this.loadCommunicationContent(section),
+            'notifications': () => this.loadNotificationsContent(section),
+            'compliance': () => this.loadComplianceContent(section),
+            'regulatory-management': () => this.loadRegulatoryManagementContent(section),
+            'profile': () => this.loadProfileContent(section)
+        };
+
+        // Load specific fallback content or generic content
+        if (fallbackContent[sectionId]) {
+            fallbackContent[sectionId]();
+        } else {
+            section.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1><i class="fas fa-cog"></i> ${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
+                        <p>This section is under development</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center py-4">
+                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                            <h4>Coming Soon</h4>
+                            <p class="text-muted">Content for this section will be available soon.</p>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <p>Content for this section will be available soon.</p>
-                        </div>
-                    </div>                `;
+                </div>
+            `;
         }
-    };
+        
+        console.log(`Fallback content loaded for: ${sectionId}`);
+    }
+
+    /**
+     * Validates that all required sections exist in the DOM and are properly initialized
+     * @returns {object} Validation result with details
+     */
+    validateSections() {
+        const validationResult = {
+            success: true,
+            missingSections: [],
+            availableSections: [],
+            errors: []
+        };
+        
+        try {
+            // Ensure availableSections exists
+            if (!this.availableSections || !Array.isArray(this.availableSections)) {
+                validationResult.errors.push('availableSections property not properly initialized');
+                this.availableSections = [
+                    'dashboard', 'user-management', 'royalty-records', 
+                    'contract-management', 'reporting-analytics', 'communication', 
+                    'notifications', 'compliance', 'regulatory-management', 'profile'
+                ];
+                console.warn('Fixed availableSections property during validation');
+            }
+            
+            // Check each section
+            this.availableSections.forEach(sectionId => {
+                const sectionElement = document.getElementById(sectionId);
+                if (sectionElement) {
+                    validationResult.availableSections.push(sectionId);
+                } else {
+                    validationResult.missingSections.push(sectionId);
+                    validationResult.success = false;
+                    console.warn(`Section element missing: ${sectionId}`);
+                }
+            });
+            
+            console.log('Section validation completed:', validationResult);
+            return validationResult;
+            
+        } catch (error) {
+            console.error('Error during section validation:', error);
+            validationResult.success = false;
+            validationResult.errors.push(error.message);
+            return validationResult;
+        }
+    }
+
+    /**
+     * Creates missing section elements if they don't exist
+     * @param {array} missingSections Array of missing section IDs
+     */
+    createMissingSections(missingSections) {
+        if (!missingSections || missingSections.length === 0) return;
+        
+        const mainElement = document.querySelector('main');
+        if (!mainElement) {
+            console.error('Main element not found - cannot create missing sections');
+            return;
+        }
+        
+        missingSections.forEach(sectionId => {
+            console.log(`Creating missing section: ${sectionId}`);
+            const sectionElement = document.createElement('section');
+            sectionElement.id = sectionId;
+            sectionElement.style.display = 'none';
+            sectionElement.innerHTML = `
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>${sectionId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h1>
+                        <p>Loading content...</p>
+                    </div>
+                </div>
+                <div class="loading-placeholder">
+                    <p>Section content is being loaded...</p>
+                </div>
+            `;
+            mainElement.appendChild(sectionElement);
+        });
+    }
 
     loadDashboardContent(section) {
         section.innerHTML = `
@@ -1503,9 +1625,10 @@ if (document.readyState === 'loading') {
 
 async function initializeApp() {
     try {
-        if (window.royaltiesApp) {
-            console.log('App already initialized');
-            return;
+        // Prevent multiple app instances
+        if (window.royaltiesApp || window.app) {
+            console.log('App already initialized, using existing instance');
+            return window.royaltiesApp || window.app;
         }
 
         console.log('Initializing Mining Royalties Manager application...');
@@ -1523,7 +1646,9 @@ async function initializeApp() {
             console.log('Will attempt to continue but some features may not work properly');
         } else {
             console.log('All dependencies loaded successfully');
-        }        app = new RoyaltiesApp();
+        }
+        
+        const app = new RoyaltiesApp();
         window.royaltiesApp = app;
         window.app = app; // Also assign to window.app for compatibility with startup.js
         await app.initialize();
@@ -1575,8 +1700,6 @@ async function initializeApp() {
         document.body.appendChild(fallbackError);
     }
 }
-
-window.app = app;
 
 RoyaltiesApp.prototype.updateRoyaltyRecordsTable = function() {
     try {
