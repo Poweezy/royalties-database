@@ -315,10 +315,29 @@
   <script src="js/utils.js?v=20250627" type="text/javascript"></script>
   <!-- Note: unified-component-loader.js is loaded in the head section and replaces module-loader.js -->
   <script src="app.js?v=20250627" type="text/javascript"></script>
-  <script src="js/component-initializer.js?v=20250627" type="text/javascript"></script>
-  <script src="js/sidebar-manager.js?v=20250627" type="text/javascript"></script>
-  <script src="js/startup.js?v=20250627" type="text/javascript"></script>
-  <script src="js/dashboard.js?v=20250630" type="text/javascript"></script>
+  <!-- Removed deleted scripts: component-initializer.js, sidebar-manager.js, startup.js, dashboard.js -->
+  
+  <!-- Application Initialization Script -->
+  <script>
+    // Initialize the application once all scripts are loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded - Initializing Application');
+      
+      // Initialize the main application
+      if (typeof RoyaltiesApp !== 'undefined') {
+        try {
+          console.log('Creating and initializing RoyaltiesApp...');
+          window.royaltiesApp = new RoyaltiesApp();
+          window.royaltiesApp.initialize();
+          console.log('Application initialized successfully');
+        } catch (error) {
+          console.error('Failed to initialize application:', error);
+        }
+      } else {
+        console.error('RoyaltiesApp class not found!');
+      }
+    });
+  </script>
   <!-- Service worker ensures all dependencies are cached for offline use -->
   <!-- Service Worker Registration -->
   <script>

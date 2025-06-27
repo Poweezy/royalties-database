@@ -698,9 +698,48 @@ class RoyaltiesApp {
             if (loginSection) loginSection.style.display = 'none';
             if (appContainer) appContainer.style.display = 'flex';
             
+            // Load sidebar and wait for it to complete
             await this.loadSidebar();
-            this.setupNavigation();
-            this.setupGlobalActions();
+            
+            // Wait longer for sidebar to render completely and then setup navigation with enhanced reliability
+            setTimeout(() => {
+                console.log('Setting up navigation after sidebar load...');
+                this.setupNavigation();
+                this.setupGlobalActions();
+                
+                // Debug navigation after setup with a longer delay
+                setTimeout(() => {
+                    this.debugNavigation();
+                    
+                    // Verify navigation is working and retry if needed
+                    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+                    if (navLinks.length === 0) {
+                        console.error('CRITICAL: No navigation links found after setup!');
+                        console.log('Attempting to reload sidebar and retry navigation setup...');
+                        this.loadSidebar().then(() => {
+                            // Wait longer before retrying
+                            setTimeout(() => {
+                                console.log('Retrying navigation setup after sidebar reload...');
+                                this.setupNavigation();
+                                
+                                // Final verification
+                                setTimeout(() => {
+                                    const finalCheck = document.querySelectorAll('.nav-link[data-section]');
+                                    if (finalCheck.length > 0) {
+                                        console.log(`RECOVERY SUCCESS: Found ${finalCheck.length} navigation links after retry`);
+                                    } else {
+                                        console.error('CRITICAL FAILURE: Navigation links still not found after retry');
+                                        // Force a manual navigation setup as last resort
+                                        this.forceNavigationSetup();
+                                    }
+                                }, 500);
+                            }, 2000);
+                        });
+                    } else {
+                        console.log(`SUCCESS: Found ${navLinks.length} navigation links`);
+                    }
+                }, 1500);
+            }, 2000);
             
             // Initialize mobile navigation
             this.mobileNav = new MobileNavigationManager();
@@ -745,22 +784,379 @@ class RoyaltiesApp {
     }
 
     setupNavigation() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.addEventListener('click', (e) => {
-                const navLink = e.target.closest('.nav-link');
-                if (navLink) {
-                    e.preventDefault();
-                    const section = navLink.dataset.section;
-                    
-                    if (section === 'logout') {
-                        this.handleLogout();
-                    } else {
-                        this.showSection(section);
+        console.log('Setting up navigation...');
+        
+        // Clear any existing navigation handlers to prevent duplicates
+        if (this._documentClickHandler) {
+            document.removeEventListener('click', this._documentClickHandler);
+        }
+        
+        // Use event delegation on the document for better reliability
+        this._documentClickHandler = (e) => {
+            const navLink = e.target.closest('.nav-link[data-section]');
+            if (navLink) {
+                e.preventDefault();
+                const section = navLink.dataset.section;
+                
+                console.log('Navigation clicked:', section);
+                
+                if (section === 'logout') {
+                    this.handleLogout();
+                } else if (section) {
+                    this.showSection(section);
+                }
+            }
+        };
+        
+        document.addEventListener('click', this._documentClickHandler);
+        console.log('Event delegation for navigation setup complete');
+        
+        // Also set up direct navigation for existing links with enhanced detection
+        const setupDirectNavigation = () => {
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) {
+                console.warn('Sidebar not found during navigation setup');
+                return 0;
+            }
+            
+            // Use multiple selectors to ensure we catch all navigation links
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            const altNavLinks = document.querySelectorAll('nav a[data-section]');
+            const allNavLinks = [...new Set([...navLinks, ...altNavLinks])]; // Remove duplicates
+            
+            console.log(`Found ${navLinks.length} .nav-link[data-section] navigation links`);
+            console.log(`Found ${altNavLinks.length} nav a[data-section] alternative navigation links`);
+            console.log(`Total unique navigation links: ${allNavLinks.length}`);
+            
+            if (allNavLinks.length === 0) {
+                console.warn('No navigation links found! Checking sidebar content...');
+                console.log('Sidebar innerHTML length:', sidebar.innerHTML.length);
+                console.log('Sidebar preview:', sidebar.innerHTML.substring(0, 300) + '...');
+                
+                // Check if sidebar content exists but links are not being detected
+                if (sidebar.innerHTML.includes('data-section=')) {
+                    console.warn('Sidebar contains data-section attributes but they are not being detected by querySelector');
+                    console.log('This may be a timing issue with DOM processing');
+                }
+                
+                // Try to force reload sidebar if it appears empty
+                if (sidebar.innerHTML.length < 100) {
+                    console.log('Sidebar appears empty, attempting reload...');
+                    return 0;
+                }
+            }
+            
+            allNavLinks.forEach((link, index) => {
+                const section = link.dataset.section;
+                console.log(`Navigation link ${index + 1}: ${section} (href: ${link.getAttribute('href')})`);
+                
+                // Ensure the link has the proper attributes
+                if (!section) {
+                    console.warn(`Link ${index + 1} missing data-section attribute`);
+                } else {
+                    // Additional verification that the section exists in DOM
+                    const sectionElement = document.getElementById(section);
+                    if (!sectionElement) {
+                        console.warn(`Warning: Navigation link for '${section}' found but section element does not exist`);
                     }
                 }
             });
+            
+            return allNavLinks.length;
+        };
+        
+        // Set up navigation immediately
+        const initialCount = setupDirectNavigation();
+        
+        // If no links found initially, retry multiple times with increasing delays and more aggressive recovery
+        if (initialCount === 0) {
+            console.log('No navigation links found initially, will retry with enhanced recovery...');
+            
+            const retrySetup = (attempt) => {
+                setTimeout(() => {
+                    console.log(`Re-setting up navigation (attempt ${attempt})...`);
+                    const count = setupDirectNavigation();
+                    
+                    if (count === 0 && attempt < 7) {  // Increased retry attempts
+                        if (attempt <= 3) {
+                            // First few attempts: just wait longer
+                            console.log(`Attempt ${attempt}: Still no navigation links, retrying in ${attempt + 1} seconds...`);
+                            retrySetup(attempt + 1);
+                        } else {
+                            // Later attempts: try reloading sidebar
+                            console.log('Still no navigation links, reloading sidebar...');
+                            this.loadSidebar().then(() => {
+                                // Wait longer after sidebar reload
+                                setTimeout(() => {
+                                    retrySetup(attempt + 1);
+                                }, 1500);
+                            }).catch(error => {
+                                console.error('Error reloading sidebar during navigation retry:', error);
+                                retrySetup(attempt + 1);
+                            });
+                        }
+                    } else if (count > 0) {
+                        console.log(`✅ Navigation setup successful on attempt ${attempt} with ${count} links`);
+                        // Re-run the debug to confirm
+                        setTimeout(() => this.debugNavigation(), 500);
+                    } else {
+                        console.error(`❌ Navigation setup failed after ${attempt} attempts`);
+                        console.log('Attempting force navigation setup as last resort...');
+                        this.forceNavigationSetup();
+                    }
+                }, attempt * 1000);
+            };
+            
+            retrySetup(1);
+        } else {
+            console.log(`✅ Navigation setup successful with ${initialCount} links`);
         }
+        
+        console.log('Navigation setup complete');
+    }
+    
+    // Force navigation setup as a last resort when normal setup fails
+    forceNavigationSetup() {
+        console.log('=== FORCING NAVIGATION SETUP ===');
+        
+        // Try to manually inject sidebar content if it's missing
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) {
+            console.error('Cannot force navigation setup: sidebar element not found');
+            return;
+        }
+        
+        // Check if sidebar is empty
+        if (sidebar.innerHTML.length < 100) {
+            console.log('Sidebar appears empty, injecting navigation manually...');
+            
+            // Manually inject the sidebar content
+            sidebar.innerHTML = `
+                <div class="sidebar-header">
+                    <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+                    <h2>Royalties Manager</h2>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard" class="nav-link" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="#user-management" class="nav-link" data-section="user-management"><i class="fas fa-users"></i> User Management</a></li>
+                        <li><a href="#royalty-records" class="nav-link" data-section="royalty-records"><i class="fas fa-file-invoice-dollar"></i> Royalty Records</a></li>
+                        <li><a href="#contract-management" class="nav-link" data-section="contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
+                        <li><a href="#reporting-analytics" class="nav-link" data-section="reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
+                        <li><a href="#communication" class="nav-link" data-section="communication"><i class="fas fa-envelope"></i> Communication</a></li>
+                        <li><a href="#notifications" class="nav-link" data-section="notifications"><i class="fas fa-bell"></i> Notifications <span id="notification-count">3</span></a></li>
+                        <li><a href="#compliance" class="nav-link" data-section="compliance"><i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
+                        <li><a href="#regulatory-management" class="nav-link" data-section="regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
+                        <li><a href="#profile" class="nav-link" data-section="profile"><i class="fas fa-user"></i> My Profile</a></li>
+                        <li><a href="#logout" class="nav-link" data-section="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </nav>
+            `;
+            
+            console.log('Manual sidebar content injected');
+        }
+        
+        // Force navigation setup after content injection
+        setTimeout(() => {
+            console.log('Setting up forced navigation...');
+            
+            // Set up event delegation if not already set up
+            if (!this._documentClickHandler) {
+                this._documentClickHandler = (e) => {
+                    const navLink = e.target.closest('.nav-link');
+                    if (navLink) {
+                        e.preventDefault();
+                        const section = navLink.dataset.section;
+                        
+                        console.log('Navigation clicked (forced setup):', section);
+                        
+                        if (section === 'logout') {
+                            this.handleLogout();
+                        } else if (section) {
+                            this.showSection(section);
+                        }
+                    }
+                };
+                
+                document.addEventListener('click', this._documentClickHandler);
+                console.log('Forced navigation event delegation setup complete');
+            }
+            
+            // Final verification
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            console.log(`Force setup result: ${navLinks.length} navigation links found`);
+            
+            if (navLinks.length > 0) {
+                console.log('✅ FORCE SETUP SUCCESSFUL - Navigation should now work');
+                navLinks.forEach((link, index) => {
+                    console.log(`  ${index + 1}. ${link.dataset.section}`);
+                });
+            } else {
+                console.error('❌ FORCE SETUP FAILED - Navigation links still not found');
+                console.log('This indicates a fundamental DOM issue that needs manual investigation');
+            }
+            
+        }, 100);
+        
+        console.log('=== END FORCE NAVIGATION SETUP ===');
+    }
+    
+    setupGlobalActions() {
+        // Set up any global actions or shortcuts here
+        console.log('Global actions setup complete');
+    }
+
+    handleLogout() {
+        console.log('Logout requested');
+        this.authManager.logout();
+        const appContainer = document.getElementById('app-container');
+        const loginSection = document.getElementById('login-section');
+        
+        if (appContainer) appContainer.style.display = 'none';
+        if (loginSection) loginSection.style.display = 'flex';
+        
+        this.notificationManager.show('Logged out successfully', 'info');
+    }
+
+    cleanup() {
+        console.log('Starting application cleanup...');
+        
+        // Cleanup navigation handlers
+        if (this._documentClickHandler) {
+            document.removeEventListener('click', this._documentClickHandler);
+            this._documentClickHandler = null;
+            console.log('Document click handler removed');
+        }
+        
+        // Cleanup any direct navigation event listeners
+        const navLinks = document.querySelectorAll('.nav-link[data-section]');
+        navLinks.forEach(link => {
+            // Clone and replace to remove all event listeners
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+        });
+        console.log(`Cleaned up ${navLinks.length} navigation link handlers`);
+        
+        // Cleanup mobile navigation
+        if (this.mobileNav) {
+            if (this.mobileNav.cleanup && typeof this.mobileNav.cleanup === 'function') {
+                this.mobileNav.cleanup();
+            }
+            this.mobileNav = null;
+            console.log('Mobile navigation cleaned up');
+        }
+        
+        // Reset current section
+        this.currentSection = 'dashboard';
+        this._currentlyLoading = null;
+        
+        console.log('Application cleanup completed');
+    }
+
+    // Enhanced debug function to check navigation status
+    debugNavigation() {
+        console.log('=== ENHANCED NAVIGATION DEBUG ===');
+        const sidebar = document.getElementById('sidebar');
+        const navLinks = document.querySelectorAll('.nav-link[data-section]');
+        const altNavLinks = document.querySelectorAll('nav a[data-section]');
+        const allDataSectionLinks = document.querySelectorAll('[data-section]');
+        
+        console.log('🔍 DOM Elements Check:');
+        console.log('  Sidebar element:', sidebar ? 'Found' : 'NOT FOUND');
+        console.log('  Sidebar innerHTML length:', sidebar ? sidebar.innerHTML.length : 'N/A');
+        console.log('  .nav-link[data-section] count:', navLinks.length);
+        console.log('  nav a[data-section] count:', altNavLinks.length);
+        console.log('  All [data-section] elements:', allDataSectionLinks.length);
+        
+        if (sidebar) {
+            console.log('🔍 Sidebar Content Analysis:');
+            console.log('  Contains "data-section":', sidebar.innerHTML.includes('data-section'));
+            console.log('  Contains "nav-link":', sidebar.innerHTML.includes('nav-link'));
+            console.log('  Contains navigation list:', sidebar.innerHTML.includes('<ul>'));
+            console.log('  Sidebar preview:', sidebar.innerHTML.substring(0, 300) + '...');
+        }
+        
+        if (navLinks.length === 0 && altNavLinks.length === 0) {
+            console.error('❌ NO NAVIGATION LINKS FOUND!');
+            console.log('🔍 Checking for alternative selectors...');
+            
+            // Check for alternative navigation patterns
+            const patterns = [
+                { selector: 'nav a[href^="#"]', description: 'Nav links with hash hrefs' },
+                { selector: 'a[data-section]', description: 'Any links with data-section' },
+                { selector: '.nav-link', description: 'Elements with nav-link class' },
+                { selector: 'nav a', description: 'Any nav links' },
+                { selector: 'aside a', description: 'Links in sidebar/aside' }
+            ];
+            
+            patterns.forEach(pattern => {
+                const elements = document.querySelectorAll(pattern.selector);
+                console.log(`  ${pattern.description}: ${elements.length} found`);
+                if (elements.length > 0 && elements.length <= 15) {
+                    elements.forEach((el, i) => {
+                        const section = el.dataset.section || 'no-data-section';
+                        const href = el.getAttribute('href') || 'no-href';
+                        const text = el.textContent.trim().substring(0, 20);
+                        console.log(`    ${i + 1}. section="${section}", href="${href}", text="${text}"`);
+                    });
+                }
+            });
+            
+            // Check if unified component loader is working
+            console.log('🔍 Component Loader Status:');
+            console.log('  unifiedComponentLoader available:', !!window.unifiedComponentLoader);
+            if (window.unifiedComponentLoader) {
+                console.log('  Component loader methods:', Object.getOwnPropertyNames(window.unifiedComponentLoader));
+            }
+            
+        } else {
+            const allLinks = [...navLinks, ...altNavLinks];
+            const uniqueLinks = [...new Set(allLinks)]; // Remove duplicates
+            
+            console.log('✅ Navigation links found:');
+            console.log(`  Total unique navigation links: ${uniqueLinks.length}`);
+            
+            uniqueLinks.forEach((link, index) => {
+                const section = link.dataset.section;
+                const href = link.getAttribute('href');
+                const text = link.textContent.trim();
+                const hasClickHandler = link.onclick !== null;
+                const classes = link.className;
+                console.log(`  ${index + 1}. section="${section}", href="${href}", text="${text}", classes="${classes}", hasHandler=${hasClickHandler}`);
+            });
+        }
+        
+        // Check if sections exist in DOM
+        const expectedSections = [
+            'dashboard', 'user-management', 'royalty-records', 'contract-management',
+            'reporting-analytics', 'communication', 'notifications', 'compliance',
+            'regulatory-management', 'profile'
+        ];
+        
+        console.log('🔍 Section Elements in DOM:');
+        expectedSections.forEach(sectionId => {
+            const element = document.getElementById(sectionId);
+            console.log(`  ${sectionId}: ${element ? '✅ Found' : '❌ NOT FOUND'}`);
+        });
+        
+        // Check event delegation status
+        console.log('🔍 Event Delegation Status:');
+        console.log('  Document click handler set:', !!this._documentClickHandler);
+        
+        // Test navigation programmatically
+        console.log('🔍 Navigation Test Functions:');
+        const testLinks = document.querySelectorAll('.nav-link[data-section]');
+        if (testLinks.length > 0) {
+            console.log('  You can test navigation by running these commands in console:');
+            testLinks.forEach(link => {
+                const section = link.dataset.section;
+                if (section && section !== 'logout') {
+                    console.log(`    window.royaltiesApp.showSection('${section}')`);
+                }
+            });
+        }
+        
+        console.log('=== END ENHANCED NAVIGATION DEBUG ===');
     }
     
     async showSection(sectionId) {
@@ -785,16 +1181,22 @@ class RoyaltiesApp {
             // Validate sectionId before using includes
             if (!sectionId || typeof sectionId !== 'string') {
                 console.error('Invalid sectionId provided:', sectionId);
-                sectionId = 'dashboard';
+                this._currentlyLoading = null; // Reset loading flag
+                return;
             }
             
             // Redirect legacy sections to active sections as needed
             if (!this.availableSections.includes(sectionId)) {
-                console.log(`Redirecting from unavailable section '${sectionId}' to default section`);
+                console.log(`Section '${sectionId}' not in available sections, redirecting to dashboard`);
                 if (this.notificationManager && this.notificationManager.show) {
                     this.notificationManager.show('The requested section is not available', 'info');
                 }
-                sectionId = 'dashboard';
+                this._currentlyLoading = null; // Reset loading flag
+                // CRITICAL FIX: Don't call showSection recursively if we're already trying to show dashboard
+                if (sectionId !== 'dashboard') {
+                    this.showSection('dashboard');
+                }
+                return;
             }
             
             // Hide all sections
@@ -804,15 +1206,15 @@ class RoyaltiesApp {
             // Show target section
             const targetSection = document.getElementById(sectionId);
             if (!targetSection) {
-                console.error(`Section ${sectionId} not found in DOM`);
+                console.error(`Section element #${sectionId} not found in DOM`);
                 if (this.notificationManager && this.notificationManager.show) {
                     this.notificationManager.show(`The ${sectionId.replace('-', ' ')} section is not available`, 'warning');
                 }
                 
-                // Fallback to dashboard only if not already trying dashboard
+                // CRITICAL FIX: Don't recursively call showSection if we're already trying to show dashboard
+                this._currentlyLoading = null; // Reset loading flag before potential recursion
                 if (sectionId !== 'dashboard') {
-                    console.log('Falling back to dashboard');
-                    this._currentlyLoading = null; // Reset loading flag
+                    console.log('Falling back to dashboard (element not found)');
                     this.showSection('dashboard');
                 }
                 return;
@@ -846,12 +1248,34 @@ class RoyaltiesApp {
             // Reset loading flag on error
             this._currentlyLoading = null;
             
-            // Fallback to dashboard on error
-            if (sectionId !== 'dashboard') {
+            // CRITICAL FIX: Only fallback to dashboard if we're not already trying to load dashboard AND we haven't exceeded retry attempts
+            if (sectionId !== 'dashboard' && !this._dashboardFallbackAttempted) {
                 console.log('Falling back to dashboard due to error');
+                this._dashboardFallbackAttempted = true;
+                setTimeout(() => {
+                    this._dashboardFallbackAttempted = false; // Reset after a delay
+                }, 5000);
                 this.showSection('dashboard');
             }
         }
+    }
+    
+    updateNavigationState(activeSection) {
+        console.log(`Updating navigation state for: ${activeSection}`);
+        
+        // Update navigation links to show active state
+        const navLinks = document.querySelectorAll('nav a, .nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${activeSection}` || 
+                link.dataset.section === activeSection) {
+                link.classList.add('active');
+                console.log(`Set active state for navigation link: ${activeSection}`);
+            }
+        });
+        
+        // Update current section tracking
+        this.currentSection = activeSection;
     }
     
     async loadSectionContent(sectionId) {
@@ -1375,122 +1799,252 @@ class RoyaltiesApp {
         `;
     }
 
-    initializeSectionComponent(sectionId) {
-        // Initialize section-specific functionality
-        switch (sectionId) {
-            case 'dashboard':
-                this.initializeDashboard();
-                break;
-            case 'user-management':
-                this.initializeUserManagement();
-                break;
-            case 'royalty-records':
-                this.initializeRoyaltyRecords();
-                break;
-        }
-    }
+    loadContractManagementContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Contract Management</h1>
+                    <p>Manage mining contracts and agreements</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Contracts
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Contract
+                    </button>
+                </div>
+            </div>
 
-    initializeDashboard() {
-        console.log('Dashboard initialized');
-        // Dashboard-specific initialization
-    }
-
-    initializeUserManagement() {
-        console.log('User management initialized');
-        // User management-specific initialization
-    }
-
-    initializeRoyaltyRecords() {
-        console.log('Royalty records initialized');
-        // Royalty records-specific initialization
-    }
-
-    updateNavigationState(activeSection) {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.dataset.section === activeSection) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    setupGlobalActions() {
-        // Make global functions available
-        window.dataManager = this.dataManager;
-        window.notificationManager = this.notificationManager;
-        window.royaltiesApp = this;
-    }
-
-    // Helper methods for dashboard calculations
-    calculateTotalRevenue() {
-        return this.dataManager.getRoyaltyRecords()
-            .reduce((total, record) => total + record.royalties, 0);
-    }
-
-    calculateComplianceRate() {
-        const records = this.dataManager.getRoyaltyRecords();
-        const paidRecords = records.filter(r => r.status === 'Paid').length;
-        return records.length > 0 ? Math.round((paidRecords / records.length) * 100) : 0;
-    }
-
-    getOverdueCount() {
-        return this.dataManager.getRoyaltyRecords()
-            .filter(r => r.status === 'Overdue').length;
-    }
-
-    handleLogout() {
-        try {
-            this.authManager.logout();
-            
-            const appContainer = document.getElementById('app-container');
-            const loginSection = document.getElementById('login-section');
-            
-            if (appContainer) appContainer.style.display = 'none';
-            if (loginSection) {
-                loginSection.style.display = 'flex';
-                const form = document.getElementById('login-form');
-                if (form) form.reset();
-            }
-            
-            this.notificationManager.show('Logged out successfully', 'info');
-        } catch (error) {
-            console.error('Logout error:', error);
-            this.notificationManager.show('Error during logout', 'error');
-        }
-    }
-
-    showErrorMessage(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.innerHTML = `
-            <div style="
-                position: fixed; 
-                top: 50%; 
-                left: 50%; 
-                transform: translate(-50%, -50%);
-                background: white; 
-                padding: 2rem; 
-                border-radius: 8px; 
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                text-align: center;
-                z-index: 10000;
-            ">
-                <i class="fas fa-exclamation-triangle" style="color: #e53e3e; font-size: 3rem; margin-bottom: 1rem;"></i>
-                <h3 style="margin: 0 0 1rem 0; color: #1a202c;">Application Error</h3>
-                <p style="margin: 0 0 1.5rem 0; color: #4a5568;">${message}</p>
-                <button onclick="location.reload()" style="
-                    background: #1a365d; 
-                    color: white; 
-                    border: none; 
-                    padding: 0.75rem 1.5rem; 
-                    border-radius: 6px; 
-                    cursor: pointer;
-                ">
-                    Refresh Page
-                </button>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Active Contracts</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+                        <h4>Contract Management</h4>
+                        <p class="text-muted">Contract management functionality will be available here.</p>
+                    </div>
+                </div>
             </div>
         `;
-        document.body.appendChild(errorDiv);
+    }
+
+    loadReportingAnalyticsContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Reports & Analytics</h1>
+                    <p>Generate comprehensive reports and analyze data</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Report
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card analytics-chart">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-area"></i> Revenue Analytics</h5>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenue-analytics-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card analytics-chart">
+                    <div class="chart-header">
+                        <h5><i class="fas fa-chart-bar"></i> Production Analytics</h5>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="production-analytics-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Initialize analytics charts
+        setTimeout(() => {
+            if (this.chartManager && this.chartManager.createRevenueChart) {
+                this.chartManager.createRevenueChart('revenue-analytics-chart');
+            }
+            if (this.chartManager && this.chartManager.createProductionChart) {
+                this.chartManager.createProductionChart('production-analytics-chart');
+            }
+        }, 300);
+    }
+
+    loadCommunicationContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Communication</h1>
+                    <p>Internal messaging and communication tools</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Message
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Messages</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h4>Communication Center</h4>
+                        <p class="text-muted">Messaging and communication features will be available here.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    loadNotificationsContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Notifications</h1>
+                    <p>System notifications and alerts</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-check"></i> Mark All Read
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Notifications</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-bell fa-3x text-muted mb-3"></i>
+                        <h4>Notification Center</h4>
+                        <p class="text-muted">System notifications and alerts will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    loadComplianceContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Compliance</h1>
+                    <p>Regulatory compliance monitoring and management</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Compliance Report
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> Run Compliance Check
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Compliance Status</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                        <h4>Compliance Monitoring</h4>
+                        <p class="text-muted">Regulatory compliance tools and monitoring will be available here.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    loadRegulatoryManagementContent(section) {
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Regulatory Management</h1>
+                    <p>Manage regulatory requirements and submissions</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Requirements
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Submission
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Regulatory Requirements</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-gavel fa-3x text-muted mb-3"></i>
+                        <h4>Regulatory Management</h4>
+                        <p class="text-muted">Regulatory management tools and requirements tracking will be available here.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    loadProfileContent(section) {
+        const user = this.authManager.getCurrentUser();
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>User Profile</h1>
+                    <p>Manage your account settings and preferences</p>
+                </div>
+            </div>
+
+            <div class="profile-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Account Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user-circle fa-4x"></i>
+                            </div>
+                            <div class="profile-details">
+                                <h4>${user ? user.username : 'Unknown User'}</h4>
+                                <p class="role-badge ${user ? user.role.toLowerCase() : 'viewer'}">${user ? user.role : 'Viewer'}</p>
+                                <p class="text-muted">Last login: ${new Date().toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Account Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center py-4">
+                            <i class="fas fa-cog fa-3x text-muted mb-3"></i>
+                            <h4>Settings</h4>
+                            <p class="text-muted">User preferences and account settings will be available here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 }
 
@@ -1612,548 +2166,71 @@ window.deleteRecord = function(recordId) {
     }
 };
 
-// ===== APPLICATION INITIALIZATION =====
-
-// Clean initialization
-let app = null;
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-    initializeApp();
-}
-
-async function initializeApp() {
-    try {
-        // Prevent multiple app instances
-        if (window.royaltiesApp || window.app) {
-            console.log('App already initialized, using existing instance');
-            return window.royaltiesApp || window.app;
-        }
-
-        console.log('Initializing Mining Royalties Manager application...');
-        
-        // Verify dependencies
-        const dependencies = [
-            { name: 'unifiedComponentLoader', global: 'unifiedComponentLoader' },
-            { name: 'Chart.js', global: 'Chart' },
-            { name: 'chartManager', global: 'chartManager' }
-        ];
-        
-        const missingDeps = dependencies.filter(dep => !window[dep.global]);
-        if (missingDeps.length > 0) {
-            console.warn('Missing dependencies:', missingDeps.map(d => d.name).join(', '));
-            console.log('Will attempt to continue but some features may not work properly');
+// Global navigation test functions for debugging
+window.testNavigation = function() {
+    console.log('=== TESTING NAVIGATION ===');
+    
+    if (window.royaltiesApp || window.app) {
+        const app = window.royaltiesApp || window.app;
+        if (app.debugNavigation) {
+            app.debugNavigation();
         } else {
-            console.log('All dependencies loaded successfully');
+            console.log('debugNavigation method not found on app instance');
         }
-        
-        const app = new RoyaltiesApp();
-        window.royaltiesApp = app;
-        window.app = app; // Also assign to window.app for compatibility with startup.js
-        await app.initialize();
-        
-        // Run diagnostics if requested
-        if (window.appDiagnostics && window.location.search.includes('diagnostics=true')) {
-            console.log('Running diagnostics after initialization...');
-            window.appDiagnostics.runAll();
-        }
-    } catch (error) {
-        console.error('Failed to initialize application:', error);
-        // Show fallback error UI
-        const fallbackError = document.createElement('div');
-        fallbackError.innerHTML = `
-            <div style="
-                position: fixed; 
-                top: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 100%; 
-                background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
-                display: flex; 
-                align-items: center; 
-                justify-content: center;
-                color: white;
-                font-family: 'Inter', sans-serif;
-                z-index: 10000;
-            ">
-                <div style="text-align: center; max-width: 400px; padding: 2rem;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                    <h1 style="margin: 0 0 1rem 0;">Application Failed to Load</h1>
-                    <p style="margin: 0 0 2rem 0;">
-                        There was an error loading the Mining Royalties Manager. 
-                        Please refresh the page or contact support.
-                    </p>
-                    <button onclick="location.reload()" style="
-                        background: rgba(255,255,255,0.2); 
-                        color: white; 
-                        border: 2px solid rgba(255,255,255,0.3); 
-                        padding: 0.75rem 2rem; 
-                        border-radius: 6px; 
-                        cursor: pointer;
-                    ">
-                        Refresh Page
-                    </button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(fallbackError);
-    }
-}
-
-RoyaltiesApp.prototype.updateRoyaltyRecordsTable = function() {
-    try {
-        const royaltyRecords = this.dataManager.getRoyaltyRecords();
-        const tableBody = document.getElementById('royalty-records-table-body');
-        
-        if (!tableBody) {
-            console.warn('Royalty records table body not found');
-            return;
-        }
-          if (royaltyRecords.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 2rem;">
-                        No royalty records found
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        tableBody.innerHTML = royaltyRecords.map(record => `
-            <tr data-record-id="${record.id}">
-                <td>
-                    <input type="checkbox" class="record-checkbox" value="${record.id}">
-                </td>
-                <td>${record.referenceNumber}</td>
-                <td>${record.entity}</td>
-                <td>${record.mineral}</td>
-                <td>${record.volume ? record.volume.toLocaleString() : '0'}</td>
-                <td>E ${record.royalties ? record.royalties.toLocaleString() : '0'}</td>
-                <td>${record.date}</td>
-                <td>
-                    <span class="status-badge ${record.status ? record.status.toLowerCase() : 'pending'}">
-                        ${record.status || 'Pending'}
-                    </span>
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning" onclick="editRecord(${record.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Update summary statistics
-        this.updateRoyaltyRecordsSummary(royaltyRecords);
-        
-        console.log('Royalty records table updated successfully');
-    } catch (error) {
-        console.error('Error updating royalty records table:', error);
-        this.notificationManager.show('Error loading royalty records', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.updateRoyaltyRecordsSummary = function(records = null) {
-    try {
-        const royaltyRecords = records || this.dataManager.getRoyaltyRecords();
-        
-        const totalRecords = royaltyRecords.length;
-        const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + (record.royalties || 0), 0);
-        const paidRecords = royaltyRecords.filter(r => r.status === 'Paid').length;
-        const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
-        const overdueRecords = royaltyRecords.filter(r => r.status === 'Overdue').length;
-        
-        // Update summary elements
-        this.updateElement('total-records-count', totalRecords);
-        this.updateElement('total-royalties-amount', `E ${totalRoyalties.toLocaleString()}`);
-        this.updateElement('paid-records-count', paidRecords);
-        this.updateElement('pending-records-count', pendingRecords);
-        this.updateElement('overdue-records-count', overdueRecords);
-        
-        // Calculate compliance rate
-        const complianceRate = totalRecords > 0 ? Math.round((paidRecords / totalRecords) * 100) : 0;
-        this.updateElement('records-compliance-rate', `${complianceRate}%`);
-        
-        // Update progress bar
-        const progressBar = document.getElementById('records-compliance-progress');
-        if (progressBar) {
-            progressBar.style.width = `${complianceRate}%`;
-        }
-        
-    } catch (error) {
-        console.error('Error updating royalty records summary:', error);
-    }
-};
-
-RoyaltiesApp.prototype.filterRoyaltyRecords = function(filterType) {
-    try {
-        const allRecords = this.dataManager.getRoyaltyRecords();
-        let filteredRecords;
-        
-        switch (filterType) {
-            case 'all':
-                filteredRecords = allRecords;
-                break;
-            case 'paid':
-                filteredRecords = allRecords.filter(r => r.status === 'Paid');
-                break;
-            case 'pending':
-                filteredRecords = allRecords.filter(r => r.status === 'Pending');
-                break;
-            case 'overdue':
-                filteredRecords = allRecords.filter(r => r.status === 'Overdue');
-                break;
-            default:
-                filteredRecords = allRecords;
-        }
-        
-        this.displayFilteredRecords(filteredRecords);
-        this.notificationManager.show(`Showing ${filteredRecords.length} ${filterType} records`, 'info');
-        
-    } catch (error) {
-        console.error('Error filtering royalty records:', error);
-        this.notificationManager.show('Error filtering records', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.searchRoyaltyRecords = function(searchTerm) {
-    try {
-        const allRecords = this.dataManager.getRoyaltyRecords();
-        const searchResults = allRecords.filter(record => 
-            record.referenceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            record.entity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            record.mineral.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
-        this.displayFilteredRecords(searchResults);
-        
-        if (searchTerm.length > 0) {
-            this.notificationManager.show(`Found ${searchResults.length} records matching "${searchTerm}"`, 'info');
-        }
-        
-    } catch (error) {
-        console.error('Error searching royalty records:', error);
-        this.notificationManager.show('Error searching records', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.displayFilteredRecords = function(records) {
-    const tableBody = document.getElementById('royalty-records-table-body');
-    if (!tableBody) return;
-    
-    if (records.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem;">
-                    No records match the current filter
-                </td>
-            </tr>
-        `;
-        return;
+    } else {
+        console.log('No app instance found');
     }
     
-    tableBody.innerHTML = records.map(record => `
-        <tr data-record-id="${record.id}">
-            <td>
-                <input type="checkbox" class="record-checkbox" value="${record.id}">
-            </td>
-            <td>${record.referenceNumber}</td>
-            <td>${record.entity}</td>
-            <td>${record.mineral}</td>
-            <td>${record.volume.toLocaleString()}</td>
-            <td>E ${record.royalties.toLocaleString()}</td>
-            <td>${record.date}</td>
-            <td>
-                <span class="status-badge ${record.status.toLowerCase()}">
-                    ${record.status}
-                </span>
-            </td>
-            <td>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-warning" onclick="editRecord(${record.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+    // Also test clicking on navigation links programmatically
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+    console.log(`Found ${navLinks.length} navigation links for testing`);
     
-    this.updateRoyaltyRecordsSummary(records);
-};
-
-RoyaltiesApp.prototype.showAddRecordModal = function() {
-    try {
-        this.notificationManager.show('Opening add record form...', 'info');
+    navLinks.forEach((link, index) => {
+        const section = link.dataset.section;
+        console.log(`Testing link ${index + 1}: ${section}`);
         
-        // Create modal content
-        const modalContent = `
-            <div class="modal-overlay" id="add-record-modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Add New Royalty Record</h3>
-                        <button class="modal-close" onclick="closeAddRecordModal()">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="add-record-form" class="grid-4">
-                            <div class="form-group">
-                                <label for="record-entity">Entity:</label>
-                                <select id="record-entity" required>
-                                    <option value="">Select Entity</option>
-                                    ${this.dataManager.getEntities().map(entity => 
-                                        `<option value="${entity.name}">${entity.name}</option>`
-                                    ).join('')}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-mineral">Mineral:</label>
-                                <select id="record-mineral" required>
-                                    <option value="">Select Mineral</option>
-                                    ${this.dataManager.getMinerals().map(mineral => 
-                                        `<option value="${mineral.name}" data-tariff="${mineral.tariff}">${mineral.name}</option>`
-                                    ).join('')}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-volume">Volume:</label>
-                                <input type="number" id="record-volume" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-tariff">Tariff (E):</label>
-                                <input type="number" id="record-tariff" min="0" step="0.01" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-royalties">Calculated Royalties (E):</label>
-                                <input type="number" id="record-royalties" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="record-date">Date:</label>
-                                <input type="date" id="record-date" required value="${new Date().toISOString().split('T')[0]}">
-                            </div>
-                            <div class="form-group">
-                                <label for="record-status">Status:</label>
-                                <select id="record-status" required>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Paid">Paid</option>
-                                    <option value="Overdue">Overdue</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeAddRecordModal()">Cancel</button>
-                        <button type="submit" form="add-record-form" class="btn btn-primary">Add Record</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Add modal to page
-        document.body.insertAdjacentHTML('beforeend', modalContent);
-        
-        // Setup form handlers
-        this.setupAddRecordFormHandlers();
-        
-    } catch (error) {
-        console.error('Error showing add record modal:', error);
-        this.notificationManager.show('Error opening add record form', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.setupAddRecordFormHandlers = function() {
-    const mineralSelect = document.getElementById('record-mineral');
-    const volumeInput = document.getElementById('record-volume');
-    const tariffInput = document.getElementById('record-tariff');
-    const royaltiesInput = document.getElementById('record-royalties');
-    const form = document.getElementById('add-record-form');
-    
-    // Auto-calculate royalties
-    const calculateRoyalties = () => {
-        const volume = parseFloat(volumeInput.value) || 0;
-        const tariff = parseFloat(tariffInput.value) || 0;
-        const royalties = volume * tariff;
-        royaltiesInput.value = royalties.toFixed(2);
-    };
-    
-    // Set tariff when mineral is selected
-    mineralSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const tariff = selectedOption.dataset.tariff || 0;
-        tariffInput.value = tariff;
-        calculateRoyalties();
+        // Create a test click function
+        window[`testClick${section.replace('-', '')}`] = function() {
+            console.log(`Simulating click on ${section} link`);
+            link.click();
+        };
     });
     
-    // Recalculate when volume changes
-    volumeInput.addEventListener('input', calculateRoyalties);
+    console.log('=== END NAVIGATION TEST ===');
+    console.log('You can now test navigation by calling testClickdashboard(), testClickusermanagement(), etc.');
+};
+
+window.fixNavigation = function() {
+    console.log('=== FIXING NAVIGATION ===');
     
-    // Handle form submission
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleAddRecordSubmit();
-    });
-};
-
-RoyaltiesApp.prototype.handleAddRecordSubmit = function() {
-    try {
-        const formData = {
-            entity: document.getElementById('record-entity').value,
-            mineral: document.getElementById('record-mineral').value,
-            volume: parseFloat(document.getElementById('record-volume').value),
-            tariff: parseFloat(document.getElementById('record-tariff').value),
-            royalties: parseFloat(document.getElementById('record-royalties').value),
-            date: document.getElementById('record-date').value,
-            status: document.getElementById('record-status').value
-        };
+    if (window.royaltiesApp || window.app) {
+        const app = window.royaltiesApp || window.app;
+        console.log('Re-setting up navigation...');
         
-        // Validate form data
-        if (!formData.entity || !formData.mineral || !formData.volume || !formData.date) {
-            this.notificationManager.show('Please fill in all required fields', 'error');
-            return;
-        }
-        
-        // Generate reference number
-        const referenceNumber = `ROY-${new Date().getFullYear()}-${String(this.dataManager.getRoyaltyRecords().length + 1).padStart(3, '0')}`;
-        
-        // Create new record
-        const newRecord = {
-            id: this.dataManager.getRoyaltyRecords().length + 1,
-            referenceNumber,
-            ...formData
-        };
-        
-        // Add to data manager
-        this.dataManager.getRoyaltyRecords().push(newRecord);
-        
-        // Add audit entry
-        this.dataManager.addAuditEntry({
-            user: this.authManager.getCurrentUser().username,
-            action: 'Create Record',
-            target: referenceNumber,
-            ipAddress: '192.168.1.100',
-            status: 'Success'
-        });
-        
-        // Close modal and refresh table
-        this.closeAddRecordModal();
-        this.updateRoyaltyRecordsTable();
-        
-        this.notificationManager.show('Royalty record added successfully', 'success');
-        
-    } catch (error) {
-        console.error('Error adding royalty record:', error);
-        this.notificationManager.show('Error adding record', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.closeAddRecordModal = function() {
-    const modal = document.getElementById('add-record-modal');
-    if (modal) {
-        modal.remove();
-    }
-};
-
-RoyaltiesApp.prototype.exportRoyaltyRecords = function() {
-    try {
-        this.notificationManager.show('Exporting royalty records...', 'info');
-        
-        setTimeout(() => {
-            this.notificationManager.show('Royalty records exported successfully', 'success');
-        }, 2000);
-        
-    } catch (error) {
-        console.error('Error exporting royalty records:', error);
-        this.notificationManager.show('Error exporting records', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.handleBulkActions = function() {
-    try {
-        const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
-        const selectedIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
-        
-        if (selectedIds.length === 0) {
-            this.notificationManager.show('Please select records to perform bulk actions', 'warning');
-            return;
-        }
-        
-        this.notificationManager.show(`Selected ${selectedIds.length} records for bulk action`, 'info');
-        
-    } catch (error) {
-        console.error('Error handling bulk actions:', error);
-        this.notificationManager.show('Error performing bulk action', 'error');
-    }
-};
-
-RoyaltiesApp.prototype.updateElement = function(id, content) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = content;
-    }
-};
-
-// Global functions for royalty records
-window.viewRecord = function(recordId) {
-    try {
-        if (window.recordActions && typeof window.recordActions.viewRecord === 'function') {
-            window.recordActions.viewRecord(recordId);
+        if (app.setupNavigation) {
+            app.setupNavigation();
+            console.log('Navigation setup completed');
+            
+            // Test it
+            setTimeout(() => {
+                window.testNavigation();
+            }, 1000);
         } else {
-            window.notificationManager.show(`Viewing record ${recordId}`, 'info');
+            console.log('setupNavigation method not found on app instance');
         }
-    } catch (error) {
-        console.error('Error viewing record:', error);
+    } else {
+        console.log('No app instance found');
     }
+    
+    console.log('=== END NAVIGATION FIX ===');
 };
 
-window.editRecord = function(recordId) {
-    try {
-        if (window.recordActions && typeof window.recordActions.editRecord === 'function') {
-            window.recordActions.editRecord(recordId);
-        } else {
-            window.notificationManager.show(`Editing record ${recordId}`, 'info');
+// Auto-run navigation test after page load
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        console.log('Auto-running navigation test...');
+        if (window.testNavigation) {
+            window.testNavigation();
         }
-    } catch (error) {
-        console.error('Error editing record:', error);
-    }
-};
-
-window.deleteRecord = function(recordId) {
-    try {
-        if (window.recordActions && typeof window.recordActions.deleteRecord === 'function') {
-            window.recordActions.deleteRecord(recordId);
-        } else {
-            if (confirm('Are you sure you want to delete this record?')) {
-                window.notificationManager.show(`Record ${recordId} deleted`, 'success');
-            }
-        }
-    } catch (error) {
-        console.error('Error deleting record:', error);
-    }
-};
-
-window.closeAddRecordModal = function() {
-    try {
-        if (window.royaltiesApp && typeof window.royaltiesApp.closeAddRecordModal === 'function') {
-            window.royaltiesApp.closeAddRecordModal();
-        } else {
-            const modal = document.getElementById('add-record-modal');
-            if (modal) modal.remove();
-        }
-    } catch (error) {
-        console.error('Error closing modal:', error);
-    }
-};
+    }, 3000);
+});

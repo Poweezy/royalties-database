@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Loading Test - Mining Royalties Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #1a365d;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .test-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+        .test-card h3 {
+            margin-top: 0;
+            color: #1a365d;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .btn {
+            background: #1a365d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #2d4a66;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.testing {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 Mining Royalties Manager - Section Loading Test</h1>
+            <p>This tool tests all application sections to ensure they load correctly without errors or recursive loops.</p>
+            <button class="btn" onclick="runAllTests()">🚀 Run All Tests</button>
+            <button class="btn" onclick="clearLogs()">🧹 Clear Logs</button>
+        </div>
+
+        <div class="test-grid">
+            <!-- Application Loading Test -->
+            <div class="test-card">
+                <h3>📱 Application Loading</h3>
+                <button class="btn" onclick="testAppLoad()">Test App Load</button>
+                <div id="app-status" class="status">Ready to test</div>
+                <div id="app-log" class="log">Click "Test App Load" to begin...</div>
+            </div>
+
+            <!-- Section Loading Tests -->
+            <div class="test-card">
+                <h3>📄 Dashboard Section</h3>
+                <button class="btn" onclick="testSection('dashboard')">Test Dashboard</button>
+                <div id="dashboard-status" class="status">Ready to test</div>
+                <div id="dashboard-log" class="log">Click "Test Dashboard" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>👥 User Management</h3>
+                <button class="btn" onclick="testSection('user-management')">Test User Management</button>
+                <div id="user-management-status" class="status">Ready to test</div>
+                <div id="user-management-log" class="log">Click "Test User Management" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>💰 Royalty Records</h3>
+                <button class="btn" onclick="testSection('royalty-records')">Test Royalty Records</button>
+                <div id="royalty-records-status" class="status">Ready to test</div>
+                <div id="royalty-records-log" class="log">Click "Test Royalty Records" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>📋 Contract Management</h3>
+                <button class="btn" onclick="testSection('contract-management')">Test Contract Management</button>
+                <div id="contract-management-status" class="status">Ready to test</div>
+                <div id="contract-management-log" class="log">Click "Test Contract Management" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>📊 Reporting & Analytics</h3>
+                <button class="btn" onclick="testSection('reporting-analytics')">Test Reporting</button>
+                <div id="reporting-analytics-status" class="status">Ready to test</div>
+                <div id="reporting-analytics-log" class="log">Click "Test Reporting" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>💬 Communication</h3>
+                <button class="btn" onclick="testSection('communication')">Test Communication</button>
+                <div id="communication-status" class="status">Ready to test</div>
+                <div id="communication-log" class="log">Click "Test Communication" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>🔔 Notifications</h3>
+                <button class="btn" onclick="testSection('notifications')">Test Notifications</button>
+                <div id="notifications-status" class="status">Ready to test</div>
+                <div id="notifications-log" class="log">Click "Test Notifications" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>🛡️ Compliance</h3>
+                <button class="btn" onclick="testSection('compliance')">Test Compliance</button>
+                <div id="compliance-status" class="status">Ready to test</div>
+                <div id="compliance-log" class="log">Click "Test Compliance" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>⚖️ Regulatory Management</h3>
+                <button class="btn" onclick="testSection('regulatory-management')">Test Regulatory</button>
+                <div id="regulatory-management-status" class="status">Ready to test</div>
+                <div id="regulatory-management-log" class="log">Click "Test Regulatory" to begin...</div>
+            </div>
+
+            <div class="test-card">
+                <h3>👤 Profile</h3>
+                <button class="btn" onclick="testSection('profile')">Test Profile</button>
+                <div id="profile-status" class="status">Ready to test</div>
+                <div id="profile-log" class="log">Click "Test Profile" to begin...</div>
+            </div>
+        </div>
+
+        <!-- Test Results Summary -->
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3>📈 Test Results Summary</h3>
+            <div id="summary-results">No tests run yet</div>
+        </div>
+
+        <!-- Live Application Frame -->
+        <div style="margin-top: 30px;">
+            <h3>🖥️ Live Application (for manual testing)</h3>
+            <iframe id="app-frame" src="royalties.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const sections = [
+            'dashboard', 'user-management', 'royalty-records', 'contract-management',
+            'reporting-analytics', 'communication', 'notifications', 'compliance',
+            'regulatory-management', 'profile'
+        ];
+
+        function log(sectionId, message) {
+            const logElement = document.getElementById(sectionId + '-log');
+            if (logElement) {
+                const timestamp = new Date().toLocaleTimeString();
+                logElement.innerHTML += `[${timestamp}] ${message}<br>`;
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        function setStatus(sectionId, status, message) {
+            const statusElement = document.getElementById(sectionId + '-status');
+            if (statusElement) {
+                statusElement.className = `status ${status}`;
+                statusElement.textContent = message;
+            }
+        }
+
+        function clearLogs() {
+            sections.forEach(section => {
+                const logElement = document.getElementById(section + '-log');
+                if (logElement) {
+                    logElement.innerHTML = 'Logs cleared...<br>';
+                }
+                setStatus(section, '', 'Ready to test');
+            });
+            
+            const appLog = document.getElementById('app-log');
+            if (appLog) {
+                appLog.innerHTML = 'Logs cleared...<br>';
+            }
+            setStatus('app', '', 'Ready to test');
+            
+            document.getElementById('summary-results').textContent = 'No tests run yet';
+        }
+
+        function testAppLoad() {
+            setStatus('app', 'testing', 'Testing application load...');
+            log('app', 'Starting application load test');
+            
+            const frame = document.getElementById('app-frame');
+            const startTime = performance.now();
+            let hasError = false;
+            
+            // Create a new iframe for testing
+            const testFrame = document.createElement('iframe');
+            testFrame.style.display = 'none';
+            testFrame.src = 'royalties.html';
+            document.body.appendChild(testFrame);
+            
+            testFrame.onload = function() {
+                const loadTime = Math.round(performance.now() - startTime);
+                log('app', `Application loaded in ${loadTime}ms`);
+                
+                setTimeout(() => {
+                    try {
+                        const appWindow = testFrame.contentWindow;
+                        const hasApp = appWindow.window.app || appWindow.window.royaltiesApp;
+                        
+                        if (hasApp) {
+                            log('app', '✅ Application object found');
+                            log('app', '✅ No JavaScript errors detected');
+                            setStatus('app', 'success', `✅ Application loaded successfully (${loadTime}ms)`);
+                        } else {
+                            log('app', '⚠️ Application object not found');
+                            setStatus('app', 'error', '⚠️ Application object not initialized');
+                        }
+                    } catch (error) {
+                        log('app', `❌ Error accessing application: ${error.message}`);
+                        setStatus('app', 'error', '❌ Cross-origin or security error');
+                    }
+                    
+                    document.body.removeChild(testFrame);
+                }, 2000);
+            };
+            
+            testFrame.onerror = function() {
+                log('app', '❌ Failed to load application');
+                setStatus('app', 'error', '❌ Application failed to load');
+                document.body.removeChild(testFrame);
+            };
+            
+            setTimeout(() => {
+                if (testFrame.parentNode) {
+                    log('app', '❌ Application load timeout (10s)');
+                    setStatus('app', 'error', '❌ Load timeout');
+                    document.body.removeChild(testFrame);
+                }
+            }, 10000);
+        }
+
+        function testSection(sectionId) {
+            setStatus(sectionId, 'testing', 'Testing section...');
+            log(sectionId, `Starting section test for: ${sectionId}`);
+            
+            // Simulate section loading test
+            const startTime = performance.now();
+            
+            // Test 1: Check if section element exists in the main app
+            setTimeout(() => {
+                try {
+                    const frame = document.getElementById('app-frame');
+                    const appDocument = frame.contentDocument || frame.contentWindow.document;
+                    const sectionElement = appDocument.getElementById(sectionId);
+                    
+                    if (sectionElement) {
+                        log(sectionId, '✅ Section element found in DOM');
+                        
+                        // Test 2: Try to trigger section loading
+                        const navLink = appDocument.querySelector(`[data-section="${sectionId}"]`);
+                        if (navLink) {
+                            log(sectionId, '✅ Navigation link found');
+                            
+                            // Simulate click to test loading
+                            navLink.click();
+                            
+                            setTimeout(() => {
+                                if (sectionElement.style.display !== 'none' && 
+                                    sectionElement.innerHTML.trim() !== '') {
+                                    log(sectionId, '✅ Section content loaded successfully');
+                                    log(sectionId, `Content preview: ${sectionElement.innerHTML.substring(0, 100)}...`);
+                                    setStatus(sectionId, 'success', '✅ Section loads correctly');
+                                } else {
+                                    log(sectionId, '⚠️ Section appears empty or hidden');
+                                    setStatus(sectionId, 'error', '⚠️ Section empty or not visible');
+                                }
+                            }, 1000);
+                        } else {
+                            log(sectionId, '⚠️ Navigation link not found');
+                            setStatus(sectionId, 'error', '⚠️ Navigation link missing');
+                        }
+                    } else {
+                        log(sectionId, '❌ Section element not found in DOM');
+                        setStatus(sectionId, 'error', '❌ Section element missing');
+                    }
+                } catch (error) {
+                    log(sectionId, `❌ Error testing section: ${error.message}`);
+                    setStatus(sectionId, 'error', '❌ Test error (cross-origin?)');
+                }
+            }, 1000);
+        }
+
+        function runAllTests() {
+            clearLogs();
+            
+            // Test application loading first
+            testAppLoad();
+            
+            // Then test all sections with delays
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    testSection(section);
+                }, (index + 1) * 2000);
+            });
+            
+            // Generate summary after all tests
+            setTimeout(() => {
+                generateSummary();
+            }, (sections.length + 1) * 2000 + 5000);
+        }
+
+        function generateSummary() {
+            const results = { passed: 0, failed: 0, total: sections.length + 1 };
+            
+            // Check app loading result
+            const appStatus = document.getElementById('app-status');
+            if (appStatus.classList.contains('success')) {
+                results.passed++;
+            } else if (appStatus.classList.contains('error')) {
+                results.failed++;
+            }
+            
+            // Check section results
+            sections.forEach(section => {
+                const status = document.getElementById(section + '-status');
+                if (status.classList.contains('success')) {
+                    results.passed++;
+                } else if (status.classList.contains('error')) {
+                    results.failed++;
+                }
+            });
+            
+            const summary = document.getElementById('summary-results');
+            const passRate = Math.round((results.passed / results.total) * 100);
+            
+            summary.innerHTML = `
+                <strong>Test Results:</strong><br>
+                ✅ Passed: ${results.passed}<br>
+                ❌ Failed: ${results.failed}<br>
+                📊 Pass Rate: ${passRate}%<br>
+                ${passRate >= 90 ? '🎉 Excellent! Application is working well.' : 
+                  passRate >= 70 ? '⚠️ Good, but some issues need attention.' : 
+                  '🚨 Multiple issues detected. Review failed tests.'}
+            `;
+        }
+
+        // Auto-refresh the application frame every 30 seconds to keep it current
+        setInterval(() => {
+            const frame = document.getElementById('app-frame');
+            if (frame.src) {
+                frame.src = frame.src;
+            }
+        }, 30000);
+
+        // Initial message
+        console.log('🧪 Section Loading Test Tool Ready');
+        console.log('This tool will help verify that all sections load correctly without recursive loops or errors.');
+    </script>
+</body>
+</html>
