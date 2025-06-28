@@ -1558,6 +1558,76 @@ class RoyaltiesApp {
         console.log('✅ Revenue by Entity chart created');
     }
 
+    createCollectionEfficiencyChart(records) {
+        const canvas = document.getElementById('collection-efficiency-chart');
+        if (!canvas) return;
+        
+        const paidRecords = records.filter(r => r.status === 'Paid').length;
+        const efficiency = records.length > 0 ? (paidRecords / records.length * 100) : 0;
+        
+        new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Collected', 'Outstanding'],
+                datasets: [{
+                    data: [efficiency, 100 - efficiency],
+                    backgroundColor: ['#38a169', '#e53e3e']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    createPaymentStatusChart(records) {
+        const canvas = document.getElementById('payment-status-chart');
+        if (!canvas) return;
+        
+        const statusCounts = records.reduce((acc, record) => {
+            acc[record.status] = (acc[record.status] || 0) + 1;
+            return acc;
+        }, {});
+        
+        new Chart(canvas, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: ['#38a169', '#d69e2e', '#e53e3e', '#3182ce']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    createRevenueTrendsChart(records) {
+        const canvas = document.getElementById('revenue-trends-chart');
+        if (!canvas) return;
+        
+        const monthlyRevenue = records.reduce((acc, record) => {
+            const monthKey = new Date(record.date).toISOString().slice(0, 7);
+            acc[monthKey] = (acc[monthKey] || 0) + (record.royalties || 0);
+            return acc;
+        }, {});
+        
+        const sortedMonths = Object.keys(monthlyRevenue).sort();
+        
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: sortedMonths,
+                datasets: [{
+                    label: 'Revenue (E)',
+                    data: sortedMonths.map(month => monthlyRevenue[month]),
+                    borderColor: '#1a365d',
+                    backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
     createProductionRoyaltyCorrelationChart(records) {
         const canvas = document.getElementById('production-royalty-correlation');
         if (!canvas) return;
@@ -2541,7 +2611,7 @@ class RoyaltiesApp {
     }
 
     initializeDashboardCharts() {
-        console.log('Initializing dashboard charts...');
+        console.log('Initializing comprehensive dashboard charts...');
         
         // Function to actually initialize charts
         const doChartInitialization = () => {
@@ -2553,169 +2623,120 @@ class RoyaltiesApp {
             
             // Check if chart manager is available
             if (!this.chartManager) {
-                console.error('Chart manager is not available! Charts cannot be created.');
-                return false;
+                console.warn('Chart manager not available, creating charts directly');
             }
 
-            // Check canvas elements exist
-            const revenueCanvas = document.getElementById('revenue-trends-chart');
-            const productionCanvas = document.getElementById('production-by-entity-chart');
-            
-            console.log('Canvas elements check:');
-            console.log('- Revenue canvas:', revenueCanvas ? '✅ Found' : '❌ Missing');
-            console.log('- Production canvas:', productionCanvas ? '✅ Found' : '❌ Missing');
-            
-            if (!revenueCanvas || !productionCanvas) {
-                console.error('Required canvas elements are missing from the DOM');
-                return false;
-            }
-            
             try {
                 // Get royalty records for charts
                 const royaltyRecords = this.dataManager.getRoyaltyRecords();
                 console.log('Royalty records for charts:', royaltyRecords.length, 'records');
                 
-                // Create revenue chart
-                if (this.chartManager.createRevenueChart) {
-                    console.log('Creating revenue chart...');
-                    const revenueChart = this.chartManager.createRevenueChart('revenue-trends-chart');
-                    if (revenueChart) {
-                        console.log('✅ Revenue chart created successfully');
-                    } else {
-                        console.error('❌ Revenue chart creation returned null');
-                    }
-                } else {
-                    console.error('❌ createRevenueChart method not available in chart manager');
-                }
-        
-                // Create production chart with actual data
-                const entityData = royaltyRecords.reduce((acc, record) => {
-                    acc[record.entity] = (acc[record.entity] || 0) + record.volume;
-                    return acc;
-                }, {});
+                // Create all dashboard charts
+                this.createRevenueByEntityChart(royaltyRecords);
+                this.createProductionRoyaltyCorrelationChart(royaltyRecords);
+                this.createCollectionEfficiencyChart(royaltyRecords);
+                this.createPaymentStatusChart(royaltyRecords);
+                this.createRevenueTrendsChart(royaltyRecords);
                 
-                console.log('Entity production data:', entityData);
-                
-                // Handle different method names in different chart manager implementations
-                if (this.chartManager.createProductionChart) {
-                    console.log('Creating production chart using createProductionChart...');
-                    const productionChart = this.chartManager.createProductionChart('production-by-entity-chart', entityData);
-                    if (productionChart) {
-                        console.log('✅ Production chart created successfully');
-                    } else {
-                        console.error('❌ Production chart creation returned null');
-                    }
-                } else if (this.chartManager.createEntityChart) {
-                    console.log('Creating production chart using createEntityChart...');
-                    const productionChart = this.chartManager.createEntityChart('production-by-entity-chart', entityData);
-                    if (productionChart) {
-                        console.log('✅ Production chart created successfully');
-                    } else {
-                        console.error('❌ Production chart creation returned null');
-                    }
-                } else {
-                    console.error('❌ No suitable chart creation method found in chartManager');
-                    console.log('Available chart manager methods:', Object.getOwnPropertyNames(this.chartManager));
-                }
-                
-                // Create payment timeline chart
-                const paymentTimelineCanvas = document.getElementById('payment-timeline-chart');
-                if (paymentTimelineCanvas) {
-                    console.log('Creating payment timeline chart...');
-                    if (this.chartManager.createChart) {
-                        const paymentTimelineChart = this.chartManager.createChart('payment-timeline-chart', {
-                            type: 'line',
-                            data: {
-                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                                datasets: [{
-                                    label: 'Payments Received (E)',
-                                    data: [85000, 92000, 88000, 95000, 91000, 98000],
-                                    borderColor: '#10b981',
-                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                    tension: 0.4,
-                                    fill: true
-                                }, {
-                                    label: 'Payments Due (E)',
-                                    data: [90000, 95000, 90000, 98000, 93000, 100000],
-                                    borderColor: '#f59e0b',
-                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                                    tension: 0.4,
-                                    fill: false
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Payment Timeline'
-                                    },
-                                    legend: {
-                                        display: true,
-                                        position: 'bottom'
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Amount (E)'
-                                        },
-                                        ticks: {
-                                            callback: function(value) {
-                                                return 'E' + value.toLocaleString();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                        
-                        if (paymentTimelineChart) {
-                            console.log('✅ Payment timeline chart created successfully');
-                        } else {
-                            console.error('❌ Payment timeline chart creation returned null');
-                        }
-                    } else {
-                        console.error('❌ createChart method not available in chart manager');
-                    }
-                } else {
-                    console.log('ℹ️ Payment timeline canvas not found (may not be in current dashboard layout)');
-                }
-                
-                console.log('Dashboard charts initialization complete');
-                
-                // Create additional dashboard charts
-                this.createAdditionalDashboardCharts();
+                // Create additional charts if canvas elements exist
+                setTimeout(() => {
+                    this.createAdditionalDashboardCharts();
+                }, 500);
                 
                 return true;
                 
             } catch (error) {
                 console.error('Error during chart initialization:', error);
-                console.error('Error stack:', error.stack);
                 return false;
             }
         };
         
-        // Try immediate initialization
-        if (doChartInitialization()) {
-            return;
+        // Try to initialize charts immediately
+        if (!doChartInitialization()) {
+            // If failed, try again after a delay
+            console.log('Initial chart creation failed, retrying in 1000ms...');
+            setTimeout(() => {
+                if (!doChartInitialization()) {
+                    console.log('Second chart creation attempt failed, retrying in 2000ms...');
+                    setTimeout(doChartInitialization, 2000);
+                }
+            }, 1000);
         }
+    }    createAdditionalDashboardCharts() {
+        console.log('Creating additional dashboard charts...');
         
-        // If immediate initialization failed, try again after a delay
-        console.log('Initial chart initialization failed, retrying in 500ms...');
-        setTimeout(() => {
-            if (!doChartInitialization()) {
-                console.log('Second chart initialization attempt failed, retrying in 1000ms...');
-                setTimeout(() => {
-                    if (!doChartInitialization()) {
-                        console.error('All chart initialization attempts failed. Please check console for errors.');
+        try {
+            // Create payment timeline chart
+            const paymentTimelineCanvas = document.getElementById('payment-timeline-chart');
+            if (paymentTimelineCanvas) {
+                console.log('Creating payment timeline chart...');
+                if (this.chartManager && this.chartManager.createChart) {
+                    const paymentTimelineChart = this.chartManager.createChart('payment-timeline-chart', {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Payments Received (E)',
+                                data: [85000, 92000, 88000, 95000, 91000, 98000],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: 'Payments Due (E)',
+                                data: [90000, 95000, 90000, 98000, 93000, 100000],
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Payment Timeline'
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'bottom'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Amount (E)'
+                                    },
+                                    ticks: {
+                                        callback: function(value) {
+                                            return 'E' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (paymentTimelineChart) {
+                        console.log('✅ Payment timeline chart created successfully');
+                    } else {
+                        console.error('❌ Payment timeline chart creation returned null');
                     }
-                }, 1000);
+                } else {
+                    console.error('❌ createChart method not available in chart manager');
+                }
+            } else {
+                console.log('ℹ️ Payment timeline canvas not found (may not be in current dashboard layout)');
             }
-        }, 500);
+            
+            console.log('Additional dashboard charts creation complete');
+        } catch (error) {
+            console.error('Error creating additional dashboard charts:', error);
+        }
     }
 
     setupDashboardEventHandlers() {

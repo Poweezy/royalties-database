@@ -1,18 +1,251 @@
 <div class="page-header">
     <div class="page-title">
-        <h1>✅ Compliance & Regulatory</h1>
-        <p>Monitor compliance status and regulatory requirements</p>
+        <h1>🏛️ Compliance & Regulatory Management</h1>
+        <p>Ensuring compliance with Eswatini mining laws, fiscal regulations, and regulatory reporting requirements</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-success" id="run-compliance-check-btn">
             🔍 Run Compliance Check
         </button>
         <button class="btn btn-info" id="generate-compliance-report-btn">
-            📄 Generate Report
+            📄 Generate SWANEEF Report
+        </button>
+        <button class="btn btn-warning" id="tax-submission-btn">
+            📊 SRA Tax Submission
         </button>
     </div>
 </div>
 
+<!-- Eswatini Regulatory Framework Overview -->
+<div class="regulatory-framework-section">
+    <div class="section-header">
+        <h4><i class="fas fa-balance-scale"></i> Eswatini Mining Regulatory Framework</h4>
+        <div class="framework-actions">
+            <button class="btn btn-info btn-sm" id="view-regulations-btn">
+                <i class="fas fa-book-open"></i> View Full Regulations
+            </button>
+            <button class="btn btn-success btn-sm" id="multi-jurisdictional-btn">
+                <i class="fas fa-globe"></i> Multi-Jurisdictional View
+            </button>
+        </div>
+    </div>
+    
+    <div class="framework-grid">
+        <div class="framework-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-university"></i> Primary Legislation</h5>
+                <span class="last-updated">Last Updated: Jan 2024</span>
+            </div>
+            <div class="card-body">
+                <ul class="regulation-list">
+                    <li>
+                        <strong>Mines and Minerals Act (2011)</strong> - Primary mining legislation
+                        <div class="regulation-details">
+                            <span class="reg-status current">Current</span>
+                            <span class="reg-amendment">Amendment 2023 in effect</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Mines and Minerals Regulations (2015)</strong> - Operational guidelines
+                        <div class="regulation-details">
+                            <span class="reg-status current">Current</span>
+                            <span class="reg-amendment">Under review 2025</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Income Tax Order (1975)</strong> - Tax obligations
+                        <div class="regulation-details">
+                            <span class="reg-status current">Current</span>
+                            <span class="reg-amendment">Rates updated April 2024</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Environmental Management Act (2002)</strong> - Environmental compliance
+                        <div class="regulation-details">
+                            <span class="reg-status current">Current</span>
+                            <span class="reg-amendment">New EIA requirements 2024</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Occupational Health and Safety Act (2001)</strong> - Workplace safety
+                        <div class="regulation-details">
+                            <span class="reg-status current">Current</span>
+                            <span class="reg-amendment">Mining-specific updates 2023</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="framework-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-building"></i> Regulatory Bodies</h5>
+                <span class="contact-info">Emergency Contact: +268 2404 2000</span>
+            </div>
+            <div class="card-body">
+                <ul class="regulation-list">
+                    <li>
+                        <strong>SWANEEF</strong> - Swaziland National Energy Fund
+                        <div class="regulation-details">
+                            <span class="reg-role">Mining oversight & licensing</span>
+                            <span class="reg-contact">swaneef@gov.sz</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>SRA</strong> - Swaziland Revenue Authority
+                        <div class="regulation-details">
+                            <span class="reg-role">Tax collection & compliance</span>
+                            <span class="reg-contact">info@sra.org.sz</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>SEA</strong> - Swaziland Environment Authority
+                        <div class="regulation-details">
+                            <span class="reg-role">Environmental permits & monitoring</span>
+                            <span class="reg-contact">sea@environment.sz</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Department of Geological Survey</strong> - Technical oversight
+                        <div class="regulation-details">
+                            <span class="reg-role">Geological assessments & monitoring</span>
+                            <span class="reg-contact">geology@gov.sz</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Ministry of Natural Resources</strong> - Policy oversight
+                        <div class="regulation-details">
+                            <span class="reg-role">Policy formulation & enforcement</span>
+                            <span class="reg-contact">naturalresources@gov.sz</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="framework-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-percentage"></i> Tax & Royalty Structure (2024)</h5>
+                <span class="effective-date">Effective: April 1, 2024</span>
+            </div>
+            <div class="card-body">
+                <ul class="regulation-list">
+                    <li>
+                        <strong>Mining Royalties:</strong> 2-4% of gross value
+                        <div class="regulation-details">
+                            <span class="tax-detail">Coal: 2% | Base metals: 3% | Precious metals: 4%</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Corporate Tax:</strong> 27.5% on taxable income
+                        <div class="regulation-details">
+                            <span class="tax-detail">Mining companies: Standard rate applies</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Withholding Tax:</strong> 10% on dividends
+                        <div class="regulation-details">
+                            <span class="tax-detail">5% for SADC countries (treaty rates)</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Import Duty:</strong> Variable rates on equipment
+                        <div class="regulation-details">
+                            <span class="tax-detail">Mining equipment: 0-5% | Machinery: 0-15%</span>
+                        </div>
+                    </li>
+                    <li>
+                        <strong>Skills Development Levy:</strong> 1% of payroll
+                        <div class="regulation-details">
+                            <span class="tax-detail">All employers above E500,000 annual payroll</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Multi-Jurisdictional Compliance -->
+<div class="multi-jurisdictional-section" id="multi-jurisdictional-section" style="display: none;">
+    <div class="section-header">
+        <h4><i class="fas fa-globe"></i> Multi-Jurisdictional Compliance Overview</h4>
+        <button class="btn btn-secondary btn-sm" id="close-multi-jurisdictional-btn">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+    
+    <div class="jurisdiction-tabs">
+        <button class="jurisdiction-tab active" data-jurisdiction="eswatini">🇸🇿 Eswatini</button>
+        <button class="jurisdiction-tab" data-jurisdiction="south-africa">🇿🇦 South Africa</button>
+        <button class="jurisdiction-tab" data-jurisdiction="mozambique">🇲🇿 Mozambique</button>
+        <button class="jurisdiction-tab" data-jurisdiction="sadc">🏛️ SADC Region</button>
+    </div>
+    
+    <div class="jurisdiction-content">
+        <div class="jurisdiction-panel active" id="eswatini-panel">
+            <h5>🇸🇿 Kingdom of Eswatini - Current Jurisdiction</h5>
+            <div class="jurisdiction-overview">
+                <div class="jurisdiction-stat">
+                    <strong>Primary Operations:</strong> 4 Active mines
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Compliance Status:</strong> 92% Overall
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Annual Royalties:</strong> E12.4M (2024)
+                </div>
+            </div>
+        </div>
+        
+        <div class="jurisdiction-panel" id="south-africa-panel">
+            <h5>🇿🇦 Republic of South Africa - Cross-Border Operations</h5>
+            <div class="jurisdiction-overview">
+                <div class="jurisdiction-stat">
+                    <strong>Border Mining Rights:</strong> 2 Applications pending
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>SARS Compliance:</strong> Applicable for cross-border operations
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>BEE Requirements:</strong> Must comply for SA operations
+                </div>
+            </div>
+        </div>
+        
+        <div class="jurisdiction-panel" id="mozambique-panel">
+            <h5>🇲🇿 Republic of Mozambique - Regional Considerations</h5>
+            <div class="jurisdiction-overview">
+                <div class="jurisdiction-stat">
+                    <strong>SADC Mining Protocol:</strong> Applicable
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Trade Agreements:</strong> Bilateral mining cooperation
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Environmental Standards:</strong> Regional harmonization
+                </div>
+            </div>
+        </div>
+        
+        <div class="jurisdiction-panel" id="sadc-panel">
+            <h5>🏛️ SADC Regional Framework</h5>
+            <div class="jurisdiction-overview">
+                <div class="jurisdiction-stat">
+                    <strong>Regional Mining Code:</strong> Harmonized standards
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Cross-Border Trade:</strong> Preferential rates apply
+                </div>
+                <div class="jurisdiction-stat">
+                    <strong>Regional Development Bank:</strong> Financing available
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compliance Dashboard -->
 <div class="charts-grid">
     <div class="card">
         <div class="card-header">
@@ -20,10 +253,148 @@
         </div>
         <div class="card-body">
             <div style="text-align: center;">
-                <h2 style="color: var(--success-color); font-size: 3rem; margin: 0;">92%</h2>
-                <p style="color: var(--success-color); margin: 0.5rem 0;">Excellent Compliance</p>
+                <h2 style="color: var(--success-color); font-size: 3rem; margin: 0;" id="overall-compliance-score">92%</h2>
+                <p style="color: var(--success-color); margin: 0.5rem 0;" id="compliance-status">Excellent Compliance</p>
                 <div style="width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-top: 1rem;">
-                    <div style="width: 92%; height: 100%; background: var(--success-color); border-radius: 4px;"></div>
+                    <div style="width: 92%; height: 100%; background: var(--success-color); border-radius: 4px;" id="compliance-progress"></div>
+                </div>
+                <small class="text-muted">Last updated: <span id="last-compliance-check">Today at 09:30</span></small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>⚠️ Compliance Alerts & Deadlines</h5>
+            <div class="alert-controls">
+                <button class="btn btn-sm btn-primary" id="refresh-deadlines-btn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <select id="alert-filter" class="form-select">
+                    <option value="all">All Alerts</option>
+                    <option value="urgent">Urgent (< 7 days)</option>
+                    <option value="upcoming">Upcoming (< 30 days)</option>
+                    <option value="completed">Recently Completed</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alerts-list" id="compliance-alerts-list">
+                <div class="alert-item urgent" data-days="2" data-type="tax">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">
+                        <strong>SRA Quarterly Return Due</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Due: 30 June 2025 (<span class="days-remaining">2 days</span>)</span>
+                            <span class="alert-entity">All mining entities</span>
+                            <span class="alert-penalty">Late penalty: 10% of tax due</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-danger" onclick="startTaxPreparation()">Prepare Now</button>
+                        <button class="btn btn-sm btn-secondary" onclick="setReminder('sra-quarterly')">Remind</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item warning" data-days="5" data-type="permit">
+                    <i class="fas fa-certificate"></i>
+                    <div class="alert-content">
+                        <strong>Water Use License Renewal</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Due: 3 July 2025 (<span class="days-remaining">5 days</span>)</span>
+                            <span class="alert-entity">Maloma Colliery</span>
+                            <span class="alert-penalty">Operations halt if expired</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-warning" onclick="startRenewalProcess('water-license')">Renew</button>
+                        <button class="btn btn-sm btn-info" onclick="viewRequirements('water-license')">Requirements</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item info" data-days="33" data-type="reporting">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="alert-content">
+                        <strong>SWANEEF Annual Mining Report</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Due: 31 July 2025 (<span class="days-remaining">33 days</span>)</span>
+                            <span class="alert-entity">All active mining operations</span>
+                            <span class="alert-penalty">SWL 50,000 fine if late</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-primary" onclick="startReport('swaneef-annual')">Start Report</button>
+                        <button class="btn btn-sm btn-secondary" onclick="viewTemplate('swaneef-annual')">Template</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item success" data-days="-15" data-type="audit">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="alert-content">
+                        <strong>Environmental Audit Completed</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Completed: 15 June 2025 (15 days ago)</span>
+                            <span class="alert-entity">Ngwenya Mine</span>
+                            <span class="alert-penalty">Full compliance achieved</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-success" onclick="viewAuditReport('ngwenya-env-2025')">View Report</button>
+                        <button class="btn btn-sm btn-secondary" onclick="scheduleNextAudit('ngwenya')">Schedule Next</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item warning" data-days="12" data-type="safety">
+                    <i class="fas fa-hard-hat"></i>
+                    <div class="alert-content">
+                        <strong>Safety Equipment Inspection</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Due: 10 July 2025 (<span class="days-remaining">12 days</span>)</span>
+                            <span class="alert-entity">Kwalini Quarry</span>
+                            <span class="alert-penalty">Work stoppage if non-compliant</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-warning" onclick="scheduleInspection('kwalini-safety')">Schedule</button>
+                        <button class="btn btn-sm btn-info" onclick="viewChecklist('safety-equipment')">Checklist</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item info" data-days="45" data-type="environmental">
+                    <i class="fas fa-leaf"></i>
+                    <div class="alert-content">
+                        <strong>Environmental Impact Assessment Review</strong>
+                        <div class="alert-details">
+                            <span class="alert-date">Due: 15 August 2025 (<span class="days-remaining">45 days</span>)</span>
+                            <span class="alert-entity">Bulembu Asbestos Mine</span>
+                            <span class="alert-penalty">Permit suspension risk</span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-sm btn-primary" onclick="startEIAReview('bulembu')">Begin Review</button>
+                        <button class="btn btn-sm btn-secondary" onclick="consultSpecialist('eia')">Consult Expert</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert-summary">
+                <div class="summary-stats">
+                    <div class="stat-item urgent">
+                        <span class="stat-number" id="urgent-count">2</span>
+                        <span class="stat-label">Urgent</span>
+                    </div>
+                    <div class="stat-item warning">
+                        <span class="stat-number" id="warning-count">3</span>
+                        <span class="stat-label">Warning</span>
+                    </div>
+                    <div class="stat-item info">
+                        <span class="stat-number" id="info-count">2</span>
+                        <span class="stat-label">Info</span>
+                    </div>
+                    <div class="stat-item success">
+                        <span class="stat-number" id="completed-count">1</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,34 +402,202 @@
 
     <div class="card">
         <div class="card-header">
-            <h5>⚠️ Compliance Issues</h5>
-        </div>
-        <div class="card-body">
-            <div style="text-align: center; padding: 2rem;">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">✅</div>
-                <p>No critical compliance issues detected</p>
-                <small style="color: #666;">Last checked: Today at 09:30</small>
+            <h5>📋 Mining Licenses & Permits Registry</h5>
+            <div class="permit-controls">
+                <button class="btn btn-sm btn-success" id="add-permit-btn">
+                    <i class="fas fa-plus"></i> Add Permit
+                </button>
+                <button class="btn btn-sm btn-warning" id="renewal-tracker-btn">
+                    <i class="fas fa-calendar-check"></i> Renewal Tracker
+                </button>
+                <select id="permit-filter" class="form-select">
+                    <option value="all">All Permits</option>
+                    <option value="expiring">Expiring Soon</option>
+                    <option value="valid">Valid</option>
+                    <option value="expired">Expired</option>
+                </select>
             </div>
         </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h5>📋 Required Certifications</h5>
-        </div>
         <div class="card-body">
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-                    <span>Environmental Compliance</span>
-                    <span style="color: var(--success-color);">✅ Valid</span>
+            <div class="permits-grid">
+                <div class="permit-category">
+                    <h6><i class="fas fa-pickaxe"></i> Mining Rights & Licenses</h6>
+                    <div class="permits-list">
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Mining Right Certificate</span>
+                                <span class="permit-number">MRC-2023-001</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Kwalini Quarry</span>
+                                <span class="permit-status valid">✅ Valid until Dec 2025 (173 days)</span>
+                                <span class="permit-authority">SWANEEF</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewPermitDetails('MRC-2023-001')">Details</button>
+                                <button class="btn btn-xs btn-secondary" onclick="downloadPermit('MRC-2023-001')">Download</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Coal Mining License</span>
+                                <span class="permit-number">CML-2022-034</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Maloma Colliery</span>
+                                <span class="permit-status valid">✅ Valid until Apr 2026 (298 days)</span>
+                                <span class="permit-authority">SWANEEF</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewPermitDetails('CML-2022-034')">Details</button>
+                                <button class="btn btn-xs btn-warning" onclick="amendPermit('CML-2022-034')">Amend</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Iron Ore Extraction License</span>
+                                <span class="permit-number">IOEL-2024-007</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Ngwenya Mine</span>
+                                <span class="permit-status valid">✅ Valid until Oct 2027 (826 days)</span>
+                                <span class="permit-authority">SWANEEF</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewPermitDetails('IOEL-2024-007')">Details</button>
+                                <button class="btn btn-xs btn-success" onclick="expandPermit('IOEL-2024-007')">Expand</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-                    <span>Safety Standards</span>
-                    <span style="color: var(--success-color);">✅ Valid</span>
+                
+                <div class="permit-category">
+                    <h6><i class="fas fa-leaf"></i> Environmental Permits</h6>
+                    <div class="permits-list">
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Environmental Impact Assessment</span>
+                                <span class="permit-number">EIA-2024-012</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Kwalini Quarry</span>
+                                <span class="permit-status valid">✅ Valid until Mar 2026 (268 days)</span>
+                                <span class="permit-authority">SEA</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewEIAReport('EIA-2024-012')">Report</button>
+                                <button class="btn btn-xs btn-secondary" onclick="scheduleMonitoring('EIA-2024-012')">Monitor</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item expiring">
+                            <div class="permit-info">
+                                <span class="permit-name">Water Use License</span>
+                                <span class="permit-number">WUL-2023-089</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Maloma Colliery</span>
+                                <span class="permit-status expiring">⚠️ Expires Sep 2025 (91 days)</span>
+                                <span class="permit-authority">SEA/Water Board</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-warning" onclick="renewPermit('WUL-2023-089')">Renew</button>
+                                <button class="btn btn-xs btn-info" onclick="viewWaterUsage('WUL-2023-089')">Usage</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item expired">
+                            <div class="permit-info">
+                                <span class="permit-name">Air Emission Permit</span>
+                                <span class="permit-number">AEP-2022-167</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Bulembu Asbestos Mine</span>
+                                <span class="permit-status expired">❌ Expired May 2025 (-58 days)</span>
+                                <span class="permit-authority">SEA</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-danger" onclick="urgentRenewal('AEP-2022-167')">Urgent</button>
+                                <button class="btn btn-xs btn-warning" onclick="haltOperations('AEP-2022-167')">Halt Ops</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-                    <span>Mining License</span>
-                    <span style="color: var(--warning-color);">⚠️ Expires Soon</span>
+                
+                <div class="permit-category">
+                    <h6><i class="fas fa-hard-hat"></i> Safety & Operational Permits</h6>
+                    <div class="permits-list">
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Explosives License</span>
+                                <span class="permit-number">EXP-2025-156</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">All Sites</span>
+                                <span class="permit-status valid">✅ Valid until Nov 2025 (142 days)</span>
+                                <span class="permit-authority">Police/SWANEEF</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewExplosivesLog('EXP-2025-156')">Log</button>
+                                <button class="btn btn-xs btn-secondary" onclick="orderExplosives('EXP-2025-156')">Order</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Occupational Health Certificate</span>
+                                <span class="permit-number">OHC-2024-045</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Ngwenya Mine</span>
+                                <span class="permit-status valid">✅ Valid until Dec 2025 (173 days)</span>
+                                <span class="permit-authority">Ministry of Labour</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewHealthRecords('OHC-2024-045')">Records</button>
+                                <button class="btn btn-xs btn-secondary" onclick="scheduleInspection('OHC-2024-045')">Inspect</button>
+                            </div>
+                        </div>
+                        
+                        <div class="permit-item">
+                            <div class="permit-info">
+                                <span class="permit-name">Transport Permit</span>
+                                <span class="permit-number">TRP-2024-289</span>
+                            </div>
+                            <div class="permit-details">
+                                <span class="permit-entity">Maloma Colliery</span>
+                                <span class="permit-status valid">✅ Valid until Aug 2025 (57 days)</span>
+                                <span class="permit-authority">Transport Authority</span>
+                            </div>
+                            <div class="permit-actions">
+                                <button class="btn btn-xs btn-info" onclick="viewTransportLog('TRP-2024-289')">Log</button>
+                                <button class="btn btn-xs btn-warning" onclick="renewTransport('TRP-2024-289')">Renew</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="permit-summary">
+                <div class="summary-grid">
+                    <div class="summary-item valid">
+                        <span class="summary-number">8</span>
+                        <span class="summary-label">Valid Permits</span>
+                    </div>
+                    <div class="summary-item expiring">
+                        <span class="summary-number">2</span>
+                        <span class="summary-label">Expiring Soon</span>
+                    </div>
+                    <div class="summary-item expired">
+                        <span class="summary-number">1</span>
+                        <span class="summary-label">Expired</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span class="summary-number">11</span>
+                        <span class="summary-label">Total Permits</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,58 +611,465 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; text-align: center;">
                 <div>
                     <h4 style="color: var(--success-color); margin: 0;">95%</h4>
-                    <small>Q1 2024</small>
+                    <small>Q1 2025</small>
                 </div>
                 <div>
                     <h4 style="color: var(--success-color); margin: 0;">93%</h4>
-                    <small>Q2 2024</small>
+                    <small>Q2 2025</small>
                 </div>
                 <div>
                     <h4 style="color: var(--success-color); margin: 0;">92%</h4>
-                    <small>Q3 2024</small>
+                    <small>Q3 2025</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Regulatory Reporting Section -->
+<div class="regulatory-reporting-section">
+    <div class="section-header">
+        <h4><i class="fas fa-file-alt"></i> Regulatory Reporting & Submissions</h4>
+        <div class="reporting-actions">
+            <button class="btn btn-primary btn-sm" id="schedule-submission-btn">
+                <i class="fas fa-calendar-plus"></i> Schedule Submission
+            </button>
+            <button class="btn btn-success btn-sm" id="bulk-export-btn">
+                <i class="fas fa-download"></i> Export All Reports
+            </button>
+            <button class="btn btn-info btn-sm" id="submission-calendar-btn">
+                <i class="fas fa-calendar-alt"></i> Submission Calendar
+            </button>
+        </div>
+    </div>
+    
+    <div class="reporting-grid">
+        <div class="report-card card urgent">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> SRA Tax Returns</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Quarterly</span>
+                    <span class="report-priority urgent">URGENT</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value urgent">30 June 2025 (2 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">31 March 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value pending">Data Compilation</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Q2 2025 royalties, corporate tax, PAYE</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">Online via SRA portal</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Late Penalty:</span>
+                        <span class="value urgent">10% of tax due + SWL 5,000</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <span class="progress-text">65% Complete</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-danger" onclick="urgentTaxPreparation()">Complete Now</button>
+                    <button class="btn btn-sm btn-warning" onclick="requestExtension('sra-q2-2025')">Request Extension</button>
+                    <button class="btn btn-sm btn-secondary" onclick="viewTemplate('sra-quarterly')">View Template</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-industry"></i> SWANEEF Mining Production Report</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Annual</span>
+                    <span class="report-priority normal">NORMAL</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value">31 July 2025 (33 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">30 July 2024</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value on-track">Planning Phase</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Production volumes, reserves, employment, royalties</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">Physical + Digital submission to SWANEEF</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Supporting Documents:</span>
+                        <span class="value">Audited financials, geological reports</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                    <span class="progress-text">25% Complete</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-primary" onclick="startReport('swaneef-annual')">Start Report</button>
+                    <button class="btn btn-sm btn-info" onclick="viewLastYear('swaneef-2024')">View 2024 Report</button>
+                    <button class="btn btn-sm btn-secondary" onclick="downloadGuidelines('swaneef-annual')">Guidelines</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-leaf"></i> Environmental Compliance Report</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Semi-Annual</span>
+                    <span class="report-priority normal">NORMAL</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value">31 August 2025 (62 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">28 February 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value completed">Data Collection</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Air quality, water discharge, waste management</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">SEA online portal + certified copies</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Monitoring Data:</span>
+                        <span class="value">Daily measurements from Jan-Jun 2025</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                    <span class="progress-text">80% Complete</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-success" onclick="finalizeReport('environmental-h1-2025')">Finalize</button>
+                    <button class="btn btn-sm btn-info" onclick="viewMonitoringData('env-monitoring')">View Data</button>
+                    <button class="btn btn-sm btn-secondary" onclick="validateData('environmental')">Validate</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-users"></i> Employment & Skills Development Report</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Annual</span>
+                    <span class="report-priority normal">NORMAL</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value">31 March 2026 (273 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">31 March 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value on-track">Monitoring</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Employment stats, training programs, local content</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">Ministry of Labour + SWANEEF</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Key Metrics:</span>
+                        <span class="value">Eswatini nationals %, skills development spend</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 15%"></div>
+                    </div>
+                    <span class="progress-text">15% Complete (Ongoing monitoring)</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-primary" onclick="updateProgress('employment-2025')">Update</button>
+                    <button class="btn btn-sm btn-info" onclick="viewEmploymentStats()">View Stats</button>
+                    <button class="btn btn-sm btn-secondary" onclick="planTraining()">Plan Training</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-coins"></i> Royalty Payment Reconciliation</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Monthly</span>
+                    <span class="report-priority high">HIGH</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value">31 July 2025 (33 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">30 June 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value on-track">Current</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Production volumes, commodity prices, royalty calculations</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">SWANEEF portal with payment proof</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">June 2025 Amount:</span>
+                        <span class="value">SWL 1,248,650</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                    <span class="progress-text">100% Complete (June)</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-success" onclick="verifyPayment('royalty-june-2025')">Verified</button>
+                    <button class="btn btn-sm btn-info" onclick="viewReconciliation('june-2025')">View Details</button>
+                    <button class="btn btn-sm btn-secondary" onclick="prepareNext('royalty-july-2025')">Prepare July</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-card card">
+            <div class="card-header">
+                <h5><i class="fas fa-shield-alt"></i> Safety & Health Report</h5>
+                <div class="report-meta">
+                    <span class="report-frequency">Quarterly</span>
+                    <span class="report-priority high">HIGH</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="report-details">
+                    <div class="detail-item">
+                        <span class="label">Next Due:</span>
+                        <span class="value">31 July 2025 (33 days)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last Submitted:</span>
+                        <span class="value">30 April 2025</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value on-track">In Progress</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Required Data:</span>
+                        <span class="value">Incident reports, safety training, health screenings</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Submission Method:</span>
+                        <span class="value">Ministry of Labour + Mine Health & Safety</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Q2 Incidents:</span>
+                        <span class="value">2 minor, 0 major, 0 fatalities</span>
+                    </div>
+                </div>
+                <div class="report-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="progress-text">60% Complete</span>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-sm btn-primary" onclick="updateSafetyReport('q2-2025')">Update</button>
+                    <button class="btn btn-sm btn-warning" onclick="reviewIncidents('q2-2025')">Review Incidents</button>
+                    <button class="btn btn-sm btn-secondary" onclick="scheduleInspections()">Schedule Inspections</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submission Calendar View -->
+    <div class="submission-calendar" id="submission-calendar" style="display: none;">
+        <div class="calendar-header">
+            <h5><i class="fas fa-calendar-alt"></i> 2025 Regulatory Submission Calendar</h5>
+            <button class="btn btn-sm btn-secondary" id="close-calendar-btn">Close</button>
+        </div>
+        <div class="calendar-grid">
+            <div class="calendar-month">
+                <h6>June 2025</h6>
+                <div class="calendar-items">
+                    <div class="calendar-item urgent">
+                        <span class="date">30th</span>
+                        <span class="item">SRA Quarterly Return</span>
+                    </div>
+                </div>
+            </div>
+            <div class="calendar-month">
+                <h6>July 2025</h6>
+                <div class="calendar-items">
+                    <div class="calendar-item warning">
+                        <span class="date">31st</span>
+                        <span class="item">SWANEEF Annual Report</span>
+                    </div>
+                    <div class="calendar-item high">
+                        <span class="date">31st</span>
+                        <span class="item">Royalty Reconciliation</span>
+                    </div>
+                    <div class="calendar-item high">
+                        <span class="date">31st</span>
+                        <span class="item">Safety & Health Report</span>
+                    </div>
+                </div>
+            </div>
+            <div class="calendar-month">
+                <h6>August 2025</h6>
+                <div class="calendar-items">
+                    <div class="calendar-item normal">
+                        <span class="date">31st</span>
+                        <span class="item">Environmental Report</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Entity Compliance Status -->
 <div class="card">
     <div class="card-header">
-        <h5>📋 Entity Compliance Status</h5>
+        <h5>🏢 Entity Compliance Status</h5>
+        <div class="card-actions">
+            <select id="compliance-filter" class="form-select">
+                <option value="all">All Entities</option>
+                <option value="excellent">Excellent (90%+)</option>
+                <option value="good">Good (80-89%)</option>
+                <option value="needs-improvement">Needs Improvement (<80%)</option>
+            </select>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-container">
-            <table class="data-table">
+            <table class="data-table" id="compliance-table">
                 <thead>
                     <tr>
                         <th>Entity</th>
+                        <th>Mining License</th>
+                        <th>SRA Registration</th>
+                        <th>Environmental Permit</th>
                         <th>Compliance Score</th>
                         <th>Last Audit</th>
+                        <th>Next Review</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Kwalini Quarry</td>
-                        <td>95%</td>
-                        <td>2024-01-15</td>
+                        <td><strong>Kwalini Quarry</strong></td>
+                        <td><span class="permit-badge valid">KQ-ML-2023-001</span></td>
+                        <td><span class="permit-badge valid">SRA-2023-0045</span></td>
+                        <td><span class="permit-badge valid">SEA-EIA-2024-012</span></td>
+                        <td><span class="score excellent">95%</span></td>
+                        <td>15 Jan 2025</td>
+                        <td>15 Jul 2025</td>
                         <td><span class="status-badge paid">Excellent</span></td>
-                        <td><button class="btn btn-sm btn-secondary">View Details</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewComplianceDetails('KQ')">Details</button>
+                            <button class="btn btn-sm btn-secondary" onclick="downloadAuditReport('KQ')">Report</button>
+                        </td>
                     </tr>
                     <tr>
-                        <td>Maloma Colliery</td>
-                        <td>87%</td>
-                        <td>2024-01-20</td>
+                        <td><strong>Maloma Colliery</strong></td>
+                        <td><span class="permit-badge valid">MC-ML-2022-034</span></td>
+                        <td><span class="permit-badge valid">SRA-2022-0198</span></td>
+                        <td><span class="permit-badge expiring">SEA-EIA-2023-089</span></td>
+                        <td><span class="score good">87%</span></td>
+                        <td>20 Jan 2025</td>
+                        <td>20 Jul 2025</td>
                         <td><span class="status-badge active">Good</span></td>
-                        <td><button class="btn btn-sm btn-secondary">View Details</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewComplianceDetails('MC')">Details</button>
+                            <button class="btn btn-sm btn-warning" onclick="scheduleAudit('MC')">Schedule Audit</button>
+                        </td>
                     </tr>
                     <tr>
-                        <td>Ngwenya Mine</td>
-                        <td>92%</td>
-                        <td>2024-01-25</td>
+                        <td><strong>Ngwenya Mine</strong></td>
+                        <td><span class="permit-badge valid">NM-ML-2024-007</span></td>
+                        <td><span class="permit-badge valid">SRA-2024-0012</span></td>
+                        <td><span class="permit-badge valid">SEA-EIA-2024-034</span></td>
+                        <td><span class="score excellent">92%</span></td>
+                        <td>25 Jan 2025</td>
+                        <td>25 Jul 2025</td>
                         <td><span class="status-badge paid">Excellent</span></td>
-                        <td><button class="btn btn-sm btn-secondary">View Details</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewComplianceDetails('NM')">Details</button>
+                            <button class="btn btn-sm btn-success" onclick="certifyCompliance('NM')">Certify</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bulembu Asbestos Mine</strong></td>
+                        <td><span class="permit-badge expiring">BA-ML-2021-156</span></td>
+                        <td><span class="permit-badge valid">SRA-2021-0289</span></td>
+                        <td><span class="permit-badge expired">SEA-EIA-2022-167</span></td>
+                        <td><span class="score needs-improvement">73%</span></td>
+                        <td>10 Feb 2025</td>
+                        <td>10 Jun 2025</td>
+                        <td><span class="status-badge overdue">Needs Attention</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="viewComplianceDetails('BA')">Urgent Review</button>
+                            <button class="btn btn-sm btn-danger" onclick="escalateCompliance('BA')">Escalate</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -133,29 +1079,479 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    initializeComplianceFeatures();
+});
+
+function initializeComplianceFeatures() {
+    // Initialize dynamic deadline calculation
+    updateDynamicDeadlines();
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Initialize filters
+    initializeFilters();
+    
+    // Start deadline monitoring
+    startDeadlineMonitoring();
+    
+    // Update compliance metrics
+    updateComplianceMetrics();
+}
+
+function setupEventListeners() {
+    // Main action buttons
     const complianceCheckBtn = document.getElementById('run-compliance-check-btn');
     const generateReportBtn = document.getElementById('generate-compliance-report-btn');
+    const taxSubmissionBtn = document.getElementById('tax-submission-btn');
     
     if (complianceCheckBtn) {
-        complianceCheckBtn.addEventListener('click', function() {
-            if (window.notificationManager) {
-                window.notificationManager.show('Running compliance check...', 'info');
-                setTimeout(() => {
-                    window.notificationManager.show('Compliance check completed successfully', 'success');
-                }, 2000);
-            }
-        });
+        complianceCheckBtn.addEventListener('click', runComplianceCheck);
     }
     
     if (generateReportBtn) {
-        generateReportBtn.addEventListener('click', function() {
-            if (window.notificationManager) {
-                window.notificationManager.show('Generating compliance report...', 'info');
-                setTimeout(() => {
-                    window.notificationManager.show('Compliance report generated successfully', 'success');
-                }, 1500);
-            }
-        });
+        generateReportBtn.addEventListener('click', generateComplianceReport);
     }
-});
+    
+    if (taxSubmissionBtn) {
+        taxSubmissionBtn.addEventListener('click', startTaxSubmission);
+    }
+    
+    // Multi-jurisdictional view
+    const multiJurisdictionalBtn = document.getElementById('multi-jurisdictional-btn');
+    const closeMultiJurisdictionalBtn = document.getElementById('close-multi-jurisdictional-btn');
+    
+    if (multiJurisdictionalBtn) {
+        multiJurisdictionalBtn.addEventListener('click', showMultiJurisdictionalView);
+    }
+    
+    if (closeMultiJurisdictionalBtn) {
+        closeMultiJurisdictionalBtn.addEventListener('click', hideMultiJurisdictionalView);
+    }
+    
+    // Jurisdiction tabs
+    const jurisdictionTabs = document.querySelectorAll('.jurisdiction-tab');
+    jurisdictionTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            switchJurisdiction(this.dataset.jurisdiction);
+        });
+    });
+    
+    // Refresh deadlines
+    const refreshDeadlinesBtn = document.getElementById('refresh-deadlines-btn');
+    if (refreshDeadlinesBtn) {
+        refreshDeadlinesBtn.addEventListener('click', refreshDeadlines);
+    }
+    
+    // Submission calendar
+    const submissionCalendarBtn = document.getElementById('submission-calendar-btn');
+    const closeCalendarBtn = document.getElementById('close-calendar-btn');
+    
+    if (submissionCalendarBtn) {
+        submissionCalendarBtn.addEventListener('click', showSubmissionCalendar);
+    }
+    
+    if (closeCalendarBtn) {
+        closeCalendarBtn.addEventListener('click', hideSubmissionCalendar);
+    }
+    
+    // Filters
+    const alertFilter = document.getElementById('alert-filter');
+    const complianceFilter = document.getElementById('compliance-filter');
+    const permitFilter = document.getElementById('permit-filter');
+    
+    if (alertFilter) {
+        alertFilter.addEventListener('change', filterAlerts);
+    }
+    
+    if (complianceFilter) {
+        complianceFilter.addEventListener('change', filterComplianceTable);
+    }
+    
+    if (permitFilter) {
+        permitFilter.addEventListener('change', filterPermits);
+    }
+}
+
+function updateDynamicDeadlines() {
+    const today = new Date();
+    const alertItems = document.querySelectorAll('.alert-item[data-days]');
+    
+    alertItems.forEach(item => {
+        const daysUntilDue = parseInt(item.dataset.days);
+        const daysRemainingSpan = item.querySelector('.days-remaining');
+        
+        if (daysRemainingSpan) {
+            if (daysUntilDue < 0) {
+                daysRemainingSpan.textContent = `${Math.abs(daysUntilDue)} days overdue`;
+                item.classList.add('overdue');
+            } else if (daysUntilDue === 0) {
+                daysRemainingSpan.textContent = 'Due today';
+                item.classList.add('due-today');
+            } else if (daysUntilDue === 1) {
+                daysRemainingSpan.textContent = 'Due tomorrow';
+                item.classList.add('urgent');
+            } else {
+                daysRemainingSpan.textContent = `${daysUntilDue} days`;
+            }
+        }
+        
+        // Update alert priority based on days remaining
+        if (daysUntilDue <= 0) {
+            item.className = item.className.replace(/\b(urgent|warning|info|success)\b/g, 'overdue');
+        } else if (daysUntilDue <= 3) {
+            item.className = item.className.replace(/\b(warning|info|success)\b/g, 'urgent');
+        } else if (daysUntilDue <= 7) {
+            item.className = item.className.replace(/\b(info|success)\b/g, 'warning');
+        }
+    });
+    
+    updateAlertSummary();
+}
+
+function updateAlertSummary() {
+    const alertItems = document.querySelectorAll('.alert-item');
+    let urgentCount = 0, warningCount = 0, infoCount = 0, completedCount = 0;
+    
+    alertItems.forEach(item => {
+        if (item.classList.contains('urgent') || item.classList.contains('overdue')) {
+            urgentCount++;
+        } else if (item.classList.contains('warning')) {
+            warningCount++;
+        } else if (item.classList.contains('info')) {
+            infoCount++;
+        } else if (item.classList.contains('success')) {
+            completedCount++;
+        }
+    });
+    
+    const urgentCountEl = document.getElementById('urgent-count');
+    const warningCountEl = document.getElementById('warning-count');
+    const infoCountEl = document.getElementById('info-count');
+    const completedCountEl = document.getElementById('completed-count');
+    
+    if (urgentCountEl) urgentCountEl.textContent = urgentCount;
+    if (warningCountEl) warningCountEl.textContent = warningCount;
+    if (infoCountEl) infoCountEl.textContent = infoCount;
+    if (completedCountEl) completedCountEl.textContent = completedCount;
+}
+
+function startDeadlineMonitoring() {
+    // Update deadlines every hour
+    setInterval(updateDynamicDeadlines, 3600000);
+    
+    // Check for new urgent items every 15 minutes
+    setInterval(checkUrgentDeadlines, 900000);
+}
+
+function checkUrgentDeadlines() {
+    const urgentItems = document.querySelectorAll('.alert-item.urgent, .alert-item.overdue');
+    
+    urgentItems.forEach(item => {
+        const alertContent = item.querySelector('.alert-content strong').textContent;
+        const daysRemaining = item.dataset.days;
+        
+        if (daysRemaining <= 1 && !item.dataset.notificationSent) {
+            showUrgentNotification(alertContent, daysRemaining);
+            item.dataset.notificationSent = 'true';
+        }
+    });
+}
+
+function showUrgentNotification(alertContent, daysRemaining) {
+    if (window.notificationManager) {
+        const message = daysRemaining <= 0 ? 
+            `OVERDUE: ${alertContent}` : 
+            `URGENT: ${alertContent} due ${daysRemaining === '0' ? 'today' : 'tomorrow'}`;
+        window.notificationManager.show(message, 'error', 10000);
+    }
+}
+
+function runComplianceCheck() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Running comprehensive compliance check...', 'info');
+    }
+    
+    // Simulate compliance check process
+    setTimeout(() => {
+        const complianceScore = calculateComplianceScore();
+        updateComplianceScore(complianceScore);
+        
+        if (window.notificationManager) {
+            window.notificationManager.show(`Compliance check completed. Overall score: ${complianceScore}%`, 'success');
+        }
+    }, 3000);
+}
+
+function calculateComplianceScore() {
+    // Calculate based on permits, submissions, and alerts
+    const validPermits = document.querySelectorAll('.permit-status.valid').length;
+    const totalPermits = document.querySelectorAll('.permit-status').length;
+    const overdueAlerts = document.querySelectorAll('.alert-item.overdue').length;
+    const urgentAlerts = document.querySelectorAll('.alert-item.urgent').length;
+    
+    let score = (validPermits / totalPermits) * 100;
+    score -= (overdueAlerts * 10); // -10% per overdue item
+    score -= (urgentAlerts * 5);   // -5% per urgent item
+    
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function updateComplianceScore(score) {
+    const scoreElement = document.getElementById('overall-compliance-score');
+    const statusElement = document.getElementById('compliance-status');
+    const progressElement = document.getElementById('compliance-progress');
+    
+    if (scoreElement) scoreElement.textContent = `${score}%`;
+    if (progressElement) progressElement.style.width = `${score}%`;
+    
+    if (statusElement) {
+        if (score >= 90) {
+            statusElement.textContent = 'Excellent Compliance';
+            statusElement.style.color = 'var(--success-color)';
+        } else if (score >= 80) {
+            statusElement.textContent = 'Good Compliance';
+            statusElement.style.color = 'var(--warning-color)';
+        } else {
+            statusElement.textContent = 'Needs Improvement';
+            statusElement.style.color = 'var(--danger-color)';
+        }
+    }
+}
+
+function generateComplianceReport() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Generating comprehensive compliance report...', 'info');
+    }
+    
+    setTimeout(() => {
+        if (window.notificationManager) {
+            window.notificationManager.show('Compliance report generated and saved to Downloads folder', 'success');
+        }
+    }, 2000);
+}
+
+function startTaxSubmission() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Opening SRA portal for tax submission...', 'info');
+    }
+    
+    // In a real application, this would open the SRA portal
+    setTimeout(() => {
+        if (window.notificationManager) {
+            window.notificationManager.show('SRA portal opened. Please complete your submission.', 'success');
+        }
+    }, 1500);
+}
+
+function showMultiJurisdictionalView() {
+    const section = document.getElementById('multi-jurisdictional-section');
+    if (section) {
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function hideMultiJurisdictionalView() {
+    const section = document.getElementById('multi-jurisdictional-section');
+    if (section) {
+        section.style.display = 'none';
+    }
+}
+
+function switchJurisdiction(jurisdiction) {
+    // Update active tab
+    document.querySelectorAll('.jurisdiction-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.querySelector(`[data-jurisdiction="${jurisdiction}"]`).classList.add('active');
+    
+    // Update active panel
+    document.querySelectorAll('.jurisdiction-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    
+    document.getElementById(`${jurisdiction}-panel`).classList.add('active');
+}
+
+function refreshDeadlines() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Refreshing deadline information...', 'info');
+    }
+    
+    updateDynamicDeadlines();
+    
+    setTimeout(() => {
+        if (window.notificationManager) {
+            window.notificationManager.show('Deadlines refreshed successfully', 'success');
+        }
+    }, 1000);
+}
+
+function showSubmissionCalendar() {
+    const calendar = document.getElementById('submission-calendar');
+    if (calendar) {
+        calendar.style.display = 'block';
+        calendar.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function hideSubmissionCalendar() {
+    const calendar = document.getElementById('submission-calendar');
+    if (calendar) {
+        calendar.style.display = 'none';
+    }
+}
+
+function filterAlerts() {
+    const filter = document.getElementById('alert-filter').value;
+    const alerts = document.querySelectorAll('.alert-item');
+    
+    alerts.forEach(alert => {
+        let show = true;
+        
+        switch (filter) {
+            case 'urgent':
+                show = alert.classList.contains('urgent') || alert.classList.contains('overdue');
+                break;
+            case 'upcoming':
+                const days = parseInt(alert.dataset.days);
+                show = days >= 0 && days <= 30;
+                break;
+            case 'completed':
+                show = alert.classList.contains('success');
+                break;
+            default:
+                show = true;
+        }
+        
+        alert.style.display = show ? 'block' : 'none';
+    });
+}
+
+function filterPermits() {
+    const filter = document.getElementById('permit-filter').value;
+    const permits = document.querySelectorAll('.permit-item');
+    
+    permits.forEach(permit => {
+        let show = true;
+        
+        switch (filter) {
+            case 'expiring':
+                show = permit.classList.contains('expiring');
+                break;
+            case 'valid':
+                show = permit.querySelector('.permit-status.valid') !== null;
+                break;
+            case 'expired':
+                show = permit.classList.contains('expired');
+                break;
+            default:
+                show = true;
+        }
+        
+        permit.style.display = show ? 'flex' : 'none';
+    });
+}
+
+function filterComplianceTable() {
+    const filter = document.getElementById('compliance-filter').value;
+    const rows = document.querySelectorAll('#compliance-table tbody tr');
+    
+    rows.forEach(row => {
+        const scoreElement = row.querySelector('.score');
+        let show = true;
+        
+        if (scoreElement && filter !== 'all') {
+            const scoreText = scoreElement.textContent;
+            const score = parseInt(scoreText.replace('%', ''));
+            
+            switch (filter) {
+                case 'excellent':
+                    show = score >= 90;
+                    break;
+                case 'good':
+                    show = score >= 80 && score < 90;
+                    break;
+                case 'needs-improvement':
+                    show = score < 80;
+                    break;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function initializeFilters() {
+    filterAlerts();
+    filterPermits();
+    filterComplianceTable();
+}
+
+function updateComplianceMetrics() {
+    // Update the last compliance check time
+    const lastCheckElement = document.getElementById('last-compliance-check');
+    if (lastCheckElement) {
+        const now = new Date();
+        lastCheckElement.textContent = `${now.toLocaleDateString()} at ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+    }
+}
+
+// Compliance action functions
+function startTaxPreparation() {
+    if (window.notificationManager) {
+        window.notificationManager.show('Opening tax preparation wizard...', 'info');
+    }
+}
+
+function setReminder(type) {
+    if (window.notificationManager) {
+        window.notificationManager.show('Reminder set successfully', 'success');
+    }
+}
+
+function startRenewalProcess(type) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Starting ${type} renewal process...`, 'info');
+    }
+}
+
+function viewRequirements(type) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Opening ${type} requirements...`, 'info');
+    }
+}
+
+function viewComplianceDetails(entityCode) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Loading compliance details for ${entityCode}...`, 'info');
+    }
+}
+
+function scheduleAudit(entityCode) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Scheduling audit for ${entityCode}...`, 'info');
+    }
+}
+
+function certifyCompliance(entityCode) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Certifying compliance for ${entityCode}...`, 'success');
+    }
+}
+
+function escalateCompliance(entityCode) {
+    if (window.notificationManager) {
+        window.notificationManager.show(`Escalating compliance issues for ${entityCode}...`, 'warning');
+    }
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeComplianceFeatures);
+} else {
+    initializeComplianceFeatures();
+}
 </script>
