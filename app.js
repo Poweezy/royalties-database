@@ -1813,35 +1813,108 @@ class RoyaltiesApp {
     }    initializeDashboardCharts() {
         console.log('Initializing dashboard charts...');
         
-        try {
-            // Get royalty records for charts
-            const royaltyRecords = this.dataManager.getRoyaltyRecords();
-            
-            // Create revenue chart
-            if (this.chartManager.createRevenueChart) {
-                console.log('Creating revenue chart...');
-                this.chartManager.createRevenueChart('revenue-trends-chart');
+        // Function to actually initialize charts
+        const doChartInitialization = () => {
+            // Check if Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded! Charts cannot be created.');
+                return false;
             }
-    
-            // Create production chart with actual data
-            const entityData = royaltyRecords.reduce((acc, record) => {
-                acc[record.entity] = (acc[record.entity] || 0) + record.volume;
-                return acc;
-            }, {});
             
-            // Handle different method names in different chart manager implementations
-            if (this.chartManager.createProductionChart) {
-                console.log('Creating production chart using createProductionChart...');
-                this.chartManager.createProductionChart('production-by-entity-chart', entityData);
-            } else if (this.chartManager.createEntityChart) {
-                console.log('Creating production chart using createEntityChart...');
-                this.chartManager.createEntityChart('production-by-entity-chart', entityData);
-            } else {
-                console.warn('No suitable chart creation method found in chartManager');
+            // Check if chart manager is available
+            if (!this.chartManager) {
+                console.error('Chart manager is not available! Charts cannot be created.');
+                return false;
             }
-        } catch (error) {
-            console.error('Error initializing dashboard charts:', error);
+
+            // Check canvas elements exist
+            const revenueCanvas = document.getElementById('revenue-trends-chart');
+            const productionCanvas = document.getElementById('production-by-entity-chart');
+            
+            console.log('Canvas elements check:');
+            console.log('- Revenue canvas:', revenueCanvas ? '✅ Found' : '❌ Missing');
+            console.log('- Production canvas:', productionCanvas ? '✅ Found' : '❌ Missing');
+            
+            if (!revenueCanvas || !productionCanvas) {
+                console.error('Required canvas elements are missing from the DOM');
+                return false;
+            }
+            
+            try {
+                // Get royalty records for charts
+                const royaltyRecords = this.dataManager.getRoyaltyRecords();
+                console.log('Royalty records for charts:', royaltyRecords.length, 'records');
+                
+                // Create revenue chart
+                if (this.chartManager.createRevenueChart) {
+                    console.log('Creating revenue chart...');
+                    const revenueChart = this.chartManager.createRevenueChart('revenue-trends-chart');
+                    if (revenueChart) {
+                        console.log('✅ Revenue chart created successfully');
+                    } else {
+                        console.error('❌ Revenue chart creation returned null');
+                    }
+                } else {
+                    console.error('❌ createRevenueChart method not available in chart manager');
+                }
+        
+                // Create production chart with actual data
+                const entityData = royaltyRecords.reduce((acc, record) => {
+                    acc[record.entity] = (acc[record.entity] || 0) + record.volume;
+                    return acc;
+                }, {});
+                
+                console.log('Entity production data:', entityData);
+                
+                // Handle different method names in different chart manager implementations
+                if (this.chartManager.createProductionChart) {
+                    console.log('Creating production chart using createProductionChart...');
+                    const productionChart = this.chartManager.createProductionChart('production-by-entity-chart', entityData);
+                    if (productionChart) {
+                        console.log('✅ Production chart created successfully');
+                    } else {
+                        console.error('❌ Production chart creation returned null');
+                    }
+                } else if (this.chartManager.createEntityChart) {
+                    console.log('Creating production chart using createEntityChart...');
+                    const productionChart = this.chartManager.createEntityChart('production-by-entity-chart', entityData);
+                    if (productionChart) {
+                        console.log('✅ Production chart created successfully');
+                    } else {
+                        console.error('❌ Production chart creation returned null');
+                    }
+                } else {
+                    console.error('❌ No suitable chart creation method found in chartManager');
+                    console.log('Available chart manager methods:', Object.getOwnPropertyNames(this.chartManager));
+                }
+                
+                console.log('Dashboard charts initialization complete');
+                return true;
+                
+            } catch (error) {
+                console.error('Error during chart initialization:', error);
+                console.error('Error stack:', error.stack);
+                return false;
+            }
+        };
+        
+        // Try immediate initialization
+        if (doChartInitialization()) {
+            return;
         }
+        
+        // If immediate initialization failed, try again after a delay
+        console.log('Initial chart initialization failed, retrying in 500ms...');
+        setTimeout(() => {
+            if (!doChartInitialization()) {
+                console.log('Second chart initialization attempt failed, retrying in 1000ms...');
+                setTimeout(() => {
+                    if (!doChartInitialization()) {
+                        console.error('All chart initialization attempts failed. Please check console for errors.');
+                    }
+                }, 1000);
+            }
+        }, 500);
     }
 
     setupDashboardEventHandlers() {
