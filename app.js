@@ -405,6 +405,129 @@ class DataManager {
             { id: 10, entity: 'Deep Earth Extraction', status: 'Active', dueDate: '2024-04-10' }
         ];
     }
+
+    getEnhancedContracts() {
+        // Enhanced contract data with full details for contract management
+        return [
+            {
+                id: 'CNT-001',
+                contractId: 'KQ-ROY-2024-001',
+                stakeholder: 'Kwalini Holdings Ltd',
+                entity: 'Kwalini Quarry',
+                contractType: 'Royalty Agreement',
+                royaltyRate: 2.5,
+                calculationMethod: 'Ad Valorem',
+                startDate: '2024-01-01',
+                endDate: '2026-12-31',
+                paymentSchedule: 'Quarterly',
+                escalationClause: 'CPI-Based',
+                escalationRate: 3.0,
+                minimumPayment: 50000,
+                specialConditions: 'Environmental compliance required. Annual reporting mandatory.',
+                status: 'Active',
+                contractValue: 2500000,
+                version: 1.0,
+                lastModified: '2024-01-15',
+                amendments: []
+            },
+            {
+                id: 'CNT-002',
+                contractId: 'MC-LIC-2023-045',
+                stakeholder: 'Maloma Mining Consortium',
+                entity: 'Maloma Colliery',
+                contractType: 'Mining License',
+                royaltyRate: 1.8,
+                calculationMethod: 'Specific',
+                startDate: '2023-06-01',
+                endDate: '2025-05-31',
+                paymentSchedule: 'Monthly',
+                escalationClause: 'Fixed Annual',
+                escalationRate: 2.5,
+                minimumPayment: 75000,
+                specialConditions: 'Coal quality specifications must be maintained. Safety audits quarterly.',
+                status: 'Active',
+                contractValue: 1800000,
+                version: 1.2,
+                lastModified: '2024-01-10',
+                amendments: [
+                    { date: '2023-12-01', description: 'Royalty rate adjustment', version: 1.1 },
+                    { date: '2024-01-10', description: 'Payment schedule modification', version: 1.2 }
+                ]
+            },
+            {
+                id: 'CNT-003',
+                contractId: 'NM-JV-2024-012',
+                stakeholder: 'Ngwenya Iron Ore Ltd',
+                entity: 'Ngwenya Mine',
+                contractType: 'Joint Venture',
+                royaltyRate: 3.2,
+                calculationMethod: 'Sliding Scale',
+                startDate: '2024-03-01',
+                endDate: '2029-02-28',
+                paymentSchedule: 'Quarterly',
+                escalationClause: 'Market-Based',
+                escalationRate: 0,
+                minimumPayment: 100000,
+                specialConditions: 'Revenue sharing based on iron ore market prices. Technology transfer requirements.',
+                status: 'Active',
+                contractValue: 4200000,
+                version: 1.0,
+                lastModified: '2024-03-01',
+                amendments: []
+            },
+            {
+                id: 'CNT-004',
+                contractId: 'BA-EXP-2024-008',
+                stakeholder: 'Bulembu Exploration Corp',
+                entity: 'Bulembu Asbestos Mine',
+                contractType: 'Exploration License',
+                royaltyRate: 4.0,
+                calculationMethod: 'Hybrid',
+                startDate: '2024-02-01',
+                endDate: '2024-07-31',
+                paymentSchedule: 'Semi-Annual',
+                escalationClause: 'None',
+                escalationRate: 0,
+                minimumPayment: 25000,
+                specialConditions: 'Environmental remediation bond required. Limited to exploration only.',
+                status: 'Expiring Soon',
+                contractValue: 150000,
+                version: 1.0,
+                lastModified: '2024-02-01',
+                amendments: []
+            },
+            {
+                id: 'CNT-005',
+                contractId: 'MS-SVC-2023-033',
+                stakeholder: 'Mountain Stone Services',
+                entity: 'Various Quarries',
+                contractType: 'Service Agreement',
+                royaltyRate: 1.5,
+                calculationMethod: 'Ad Valorem',
+                startDate: '2023-01-01',
+                endDate: '2025-12-31',
+                paymentSchedule: 'Monthly',
+                escalationClause: 'CPI-Based',
+                escalationRate: 3.5,
+                minimumPayment: 30000,
+                specialConditions: 'Equipment maintenance and operation services. Performance bonuses applicable.',
+                status: 'Pending Renewal',
+                contractValue: 900000,
+                version: 1.3,
+                lastModified: '2023-11-15',
+                amendments: [
+                    { date: '2023-06-01', description: 'Service scope expansion', version: 1.1 },
+                    { date: '2023-09-15', description: 'Rate adjustment', version: 1.2 },
+                    { date: '2023-11-15', description: 'Performance metrics update', version: 1.3 }
+                ]
+            }
+        ];
+    }
+
+    getContractById(id) {
+        const contracts = this.getEnhancedContracts();
+        return contracts.find(contract => contract.id === id);
+    }
 }
 
 // Simplified AuthManager
