@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Chart Validation - Mining Royalties Manager</title>
+    
+    <!-- External Dependencies -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="royalties.css">
+    
+    <!-- Unified Chart Systems -->
+    <script src="js/enhanced-notification-system.js?v=1.0.2"></script>
+    <script src="js/unified-chart-solution.js?v=1.0.3"></script>
+    <script src="js/ultimate-chart-solution.js?v=1.0.2"></script>
+    <script src="js/magical-chart-solution.js?v=1.0.2"></script>
+    <script src="js/final-system-unification.js?v=1.0.3"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/unified-component-loader.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .test-status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .test-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .test-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .test-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        .test-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        .dashboard-preview {
+            margin-top: 30px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dashboard-title {
+            background: #f1f5f9;
+            padding: 15px;
+            font-weight: 600;
+            color: #334155;
+        }
+        #dashboard-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            padding: 10px;
+        }
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: #f8fafc;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .analytics-chart {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-header h5 {
+            margin: 0;
+            color: #374151;
+            font-size: 16px;
+        }
+        .metric-card {
+            text-align: center;
+        }
+        .metric-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #059669;
+        }
+        .test-actions {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-chart-area"></i> Dashboard Chart Validation Test</h1>
+            <p>Testing dashboard functionality, chart rendering, and data integration</p>
+        </div>
+
+        <div id="test-results">
+            <div class="test-info">
+                <i class="fas fa-info-circle"></i> Initializing validation tests...
+            </div>
+        </div>
+
+        <div class="test-actions">
+            <button class="btn btn-primary" onclick="runFullValidation()">
+                <i class="fas fa-play"></i> Run Full Validation
+            </button>
+            <button class="btn btn-success" onclick="loadDashboardTest()">
+                <i class="fas fa-dashboard"></i> Test Dashboard Load
+            </button>
+            <button class="btn btn-warning" onclick="testChartsOnly()">
+                <i class="fas fa-chart-line"></i> Test Charts Only
+            </button>
+        </div>
+
+        <div class="dashboard-preview">
+            <div class="dashboard-title">
+                <i class="fas fa-desktop"></i> Dashboard Preview (Live Test)
+            </div>
+            <div id="dashboard-content">
+                <div class="test-info">
+                    Click "Test Dashboard Load" to preview the actual dashboard with charts
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script src="app.js"></script>
+
+    <script>
+        // Validation Test Suite
+        let testResults = [];
+        let app = null;
+
+        function addTestResult(message, type = 'info') {
+            testResults.push({message, type, timestamp: new Date()});
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-${result.type}">
+                    <i class="fas fa-${getIcon(result.type)}"></i>
+                    <strong>[${result.timestamp.toLocaleTimeString()}]</strong> ${result.message}
+                </div>
+            `).join('');
+        }
+
+        function getIcon(type) {
+            const icons = {
+                success: 'check-circle',
+                error: 'exclamation-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle'
+            };
+            return icons[type] || 'info-circle';
+        }
+
+        function runFullValidation() {
+            testResults = [];
+            addTestResult('Starting comprehensive validation...', 'info');
+
+            // Test 1: Check if Chart.js is loaded
+            if (typeof Chart !== 'undefined') {
+                addTestResult('✅ Chart.js is loaded and available', 'success');
+            } else {
+                addTestResult('❌ Chart.js is not loaded', 'error');
+                return;
+            }
+
+            // Test 2: Check chart systems
+            if (window.chartManager) {
+                addTestResult('✅ Chart manager is available', 'success');
+                if (window.chartManager.create) {
+                    addTestResult('✅ Chart manager has create method', 'success');
+                }
+                if (window.chartManager.createRevenueChart) {
+                    addTestResult('✅ Chart manager has createRevenueChart method', 'success');
+                }
+            } else {
+                addTestResult('❌ Chart manager is not available', 'error');
+            }
+
+            // Test 3: Check unified systems
+            if (window.unifiedComponentLoader) {
+                addTestResult('✅ Unified component loader is available', 'success');
+            } else {
+                addTestResult('⚠️ Unified component loader not found', 'warning');
+            }
+
+            // Test 4: Check app initialization
+            try {
+                if (typeof MiningRoyaltiesApp !== 'undefined') {
+                    addTestResult('✅ MiningRoyaltiesApp class is available', 'success');
+                    
+                    // Initialize app for testing
+                    app = new MiningRoyaltiesApp();
+                    addTestResult('✅ App instance created successfully', 'success');
+                    
+                    // Test dashboard content loading capability
+                    if (app.loadDashboardContent) {
+                        addTestResult('✅ Dashboard content loading method available', 'success');
+                    } else {
+                        addTestResult('❌ Dashboard content loading method missing', 'error');
+                    }
+                    
+                    // Test chart initialization capability
+                    if (app.initializeDashboardCharts) {
+                        addTestResult('✅ Chart initialization method available', 'success');
+                    } else {
+                        addTestResult('❌ Chart initialization method missing', 'error');
+                    }
+                    
+                } else {
+                    addTestResult('❌ MiningRoyaltiesApp class not found', 'error');
+                }
+            } catch (error) {
+                addTestResult(`❌ Error initializing app: ${error.message}`, 'error');
+            }
+
+            addTestResult('🎯 Validation complete! Review results above.', 'info');
+        }
+
+        async function loadDashboardTest() {
+            addTestResult('Testing dashboard load...', 'info');
+            
+            if (!app) {
+                try {
+                    app = new MiningRoyaltiesApp();
+                    addTestResult('App instance created for dashboard test', 'success');
+                } catch (error) {
+                    addTestResult(`Failed to create app instance: ${error.message}`, 'error');
+                    return;
+                }
+            }
+
+            const dashboardContainer = document.getElementById('dashboard-content');
+            
+            try {
+                // Load dashboard content
+                await app.loadDashboardContent(dashboardContainer);
+                addTestResult('✅ Dashboard content loaded successfully!', 'success');
+                
+                // Wait a bit for charts to initialize
+                setTimeout(() => {
+                    // Check if canvas elements were created
+                    const canvases = dashboardContainer.querySelectorAll('canvas');
+                    if (canvases.length > 0) {
+                        addTestResult(`✅ Found ${canvases.length} chart canvas elements`, 'success');
+                        
+                        // Check if charts were actually rendered
+                        let renderedCharts = 0;
+                        canvases.forEach(canvas => {
+                            if (canvas.style.display !== 'none' && canvas.offsetWidth > 0) {
+                                renderedCharts++;
+                            }
+                        });
+                        
+                        if (renderedCharts > 0) {
+                            addTestResult(`✅ ${renderedCharts} charts appear to be rendered`, 'success');
+                        } else {
+                            addTestResult('⚠️ Charts may not be fully rendered yet', 'warning');
+                        }
+                    } else {
+                        addTestResult('❌ No chart canvas elements found', 'error');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                addTestResult(`❌ Dashboard load failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testChartsOnly() {
+            addTestResult('Testing chart creation directly...', 'info');
+            
+            // Create test canvas elements
+            const testContainer = document.getElementById('dashboard-content');
+            testContainer.innerHTML = `
+                <div class="charts-grid">
+                    <div class="card analytics-chart">
+                        <div class="card-header">
+                            <h5>Test Revenue Chart</h5>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="test-revenue-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card analytics-chart">
+                        <div class="card-header">
+                            <h5>Test Production Chart</h5>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="test-production-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                try {
+                    if (window.chartManager && window.chartManager.create) {
+                        // Test direct chart creation
+                        const revenueChart = window.chartManager.create('test-revenue-chart', {
+                            type: 'line',
+                            data: {
+                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                                datasets: [{
+                                    label: 'Revenue (E)',
+                                    data: [65000, 75000, 85000, 90000, 95000, 100000],
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+
+                        if (revenueChart) {
+                            addTestResult('✅ Revenue test chart created successfully', 'success');
+                        } else {
+                            addTestResult('❌ Revenue test chart creation failed', 'error');
+                        }
+
+                        const productionChart = window.chartManager.create('test-production-chart', {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Mine Alpha', 'Mine Beta', 'Quarry Gamma'],
+                                datasets: [{
+                                    data: [300, 200, 150],
+                                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+
+                        if (productionChart) {
+                            addTestResult('✅ Production test chart created successfully', 'success');
+                        } else {
+                            addTestResult('❌ Production test chart creation failed', 'error');
+                        }
+
+                    } else {
+                        addTestResult('❌ Chart manager create method not available', 'error');
+                    }
+                } catch (error) {
+                    addTestResult(`❌ Chart creation error: ${error.message}`, 'error');
+                }
+            }, 300);
+        }
+
+        // Initialize validation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('Dashboard validation test loaded', 'info');
+            addTestResult('Ready to run validation tests', 'success');
+        });
+    </script>
+</body>
+</html>

@@ -78,47 +78,7 @@
                 </ul>
             </nav>
         `,
-        'dashboard': `
-            <div class="dashboard-container">
-                <div class="page-header">
-                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
-                    <p>Mining Royalties Management System Overview</p>
-                </div>
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                        <div class="stat-content">
-                            <h3>Total Revenue</h3>
-                            <p class="stat-number">$2,450,000</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
-                        <div class="stat-content">
-                            <h3>Active Contracts</h3>
-                            <p class="stat-number">24</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-                        <div class="stat-content">
-                            <h3>Monthly Growth</h3>
-                            <p class="stat-number">+12.5%</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="dashboard-charts">
-                    <div class="chart-container">
-                        <h3>Revenue Trends</h3>
-                        <canvas id="revenue-trends-chart"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3>Revenue by Entity</h3>
-                        <canvas id="revenue-by-entity-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        `,
+        'dashboard': null, // Use dynamic content from app instead of static fallback
         'user-management': `
             <div class="user-management-container">
                 <div class="page-header">
@@ -347,8 +307,17 @@
                 try {
                     const result = await loadPromise;
                     
-                    // Insert content into container
-                    targetContainer.innerHTML = result.content;
+                    // Handle dynamic dashboard content specially
+                    if (componentId === 'dashboard' && result.source === 'app-dynamic') {
+                        console.log(`UnifiedComponentLoader: Loading dynamic dashboard content`);
+                        // Use the app's dashboard loading method directly
+                        if (window.royaltiesApp && typeof window.royaltiesApp.loadDashboardContent === 'function') {
+                            await window.royaltiesApp.loadDashboardContent(targetContainer);
+                        }
+                    } else {
+                        // Insert content into container normally
+                        targetContainer.innerHTML = result.content;
+                    }
                     
                     // Execute any scripts in the loaded content
                     this.executeScripts(targetContainer);
@@ -391,12 +360,18 @@
                 };
             }
             
-            // For file:// protocol, try fallback first
-            if (this.state.isFileProtocol && this.fallbacks[componentId]) {
-                console.log(`UnifiedComponentLoader: Using fallback for '${componentId}' (file:// protocol)`);
-                const content = this.fallbacks[componentId];
-                this.state.cache.set(componentId, content);
-                return { content, source: 'fallback' };
+            // For file:// protocol, try fallback first, but handle dashboard specially
+            if (this.state.isFileProtocol) {
+                // For dashboard, prefer app dynamic content over static fallback
+                if (componentId === 'dashboard' && window.royaltiesApp && typeof window.royaltiesApp.loadDashboardContent === 'function') {
+                    console.log(`UnifiedComponentLoader: Using app dynamic content for dashboard (file:// protocol)`);
+                    return { content: 'DYNAMIC_DASHBOARD_CONTENT', source: 'app-dynamic' };
+                } else if (this.fallbacks[componentId]) {
+                    console.log(`UnifiedComponentLoader: Using fallback for '${componentId}' (file:// protocol)`);
+                    const content = this.fallbacks[componentId];
+                    this.state.cache.set(componentId, content);
+                    return { content, source: 'fallback' };
+                }
             }
             
             // Try to load from each path
@@ -488,6 +463,31 @@
          * @returns {Object} - Result object
          */
         loadFallback(componentId, container) {
+            // Special handling for dashboard - use app's dynamic content
+            if (componentId === 'dashboard' && window.royaltiesApp && typeof window.royaltiesApp.loadDashboardContent === 'function') {
+                console.log(`UnifiedComponentLoader: Using app's dynamic dashboard content for '${componentId}'`);
+                
+                const targetContainer = typeof container === 'string' ? 
+                    document.getElementById(container) : container;
+                
+                if (targetContainer) {
+                    // Use the app's dashboard loading method
+                    try {
+                        window.royaltiesApp.loadDashboardContent(targetContainer);
+                        this.dispatchComponentEvent('componentDynamicLoaded', componentId, targetContainer);
+                        
+                        return { 
+                            success: true, 
+                            content: 'Dynamic dashboard content loaded', 
+                            source: 'app-dynamic' 
+                        };
+                    } catch (error) {
+                        console.error('Failed to load dynamic dashboard content:', error);
+                        // Fall through to normal fallback logic
+                    }
+                }
+            }
+            
             if (this.fallbacks[componentId]) {
                 console.log(`UnifiedComponentLoader: Loading fallback for '${componentId}'`);
                 

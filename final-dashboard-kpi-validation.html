@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard KPI & Metrics Final Validation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; }
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        .btn:hover { background: #0056b3; }
+        .metric-display {
+            display: inline-block;
+            background: white;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 120px;
+            text-align: center;
+        }
+        .metric-display h5 { margin: 0 0 5px 0; font-size: 12px; color: #666; }
+        .metric-display p { margin: 0; font-size: 18px; font-weight: bold; color: #333; }
+        .dashboard-preview {
+            border: 2px solid #007bff;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Dashboard KPI & Metrics Final Validation</h1>
+    <p>This test validates that all Production Tracking, Royalty Calculation, and Payment Timeline KPIs are properly displaying with real data.</p>
+
+    <div class="test-section info">
+        <h3>Test Status</h3>
+        <div id="test-status">Initializing comprehensive dashboard tests...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>Quick Actions</h3>
+        <button class="btn" onclick="runFullDashboardTest()">🔬 Run Full Dashboard Test</button>
+        <button class="btn" onclick="testKPIElements()">📊 Test KPI Elements</button>
+        <button class="btn" onclick="testDataPopulation()">📈 Test Data Population</button>
+        <button class="btn" onclick="openMainApp()">🚀 Open Main App</button>
+    </div>
+
+    <!-- KPI Metrics Display -->
+    <div class="test-section">
+        <h3>🎯 Key Performance Indicators Status</h3>
+        <div id="kpi-status">Loading KPI status...</div>
+        <div id="kpi-metrics"></div>
+    </div>
+
+    <!-- Production Tracking & KPIs -->
+    <div class="test-section">
+        <h3>🏭 Production Tracking & KPIs</h3>
+        <div id="production-kpis">Testing production metrics...</div>
+    </div>
+
+    <!-- Royalty Calculation & Payment Tracking -->
+    <div class="test-section">
+        <h3>💰 Royalty Calculation & Payment Tracking</h3>
+        <div id="royalty-payment-kpis">Testing royalty and payment metrics...</div>
+    </div>
+
+    <!-- Payment Timeline -->
+    <div class="test-section">
+        <h3>📅 Payment Timeline Information</h3>
+        <div id="payment-timeline-kpis">Testing payment timeline metrics...</div>
+    </div>
+
+    <!-- Chart Status -->
+    <div class="test-section">
+        <h3>📊 Chart System Status</h3>
+        <div id="chart-status">Checking chart system...</div>
+    </div>
+
+    <!-- Dashboard Preview -->
+    <div class="test-section">
+        <h3>👁️ Dashboard Content Preview</h3>
+        <div id="dashboard-preview" class="dashboard-preview">
+            Dashboard content will be loaded here for inspection...
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            productionKPIs: 0,
+            royaltyKPIs: 0,
+            paymentKPIs: 0,
+            chartsLoaded: 0,
+            dataPopulated: 0
+        };
+
+        function log(message, type = 'info') {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `<div class="test-section ${type}"><strong>${timestamp}:</strong> ${message}</div>`;
+            document.getElementById('test-status').innerHTML += logEntry;
+        }
+
+        function displayMetric(containerId, title, value, status = 'info') {
+            const container = document.getElementById(containerId);
+            const metricDiv = document.createElement('div');
+            metricDiv.className = 'metric-display';
+            metricDiv.innerHTML = `
+                <h5>${title}</h5>
+                <p class="${status}">${value}</p>
+            `;
+            container.appendChild(metricDiv);
+        }
+
+        async function runFullDashboardTest() {
+            log('🔬 Starting comprehensive dashboard test...', 'info');
+            
+            // Reset results
+            testResults = {
+                productionKPIs: 0,
+                royaltyKPIs: 0,
+                paymentKPIs: 0,
+                chartsLoaded: 0,
+                dataPopulated: 0
+            };
+
+            try {
+                // Test 1: Load dashboard content
+                await testDashboardLoading();
+                
+                // Test 2: Check KPI elements
+                await testKPIElements();
+                
+                // Test 3: Test data population
+                await testDataPopulation();
+                
+                // Test 4: Test charts
+                await testChartSystem();
+                
+                // Generate final report
+                generateFinalReport();
+                
+            } catch (error) {
+                log(`❌ Full dashboard test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardLoading() {
+            log('📋 Testing dashboard content loading...', 'info');
+            
+            try {
+                const previewContainer = document.getElementById('dashboard-preview');
+                
+                // Test if app is available
+                if (!window.royaltiesApp) {
+                    throw new Error('RoyaltiesApp not available');
+                }
+                
+                // Load dashboard content
+                await window.royaltiesApp.loadDashboardContent(previewContainer);
+                
+                // Check content length
+                const contentLength = previewContainer.innerHTML.length;
+                if (contentLength > 2000) {
+                    log(`✅ Dashboard content loaded successfully (${contentLength} characters)`, 'success');
+                } else {
+                    log(`⚠️ Dashboard content seems minimal (${contentLength} characters)`, 'warning');
+                }
+                
+                // Wait for metrics to be updated
+                setTimeout(() => {
+                    testKPIElements();
+                }, 1000);
+                
+            } catch (error) {
+                log(`❌ Dashboard loading failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function testKPIElements() {
+            log('📊 Testing KPI elements presence and data...', 'info');
+            
+            const productionKPIs = [
+                'total-production-volume',
+                'ore-grade-average', 
+                'cost-per-unit'
+            ];
+            
+            const royaltyKPIs = [
+                'total-royalties-calculated',
+                'payments-received',
+                'reconciliation-status'
+            ];
+            
+            const paymentKPIs = [
+                'payment-timeline-chart',
+                'revenue-trends-chart',
+                'production-by-entity-chart'
+            ];
+
+            // Test Production KPIs
+            testResults.productionKPIs = testKPIGroup(productionKPIs, 'production-kpis', '🏭 Production KPIs');
+            
+            // Test Royalty KPIs  
+            testResults.royaltyKPIs = testKPIGroup(royaltyKPIs, 'royalty-payment-kpis', '💰 Royalty & Payment KPIs');
+            
+            // Test Payment Timeline KPIs
+            testResults.paymentKPIs = testKPIGroup(paymentKPIs, 'payment-timeline-kpis', '📅 Payment Timeline KPIs');
+        }
+
+        function testKPIGroup(kpiIds, containerId, groupName) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            let foundCount = 0;
+            let populatedCount = 0;
+            
+            kpiIds.forEach(kpiId => {
+                const element = document.getElementById(kpiId);
+                let status = 'error';
+                let value = 'NOT FOUND';
+                
+                if (element) {
+                    foundCount++;
+                    const content = element.textContent.trim();
+                    
+                    if (content && content !== '0' && content !== 'E 0' && content !== '0%' && content !== 'NOT FOUND') {
+                        populatedCount++;
+                        status = 'success';
+                        value = content;
+                    } else {
+                        status = 'warning';
+                        value = 'FOUND BUT EMPTY';
+                    }
+                } 
+                
+                displayMetric(containerId, kpiId, value, status);
+            });
+            
+            const successRate = Math.round((populatedCount / kpiIds.length) * 100);
+            log(`${groupName}: ${populatedCount}/${kpiIds.length} populated (${successRate}%)`, 
+                successRate > 70 ? 'success' : successRate > 30 ? 'warning' : 'error');
+            
+            return successRate;
+        }
+
+        async function testDataPopulation() {
+            log('📈 Testing data calculation methods...', 'info');
+            
+            if (!window.royaltiesApp) {
+                log('❌ RoyaltiesApp not available for data testing', 'error');
+                return;
+            }
+            
+            const dataMethods = [
+                'calculateTotalRevenue',
+                'calculateComplianceRate',
+                'getOverdueCount'
+            ];
+            
+            let workingMethods = 0;
+            
+            dataMethods.forEach(method => {
+                try {
+                    if (typeof window.royaltiesApp[method] === 'function') {
+                        const result = window.royaltiesApp[method]();
+                        log(`✅ ${method}() = ${result}`, 'success');
+                        workingMethods++;
+                    } else {
+                        log(`❌ ${method} method not found`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${method}() failed: ${error.message}`, 'error');
+                }
+            });
+            
+            testResults.dataPopulated = Math.round((workingMethods / dataMethods.length) * 100);
+            
+            // Test data manager
+            if (window.royaltiesApp.dataManager) {
+                const records = window.royaltiesApp.dataManager.getRoyaltyRecords();
+                log(`📊 Royalty records available: ${records.length}`, records.length > 0 ? 'success' : 'warning');
+            }
+        }
+
+        async function testChartSystem() {
+            log('📊 Testing chart system...', 'info');
+            
+            const chartCanvases = [
+                'revenue-trends-chart',
+                'production-by-entity-chart', 
+                'payment-timeline-chart',
+                'revenue-by-entity-chart'
+            ];
+            
+            let chartsFound = 0;
+            
+            chartCanvases.forEach(chartId => {
+                const canvas = document.getElementById(chartId);
+                if (canvas) {
+                    chartsFound++;
+                    log(`✅ Chart canvas found: ${chartId}`, 'success');
+                } else {
+                    log(`❌ Chart canvas missing: ${chartId}`, 'error');
+                }
+            });
+            
+            testResults.chartsLoaded = Math.round((chartsFound / chartCanvases.length) * 100);
+            
+            // Test Chart.js availability
+            if (typeof Chart !== 'undefined') {
+                log('✅ Chart.js library loaded', 'success');
+            } else {
+                log('❌ Chart.js library not loaded', 'error');
+            }
+        }
+
+        function generateFinalReport() {
+            const overallScore = Math.round(
+                (testResults.productionKPIs + testResults.royaltyKPIs + testResults.paymentKPIs + 
+                 testResults.chartsLoaded + testResults.dataPopulated) / 5
+            );
+            
+            const reportStatus = overallScore > 80 ? 'success' : overallScore > 60 ? 'warning' : 'error';
+            
+            log(`🎯 FINAL DASHBOARD TEST RESULTS:`, 'info');
+            log(`Production KPIs: ${testResults.productionKPIs}%`, testResults.productionKPIs > 70 ? 'success' : 'warning');
+            log(`Royalty KPIs: ${testResults.royaltyKPIs}%`, testResults.royaltyKPIs > 70 ? 'success' : 'warning');
+            log(`Payment KPIs: ${testResults.paymentKPIs}%`, testResults.paymentKPIs > 70 ? 'success' : 'warning');
+            log(`Charts System: ${testResults.chartsLoaded}%`, testResults.chartsLoaded > 70 ? 'success' : 'warning');
+            log(`Data Population: ${testResults.dataPopulated}%`, testResults.dataPopulated > 70 ? 'success' : 'warning');
+            log(`🏆 OVERALL SCORE: ${overallScore}%`, reportStatus);
+            
+            if (overallScore > 80) {
+                log('🎉 Dashboard is working excellently! All KPIs and metrics are properly displaying.', 'success');
+            } else if (overallScore > 60) {
+                log('⚠️ Dashboard is mostly working but some issues remain.', 'warning');
+            } else {
+                log('❌ Dashboard has significant issues that need to be addressed.', 'error');
+            }
+        }
+
+        function openMainApp() {
+            log('🚀 Opening main application...', 'info');
+            window.open('royalties.html', 'mainApp');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🎯 Dashboard validation tool initialized', 'info');
+            
+            // Wait for scripts to load, then run initial test
+            setTimeout(() => {
+                log('⏳ Starting automatic validation in 2 seconds...', 'info');
+                setTimeout(runFullDashboardTest, 2000);
+            }, 1000);
+        });
+    </script>
+
+    <!-- Load the application scripts for testing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/enhanced-notification-system.js"></script>
+    <script src="js/unified-chart-solution.js"></script>
+    <script src="js/ultimate-chart-solution.js"></script>
+    <script src="js/magical-chart-solution.js"></script>
+    <script src="js/final-system-unification.js"></script>
+    <script src="js/unified-component-loader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

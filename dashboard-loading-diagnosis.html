@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Loading Diagnosis</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .diagnostic { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; font-size: 12px; }
+        .metric-card { 
+            display: inline-block; 
+            margin: 10px; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            min-width: 150px;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Dashboard Loading Diagnosis</h1>
+    <p>This tool diagnoses which system is loading the dashboard content and why the metrics aren't displaying correctly.</p>
+
+    <div class="diagnostic info">
+        <h3>Loading Systems Check</h3>
+        <div id="loading-systems-check">Checking available loading systems...</div>
+    </div>
+
+    <div class="diagnostic">
+        <h3>Dashboard Content Test</h3>
+        <button class="btn" onclick="testDashboardLoading()">Test Dashboard Loading</button>
+        <button class="btn" onclick="testComponentLoader()">Test Component Loader</button>
+        <button class="btn" onclick="testAppDashboard()">Test App Dashboard Method</button>
+        <div id="dashboard-test-results"></div>
+    </div>
+
+    <div class="diagnostic">
+        <h3>Data Population Test</h3>
+        <button class="btn" onclick="testDataMethods()">Test Data Methods</button>
+        <div id="data-test-results"></div>
+    </div>
+
+    <div class="diagnostic">
+        <h3>Dashboard Container</h3>
+        <div id="dashboard-container" style="border: 2px solid #ccc; min-height: 200px; padding: 10px;">
+            Dashboard content will be loaded here...
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = `diagnostic ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            document.body.appendChild(div);
+        }
+
+        function checkLoadingSystems() {
+            const systems = [];
+            
+            if (window.unifiedComponentLoader) {
+                systems.push('✅ Unified Component Loader');
+            } else {
+                systems.push('❌ Unified Component Loader NOT FOUND');
+            }
+            
+            if (window.moduleLoader) {
+                systems.push('✅ Module Loader');
+            } else {
+                systems.push('❌ Module Loader NOT FOUND');
+            }
+            
+            if (window.royaltiesApp) {
+                systems.push('✅ Royalties App');
+                if (typeof window.royaltiesApp.loadDashboardContent === 'function') {
+                    systems.push('  ✅ loadDashboardContent method available');
+                } else {
+                    systems.push('  ❌ loadDashboardContent method NOT FOUND');
+                }
+            } else {
+                systems.push('❌ Royalties App NOT FOUND');
+            }
+            
+            document.getElementById('loading-systems-check').innerHTML = systems.join('<br>');
+        }
+
+        async function testDashboardLoading() {
+            const resultsDiv = document.getElementById('dashboard-test-results');
+            resultsDiv.innerHTML = '<p>Testing dashboard loading...</p>';
+            
+            try {
+                const container = document.getElementById('dashboard-container');
+                
+                // Test 1: Unified Component Loader
+                if (window.unifiedComponentLoader) {
+                    log('Testing Unified Component Loader...', 'info');
+                    const result = await window.unifiedComponentLoader.loadComponent('dashboard', container);
+                    log(`Unified Component Loader result: ${result.success ? 'SUCCESS' : 'FAILED'}`, result.success ? 'success' : 'error');
+                    if (result.success) {
+                        log(`Content length: ${result.content?.length || 0} characters`, 'info');
+                        log(`Source: ${result.source}`, 'info');
+                    }
+                }
+                
+                // Wait a moment to see the content
+                setTimeout(() => {
+                    const contentLength = container.innerHTML.length;
+                    log(`Final container content length: ${contentLength} characters`, contentLength > 500 ? 'success' : 'warning');
+                    
+                    // Check for specific KPI elements
+                    const kpiChecks = [
+                        'total-revenue',
+                        'total-royalties-calculated', 
+                        'payments-received',
+                        'payment-timeline-chart',
+                        'production-chart',
+                        'compliance-rate'
+                    ];
+                    
+                    const foundElements = kpiChecks.filter(id => document.getElementById(id));
+                    log(`KPI Elements found: ${foundElements.length}/${kpiChecks.length}`, foundElements.length > 3 ? 'success' : 'warning');
+                    log(`Found elements: ${foundElements.join(', ')}`, 'info');
+                    
+                }, 1000);
+                
+            } catch (error) {
+                log(`Dashboard loading test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testComponentLoader() {
+            const resultsDiv = document.getElementById('dashboard-test-results');
+            
+            try {
+                log('Testing direct component file loading...', 'info');
+                
+                const response = await fetch('components/dashboard.html');
+                if (response.ok) {
+                    const content = await response.text();
+                    log(`Successfully loaded dashboard.html: ${content.length} characters`, 'success');
+                    
+                    const container = document.getElementById('dashboard-container');
+                    container.innerHTML = content;
+                    
+                    // Check for KPI elements after loading
+                    setTimeout(() => {
+                        const kpiElements = [
+                            'total-production',
+                            'total-royalties-calculated',
+                            'payment-timeline-chart',
+                            'overall-compliance'
+                        ];
+                        
+                        const foundKPIs = kpiElements.filter(id => document.getElementById(id));
+                        log(`KPI elements found after direct load: ${foundKPIs.length}/${kpiElements.length}`, foundKPIs.length > 2 ? 'success' : 'warning');
+                        
+                    }, 500);
+                    
+                } else {
+                    log(`Failed to load dashboard.html: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`Component loader test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAppDashboard() {
+            try {
+                log('Testing app dashboard method...', 'info');
+                
+                if (window.royaltiesApp && typeof window.royaltiesApp.loadDashboardContent === 'function') {
+                    const container = document.getElementById('dashboard-container');
+                    await window.royaltiesApp.loadDashboardContent(container);
+                    
+                    setTimeout(() => {
+                        const contentLength = container.innerHTML.length;
+                        log(`App dashboard content length: ${contentLength} characters`, contentLength > 1000 ? 'success' : 'warning');
+                        
+                        // Check for dynamic data
+                        const revenueElement = container.querySelector('p'); // First p tag should contain revenue
+                        if (revenueElement && revenueElement.textContent.includes('E ')) {
+                            log(`Found revenue data: ${revenueElement.textContent}`, 'success');
+                        } else {
+                            log('No revenue data found in dynamic content', 'warning');
+                        }
+                    }, 500);
+                    
+                } else {
+                    log('App dashboard method not available', 'error');
+                }
+                
+            } catch (error) {
+                log(`App dashboard test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testDataMethods() {
+            const resultsDiv = document.getElementById('data-test-results');
+            resultsDiv.innerHTML = '<p>Testing data methods...</p>';
+            
+            try {
+                if (window.royaltiesApp) {
+                    // Test data calculation methods
+                    const methods = [
+                        'calculateTotalRevenue',
+                        'calculateComplianceRate', 
+                        'getOverdueCount'
+                    ];
+                    
+                    methods.forEach(method => {
+                        if (typeof window.royaltiesApp[method] === 'function') {
+                            try {
+                                const result = window.royaltiesApp[method]();
+                                log(`${method}() = ${result}`, 'success');
+                            } catch (error) {
+                                log(`${method}() failed: ${error.message}`, 'error');
+                            }
+                        } else {
+                            log(`${method} method not found`, 'error');
+                        }
+                    });
+                    
+                    // Test data manager
+                    if (window.royaltiesApp.dataManager) {
+                        const records = window.royaltiesApp.dataManager.getRoyaltyRecords();
+                        log(`Royalty records count: ${records.length}`, records.length > 0 ? 'success' : 'warning');
+                        
+                        if (records.length > 0) {
+                            const sampleRecord = records[0];
+                            log(`Sample record: ${JSON.stringify(sampleRecord, null, 2)}`, 'info');
+                        }
+                    } else {
+                        log('Data manager not found', 'error');
+                    }
+                    
+                } else {
+                    log('Royalties app not available for data testing', 'error');
+                }
+                
+            } catch (error) {
+                log(`Data methods test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Dashboard Loading Diagnosis started', 'info');
+            checkLoadingSystems();
+            
+            // Check if scripts are loaded
+            setTimeout(() => {
+                log('Checking script loading status...', 'info');
+                checkLoadingSystems();
+            }, 2000);
+        });
+    </script>
+
+    <!-- Load the application scripts for testing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/enhanced-notification-system.js"></script>
+    <script src="js/unified-chart-solution.js"></script>
+    <script src="js/ultimate-chart-solution.js"></script>
+    <script src="js/magical-chart-solution.js"></script>
+    <script src="js/final-system-unification.js"></script>
+    <script src="js/unified-component-loader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
