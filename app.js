@@ -925,12 +925,17 @@ class RoyaltiesApp {
                 // Ensure the link has the proper attributes
                 if (!section) {
                     console.warn(`Link ${index + 1} missing data-section attribute`);
-                } else {
-                    // Additional verification that the section exists in DOM
-                    const sectionElement = document.getElementById(section);
-                    if (!sectionElement) {
-                        console.warn(`Warning: Navigation link for '${section}' found but section element does not exist`);
-                    }
+                } else {                // Additional verification that the section exists in DOM
+                // Skip validation for special actions like logout
+                if (section === 'logout') {
+                    // Logout is a special action, not a content section
+                    return;
+                }
+                
+                const sectionElement = document.getElementById(section);
+                if (!sectionElement) {
+                    console.warn(`Warning: Navigation link for '${section}' found but section element does not exist`);
+                }
                 }
             });
             

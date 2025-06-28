@@ -435,6 +435,26 @@
 
     <div class="card analytics-chart">
       <div class="chart-header">
+        <h5><i class="fas fa-chart-pie"></i> Production by Entity</h5>
+        <div class="chart-controls">
+          <select class="metric-period">
+            <option value="current-month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="production-by-entity-chart"></canvas>
+      </div>
+      <div class="chart-summary">
+        <strong>Top Producer:</strong> <span id="top-production-entity">Ngwenya Mine</span> | 
+        <strong>Volume:</strong> <span id="top-production-volume">125,000 tons</span>
+      </div>
+    </div>
+
+    <div class="card analytics-chart">
+      <div class="chart-header">
         <h5><i class="fas fa-chart-pie"></i> Revenue by Entity</h5>
         <div class="chart-controls">
           <select class="metric-period">
