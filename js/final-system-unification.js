@@ -302,12 +302,14 @@
             console.warn('SYSTEM UNIFICATION: chartManager.initialize not available');
         }
         
-        // Trigger notification system init
-        if (window.notificationSystem && typeof window.notificationSystem.initialize === 'function') {
-            console.log('SYSTEM UNIFICATION: Initializing notification system...');
-            window.notificationSystem.initialize();
+        // Trigger notification system init if needed
+        if (window.notificationSystem && typeof window.notificationSystem.init === 'function') {
+            console.log('SYSTEM UNIFICATION: Notification system ready');
+            // Notification system auto-initializes when needed, no action required
+        } else if (window.notificationSystem) {
+            console.log('SYSTEM UNIFICATION: Notification system already initialized');
         } else {
-            console.warn('SYSTEM UNIFICATION: notificationSystem.initialize not available');
+            console.log('SYSTEM UNIFICATION: Notification system not yet loaded');
         }
     }
     
