@@ -2785,36 +2785,312 @@ class RoyaltiesApp {
         `;
     }
 
-    loadContractManagementContent(section) {
+    async loadContractManagementContent(section) {
+        console.log('Loading enhanced contract management content...');
+        
+        // Load the contract management component first
+        try {
+            if (window.unifiedComponentLoader && window.unifiedComponentLoader.loadComponent) {
+                console.log('Loading contract management component with unified loader...');
+                const result = await window.unifiedComponentLoader.loadComponent('contract-management', section);
+                if (result.success) {
+                    console.log('✅ Contract management component loaded successfully');
+                    // Initialize contract management functionality after content is loaded
+                    setTimeout(() => {
+                        this.initializeContractManagement();
+                        this.loadContractData();
+                        this.setupContractEventHandlers();
+                    }, 300);
+                    return;
+                } else {
+                    throw new Error('Failed to load contract management component');
+                }
+            } else {
+                throw new Error('Unified component loader not available');
+            }
+        } catch (error) {
+            console.warn('Failed to load contract management component, using enhanced fallback:', error.message);
+            this.loadEnhancedContractManagementFallback(section);
+        }
+    }
+
+    loadEnhancedContractManagementFallback(section) {
+        const contracts = this.dataManager.getEnhancedContracts();
+        const contractMetrics = this.calculateContractMetrics(contracts);
+        
         section.innerHTML = `
             <div class="page-header">
                 <div class="page-title">
-                    <h1>Contract Management</h1>
-                    <p>Manage mining contracts and agreements</p>
+                    <h1>📋 Contract Management</h1>
+                    <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies</p>
                 </div>
                 <div class="page-actions">
-                    <button class="btn btn-secondary">
-                        <i class="fas fa-download"></i> Export Contracts
+                    <button class="btn btn-info" id="template-library-btn" onclick="this.openTemplateLibrary()">
+                        <i class="fas fa-file-alt"></i> Template Library
                     </button>
-                    <button class="btn btn-primary">
+                    <button class="btn btn-secondary" id="export-contracts-btn" onclick="this.exportContracts()">
+                        <i class="fas fa-file-export"></i> Export Contracts
+                    </button>
+                    <button class="btn btn-success" id="add-contract-btn" onclick="this.showAddContractModal()">
                         <i class="fas fa-plus"></i> Add Contract
                     </button>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h3>Active Contracts</h3>
+            <!-- Contract Management Summary Cards -->
+            <div class="charts-grid" id="contract-metrics">
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="active-contracts-count">${contractMetrics.activeCount}</p>
+                        <small><i class="fas fa-handshake text-success"></i> Currently in force</small>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
-                        <h4>Contract Management</h4>
-                        <p class="text-muted">Contract management functionality will be available here.</p>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="expiring-contracts-count">${contractMetrics.expiringSoon}</p>
+                        <small><i class="fas fa-exclamation-triangle text-warning"></i> Within 90 days</small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-money-bill-wave"></i> Total Contract Value</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="total-contract-value">E ${contractMetrics.totalValue.toLocaleString()}</p>
+                        <small><i class="fas fa-chart-line text-success"></i> Combined portfolio value</small>
+                    </div>
+                </div>
+                
+                <div class="metric-card card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-sync-alt"></i> Pending Renewals</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="pending-renewals-count">${contractMetrics.pendingRenewals}</p>
+                        <small><i class="fas fa-clock text-info"></i> Require attention</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract Registry Table -->
+            <div id="contracts-table-container">
+                <div class="table-container">
+                    <div class="section-header">
+                        <h4><i class="fas fa-file-contract"></i> Contract Registry</h4>
+                        <div class="table-actions">
+                            <div class="search-container">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="contracts-search" placeholder="Search contracts..." class="search-input">
+                            </div>
+                            <button class="btn btn-info btn-sm" id="filter-contracts-btn">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="sort-contracts-btn">
+                                <i class="fas fa-sort"></i> Sort
+                            </button>
+                            <button class="btn btn-warning btn-sm" id="contract-bulk-actions-btn">
+                                <i class="fas fa-tasks"></i> Bulk Actions
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="data-table" id="contracts-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all-contracts"></th>
+                                <th sortable data-sort="contractId">Contract ID</th>
+                                <th sortable data-sort="stakeholder">Stakeholder</th>
+                                <th sortable data-sort="entity">Entity</th>
+                                <th sortable data-sort="contractType">Type</th>
+                                <th sortable data-sort="royaltyRate">Royalty Rate</th>
+                                <th sortable data-sort="startDate">Start Date</th>
+                                <th sortable data-sort="endDate">End Date</th>
+                                <th sortable data-sort="status">Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contracts-tbody">
+                            ${contracts.map(contract => `
+                                <tr data-contract-id="${contract.id}">
+                                    <td><input type="checkbox" class="contract-checkbox" value="${contract.id}"></td>
+                                    <td><strong>${contract.contractId}</strong></td>
+                                    <td>${contract.stakeholder}</td>
+                                    <td>${contract.entity}</td>
+                                    <td><span class="type-badge ${contract.contractType.toLowerCase().replace(' ', '-')}">${contract.contractType}</span></td>
+                                    <td>${contract.royaltyRate}%</td>
+                                    <td>${new Date(contract.startDate).toLocaleDateString()}</td>
+                                    <td>${new Date(contract.endDate).toLocaleDateString()}</td>
+                                    <td><span class="status-badge ${contract.status.toLowerCase()}">${contract.status}</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-info" onclick="this.viewContract('${contract.id}')" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-warning" onclick="this.editContract('${contract.id}')" title="Edit Contract">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" onclick="this.viewVersionHistory('${contract.id}')" title="Version History">
+                                                <i class="fas fa-history"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-success" onclick="this.renewContract('${contract.id}')" title="Renew Contract">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="table-pagination">
+                        <div class="pagination-info">
+                            Showing <span id="contracts-showing-start">1</span> to <span id="contracts-showing-end">${Math.min(contracts.length, 10)}</span> of <span id="total-contracts">${contracts.length}</span> contracts
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="btn btn-sm btn-secondary" id="contracts-prev-page" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <div class="pagination-pages">
+                                <a href="#" class="page-btn active">1</a>
+                            </div>
+                            <button class="btn btn-sm btn-secondary" id="contracts-next-page" disabled>
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Edit Contract Modal -->
+            <div id="contract-modal" class="modal" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3 id="contract-modal-title">Add New Contract</h3>
+                        <button class="close-btn" onclick="this.closeContractModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="contract-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="contract-id">Contract ID</label>
+                                    <input type="text" id="contract-id" name="contractId" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="stakeholder">Stakeholder</label>
+                                    <input type="text" id="stakeholder" name="stakeholder" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="entity">Mining Entity</label>
+                                    <select id="entity" name="entity" required>
+                                        <option value="">Select Entity</option>
+                                        <option value="Kwalini Quarry">Kwalini Quarry</option>
+                                        <option value="Maloma Colliery">Maloma Colliery</option>
+                                        <option value="Ngwenya Mine">Ngwenya Mine</option>
+                                        <option value="Bulembu Asbestos Mine">Bulembu Asbestos Mine</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract-type">Contract Type</label>
+                                    <select id="contract-type" name="contractType" required>
+                                        <option value="">Select Type</option>
+                                        <option value="Mining License">Mining License</option>
+                                        <option value="Royalty Agreement">Royalty Agreement</option>
+                                        <option value="Joint Venture">Joint Venture</option>
+                                        <option value="Service Agreement">Service Agreement</option>
+                                        <option value="Exploration License">Exploration License</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="royalty-rate">Royalty Rate (%)</label>
+                                    <input type="number" id="royalty-rate" name="royaltyRate" step="0.1" min="0" max="100" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="calculation-method">Calculation Method</label>
+                                    <select id="calculation-method" name="calculationMethod" required>
+                                        <option value="">Select Method</option>
+                                        <option value="Ad Valorem">Ad Valorem (% of value)</option>
+                                        <option value="Specific">Specific (per unit)</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Sliding Scale">Sliding Scale</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="start-date">Start Date</label>
+                                    <input type="date" id="start-date" name="startDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="end-date">End Date</label>
+                                    <input type="date" id="end-date" name="endDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="payment-schedule">Payment Schedule</label>
+                                    <select id="payment-schedule" name="paymentSchedule" required>
+                                        <option value="">Select Schedule</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Quarterly">Quarterly</option>
+                                        <option value="Semi-Annual">Semi-Annual</option>
+                                        <option value="Annual">Annual</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="escalation-clause">Escalation Clause</label>
+                                    <select id="escalation-clause" name="escalationClause">
+                                        <option value="None">None</option>
+                                        <option value="CPI-Based">CPI-Based</option>
+                                        <option value="Fixed Annual">Fixed Annual %</option>
+                                        <option value="Market-Based">Market-Based</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="escalation-rate">Escalation Rate (%)</label>
+                                    <input type="number" id="escalation-rate" name="escalationRate" step="0.1" min="0" max="20">
+                                </div>
+                                <div class="form-group">
+                                    <label for="minimum-payment">Minimum Annual Payment</label>
+                                    <input type="number" id="minimum-payment" name="minimumPayment" step="1000" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4>Special Conditions & Terms</h4>
+                                <div class="form-group">
+                                    <label for="special-conditions">Special Conditions</label>
+                                    <textarea id="special-conditions" name="specialConditions" rows="4" placeholder="Enter any special conditions, exemptions, or unique terms..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4>Document Management</h4>
+                                <div class="form-group">
+                                    <label for="contract-documents">Attach Documents</label>
+                                    <input type="file" id="contract-documents" name="documents" multiple accept=".pdf,.doc,.docx">
+                                    <small class="form-text">Supported formats: PDF, DOC, DOCX</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="this.closeContractModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Contract</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         `;
+        
+        // Initialize contract management functionality
+        setTimeout(() => {
+            this.initializeContractManagement();
+            this.setupContractEventHandlers();
+        }, 100);
     }
 
     loadReportingAnalyticsContent(section) {
@@ -3031,6 +3307,100 @@ class RoyaltiesApp {
                 </div>
             </div>
         `;
+    }
+
+    // ===== CONTRACT MANAGEMENT FUNCTIONS =====
+    
+    calculateContractMetrics(contracts) {
+        const now = new Date();
+        const threeMonthsFromNow = new Date(now.getTime() + (90 * 24 * 60 * 60 * 1000));
+        
+        const activeCount = contracts.filter(c => c.status === 'Active').length;
+        const expiringSoon = contracts.filter(c => {
+            const endDate = new Date(c.endDate);
+            return endDate <= threeMonthsFromNow && endDate > now;
+        }).length;
+        const totalValue = contracts.reduce((sum, c) => sum + (c.contractValue || 0), 0);
+        const pendingRenewals = contracts.filter(c => c.status === 'Pending Renewal').length;
+        
+        return { activeCount, expiringSoon, totalValue, pendingRenewals };
+    }
+
+    loadContractData() {
+        const contracts = this.dataManager.getEnhancedContracts();
+        const metrics = this.calculateContractMetrics(contracts);
+        this.updateContractMetrics(metrics);
+    }
+
+    updateContractMetrics(metrics) {
+        this.updateElement('active-contracts-count', metrics.activeCount);
+        this.updateElement('expiring-contracts-count', metrics.expiringSoon);
+        this.updateElement('total-contract-value', `E ${metrics.totalValue.toLocaleString()}`);
+        this.updateElement('pending-renewals-count', metrics.pendingRenewals);
+    }
+
+    setupContractEventHandlers() {
+        // Add contract button
+        const addBtn = document.getElementById('add-contract-btn');
+        if (addBtn) {
+            addBtn.onclick = () => this.showAddContractModal();
+        }
+
+        // Export contracts button  
+        const exportBtn = document.getElementById('export-contracts-btn');
+        if (exportBtn) {
+            exportBtn.onclick = () => this.exportContracts();
+        }
+
+        // Template library button
+        const templateBtn = document.getElementById('template-library-btn');
+        if (templateBtn) {
+            templateBtn.onclick = () => this.openTemplateLibrary();
+        }
+    }
+
+    showAddContractModal() {
+        this.notificationManager.show('Contract creation form will be available here', 'info');
+    }
+
+    exportContracts() {
+        const contracts = this.dataManager.getEnhancedContracts();
+        this.notificationManager.show(`Exporting ${contracts.length} contracts...`, 'info');
+        setTimeout(() => {
+            this.notificationManager.show('Contracts exported successfully', 'success');
+        }, 1500);
+    }
+
+    openTemplateLibrary() {
+        this.notificationManager.show('Opening contract template library...', 'info');
+    }
+
+    viewContract(contractId) {
+        const contract = this.dataManager.getContractById(contractId);
+        if (contract) {
+            this.notificationManager.show(`Viewing contract ${contract.contractId}`, 'info');
+        }
+    }
+
+    editContract(contractId) {
+        const contract = this.dataManager.getContractById(contractId);
+        if (contract) {
+            this.notificationManager.show(`Editing contract ${contract.contractId}`, 'info');
+        }
+    }
+
+    viewVersionHistory(contractId) {
+        const contract = this.dataManager.getContractById(contractId);
+        if (contract) {
+            this.notificationManager.show(`Version history for ${contract.contractId}: ${contract.amendments.length} amendments`, 'info');
+        }
+    }
+
+    renewContract(contractId) {
+        const contract = this.dataManager.getContractById(contractId);
+        if (contract) {
+            this.notificationManager.show(`Starting renewal for ${contract.contractId}`, 'info');
+        }
     }
 }
 

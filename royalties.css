@@ -2467,4 +2467,234 @@ input[type="checkbox"]:checked {
   }
 }
 
+/* Contract Management Enhanced Styles */
+.contract-terms-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--background-white);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.term-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--background-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.term-card .card-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    font-size: 0.9rem;
+}
+
+.term-summary, .schedule-breakdown, .escalation-summary, .conditions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.term-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.schedule-item, .escalation-item, .condition-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.schedule-item:last-child, .escalation-item:last-child, .condition-item:last-child {
+    border-bottom: none;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.bg-primary { background-color: var(--primary-color); color: white; }
+.bg-success { background-color: var(--success-color); color: white; }
+.bg-info { background-color: var(--info-color); color: white; }
+.bg-warning { background-color: var(--warning-color); color: white; }
+.bg-secondary { background-color: var(--text-muted); color: white; }
+
+.count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Version Control Section */
+.version-control-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--background-white);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.amendments-timeline {
+    margin-top: 1rem;
+    position: relative;
+}
+
+.amendments-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    margin-left: 2rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2.5rem;
+    top: 0.25rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    border: 3px solid var(--background-white);
+    box-shadow: var(--shadow-md);
+}
+
+.timeline-content {
+    background: var(--background-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-header h5 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.timestamp {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.timeline-content p {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.timeline-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--neutral-200);
+}
+
+.user {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Enhanced table styles for version column */
+.data-table th[data-sort="version"], 
+.data-table td:nth-child(10) {
+    text-align: center;
+    width: 80px;
+}
+
+.version-badge {
+    background: var(--info-color);
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Type badges for contract types */
+.type-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+}
+
+.type-badge.mining-license { background-color: var(--success-color); color: white; }
+.type-badge.royalty-agreement { background-color: var(--primary-color); color: white; }
+.type-badge.joint-venture { background-color: var(--warning-color); color: var(--text-primary); }
+.type-badge.service-agreement { background-color: var(--text-muted); color: white; }
+.type-badge.exploration-license { background-color: var(--info-color); color: white; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .terms-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .timeline-item {
+        margin-left: 1rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
+    }
+    
+    .amendments-timeline::before {
+        left: 12px;
+    }
+}
+
 /* ...existing code continues... */

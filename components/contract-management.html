@@ -1,7 +1,7 @@
 <div class="page-header">
   <div class="page-title">
     <h1>📋 Contract Management</h1>
-    <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies</p>
+    <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies with version control and amendment tracking</p>
   </div>
   <div class="page-actions">
     <button class="btn btn-info" id="template-library-btn" title="Access contract templates">
@@ -59,7 +59,7 @@
   </div>
 </div>
 
-<!-- Contract Management Table Container -->
+<!-- Contract Registry Table Container -->
 <div id="contracts-table-container">
   <div class="table-container">
     <div class="section-header">
@@ -85,19 +85,21 @@
       <thead>
         <tr>
           <th><input type="checkbox" id="select-all-contracts" title="Select all contracts"></th>
-          <th sortable data-sort="id">Contract ID</th>
+          <th sortable data-sort="contractId">Contract ID</th>
           <th sortable data-sort="stakeholder">Stakeholder</th>
           <th sortable data-sort="entity">Entity</th>
           <th sortable data-sort="contractType">Type</th>
           <th sortable data-sort="royaltyRate">Royalty Rate</th>
+          <th sortable data-sort="calculationMethod">Calculation Method</th>
           <th sortable data-sort="startDate">Start Date</th>
           <th sortable data-sort="endDate">End Date</th>
+          <th sortable data-sort="version">Version</th>
           <th sortable data-sort="status">Status</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="contracts-tbody">
-        <!-- Will be populated dynamically -->
+        <!-- Will be populated dynamically with enhanced contract data including version info -->
       </tbody>
     </table>
 
@@ -119,3 +121,214 @@
     </div>
   </div>
 </div>
+
+<!-- Contract Terms & Conditions Section -->
+<div class="contract-terms-section">
+  <div class="section-header">
+    <h4><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h4>
+    <button class="btn btn-primary btn-sm" id="add-term-btn">
+      <i class="fas fa-plus"></i> Track New Term
+    </button>
+  </div>
+  
+  <div class="terms-grid">
+    <div class="term-card card">
+      <div class="card-header">
+        <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
+      </div>
+      <div class="card-body">
+        <div class="term-summary">
+          <div class="term-stat">
+            <span class="stat-value">2.8%</span>
+            <span class="stat-label">Average Rate</span>
+          </div>
+          <div class="term-stat">
+            <span class="stat-value">1.5-4.0%</span>
+            <span class="stat-label">Range</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="term-card card">
+      <div class="card-header">
+        <h5><i class="fas fa-calendar-check"></i> Payment Schedules</h5>
+      </div>
+      <div class="card-body">
+        <div class="schedule-breakdown">
+          <div class="schedule-item">
+            <span class="badge bg-primary">Monthly</span> <span class="count">2 contracts</span>
+          </div>
+          <div class="schedule-item">
+            <span class="badge bg-success">Quarterly</span> <span class="count">3 contracts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="term-card card">
+      <div class="card-header">
+        <h5><i class="fas fa-chart-line"></i> Escalation Clauses</h5>
+      </div>
+      <div class="card-body">
+        <div class="escalation-summary">
+          <div class="escalation-item">
+            <span class="badge bg-info">CPI-Based</span> <span class="count">2 contracts</span>
+          </div>
+          <div class="escalation-item">
+            <span class="badge bg-warning">Fixed Annual</span> <span class="count">1 contract</span>
+          </div>
+          <div class="escalation-item">
+            <span class="badge bg-secondary">Market-Based</span> <span class="count">1 contract</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="term-card card">
+      <div class="card-header">
+        <h5><i class="fas fa-exclamation-circle"></i> Special Conditions</h5>
+      </div>
+      <div class="card-body">
+        <div class="conditions-list">
+          <div class="condition-item">
+            <i class="fas fa-leaf text-success"></i>
+            <span>Environmental Compliance</span>
+            <span class="count">4 contracts</span>
+          </div>
+          <div class="condition-item">
+            <i class="fas fa-shield-alt text-info"></i>
+            <span>Safety Requirements</span>
+            <span class="count">3 contracts</span>
+          </div>
+          <div class="condition-item">
+            <i class="fas fa-exchange-alt text-warning"></i>
+            <span>Technology Transfer</span>
+            <span class="count">1 contract</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Version Control & Amendment Tracking Section -->
+<div class="version-control-section">
+  <div class="section-header">
+    <h4><i class="fas fa-code-branch"></i> Version Control & Amendment Tracking</h4>
+    <button class="btn btn-info btn-sm" id="view-all-amendments-btn">
+      <i class="fas fa-history"></i> View All Amendments
+    </button>
+  </div>
+  
+  <div class="amendments-timeline">
+    <div class="timeline-item">
+      <div class="timeline-marker">
+        <i class="fas fa-edit"></i>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <h5>MC-LIC-2023-045 v1.2</h5>
+          <span class="timestamp">2024-01-10</span>
+        </div>
+        <p>Payment schedule modification - Changed from quarterly to monthly payments</p>
+        <div class="timeline-meta">
+          <span class="badge bg-warning">Rate Change</span>
+          <span class="user">Modified by: admin</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-marker">
+        <i class="fas fa-percentage"></i>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <h5>MC-LIC-2023-045 v1.1</h5>
+          <span class="timestamp">2023-12-01</span>
+        </div>
+        <p>Royalty rate adjustment - Increased from 1.5% to 1.8% due to market conditions</p>
+        <div class="timeline-meta">
+          <span class="badge bg-primary">Schedule Change</span>
+          <span class="user">Modified by: admin</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-marker">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <h5>MS-SVC-2023-033 v1.3</h5>
+          <span class="timestamp">2023-11-15</span>
+        </div>
+        <p>Performance metrics update - Added new KPIs for service quality assessment</p>
+        <div class="timeline-meta">
+          <span class="badge bg-success">Metrics Update</span>
+          <span class="user">Modified by: manager</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Enhanced Contract Management JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Enhanced Contract Management loaded');
+    
+    // Initialize contract management if app is available
+    if (window.royaltiesApp) {
+        window.royaltiesApp.loadContractData();
+        window.royaltiesApp.setupContractEventHandlers();
+    }
+    
+    // Add enhanced functionality for version control
+    const viewAmendmentsBtn = document.getElementById('view-all-amendments-btn');
+    if (viewAmendmentsBtn) {
+        viewAmendmentsBtn.addEventListener('click', function() {
+            if (window.notificationManager) {
+                window.notificationManager.show('Loading comprehensive amendment history...', 'info');
+            }
+        });
+    }
+    
+    // Contract terms tracking
+    const addTermBtn = document.getElementById('add-term-btn');
+    if (addTermBtn) {
+        addTermBtn.addEventListener('click', function() {
+            if (window.notificationManager) {
+                window.notificationManager.show('Contract term tracking form will open here', 'info');
+            }
+        });
+    }
+});
+
+// Contract action functions - now using window.royaltiesApp
+function viewContract(contractId) {
+    if (window.royaltiesApp && typeof window.royaltiesApp.viewContract === 'function') {
+        window.royaltiesApp.viewContract(contractId);
+    }
+}
+
+function editContract(contractId) {
+    if (window.royaltiesApp && typeof window.royaltiesApp.editContract === 'function') {
+        window.royaltiesApp.editContract(contractId);
+    }
+}
+
+function viewVersionHistory(contractId) {
+    if (window.royaltiesApp && typeof window.royaltiesApp.viewVersionHistory === 'function') {
+        window.royaltiesApp.viewVersionHistory(contractId);
+    }
+}
+
+function renewContract(contractId) {
+    if (window.royaltiesApp && typeof window.royaltiesApp.renewContract === 'function') {
+        window.royaltiesApp.renewContract(contractId);
+    }
+}
+</script>
