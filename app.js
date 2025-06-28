@@ -1963,10 +1963,9 @@ class RoyaltiesApp {
         try {
             if (window.unifiedComponentLoader && window.unifiedComponentLoader.loadComponent) {
                 console.log('Loading dashboard component with unified loader...');
-                const result = await window.unifiedComponentLoader.loadComponent('dashboard');
+                const result = await window.unifiedComponentLoader.loadComponent('dashboard', section);
                 if (result.success) {
-                    section.innerHTML = result.content;
-                    console.log('✅ Dashboard component loaded successfully');
+                    console.log('✅ Dashboard component loaded successfully via unified loader');
                     // Initialize charts and event handlers after content is loaded
                     setTimeout(() => {
                         this.initializeDashboardCharts();
