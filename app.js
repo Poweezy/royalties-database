@@ -1353,6 +1353,9 @@ class RoyaltiesApp {
             // 3. Production Efficiency Chart
             this.createProductionEfficiencyChart(royaltyRecords);
             
+            // 4. Mineral Performance Chart
+            this.createMineralPerformanceChart();
+            
             console.log('Additional dashboard charts created successfully');
             
         } catch (error) {
@@ -1494,6 +1497,69 @@ class RoyaltiesApp {
         });
         
         console.log('✅ Production Efficiency chart created');
+    }
+
+    // Missing function that was causing the chart initialization error
+    aggregateMineralPerformance(records) {
+        const mineralRevenue = records.reduce((acc, record) => {
+            if (record.mineral && record.royalties) {
+                acc[record.mineral] = (acc[record.mineral] || 0) + record.royalties;
+            }
+            return acc;
+        }, {});
+        
+        return {
+            labels: Object.keys(mineralRevenue),
+            revenue: Object.values(mineralRevenue)
+        };
+    }
+
+    createMineralPerformanceChart() {
+        const canvas = document.getElementById('mineral-performance-chart');
+        if (canvas && typeof Chart !== 'undefined') {
+            console.log('Creating mineral performance chart...');
+            const records = this.dataManager.getRoyaltyRecords();
+            const mineralData = this.aggregateMineralPerformance(records);
+            
+            if (this.chartManager && this.chartManager.createChart) {
+                const chart = this.chartManager.createChart('mineral-performance-chart', {
+                    type: 'bar',
+                    data: {
+                        labels: mineralData.labels,
+                        datasets: [{
+                            label: 'Revenue (E)',
+                            data: mineralData.revenue,
+                            backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2', '#d4af37']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'E' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                if (chart) {
+                    console.log('✅ Mineral performance chart created successfully');
+                } else {
+                    console.error('❌ Mineral performance chart creation failed');
+                }
+            } else {
+                console.error('❌ Chart manager not available for mineral performance chart');
+            }
+        } else {
+            console.log('ℹ️ Mineral performance chart canvas not found or Chart.js not loaded');
+        }
     }
 
     // Enhanced debug function to check navigation status
