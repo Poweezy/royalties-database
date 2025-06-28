@@ -71,6 +71,7 @@
       </div>
       <div class="card-body">
         <p id="total-production">0 tonnes</p>
+        <p id="total-production-volume" style="display: none;">0 tonnes</p> <!-- Alias for metrics update -->
         <small id="production-trend" class="trend-positive">
           <i class="fas fa-arrow-up"></i> +12% vs last period
         </small>
@@ -88,6 +89,7 @@
       </div>
       <div class="card-body">
         <p id="avg-ore-grade">0%</p>
+        <p id="ore-grade-average" style="display: none;">0%</p> <!-- Alias for metrics update -->
         <small id="grade-trend" class="trend-stable">
           <i class="fas fa-equals"></i> Consistent quality
         </small>
@@ -295,6 +297,31 @@
             <i class="fas fa-book"></i> View Updates
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Additional KPI Cards for Missing Metrics -->
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-industry"></i> Active Entities</h3>
+      </div>
+      <div class="card-body">
+        <p id="active-entities">0</p>
+        <small class="trend-positive">
+          <i class="fas fa-plus"></i> Mining operations
+        </small>
+      </div>
+    </div>
+
+    <div class="metric-card card">
+      <div class="card-header">
+        <h3><i class="fas fa-clock"></i> Pending Approvals</h3>
+      </div>
+      <div class="card-body">
+        <p id="pending-approvals">0</p>
+        <small class="trend-warning">
+          <i class="fas fa-exclamation-triangle"></i> Requires attention
+        </small>
       </div>
     </div>
   </div>

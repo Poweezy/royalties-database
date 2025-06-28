@@ -1298,12 +1298,14 @@ class RoyaltiesApp {
             const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
             const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
             
-            // Update all KPI elements
+            // Update all KPI elements (both new and existing IDs)
             this.updateElement('total-production-volume', `${totalProduction.toLocaleString()} tonnes`);
+            this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`); // Also update existing ID
             this.updateElement('total-royalties-calculated', `E ${totalRoyalties.toLocaleString()}`);
             this.updateElement('payments-received', `E ${Math.round(totalRoyalties * 0.95).toLocaleString()}`);
             this.updateElement('reconciliation-status', `${Math.round((paidRecords / royaltyRecords.length) * 100) || 98}%`);
             this.updateElement('ore-grade-average', `${(Math.random() * 5 + 10).toFixed(1)}%`);
+            this.updateElement('avg-ore-grade', `${(Math.random() * 5 + 10).toFixed(1)}%`); // Also update existing ID
             this.updateElement('cost-per-unit', `E ${(totalRoyalties / totalProduction * 0.15).toFixed(2) || '15.20'}`);
             this.updateElement('overall-compliance', `${complianceRate}%`);
             this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
@@ -1327,8 +1329,9 @@ class RoyaltiesApp {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
+            console.log(`✅ Updated ${id} = ${value}`);
         } else {
-            console.warn(`Element with id '${id}' not found for update`);
+            console.warn(`⚠️ Element with id '${id}' not found for update`);
         }
     }
 
