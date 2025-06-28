@@ -64,15 +64,8 @@
         
         // Methods that need to be redirected from legacy to unified systems
         methodRedirects: {
-            // Chart method redirects
-            'chartManager': {
-                target: 'window.chartManager',
-                methods: [
-                    'createChart', 'createRevenueChart', 'createEntityChart',
-                    'createProductionChart', 'createStatusChart', 'destroyChart',
-                    'updateChart', 'refreshAllCharts'
-                ]
-            },
+            // NOTE: chartManager redirects disabled to prevent infinite recursion
+            // The unified chart solution handles chart manager functionality directly
             
             // Notification method redirects
             'NotificationManager': {
@@ -214,65 +207,79 @@
             // Create redirects for each method
             methods.forEach(method => {
                 const redirectFunction = function(...args) {
-                    // Only log if debug mode is enabled or this is the first call
-                    if (window.DEBUG_UNIFICATION || !redirectFunction._logged) {
-                        console.log(`SYSTEM UNIFICATION: Redirecting ${legacyObject}.${method} to ${target}.${method}`);
-                        redirectFunction._logged = true;
+                    // Prevent infinite recursion by checking if we're already in a redirect chain
+                    if (redirectFunction._isExecuting) {
+                        console.warn(`SYSTEM UNIFICATION: Preventing infinite recursion for ${legacyObject}.${method}`);
+                        return null;
                     }
                     
-                    // Get the target object safely without using eval
-                    let targetObject = null;
+                    // Mark as executing to prevent recursion
+                    redirectFunction._isExecuting = true;
                     
-                    // Safely resolve the target path
-                    if (target === 'window.chartManager') {
-                        targetObject = window.chartManager;
+                    try {
+                        // Get the target object safely
+                        let targetObject = null;
                         
-                        // Prevent infinite recursion by checking if this is already a redirect
-                        if (targetObject && targetObject[method] && targetObject[method]._isRedirect) {
-                            console.warn(`SYSTEM UNIFICATION: Preventing infinite recursion for ${target}.${method}`);
+                        // Safely resolve the target path
+                        if (target === 'window.chartManager') {
+                            targetObject = window.chartManager;
+                            
+                            // Critical fix: Check if we're trying to redirect to ourselves
+                            if (targetObject === window[legacyObject] || legacyObject === 'chartManager') {
+                                console.warn(`SYSTEM UNIFICATION: Preventing self-redirect for ${legacyObject}.${method}`);
+                                return null;
+                            }
+                        } else if (target === 'window.notificationSystem') {
+                            // For notification system, use either notificationSystem or notificationManager as fallback
+                            targetObject = window.notificationSystem || window.notificationManager || window.enhancedNotificationSystem;
+                        } else {
+                            // Parse path segments for more complex cases
+                            const pathSegments = target.split('.');
+                            let currentObj = window;
+                            
+                            for (const segment of pathSegments) {
+                                if (currentObj && currentObj[segment]) {
+                                    currentObj = currentObj[segment];
+                                } else {
+                                    currentObj = null;
+                                    break;
+                                }
+                            }
+                            
+                            targetObject = currentObj;
+                        }
+                        
+                        if (!targetObject) {
+                            console.error(`SYSTEM UNIFICATION: Target ${target} not found for redirect`);
                             return null;
                         }
-                    } else if (target === 'window.notificationSystem') {
-                        // For notification system, use either notificationSystem or notificationManager as fallback
-                        targetObject = window.notificationSystem || window.notificationManager || window.enhancedNotificationSystem;
-                    } else {
-                        // Parse path segments for more complex cases
-                        const pathSegments = target.split('.');
-                        let currentObj = window;
                         
-                        for (const segment of pathSegments) {
-                            if (currentObj && currentObj[segment]) {
-                                currentObj = currentObj[segment];
-                            } else {
-                                currentObj = null;
-                                break;
-                            }
+                        // Call the target method if it exists and is not a redirect function
+                        if (typeof targetObject[method] === 'function' && !targetObject[method]._isRedirect) {
+                            return targetObject[method](...args);
+                        } else if (targetObject[method] && targetObject[method]._isRedirect) {
+                            console.warn(`SYSTEM UNIFICATION: Target method ${target}.${method} is also a redirect, preventing chain`);
+                            return null;
+                        } else {
+                            console.error(`SYSTEM UNIFICATION: Target method ${target}.${method} not found`);
+                            return null;
                         }
-                        
-                        targetObject = currentObj;
-                    }
-                    
-                    if (!targetObject) {
-                        console.error(`SYSTEM UNIFICATION: Target ${target} not found for redirect`);
-                        return null;
-                    }
-                    
-                    // Call the target method if it exists
-                    if (typeof targetObject[method] === 'function') {
-                        return targetObject[method](...args);
-                    } else {
-                        console.error(`SYSTEM UNIFICATION: Target method ${target}.${method} not found`);
-                        return null;
+                    } finally {
+                        // Always reset the executing flag
+                        redirectFunction._isExecuting = false;
                     }
                 };
                 
                 // Mark as redirect to prevent infinite recursion
                 redirectFunction._isRedirect = true;
+                redirectFunction._isExecuting = false;
                 
                 // Add the redirect to both the main object and its instance
-                window[legacyObject][method] = redirectFunction;
-                if (window[legacyObject].instance) {
-                    window[legacyObject].instance[method] = redirectFunction;
+                if (window[legacyObject]) {
+                    window[legacyObject][method] = redirectFunction;
+                    if (window[legacyObject].instance) {
+                        window[legacyObject].instance[method] = redirectFunction;
+                    }
                 }
                 
                 console.log(`SYSTEM UNIFICATION: Redirect created for ${legacyObject}.${method}`);
