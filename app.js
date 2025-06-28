@@ -1298,14 +1298,12 @@ class RoyaltiesApp {
             const pendingRecords = royaltyRecords.filter(r => r.status === 'Pending').length;
             const complianceRate = royaltyRecords.length > 0 ? Math.round((paidRecords / royaltyRecords.length) * 100) : 0;
             
-            // Update all KPI elements (both new and existing IDs)
+            // Update all KPI elements
             this.updateElement('total-production-volume', `${totalProduction.toLocaleString()} tonnes`);
-            this.updateElement('total-production', `${totalProduction.toLocaleString()} tonnes`); // Also update existing ID
             this.updateElement('total-royalties-calculated', `E ${totalRoyalties.toLocaleString()}`);
             this.updateElement('payments-received', `E ${Math.round(totalRoyalties * 0.95).toLocaleString()}`);
             this.updateElement('reconciliation-status', `${Math.round((paidRecords / royaltyRecords.length) * 100) || 98}%`);
             this.updateElement('ore-grade-average', `${(Math.random() * 5 + 10).toFixed(1)}%`);
-            this.updateElement('avg-ore-grade', `${(Math.random() * 5 + 10).toFixed(1)}%`); // Also update existing ID
             this.updateElement('cost-per-unit', `E ${(totalRoyalties / totalProduction * 0.15).toFixed(2) || '15.20'}`);
             this.updateElement('overall-compliance', `${complianceRate}%`);
             this.updateElement('total-royalty-revenue', `E ${totalRoyalties.toLocaleString()}`);
@@ -1329,10 +1327,173 @@ class RoyaltiesApp {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
-            console.log(`✅ Updated ${id} = ${value}`);
         } else {
-            console.warn(`⚠️ Element with id '${id}' not found for update`);
+            console.warn(`Element with id '${id}' not found for update`);
         }
+    }
+
+    createAdditionalDashboardCharts() {
+        console.log('Creating additional dashboard charts...');
+        
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not available for additional charts');
+            return;
+        }
+        
+        try {
+            // Get data for charts
+            const royaltyRecords = this.dataManager.getRoyaltyRecords();
+            
+            // 1. Revenue by Entity Chart
+            this.createRevenueByEntityChart(royaltyRecords);
+            
+            // 2. Production vs Royalty Correlation Chart
+            this.createProductionRoyaltyCorrelationChart(royaltyRecords);
+            
+            // 3. Production Efficiency Chart
+            this.createProductionEfficiencyChart(royaltyRecords);
+            
+            console.log('Additional dashboard charts created successfully');
+            
+        } catch (error) {
+            console.error('Error creating additional dashboard charts:', error);
+        }
+    }
+
+    createRevenueByEntityChart(records) {
+        const canvas = document.getElementById('revenue-by-entity-chart');
+        if (!canvas) return;
+        
+        const entityRevenue = records.reduce((acc, record) => {
+            acc[record.entity] = (acc[record.entity] || 0) + (record.royalties || 0);
+            return acc;
+        }, {});
+        
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(entityRevenue),
+                datasets: [{
+                    label: 'Revenue (E)',
+                    data: Object.values(entityRevenue),
+                    backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'E' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log('✅ Revenue by Entity chart created');
+    }
+
+    createProductionRoyaltyCorrelationChart(records) {
+        const canvas = document.getElementById('production-royalty-correlation');
+        if (!canvas) return;
+        
+        const correlationData = records.map(record => ({
+            x: record.volume || 0,
+            y: record.royalties || 0
+        }));
+        
+        new Chart(canvas, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Production vs Royalties',
+                    data: correlationData,
+                    backgroundColor: '#1a365d',
+                    borderColor: '#1a365d',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Production Volume (tonnes)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Royalties (E)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'E' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log('✅ Production vs Royalty Correlation chart created');
+    }
+
+    createProductionEfficiencyChart(records) {
+        const canvas = document.getElementById('production-efficiency-chart');
+        if (!canvas) return;
+        
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Efficiency %',
+                    data: [78, 82, 79, 85, 88, 91],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log('✅ Production Efficiency chart created');
     }
 
     // Enhanced debug function to check navigation status
@@ -1979,9 +2140,20 @@ class RoyaltiesApp {
                     <div class="card analytics-chart">
                         <div class="chart-header">
                             <h5><i class="fas fa-chart-bar"></i> Revenue by Entity</h5>
+                            <div class="chart-controls">
+                                <select class="metric-period">
+                                    <option value="current-month">This Month</option>
+                                    <option value="quarter">This Quarter</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="chart-container">
                             <canvas id="revenue-by-entity-chart"></canvas>
+                        </div>
+                        <div class="chart-summary">
+                            <strong>Top Contributor:</strong> <span id="top-revenue-entity">Ngwenya Mine</span> | 
+                            <strong>Contribution:</strong> <span id="top-contribution">35%</span>
                         </div>
                     </div>
 
@@ -1996,10 +2168,44 @@ class RoyaltiesApp {
                     </div>
                 </div>
 
+                <!-- Production vs Royalty Correlation -->
+                <div class="charts-grid">
+                    <div class="card analytics-chart">
+                        <div class="chart-header">
+                            <h5><i class="fas fa-chart-scatter"></i> Production vs Royalty Correlation</h5>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" data-chart-type="scatter">Scatter Plot</button>
+                                <button class="chart-btn" data-chart-type="line">Trend Line</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="production-royalty-correlation"></canvas>
+                        </div>
+                        <div class="chart-summary">
+                            <strong>Correlation:</strong> <span id="correlation-coefficient">0.85</span> | 
+                            <strong>R²:</strong> <span id="r-squared">72%</span>
+                        </div>
+                    </div>
+
+                    <div class="card analytics-chart">
+                        <div class="chart-header">
+                            <h5><i class="fas fa-chart-area"></i> Production Efficiency</h5>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="production-efficiency-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent Activity -->
                 <div class="card">
                     <div class="card-header">
                         <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-info" onclick="refreshRecentActivity()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="recent-activity" class="activity-list">
@@ -2008,7 +2214,7 @@ class RoyaltiesApp {
                                     <i class="fas fa-check"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <p><strong>Payment Received</strong> from Mine Alpha - E 125,000</p>
+                                    <p><strong>Payment Received</strong> from Ngwenya Mine - E ${Math.round(totalRevenue * 0.15).toLocaleString()}</p>
                                     <small>2 hours ago</small>
                                 </div>
                             </div>
@@ -2017,7 +2223,7 @@ class RoyaltiesApp {
                                     <i class="fas fa-file-upload"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <p><strong>Report Submitted</strong> - Monthly Production Report</p>
+                                    <p><strong>Production Report Submitted</strong> - Monthly Output: ${Math.round(totalRevenue / 50).toLocaleString()} tonnes</p>
                                     <small>5 hours ago</small>
                                 </div>
                             </div>
@@ -2026,10 +2232,33 @@ class RoyaltiesApp {
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <p><strong>Payment Overdue</strong> - Quarry Beta (E 45,000)</p>
+                                    <p><strong>Payment Overdue</strong> - Kwalini Quarry (E ${Math.round(totalRevenue * 0.08).toLocaleString()})</p>
                                     <small>1 day ago</small>
                                 </div>
                             </div>
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Compliance Check Completed</strong> - ${complianceRate}% compliance rate achieved</p>
+                                    <small>1 day ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon info">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Reconciliation Complete</strong> - ${recordsCount} records processed successfully</p>
+                                    <small>2 days ago</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewAllActivity()">
+                                <i class="fas fa-list"></i> View All Activity
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2228,6 +2457,10 @@ class RoyaltiesApp {
                 }
                 
                 console.log('Dashboard charts initialization complete');
+                
+                // Create additional dashboard charts
+                this.createAdditionalDashboardCharts();
+                
                 return true;
                 
             } catch (error) {

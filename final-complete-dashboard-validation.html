@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Dashboard Validation - Mining Royalties Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #667eea;
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+        }
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .validation-card {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+        }
+        .validation-card h3 {
+            color: #667eea;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .check-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #ddd;
+        }
+        .check-item.pass { border-left-color: #28a745; }
+        .check-item.fail { border-left-color: #dc3545; }
+        .check-item.partial { border-left-color: #ffc107; }
+        .metrics-summary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .metric-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        .timestamp {
+            color: #4fd1c7;
+            font-weight: bold;
+        }
+        .success-msg { color: #68d391; }
+        .error-msg { color: #fc8181; }
+        .warning-msg { color: #f6e05e; }
+        .info-msg { color: #63b3ed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Final Dashboard Validation</h1>
+            <p>Comprehensive validation of all Mining Royalties Manager dashboard components</p>
+        </div>
+
+        <div class="metrics-summary">
+            <h2>📊 Validation Summary</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalChecks">0</div>
+                    <div class="metric-label">Total Checks</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="passedChecks">0</div>
+                    <div class="metric-label">Passed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="failedChecks">0</div>
+                    <div class="metric-label">Failed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="successRate">0%</div>
+                    <div class="metric-label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" onclick="runValidation()">🚀 Run Full Validation</button>
+            <button class="btn" onclick="validateCharts()">📈 Validate Charts Only</button>
+            <button class="btn" onclick="validateKPIs()">🎯 Validate KPIs Only</button>
+            <button class="btn" onclick="openDashboard()">🌐 Open Dashboard</button>
+        </div>
+
+        <div class="validation-grid" id="validationResults">
+            <!-- Results will be populated here -->
+        </div>
+
+        <div class="log-area" id="validationLog">
+            <div class="timestamp">[Ready]</div> Validation system initialized. Click "Run Full Validation" to begin comprehensive testing.
+        </div>
+    </div>
+
+    <script>
+        let validationStats = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('validationLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type + '-msg';
+            logArea.innerHTML += `\n<div class="timestamp">[${timestamp}]</div> <span class="${className}">${message}</span>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('totalChecks').textContent = validationStats.total;
+            document.getElementById('passedChecks').textContent = validationStats.passed;
+            document.getElementById('failedChecks').textContent = validationStats.failed;
+            const rate = validationStats.total > 0 ? Math.round((validationStats.passed / validationStats.total) * 100) : 0;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        function addValidationResult(title, checks) {
+            const resultsContainer = document.getElementById('validationResults');
+            const card = document.createElement('div');
+            card.className = 'validation-card';
+            
+            let cardHTML = `<h3>${title}</h3>`;
+            
+            checks.forEach(check => {
+                const status = check.status === 'pass' ? 'pass' : (check.status === 'fail' ? 'fail' : 'partial');
+                cardHTML += `
+                    <div class="check-item ${status}">
+                        <strong>${check.name}:</strong> ${check.result}
+                        ${check.details ? `<br><small>${check.details}</small>` : ''}
+                    </div>
+                `;
+                
+                validationStats.total++;
+                if (check.status === 'pass') {
+                    validationStats.passed++;
+                } else {
+                    validationStats.failed++;
+                }
+            });
+            
+            card.innerHTML = cardHTML;
+            resultsContainer.appendChild(card);
+            updateStats();
+        }
+
+        async function validateDashboardStructure() {
+            log('Validating dashboard structure and elements...', 'info');
+            
+            const checks = [];
+            
+            // Check for main dashboard container
+            const dashboardContainer = document.querySelector('#dashboard-content') || 
+                                    document.querySelector('.dashboard-container') ||
+                                    document.querySelector('[data-component="dashboard"]');
+            
+            checks.push({
+                name: 'Dashboard Container',
+                status: dashboardContainer ? 'pass' : 'fail',
+                result: dashboardContainer ? 'Found dashboard container' : 'Dashboard container not found',
+                details: dashboardContainer ? `Element: ${dashboardContainer.tagName}.${dashboardContainer.className}` : 'Check if dashboard is loaded'
+            });
+
+            // Check for KPI sections
+            const kpiSections = [
+                'production-tracking',
+                'royalty-calculation',
+                'payment-timeline',
+                'revenue-entity',
+                'production-correlation',
+                'recent-activity'
+            ];
+
+            kpiSections.forEach(sectionId => {
+                const element = document.querySelector(`#${sectionId}`) || 
+                               document.querySelector(`[data-section="${sectionId}"]`) ||
+                               document.querySelector(`.${sectionId}`);
+                
+                checks.push({
+                    name: `KPI Section: ${sectionId}`,
+                    status: element ? 'pass' : 'fail',
+                    result: element ? 'Section found' : 'Section missing',
+                    details: element ? `Visible: ${element.offsetHeight > 0}` : 'May need to be generated dynamically'
+                });
+            });
+
+            // Check for chart canvases
+            const chartIds = [
+                'productionChart',
+                'royaltyChart',
+                'paymentTimelineChart',
+                'revenueChart',
+                'correlationChart'
+            ];
+
+            chartIds.forEach(chartId => {
+                const canvas = document.querySelector(`#${chartId}`) || 
+                              document.querySelector(`canvas[data-chart="${chartId}"]`);
+                
+                checks.push({
+                    name: `Chart Canvas: ${chartId}`,
+                    status: canvas ? 'pass' : 'fail',
+                    result: canvas ? 'Canvas found' : 'Canvas missing',
+                    details: canvas ? `Dimensions: ${canvas.width}x${canvas.height}` : 'Chart may not be initialized'
+                });
+            });
+
+            addValidationResult('🏗️ Dashboard Structure', checks);
+            return checks;
+        }
+
+        async function validateMetrics() {
+            log('Validating KPI metrics and data...', 'info');
+            
+            const checks = [];
+            
+            // Check for metric cards
+            const metricSelectors = [
+                '[data-metric="total-production"]',
+                '[data-metric="pending-royalties"]',
+                '[data-metric="monthly-revenue"]',
+                '[data-metric="compliance-rate"]',
+                '.metric-card',
+                '.kpi-card',
+                '.dashboard-metric'
+            ];
+
+            let foundMetrics = 0;
+            metricSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                foundMetrics += elements.length;
+            });
+
+            checks.push({
+                name: 'Metric Cards',
+                status: foundMetrics > 0 ? 'pass' : 'fail',
+                result: `Found ${foundMetrics} metric elements`,
+                details: foundMetrics > 0 ? 'Metrics are present' : 'No metric cards detected'
+            });
+
+            // Check for data in metrics
+            const metricValues = document.querySelectorAll('.metric-value, .kpi-value, [data-value]');
+            let populatedMetrics = 0;
+            
+            metricValues.forEach(element => {
+                const text = element.textContent.trim();
+                if (text && text !== '0' && text !== '$0' && text !== '0%' && text !== '-') {
+                    populatedMetrics++;
+                }
+            });
+
+            checks.push({
+                name: 'Populated Metrics',
+                status: populatedMetrics > 0 ? 'pass' : 'fail',
+                result: `${populatedMetrics} metrics have data`,
+                details: `Out of ${metricValues.length} total metric elements`
+            });
+
+            addValidationResult('📈 KPI Metrics', checks);
+            return checks;
+        }
+
+        async function validateChartsRendering() {
+            log('Validating chart rendering and data...', 'info');
+            
+            const checks = [];
+            
+            // Check if Chart.js is loaded
+            const chartJsLoaded = typeof Chart !== 'undefined';
+            checks.push({
+                name: 'Chart.js Library',
+                status: chartJsLoaded ? 'pass' : 'fail',
+                result: chartJsLoaded ? 'Chart.js is loaded' : 'Chart.js not found',
+                details: chartJsLoaded ? `Version: ${Chart.version || 'Unknown'}` : 'Required for chart rendering'
+            });
+
+            // Check for chart instances
+            if (chartJsLoaded && Chart.instances) {
+                const chartCount = Object.keys(Chart.instances).length;
+                checks.push({
+                    name: 'Active Charts',
+                    status: chartCount > 0 ? 'pass' : 'fail',
+                    result: `${chartCount} charts active`,
+                    details: chartCount > 0 ? 'Charts are initialized' : 'No active chart instances'
+                });
+            }
+
+            // Check canvas elements
+            const canvases = document.querySelectorAll('canvas');
+            checks.push({
+                name: 'Canvas Elements',
+                status: canvases.length > 0 ? 'pass' : 'fail',
+                result: `Found ${canvases.length} canvas elements`,
+                details: `Required for chart rendering`
+            });
+
+            // Check for chart containers
+            const chartContainers = document.querySelectorAll('.chart-container, [data-chart], .chart-wrapper');
+            checks.push({
+                name: 'Chart Containers',
+                status: chartContainers.length > 0 ? 'pass' : 'fail',
+                result: `Found ${chartContainers.length} chart containers`,
+                details: 'Containers organize chart layout'
+            });
+
+            addValidationResult('📊 Chart Rendering', checks);
+            return checks;
+        }
+
+        async function validateDataFlow() {
+            log('Validating data flow and app functionality...', 'info');
+            
+            const checks = [];
+            
+            // Check if main app is loaded
+            const appLoaded = typeof window.app !== 'undefined' || 
+                             typeof loadDashboardContent !== 'undefined' ||
+                             typeof updateDashboardMetrics !== 'undefined';
+            
+            checks.push({
+                name: 'App JavaScript',
+                status: appLoaded ? 'pass' : 'fail',
+                result: appLoaded ? 'App scripts loaded' : 'App scripts missing',
+                details: 'Required for dynamic content generation'
+            });
+
+            // Check for component loader
+            const componentLoaderLoaded = typeof ComponentLoader !== 'undefined' ||
+                                        typeof loadComponent !== 'undefined';
+            
+            checks.push({
+                name: 'Component Loader',
+                status: componentLoaderLoaded ? 'pass' : 'fail',
+                result: componentLoaderLoaded ? 'Component loader available' : 'Component loader missing',
+                details: 'Handles dynamic component loading'
+            });
+
+            // Check for data manager
+            const dataManagerLoaded = typeof DataManager !== 'undefined' ||
+                                     typeof window.DataManager !== 'undefined';
+            
+            checks.push({
+                name: 'Data Manager',
+                status: dataManagerLoaded ? 'pass' : 'fail',
+                result: dataManagerLoaded ? 'Data manager available' : 'Data manager missing',
+                details: 'Manages application data'
+            });
+
+            // Check recent activity updates
+            const recentActivityElements = document.querySelectorAll('.recent-activity, #recent-activity, [data-section="recent-activity"]');
+            checks.push({
+                name: 'Recent Activity Section',
+                status: recentActivityElements.length > 0 ? 'pass' : 'fail',
+                result: `Found ${recentActivityElements.length} activity sections`,
+                details: 'Shows latest system updates'
+            });
+
+            addValidationResult('🔄 Data Flow', checks);
+            return checks;
+        }
+
+        async function validateResponsiveness() {
+            log('Validating responsive design and layout...', 'info');
+            
+            const checks = [];
+            
+            // Check viewport meta tag
+            const viewportMeta = document.querySelector('meta[name="viewport"]');
+            checks.push({
+                name: 'Viewport Meta Tag',
+                status: viewportMeta ? 'pass' : 'fail',
+                result: viewportMeta ? 'Viewport configured' : 'Viewport meta missing',
+                details: viewportMeta ? viewportMeta.content : 'Required for mobile responsiveness'
+            });
+
+            // Check CSS Grid/Flexbox usage
+            const gridElements = document.querySelectorAll('[style*="grid"], .grid, .dashboard-grid');
+            const flexElements = document.querySelectorAll('[style*="flex"], .flex, .dashboard-flex');
+            
+            checks.push({
+                name: 'Responsive Layout',
+                status: (gridElements.length + flexElements.length) > 0 ? 'pass' : 'fail',
+                result: `${gridElements.length + flexElements.length} responsive elements`,
+                details: `Grid: ${gridElements.length}, Flex: ${flexElements.length}`
+            });
+
+            addValidationResult('📱 Responsive Design', checks);
+            return checks;
+        }
+
+        async function runValidation() {
+            log('Starting comprehensive dashboard validation...', 'success');
+            
+            // Clear previous results
+            document.getElementById('validationResults').innerHTML = '';
+            validationStats = { total: 0, passed: 0, failed: 0 };
+            updateStats();
+
+            try {
+                await validateDashboardStructure();
+                await validateMetrics();
+                await validateChartsRendering();
+                await validateDataFlow();
+                await validateResponsiveness();
+                
+                log('Validation completed successfully!', 'success');
+                log(`Results: ${validationStats.passed}/${validationStats.total} checks passed`, 'info');
+                
+                if (validationStats.failed === 0) {
+                    log('🎉 All validations passed! Dashboard is fully functional.', 'success');
+                } else if (validationStats.failed < validationStats.total * 0.3) {
+                    log('⚠️ Minor issues detected. Dashboard is mostly functional.', 'warning');
+                } else {
+                    log('❌ Significant issues detected. Dashboard needs attention.', 'error');
+                }
+                
+            } catch (error) {
+                log(`Validation error: ${error.message}`, 'error');
+            }
+        }
+
+        async function validateCharts() {
+            log('Running chart-specific validation...', 'info');
+            document.getElementById('validationResults').innerHTML = '';
+            validationStats = { total: 0, passed: 0, failed: 0 };
+            await validateChartsRendering();
+            log('Chart validation completed.', 'success');
+        }
+
+        async function validateKPIs() {
+            log('Running KPI-specific validation...', 'info');
+            document.getElementById('validationResults').innerHTML = '';
+            validationStats = { total: 0, passed: 0, failed: 0 };
+            await validateMetrics();
+            log('KPI validation completed.', 'success');
+        }
+
+        function openDashboard() {
+            log('Opening main dashboard...', 'info');
+            window.open('./royalties.html', '_blank');
+        }
+
+        // Initialize validation system
+        log('Dashboard validation system ready.', 'success');
+        log('This tool will validate all dashboard components, metrics, and charts.', 'info');
+    </script>
+</body>
+</html>

@@ -71,7 +71,7 @@
       </div>
       <div class="card-body">
         <p id="total-production">0 tonnes</p>
-        <p id="total-production-volume" style="display: none;">0 tonnes</p> <!-- Alias for metrics update -->
+        <p id="total-production-volume" style="display: none;">0 tonnes</p>
         <small id="production-trend" class="trend-positive">
           <i class="fas fa-arrow-up"></i> +12% vs last period
         </small>
@@ -89,7 +89,7 @@
       </div>
       <div class="card-body">
         <p id="avg-ore-grade">0%</p>
-        <p id="ore-grade-average" style="display: none;">0%</p> <!-- Alias for metrics update -->
+        <p id="ore-grade-average" style="display: none;">0%</p>
         <small id="grade-trend" class="trend-stable">
           <i class="fas fa-equals"></i> Consistent quality
         </small>
@@ -300,28 +300,35 @@
       </div>
     </div>
 
-    <!-- Additional KPI Cards for Missing Metrics -->
     <div class="metric-card card">
       <div class="card-header">
-        <h3><i class="fas fa-industry"></i> Active Entities</h3>
+        <h3><i class="fas fa-building"></i> Active Entities</h3>
       </div>
       <div class="card-body">
         <p id="active-entities">0</p>
         <small class="trend-positive">
-          <i class="fas fa-plus"></i> Mining operations
+          <i class="fas fa-check-circle"></i> All operational
         </small>
+        <div class="entity-breakdown">
+          <span>Mines: <strong id="active-mines">0</strong></span>
+          <span>Quarries: <strong id="active-quarries">0</strong></span>
+        </div>
       </div>
     </div>
 
     <div class="metric-card card">
       <div class="card-header">
-        <h3><i class="fas fa-clock"></i> Pending Approvals</h3>
+        <h3><i class="fas fa-hourglass-half"></i> Pending Approvals</h3>
       </div>
       <div class="card-body">
         <p id="pending-approvals">0</p>
         <small class="trend-warning">
-          <i class="fas fa-exclamation-triangle"></i> Requires attention
+          <i class="fas fa-clock"></i> Awaiting review
         </small>
+        <div class="approval-breakdown">
+          <span>New Applications: <strong id="new-applications">0</strong></span>
+          <span>Renewals: <strong id="renewal-applications">0</strong></span>
+        </div>
       </div>
     </div>
   </div>
