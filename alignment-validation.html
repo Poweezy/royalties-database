@@ -19,9 +19,56 @@
             </div>
         </div>
 
+        <!-- Test: Standard Charts Grid Layout with Metric Cards -->
+        <div class="section-header">
+            <h4><i class="fas fa-chart-bar"></i> Metric Cards Test (Used in Contract Management & Compliance)</h4>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
+                </div>
+                <div class="card-body">
+                    <p>24</p>
+                    <small><i class="fas fa-handshake text-success"></i> Currently in force</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-shield-check"></i> Compliance Score</h3>
+                </div>
+                <div class="card-body">
+                    <p>92%</p>
+                    <small><i class="fas fa-check-circle text-success"></i> Excellent status</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-certificate"></i> Active Permits</h3>
+                </div>
+                <div class="card-body">
+                    <p>12</p>
+                    <small><i class="fas fa-certificate text-info"></i> Valid & current</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Expiring Soon</h3>
+                </div>
+                <div class="card-body">
+                    <p>3</p>
+                    <small><i class="fas fa-clock text-warning"></i> Within 30 days</small>
+                </div>
+            </div>
+        </div>
+
         <!-- Test: Standard Charts Grid Layout -->
         <div class="section-header">
-            <h4><i class="fas fa-grid"></i> Standard Charts Grid Test</h4>
+            <h4><i class="fas fa-grid"></i> Regular Cards Test (Other Sections)</h4>
         </div>
         
         <div class="charts-grid">
@@ -96,13 +143,29 @@
         <div class="validation-results">
             <h4><i class="fas fa-check-double"></i> Validation Summary</h4>
             <ul>
-                <li>✅ Contract Management: Uses standard .charts-grid layout</li>
-                <li>✅ Compliance & Regulatory Management: Framework-grid replaced with .charts-grid</li>
-                <li>✅ All card headers standardized to h5</li>
+                <li>✅ Contract Management: Uses .metric-card with h3 headers for metrics</li>
+                <li>✅ Compliance & Regulatory Management: 
+                    <ul>
+                        <li>Main metrics use .metric-card with h3 headers</li>
+                        <li>Detail sections use regular .card with h5 headers</li>
+                        <li>Framework-grid replaced with .charts-grid</li>
+                    </ul>
+                </li>
+                <li>✅ Royalty Records: Fixed metric cards to use h3 headers</li>
+                <li>✅ All sections use standard .charts-grid layout</li>
                 <li>✅ Inline styles replaced with utility classes</li>
                 <li>✅ Responsive grid layout maintained</li>
-                <li>✅ Custom section containers preserved for functionality</li>
+                <li>✅ Visual consistency: Metric cards have prominent styling, regular cards have standard styling</li>
             </ul>
+            <div class="mt-3">
+                <strong>Key Styling Rules Applied:</strong>
+                <ul>
+                    <li><code>.metric-card</code> + <code>h3</code> = Large metric display cards</li>
+                    <li><code>.card</code> + <code>h5</code> = Standard content cards</li>
+                    <li><code>.charts-grid</code> = Responsive grid layout</li>
+                    <li>Utility classes for spacing, colors, and alignment</li>
+                </ul>
+            </div>
         </div>
     </div>
 </body>

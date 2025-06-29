@@ -247,9 +247,9 @@
 
 <!-- Compliance Dashboard -->
 <div class="charts-grid">
-    <div class="card">
+    <div class="metric-card card">
         <div class="card-header">
-            <h5>📊 Overall Compliance Score</h5>
+            <h3>📊 Overall Compliance Score</h3>
         </div>
         <div class="card-body">
             <div class="text-center">
@@ -260,6 +260,36 @@
                 </div>
                 <small class="text-muted">Last updated: <span id="last-compliance-check">Today at 09:30</span></small>
             </div>
+        </div>
+    </div>
+
+    <div class="metric-card card">
+        <div class="card-header">
+            <h3><i class="fas fa-file-certificate"></i> Active Permits</h3>
+        </div>
+        <div class="card-body">
+            <p id="active-permits-count">12</p>
+            <small><i class="fas fa-check-circle text-success"></i> Valid & Current</small>
+        </div>
+    </div>
+
+    <div class="metric-card card">
+        <div class="card-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Expiring Soon</h3>
+        </div>
+        <div class="card-body">
+            <p id="expiring-permits-count">3</p>
+            <small><i class="fas fa-clock text-warning"></i> Within 30 days</small>
+        </div>
+    </div>
+
+    <div class="metric-card card">
+        <div class="card-header">
+            <h3><i class="fas fa-file-invoice-dollar"></i> Tax Compliance</h3>
+        </div>
+        <div class="card-body">
+            <p id="tax-compliance-rate">95%</p>
+            <small><i class="fas fa-chart-line text-success"></i> SRA Submissions</small>
         </div>
     </div>
 
