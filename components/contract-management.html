@@ -1,6 +1,6 @@
 <div class="page-header">
   <div class="page-title">
-    <h1>📋 Contract Management</h1>
+    <h1><i class="fas fa-file-contract"></i> Contract Management</h1>
     <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies with version control and amendment tracking</p>
   </div>
   <div class="page-actions">
@@ -20,7 +20,7 @@
 <div class="charts-grid" id="contract-metrics">
   <div class="metric-card card">
     <div class="card-header">
-      <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
+      <h5><i class="fas fa-file-contract"></i> Active Contracts</h5>
     </div>
     <div class="card-body">
       <p id="active-contracts-count">0</p>
@@ -30,7 +30,7 @@
   
   <div class="metric-card card">
     <div class="card-header">
-      <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
+      <h5><i class="fas fa-calendar-alt"></i> Expiring Soon</h5>
     </div>
     <div class="card-body">
       <p id="expiring-contracts-count">0</p>
@@ -40,7 +40,7 @@
   
   <div class="metric-card card">
     <div class="card-header">
-      <h3><i class="fas fa-money-bill-wave"></i> Total Contract Value</h3>
+      <h5><i class="fas fa-money-bill-wave"></i> Total Contract Value</h5>
     </div>
     <div class="card-body">
       <p id="total-contract-value">E 0.00</p>
@@ -50,7 +50,7 @@
   
   <div class="metric-card card">
     <div class="card-header">
-      <h3><i class="fas fa-sync-alt"></i> Pending Renewals</h3>
+      <h5><i class="fas fa-sync-alt"></i> Pending Renewals</h5>
     </div>
     <div class="card-body">
       <p id="pending-renewals-count">0</p>
@@ -123,31 +123,32 @@
 </div>
 
 <!-- Contract Terms & Conditions Section -->
-<div class="contract-terms-section">
-  <div class="section-header">
-    <h4><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h4>
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h5>
     <button class="btn btn-primary btn-sm" id="add-term-btn">
       <i class="fas fa-plus"></i> Track New Term
     </button>
   </div>
   
-  <div class="terms-grid">
-    <div class="term-card card">
-      <div class="card-header">
-        <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
-      </div>
-      <div class="card-body">
-        <div class="term-summary">
-          <div class="term-stat">
-            <span class="stat-value">2.8%</span>
-            <span class="stat-label">Average Rate</span>
-          </div>
-          <div class="term-stat">
-            <span class="stat-value">1.5-4.0%</span>
-            <span class="stat-label">Range</span>
+  <div class="card-body">
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
+        </div>
+        <div class="card-body">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-number text-primary">2.8%</span>
+              <span class="stat-label">Average Rate</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number text-info">1.5-4.0%</span>
+              <span class="stat-label">Range</span>
+            </div>
           </div>
         </div>
-      </div>
     </div>
     
     <div class="term-card card">

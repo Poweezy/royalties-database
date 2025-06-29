@@ -1,14 +1,14 @@
 <div class="page-header">
     <div class="page-title">
-        <h1>🔔 Notifications</h1>
+        <h1><i class="fas fa-bell"></i> Notifications</h1>
         <p>View and manage system notifications and alerts</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-secondary" id="mark-all-read-btn">
-            ✅ Mark All Read
+            <i class="fas fa-check"></i> Mark All Read
         </button>
         <button class="btn btn-info" id="notification-settings-btn">
-            ⚙️ Settings
+            <i class="fas fa-cog"></i> Settings
         </button>
     </div>
 </div>
@@ -16,38 +16,45 @@
 <div class="charts-grid">
     <div class="card">
         <div class="card-header">
-            <h5>🔔 Active Notifications</h5>
+            <h5><i class="fas fa-bell"></i> Active Notifications</h5>
         </div>
         <div class="card-body">
-            <div id="notifications-list">
-                <div class="notification-item" style="padding: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 40px; height: 40px; background: var(--warning-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">⚠️</div>
-                    <div style="flex: 1;">
-                        <h6 style="margin: 0; font-weight: 600;">Payment Overdue - Mbabane Quarry</h6>
-                        <p style="margin: 0; color: #666; font-size: 0.9rem;">Payment for ROY-2024-004 is 5 days overdue</p>
-                        <small style="color: #999;">2 hours ago</small>
+            <div id="notifications-list" class="notifications-list">
+                <div class="notification-item unread">
+                    <div class="notification-icon bg-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <button style="background: none; border: none; color: #999; cursor: pointer;">×</button>
+                    <div class="notification-content">
+                        <h6>Payment Overdue - Mbabane Quarry</h6>
+                        <p>Payment for ROY-2024-004 is 5 days overdue</p>
+                        <small>2 hours ago</small>
+                    </div>
+                    <button class="notification-close">×</button>
                 </div>
 
-                <div class="notification-item" style="padding: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 40px; height: 40px; background: var(--info-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">ℹ️</div>
-                    <div style="flex: 1;">
-                        <h6 style="margin: 0; font-weight: 600;">Contract Renewal Due</h6>
-                        <p style="margin: 0; color: #666; font-size: 0.9rem;">Contract LC-2024-002 expires in 30 days</p>
-                        <small style="color: #999;">1 day ago</small>
+                <div class="notification-item">
+                    <div class="notification-icon bg-info">
+                        <i class="fas fa-info-circle"></i>
                     </div>
-                    <button style="background: none; border: none; color: #999; cursor: pointer;">×</button>
+                    <div class="notification-content">
+                        <h6>Contract Renewal Due</h6>
+                        <p>Contract LC-2024-002 expires in 30 days</p>
+                        <small>1 day ago</small>
+                    </div>
+                    <button class="notification-close">×</button>
                 </div>
 
-                <div class="notification-item" style="padding: 1rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 40px; height: 40px; background: var(--success-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">✅</div>
-                    <div style="flex: 1;">
-                        <h6 style="margin: 0; font-weight: 600;">Payment Received</h6>
-                        <p style="margin: 0; color: #666; font-size: 0.9rem;">Kwalini Quarry payment processed successfully</p>
-                        <small style="color: #999;">3 days ago</small>
+                <div class="notification-item">
+                    <div class="notification-icon bg-success">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <button style="background: none; border: none; color: #999; cursor: pointer;">×</button>
+                    <div class="notification-content">
+                        <h6>Payment Received</h6>
+                        <p>Kwalini Quarry payment processed successfully</p>
+                        <small>3 days ago</small>
+                    </div>
+                    <button class="notification-close">×</button>
+                </div>
                 </div>
             </div>
         </div>
@@ -55,17 +62,17 @@
 
     <div class="card">
         <div class="card-header">
-            <h5>📊 Notification Summary</h5>
+            <h5><i class="fas fa-chart-bar"></i> Notification Summary</h5>
         </div>
         <div class="card-body">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div style="text-align: center;">
-                    <h3 style="color: var(--warning-color);">3</h3>
-                    <small>Unread</small>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3 class="stat-number text-warning">3</h3>
+                    <small class="stat-label">Unread</small>
                 </div>
-                <div style="text-align: center;">
-                    <h3 style="color: var(--success-color);">25</h3>
-                    <small>Total Today</small>
+                <div class="stat-item">
+                    <h3 class="stat-number text-success">25</h3>
+                    <small class="stat-label">Total Today</small>
                 </div>
             </div>
         </div>

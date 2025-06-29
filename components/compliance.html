@@ -1,17 +1,17 @@
 <div class="page-header">
     <div class="page-title">
-        <h1>🏛️ Compliance & Regulatory Management</h1>
+        <h1><i class="fas fa-shield-check"></i> Compliance & Regulatory Management</h1>
         <p>Ensuring compliance with Eswatini mining laws, fiscal regulations, and regulatory reporting requirements</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-success" id="run-compliance-check-btn">
-            🔍 Run Compliance Check
+            <i class="fas fa-search"></i> Run Compliance Check
         </button>
         <button class="btn btn-info" id="generate-compliance-report-btn">
-            📄 Generate SWANEEF Report
+            <i class="fas fa-file-alt"></i> Generate SWANEEF Report
         </button>
         <button class="btn btn-warning" id="tax-submission-btn">
-            📊 SRA Tax Submission
+            <i class="fas fa-chart-bar"></i> SRA Tax Submission
         </button>
     </div>
 </div>
@@ -30,8 +30,8 @@
         </div>
     </div>
     
-    <div class="framework-grid">
-        <div class="framework-card card">
+    <div class="charts-grid">
+        <div class="card">
             <div class="card-header">
                 <h5><i class="fas fa-university"></i> Primary Legislation</h5>
                 <span class="last-updated">Last Updated: Jan 2024</span>
@@ -77,7 +77,7 @@
             </div>
         </div>
         
-        <div class="framework-card card">
+        <div class="card">
             <div class="card-header">
                 <h5><i class="fas fa-building"></i> Regulatory Bodies</h5>
                 <span class="contact-info">Emergency Contact: +268 2404 2000</span>
@@ -123,7 +123,7 @@
             </div>
         </div>
         
-        <div class="framework-card card">
+        <div class="card">
             <div class="card-header">
                 <h5><i class="fas fa-percentage"></i> Tax & Royalty Structure (2024)</h5>
                 <span class="effective-date">Effective: April 1, 2024</span>
@@ -249,14 +249,14 @@
 <div class="charts-grid">
     <div class="card">
         <div class="card-header">
-            <h3>📊 Overall Compliance Score</h3>
+            <h5>📊 Overall Compliance Score</h5>
         </div>
         <div class="card-body">
-            <div style="text-align: center;">
-                <h2 style="color: var(--success-color); font-size: 3rem; margin: 0;" id="overall-compliance-score">92%</h2>
-                <p style="color: var(--success-color); margin: 0.5rem 0;" id="compliance-status">Excellent Compliance</p>
-                <div style="width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-top: 1rem;">
-                    <div style="width: 92%; height: 100%; background: var(--success-color); border-radius: 4px;" id="compliance-progress"></div>
+            <div class="text-center">
+                <h2 class="compliance-score-large text-success" id="overall-compliance-score">92%</h2>
+                <p class="text-success mb-2" id="compliance-status">Excellent Compliance</p>
+                <div class="progress-bar-container mt-3">
+                    <div class="progress-bar-fill" style="width: 92%;" id="compliance-progress"></div>
                 </div>
                 <small class="text-muted">Last updated: <span id="last-compliance-check">Today at 09:30</span></small>
             </div>
@@ -419,7 +419,7 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="permits-grid">
+            <div class="charts-grid">
                 <div class="permit-category">
                     <h6><i class="fas fa-pickaxe"></i> Mining Rights & Licenses</h6>
                     <div class="permits-list">
@@ -608,17 +608,17 @@
             <h5>📈 Compliance Trends</h5>
         </div>
         <div class="card-body">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; text-align: center;">
-                <div>
-                    <h4 style="color: var(--success-color); margin: 0;">95%</h4>
+            <div class="stats-grid text-center">
+                <div class="stat-item">
+                    <h4 class="text-success m-0">95%</h4>
                     <small>Q1 2025</small>
                 </div>
-                <div>
-                    <h4 style="color: var(--success-color); margin: 0;">93%</h4>
+                <div class="stat-item">
+                    <h4 class="text-success m-0">93%</h4>
                     <small>Q2 2025</small>
                 </div>
-                <div>
-                    <h4 style="color: var(--success-color); margin: 0;">92%</h4>
+                <div class="stat-item">
+                    <h4 class="text-success m-0">92%</h4>
                     <small>Q3 2025</small>
                 </div>
             </div>
@@ -643,7 +643,7 @@
         </div>
     </div>
     
-    <div class="reporting-grid">
+    <div class="charts-grid">
         <div class="report-card card urgent">
             <div class="card-header">
                 <h5><i class="fas fa-chart-bar"></i> SRA Tax Returns</h5>
