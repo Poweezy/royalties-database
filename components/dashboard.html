@@ -226,6 +226,49 @@
       <strong>Payment Success Rate:</strong> <span id="payment-success-rate">95%</span>
     </div>
   </div>
+
+  <!-- Payment Analytics Charts -->
+  <div class="charts-grid">
+    <div class="card analytics-chart">
+      <div class="chart-header">
+        <h5><i class="fas fa-chart-pie"></i> Payment Status Distribution</h5>
+        <div class="chart-controls">
+          <select class="metric-period" id="payment-status-period">
+            <option value="current-month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="payment-status-chart"></canvas>
+      </div>
+      <div class="chart-summary">
+        <strong>Total Payments:</strong> <span id="total-payments">142</span> | 
+        <strong>On Time Rate:</strong> <span id="ontime-rate">89%</span>
+      </div>
+    </div>
+
+    <div class="card analytics-chart">
+      <div class="chart-header">
+        <h5><i class="fas fa-chart-line"></i> Collection Efficiency</h5>
+        <div class="chart-controls">
+          <select class="metric-period" id="collection-efficiency-period">
+            <option value="6-months">Last 6 Months</option>
+            <option value="12-months">Last 12 Months</option>
+            <option value="24-months">Last 24 Months</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="collection-efficiency-chart"></canvas>
+      </div>
+      <div class="chart-summary">
+        <strong>Current Efficiency:</strong> <span id="current-efficiency">92%</span> | 
+        <strong>Target:</strong> <span id="efficiency-target">95%</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 3. COMPLIANCE MONITORING -->
@@ -672,6 +715,93 @@ function updateSystemCheck() {
   }
 }
 
+// Function to populate dashboard KPIs with realistic data
+function populateDashboardKPIs() {
+  try {
+    console.log('Populating dashboard KPIs with data...');
+    
+    // Production data
+    const totalProduction = document.getElementById('total-production');
+    const coalProduction = document.getElementById('coal-production');
+    const ironProduction = document.getElementById('iron-production');
+    const stoneProduction = document.getElementById('stone-production');
+    
+    if (totalProduction) totalProduction.textContent = '425,000 tonnes';
+    if (coalProduction) coalProduction.textContent = '185,000t';
+    if (ironProduction) ironProduction.textContent = '125,000t';
+    if (stoneProduction) stoneProduction.textContent = '95,000m³';
+    
+    // Ore grade data
+    const avgOreGrade = document.getElementById('avg-ore-grade');
+    const gradeRange = document.getElementById('grade-range');
+    
+    if (avgOreGrade) avgOreGrade.textContent = '68.5%';
+    if (gradeRange) gradeRange.textContent = '45% - 85%';
+    
+    // Revenue data
+    const totalRevenue = document.getElementById('total-revenue');
+    const revenueGrowth = document.getElementById('revenue-growth');
+    
+    if (totalRevenue) totalRevenue.textContent = 'E 2,450,000';
+    if (revenueGrowth) revenueGrowth.textContent = '+12% vs last period';
+    
+    // Payment data
+    const paymentsReceived = document.getElementById('payments-received');
+    const outstandingPayments = document.getElementById('outstanding-payments');
+    const ontimePayments = document.getElementById('ontime-payments');
+    const latePayments = document.getElementById('late-payments');
+    
+    if (paymentsReceived) paymentsReceived.textContent = 'E 2,184,500';
+    if (outstandingPayments) outstandingPayments.textContent = 'E 265,500';
+    if (ontimePayments) ontimePayments.textContent = '127';
+    if (latePayments) latePayments.textContent = '15';
+    
+    // Reconciliation data
+    const reconciliationStatus = document.getElementById('reconciliation-status');
+    if (reconciliationStatus) reconciliationStatus.textContent = '98%';
+    
+    // Compliance data
+    const overallCompliance = document.getElementById('overall-compliance');
+    const reportingCompliance = document.getElementById('reporting-compliance');
+    const paymentCompliance = document.getElementById('payment-compliance');
+    const activeAlerts = document.getElementById('active-alerts');
+    const overdueReports = document.getElementById('overdue-reports');
+    const regulatoryUpdates = document.getElementById('regulatory-updates');
+    
+    if (overallCompliance) overallCompliance.textContent = '92%';
+    if (reportingCompliance) reportingCompliance.textContent = '95%';
+    if (paymentCompliance) paymentCompliance.textContent = '89%';
+    if (activeAlerts) activeAlerts.textContent = '5';
+    if (overdueReports) overdueReports.textContent = '2';
+    if (regulatoryUpdates) regulatoryUpdates.textContent = '3';
+    
+    // Financial performance data
+    const revenuePerUnit = document.getElementById('revenue-per-unit');
+    const revenueEfficiency = document.getElementById('revenue-efficiency');
+    const profitMargin = document.getElementById('profit-margin');
+    const monthlyPerformance = document.getElementById('monthly-performance');
+    const bestMonth = document.getElementById('best-month');
+    const growthRate = document.getElementById('growth-rate');
+    const forecastAccuracy = document.getElementById('forecast-accuracy');
+    
+    if (revenuePerUnit) revenuePerUnit.textContent = 'E 15.2';
+    if (revenueEfficiency) revenueEfficiency.textContent = 'High';
+    if (profitMargin) profitMargin.textContent = '23%';
+    if (monthlyPerformance) monthlyPerformance.textContent = 'E 204,167';
+    if (bestMonth) bestMonth.textContent = 'June';
+    if (growthRate) growthRate.textContent = '+12%';
+    if (forecastAccuracy) forecastAccuracy.textContent = '94%';
+    
+    // Update progress bars
+    const complianceProgress = document.getElementById('compliance-progress');
+    if (complianceProgress) complianceProgress.style.width = '92%';
+    
+    console.log('Dashboard KPIs populated successfully');
+  } catch (error) {
+    console.error('Error populating dashboard KPIs:', error);
+  }
+}
+
 // Initialize dashboard-specific features
 document.addEventListener('DOMContentLoaded', function() {
   // Update system check time every minute
@@ -740,6 +870,9 @@ document.addEventListener('DOMContentLoaded', function() {
       window.notificationManager.show('Dashboard filters reset', 'info');
     }
   });
+  
+  // Populate dashboard KPIs with initial data
+  populateDashboardKPIs();
 });
 
 // Enhanced dashboard functions
@@ -880,37 +1013,167 @@ function initializeDashboardCharts() {
       return;
     }
     
-    // Check if chartManager is available
+    // Initialize chart manager if not available
     if (!window.chartManager) {
-      console.error('Chart manager is not available. Charts cannot be displayed.');
-      return;
+      console.log('Chart manager not found, creating fallback chart manager...');
+      window.chartManager = {
+        charts: new Map(),
+        createChart: function(canvasId, config) {
+          console.log(`Creating chart: ${canvasId}`);
+          const canvas = document.getElementById(canvasId);
+          if (!canvas) {
+            console.error(`Canvas not found: ${canvasId}`);
+            return null;
+          }
+          try {
+            const chart = new Chart(canvas.getContext('2d'), config);
+            this.charts.set(canvasId, chart);
+            return chart;
+          } catch (error) {
+            console.error(`Error creating chart ${canvasId}:`, error);
+            return null;
+          }
+        },
+        createRevenueChart: function(canvasId, data) {
+          const config = {
+            type: 'line',
+            data: {
+              labels: data?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+              datasets: [{
+                label: 'Revenue',
+                data: data?.values || [45000, 52000, 48000, 61000, 55000, 67000],
+                borderColor: '#1a365d',
+                backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                tension: 0.4,
+                fill: true
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true },
+                title: { display: true, text: 'Revenue Trends' }
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+          return this.createChart(canvasId, config);
+        },
+        createEntityChart: function(canvasId, data) {
+          const config = {
+            type: 'bar',
+            data: {
+              labels: data ? Object.keys(data) : ['Entity 1', 'Entity 2', 'Entity 3'],
+              datasets: [{
+                label: 'Values',
+                data: data ? Object.values(data) : [125000, 85000, 65000],
+                backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Entity Comparison' }
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+          return this.createChart(canvasId, config);
+        },
+        createProductionChart: function(canvasId, data) {
+          const config = {
+            type: 'bar',
+            data: {
+              labels: data ? Object.keys(data) : ['Coal', 'Iron Ore', 'Stone'],
+              datasets: [{
+                label: 'Production',
+                data: data ? Object.values(data) : [185000, 125000, 95000],
+                backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Mineral Performance' }
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+          return this.createChart(canvasId, config);
+        },
+        createStatusChart: function(canvasId, data) {
+          const config = {
+            type: 'pie',
+            data: {
+              labels: data?.labels || ['Paid On Time', 'Paid Late', 'Pending', 'Overdue'],
+              datasets: [{
+                data: data?.values || [68, 18, 10, 4],
+                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Payment Status Distribution' }
+              }
+            }
+          };
+          return this.createChart(canvasId, config);
+        }
+      };
     }
     
     console.log('Creating revenue trends chart...');
     // Create revenue trends chart
     window.chartManager.createRevenueChart('revenue-trends-chart', {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [{
-        label: 'Monthly Revenue (E)',
-        data: [45000, 52000, 48000, 61000, 55000, 67000],
-        borderColor: '#1a365d',
-        backgroundColor: 'rgba(26, 54, 93, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
+      values: [45000, 52000, 48000, 61000, 55000, 67000]
     });
     
-    console.log('Creating production chart...');
-    // Create entity production chart
-    window.chartManager.createProductionChart('revenue-by-entity-chart', {
-      'Diamond Mining Corp': 150,
-      'Gold Rush Ltd': 85, 
-      'Copper Valley Mining': 2500
+    console.log('Creating production by entity chart...');
+    // Create production by entity chart
+    window.chartManager.createEntityChart('production-by-entity-chart', {
+      'Ngwenya Mine': 125000,
+      'Maloma Colliery': 85000,
+      'Kwalini Quarry': 65000,
+      'Bulembu Mine': 45000
+    });
+    
+    console.log('Creating revenue by entity chart...');
+    // Create revenue by entity chart
+    window.chartManager.createEntityChart('revenue-by-entity-chart', {
+      'Ngwenya Mine': 2250000,
+      'Maloma Colliery': 1530000,
+      'Kwalini Quarry': 975000,
+      'Bulembu Mine': 675000
+    });
+    
+    console.log('Creating mineral performance chart...');
+    // Create mineral performance comparison chart
+    window.chartManager.createProductionChart('mineral-performance-chart', {
+      'Coal': 185000,
+      'Iron Ore': 125000,
+      'Quarried Stone': 95000,
+      'River Sand': 65000,
+      'Gravel': 45000
     });
     
     console.log('Creating payment timeline chart...');
     // Create payment timeline chart
-    window.chartManager.create('payment-timeline-chart', {
+    window.chartManager.createChart('payment-timeline-chart', {
       type: 'bar',
       data: {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -919,8 +1182,75 @@ function initializeDashboardCharts() {
           data: [28, 35, 42, 31, 39, 45],
           backgroundColor: 'rgba(38, 84, 124, 0.8)'
         }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Payment Timeline' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
       }
     });
+    
+    console.log('Creating payment status distribution chart...');
+    // Create payment status distribution chart
+    window.chartManager.createStatusChart('payment-status-chart', {
+      labels: ['Paid On Time', 'Paid Late', 'Pending', 'Overdue'],
+      values: [68, 18, 10, 4]
+    });
+    
+    console.log('Creating collection efficiency chart...');
+    // Create collection efficiency chart
+    window.chartManager.createChart('collection-efficiency-chart', {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Collection Efficiency (%)',
+          data: [89, 91, 88, 94, 92, 96],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.4,
+          fill: true
+        }, {
+          label: 'Target (95%)',
+          data: [95, 95, 95, 95, 95, 95],
+          borderColor: '#ef4444',
+          borderDash: [5, 5],
+          fill: false,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Collection Efficiency Trends' }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 80,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // Update summary data for charts
+    updateChartSummaries();
     
     console.log('Charts initialized successfully');
   } catch (error) {
@@ -928,11 +1258,73 @@ function initializeDashboardCharts() {
   }
 }
 
+// Function to update chart summary data
+function updateChartSummaries() {
+  try {
+    // Update revenue trends summary
+    const twelveMonthTotal = document.getElementById('twelve-month-total');
+    const monthlyAverage = document.getElementById('monthly-average');
+    if (twelveMonthTotal) twelveMonthTotal.textContent = '2,450,000';
+    if (monthlyAverage) monthlyAverage.textContent = '204,167';
+    
+    // Update production by entity summary
+    const topProductionEntity = document.getElementById('top-production-entity');
+    const topProductionVolume = document.getElementById('top-production-volume');
+    if (topProductionEntity) topProductionEntity.textContent = 'Ngwenya Mine';
+    if (topProductionVolume) topProductionVolume.textContent = '125,000 tons';
+    
+    // Update revenue by entity summary
+    const topRevenueEntity = document.getElementById('top-revenue-entity');
+    const topContribution = document.getElementById('top-contribution');
+    if (topRevenueEntity) topRevenueEntity.textContent = 'Ngwenya Mine';
+    if (topContribution) topContribution.textContent = '41%';
+    
+    // Update payment timeline summary
+    const avgPaymentTime = document.getElementById('avg-payment-time');
+    const paymentSuccessRate = document.getElementById('payment-success-rate');
+    if (avgPaymentTime) avgPaymentTime.textContent = '15 days';
+    if (paymentSuccessRate) paymentSuccessRate.textContent = '95%';
+    
+    // Update payment status summary
+    const totalPayments = document.getElementById('total-payments');
+    const ontimeRate = document.getElementById('ontime-rate');
+    if (totalPayments) totalPayments.textContent = '142';
+    if (ontimeRate) ontimeRate.textContent = '89%';
+    
+    // Update collection efficiency summary
+    const currentEfficiency = document.getElementById('current-efficiency');
+    const efficiencyTarget = document.getElementById('efficiency-target');
+    if (currentEfficiency) currentEfficiency.textContent = '92%';
+    if (efficiencyTarget) efficiencyTarget.textContent = '95%';
+    
+    console.log('Chart summaries updated');
+  } catch (error) {
+    console.error('Error updating chart summaries:', error);
+  }
+}
+
 // Initialize dashboard-specific features with error handling
 document.addEventListener('DOMContentLoaded', function() {
   try {
-    // Initialize charts
-    initializeDashboardCharts();
+    // Populate KPI data first
+    populateDashboardKPIs();
+    
+    // Ensure Chart.js is loaded before initializing charts
+    if (typeof Chart !== 'undefined') {
+      // Initialize charts with fallback chart manager
+      initializeDashboardCharts();
+    } else {
+      console.warn('Chart.js not loaded, charts will not be available');
+      
+      // Retry after a delay in case Chart.js is still loading
+      setTimeout(() => {
+        if (typeof Chart !== 'undefined') {
+          initializeDashboardCharts();
+        } else {
+          console.error('Chart.js failed to load after retry');
+        }
+      }, 2000);
+    }
     
     // Setup chart control handlers
     const chartBtns = document.querySelectorAll('.chart-btn');
@@ -1055,8 +1447,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.chartManager) {
           window.chartManager.destroyAll();
         }
-        // Reinitialize charts
-        setTimeout(initializeDashboardCharts, 100);
+        // Repopulate data and reinitialize charts
+        setTimeout(() => {
+          populateDashboardKPIs();
+          initializeDashboardCharts();
+        }, 100);
         
         if (window.notificationManager) {
           window.notificationManager.show('Dashboard refreshed successfully', 'success');
@@ -1082,5 +1477,41 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error exporting dashboard:', error);
       }
     });
+  }
+});
+
+// Also add to window load event as backup
+window.addEventListener('load', function() {
+  console.log('Window loaded, checking dashboard charts...');
+  
+  if (typeof Chart !== 'undefined' && window.chartManager) {
+    // Check if charts were already created
+    const canvasElements = [
+      'revenue-trends-chart',
+      'production-by-entity-chart', 
+      'revenue-by-entity-chart',
+      'mineral-performance-chart',
+      'payment-status-chart',
+      'collection-efficiency-chart',
+      'payment-timeline-chart'
+    ];
+    
+    let chartsCreated = 0;
+    canvasElements.forEach(id => {
+      const canvas = document.getElementById(id);
+      if (canvas && window.chartManager.charts && window.chartManager.charts.has(id)) {
+        chartsCreated++;
+      }
+    });
+    
+    console.log(`Charts status: ${chartsCreated}/${canvasElements.length} created`);
+    
+    // If no charts were created, try initializing again
+    if (chartsCreated === 0) {
+      console.log('No charts found, attempting to initialize dashboard charts...');
+      setTimeout(() => {
+        initializeDashboardCharts();
+      }, 500);
+    }
   }
 });

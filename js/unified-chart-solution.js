@@ -268,6 +268,181 @@
         }
     };
     
+    // Global function to initialize all dashboard charts
+    window.initializeAllDashboardCharts = function() {
+        console.log('🎯 UNIFIED CHART: Initializing all dashboard charts...');
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.warn('🎯 UNIFIED CHART: Chart.js not loaded, skipping chart initialization');
+            return;
+        }
+        
+        // Initialize chart manager if not already done
+        if (!UnifiedChartManager.initialized) {
+            UnifiedChartManager.initialize();
+        }
+        
+        // Create all dashboard charts with error handling
+        const chartConfigs = [
+            {
+                id: 'revenue-trends-chart',
+                method: 'createRevenueChart',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    values: [45000, 52000, 48000, 61000, 55000, 67000]
+                }
+            },
+            {
+                id: 'production-by-entity-chart',
+                method: 'createEntityChart',
+                data: {
+                    'Ngwenya Mine': 125000,
+                    'Maloma Colliery': 85000,
+                    'Kwalini Quarry': 65000,
+                    'Bulembu Mine': 45000
+                }
+            },
+            {
+                id: 'revenue-by-entity-chart',
+                method: 'createEntityChart',
+                data: {
+                    'Ngwenya Mine': 2250000,
+                    'Maloma Colliery': 1530000,
+                    'Kwalini Quarry': 975000,
+                    'Bulembu Mine': 675000
+                }
+            },
+            {
+                id: 'mineral-performance-chart',
+                method: 'createProductionChart',
+                data: {
+                    'Coal': 185000,
+                    'Iron Ore': 125000,
+                    'Quarried Stone': 95000,
+                    'River Sand': 65000,
+                    'Gravel': 45000
+                }
+            },
+            {
+                id: 'payment-status-chart',
+                method: 'createStatusChart',
+                data: {
+                    labels: ['Paid On Time', 'Paid Late', 'Pending', 'Overdue'],
+                    values: [68, 18, 10, 4]
+                }
+            },
+            {
+                id: 'collection-efficiency-chart',
+                method: 'createChart',
+                data: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Collection Efficiency (%)',
+                            data: [89, 91, 88, 94, 92, 96],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Target (95%)',
+                            data: [95, 95, 95, 95, 95, 95],
+                            borderColor: '#ef4444',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            title: { display: true, text: 'Collection Efficiency Trends' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 80,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'payment-timeline-chart',
+                method: 'createChart',
+                data: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Payments Made',
+                            data: [28, 35, 42, 31, 39, 45],
+                            backgroundColor: '#38a169'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: true, text: 'Payment Timeline' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                }
+            }
+        ];
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        chartConfigs.forEach(config => {
+            try {
+                const canvas = document.getElementById(config.id);
+                if (!canvas) {
+                    console.warn(`🎯 UNIFIED CHART: Canvas not found: ${config.id}`);
+                    return;
+                }
+                
+                if (UnifiedChartManager[config.method]) {
+                    const result = UnifiedChartManager[config.method](config.id, config.data);
+                    if (result) {
+                        successCount++;
+                        console.log(`🎯 UNIFIED CHART: ✓ ${config.id} created successfully`);
+                    } else {
+                        errorCount++;
+                        console.warn(`🎯 UNIFIED CHART: ✗ Failed to create ${config.id}`);
+                    }
+                } else {
+                    console.error(`🎯 UNIFIED CHART: Method ${config.method} not found`);
+                    errorCount++;
+                }
+            } catch (error) {
+                console.error(`🎯 UNIFIED CHART: Error creating ${config.id}:`, error);
+                errorCount++;
+            }
+        });
+        
+        console.log(`🎯 UNIFIED CHART: Dashboard initialization complete. ${successCount} success, ${errorCount} errors`);
+        
+        // Update summary data if function exists
+        if (typeof updateChartSummaries === 'function') {
+            updateChartSummaries();
+        }
+    };
+    
     // Make chart manager available globally
     window.chartManager = UnifiedChartManager;
     
