@@ -60,153 +60,150 @@
 </div>
 
 <!-- Contract Registry Table Container -->
-<div id="contracts-table-container">
-  <div class="table-container">
-    <div class="section-header">
-      <h4><i class="fas fa-file-contract"></i> Contract Registry</h4>
-      <div class="table-actions">
-        <div class="search-container">
-          <i class="fas fa-search"></i>
-          <input type="text" id="contracts-search" placeholder="Search contracts..." class="search-input">
-        </div>
-        <button class="btn btn-info btn-sm" id="filter-contracts-btn">
-          <i class="fas fa-filter"></i> Filter
-        </button>
-        <button class="btn btn-secondary btn-sm" id="sort-contracts-btn">
-          <i class="fas fa-sort"></i> Sort
-        </button>
-        <button class="btn btn-warning btn-sm" id="contract-bulk-actions-btn">
-          <i class="fas fa-tasks"></i> Bulk Actions
-        </button>
-      </div>
+<div class="section-header">
+  <h4><i class="fas fa-file-contract"></i> Contract Registry</h4>
+  <div class="table-actions">
+    <div class="search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" id="contracts-search" placeholder="Search contracts..." class="search-input">
     </div>
+    <button class="btn btn-info btn-sm" id="filter-contracts-btn">
+      <i class="fas fa-filter"></i> Filter
+    </button>
+    <button class="btn btn-secondary btn-sm" id="sort-contracts-btn">
+      <i class="fas fa-sort"></i> Sort
+    </button>
+    <button class="btn btn-warning btn-sm" id="contract-bulk-actions-btn">
+      <i class="fas fa-tasks"></i> Bulk Actions
+    </button>
+  </div>
+</div>
 
-    <table class="data-table" id="contracts-table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="select-all-contracts" title="Select all contracts"></th>
-          <th sortable data-sort="contractId">Contract ID</th>
-          <th sortable data-sort="stakeholder">Stakeholder</th>
-          <th sortable data-sort="entity">Entity</th>
-          <th sortable data-sort="contractType">Type</th>
-          <th sortable data-sort="royaltyRate">Royalty Rate</th>
-          <th sortable data-sort="calculationMethod">Calculation Method</th>
-          <th sortable data-sort="startDate">Start Date</th>
-          <th sortable data-sort="endDate">End Date</th>
-          <th sortable data-sort="version">Version</th>
-          <th sortable data-sort="status">Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="contracts-tbody">
-        <!-- Will be populated dynamically with enhanced contract data including version info -->
-      </tbody>
-    </table>
+<div class="table-container">
+  <table class="data-table" id="contracts-table">
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all-contracts" title="Select all contracts"></th>
+        <th sortable data-sort="contractId">Contract ID</th>
+        <th sortable data-sort="stakeholder">Stakeholder</th>
+        <th sortable data-sort="entity">Entity</th>
+        <th sortable data-sort="contractType">Type</th>
+        <th sortable data-sort="royaltyRate">Royalty Rate</th>
+        <th sortable data-sort="calculationMethod">Calculation Method</th>
+        <th sortable data-sort="startDate">Start Date</th>
+        <th sortable data-sort="endDate">End Date</th>
+        <th sortable data-sort="version">Version</th>
+        <th sortable data-sort="status">Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="contracts-tbody">
+      <!-- Will be populated dynamically with enhanced contract data including version info -->
+    </tbody>
+  </table>
 
-    <div class="table-pagination">
-      <div class="pagination-info">
-        Showing <span id="contracts-showing-start">1</span> to <span id="contracts-showing-end">4</span> of <span id="total-contracts">4</span> contracts
+  <div class="table-pagination">
+    <div class="pagination-info">
+      Showing <span id="contracts-showing-start">1</span> to <span id="contracts-showing-end">4</span> of <span id="total-contracts">4</span> contracts
+    </div>
+    <div class="pagination-controls">
+      <button class="btn btn-sm btn-secondary" id="contracts-prev-page" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <div class="pagination-pages">
+        <a href="#" class="page-btn active">1</a>
       </div>
-      <div class="pagination-controls">
-        <button class="btn btn-sm btn-secondary" id="contracts-prev-page" disabled>
-          <i class="fas fa-chevron-left"></i> Previous
-        </button>
-        <div class="pagination-pages">
-          <a href="#" class="page-btn active">1</a>
-        </div>
-        <button class="btn btn-sm btn-secondary" id="contracts-next-page" disabled>
-          Next <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
+      <button class="btn btn-sm btn-secondary" id="contracts-next-page" disabled>
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Contract Terms & Conditions Section -->
-<div class="card">
-  <div class="card-header">
-    <h5><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h5>
+<div class="section-header">
+  <h4><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h4>
+  <div class="section-actions">
     <button class="btn btn-primary btn-sm" id="add-term-btn">
       <i class="fas fa-plus"></i> Track New Term
     </button>
   </div>
+</div>
+
+<div class="charts-grid">
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
+    </div>
+    <div class="card-body">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number text-primary">2.8%</span>
+          <span class="stat-label">Average Rate</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number text-info">1.5-4.0%</span>
+          <span class="stat-label">Range</span>
+        </div>
+      </div>
+    </div>
+  </div>
   
-  <div class="card-body">
-    <div class="charts-grid">
-      <div class="card">
-        <div class="card-header">
-          <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
-        </div>
-        <div class="card-body">
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-number text-primary">2.8%</span>
-              <span class="stat-label">Average Rate</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number text-info">1.5-4.0%</span>
-              <span class="stat-label">Range</span>
-            </div>
-          </div>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-calendar-check"></i> Payment Schedules</h5>
     </div>
-    
-    <div class="term-card card">
-      <div class="card-header">
-        <h5><i class="fas fa-calendar-check"></i> Payment Schedules</h5>
-      </div>
-      <div class="card-body">
-        <div class="schedule-breakdown">
-          <div class="schedule-item">
-            <span class="badge bg-primary">Monthly</span> <span class="count">2 contracts</span>
-          </div>
-          <div class="schedule-item">
-            <span class="badge bg-success">Quarterly</span> <span class="count">3 contracts</span>
-          </div>
+    <div class="card-body">
+      <div class="schedule-breakdown">
+        <div class="schedule-item mb-2">
+          <span class="badge bg-primary">Monthly</span> <span class="count ms-2">2 contracts</span>
+        </div>
+        <div class="schedule-item">
+          <span class="badge bg-success">Quarterly</span> <span class="count ms-2">3 contracts</span>
         </div>
       </div>
     </div>
-    
-    <div class="term-card card">
-      <div class="card-header">
-        <h5><i class="fas fa-chart-line"></i> Escalation Clauses</h5>
-      </div>
-      <div class="card-body">
-        <div class="escalation-summary">
-          <div class="escalation-item">
-            <span class="badge bg-info">CPI-Based</span> <span class="count">2 contracts</span>
-          </div>
-          <div class="escalation-item">
-            <span class="badge bg-warning">Fixed Annual</span> <span class="count">1 contract</span>
-          </div>
-          <div class="escalation-item">
-            <span class="badge bg-secondary">Market-Based</span> <span class="count">1 contract</span>
-          </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-chart-line"></i> Escalation Clauses</h5>
+    </div>
+    <div class="card-body">
+      <div class="escalation-summary">
+        <div class="escalation-item mb-2">
+          <span class="badge bg-info">CPI-Based</span> <span class="count ms-2">2 contracts</span>
+        </div>
+        <div class="escalation-item mb-2">
+          <span class="badge bg-warning">Fixed Annual</span> <span class="count ms-2">1 contract</span>
+        </div>
+        <div class="escalation-item">
+          <span class="badge bg-secondary">Market-Based</span> <span class="count ms-2">1 contract</span>
         </div>
       </div>
     </div>
-    
-    <div class="term-card card">
-      <div class="card-header">
-        <h5><i class="fas fa-exclamation-circle"></i> Special Conditions</h5>
-      </div>
-      <div class="card-body">
-        <div class="conditions-list">
-          <div class="condition-item">
-            <i class="fas fa-leaf text-success"></i>
-            <span>Environmental Compliance</span>
-            <span class="count">4 contracts</span>
-          </div>
-          <div class="condition-item">
-            <i class="fas fa-shield-alt text-info"></i>
-            <span>Safety Requirements</span>
-            <span class="count">3 contracts</span>
-          </div>
-          <div class="condition-item">
-            <i class="fas fa-exchange-alt text-warning"></i>
-            <span>Technology Transfer</span>
-            <span class="count">1 contract</span>
-          </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-exclamation-circle"></i> Special Conditions</h5>
+    </div>
+    <div class="card-body">
+      <div class="conditions-list">
+        <div class="condition-item mb-2 d-flex align-items-center">
+          <i class="fas fa-leaf text-success me-2"></i>
+          <span class="flex-grow-1">Environmental Compliance</span>
+          <span class="count badge bg-light text-dark">4 contracts</span>
+        </div>
+        <div class="condition-item mb-2 d-flex align-items-center">
+          <i class="fas fa-shield-alt text-info me-2"></i>
+          <span class="flex-grow-1">Safety Requirements</span>
+          <span class="count badge bg-light text-dark">3 contracts</span>
+        </div>
+        <div class="condition-item d-flex align-items-center">
+          <i class="fas fa-exchange-alt text-warning me-2"></i>
+          <span class="flex-grow-1">Technology Transfer</span>
+          <span class="count badge bg-light text-dark">1 contract</span>
         </div>
       </div>
     </div>
@@ -214,62 +211,77 @@
 </div>
 
 <!-- Version Control & Amendment Tracking Section -->
-<div class="version-control-section">
-  <div class="section-header">
-    <h4><i class="fas fa-code-branch"></i> Version Control & Amendment Tracking</h4>
+<div class="section-header">
+  <h4><i class="fas fa-code-branch"></i> Version Control & Amendment Tracking</h4>
+  <div class="section-actions">
     <button class="btn btn-info btn-sm" id="view-all-amendments-btn">
       <i class="fas fa-history"></i> View All Amendments
     </button>
   </div>
-  
-  <div class="amendments-timeline">
-    <div class="timeline-item">
-      <div class="timeline-marker">
-        <i class="fas fa-edit"></i>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-header">
-          <h5>MC-LIC-2023-045 v1.2</h5>
-          <span class="timestamp">2024-01-10</span>
-        </div>
-        <p>Payment schedule modification - Changed from quarterly to monthly payments</p>
-        <div class="timeline-meta">
-          <span class="badge bg-warning">Rate Change</span>
-          <span class="user">Modified by: admin</span>
-        </div>
-      </div>
+</div>
+
+<div class="charts-grid">
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-timeline"></i> Recent Amendments Timeline</h5>
     </div>
-    
-    <div class="timeline-item">
-      <div class="timeline-marker">
-        <i class="fas fa-percentage"></i>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-header">
-          <h5>MC-LIC-2023-045 v1.1</h5>
-          <span class="timestamp">2023-12-01</span>
+    <div class="card-body">
+      <div class="amendments-timeline">
+        <div class="timeline-item mb-4 p-3 border-start border-primary border-3">
+          <div class="d-flex align-items-start">
+            <div class="timeline-marker me-3 mt-1">
+              <i class="fas fa-edit text-primary"></i>
+            </div>
+            <div class="timeline-content flex-grow-1">
+              <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0 fw-bold text-primary">MC-LIC-2023-045 v1.2</h6>
+                <small class="text-muted">2024-01-10</small>
+              </div>
+              <p class="mb-2">Payment schedule modification - Changed from quarterly to monthly payments</p>
+              <div class="timeline-meta d-flex align-items-center gap-2">
+                <span class="badge bg-warning">Rate Change</span>
+                <small class="text-muted">Modified by: admin</small>
+              </div>
+            </div>
+          </div>
         </div>
-        <p>Royalty rate adjustment - Increased from 1.5% to 1.8% due to market conditions</p>
-        <div class="timeline-meta">
-          <span class="badge bg-primary">Schedule Change</span>
-          <span class="user">Modified by: admin</span>
+        
+        <div class="timeline-item mb-4 p-3 border-start border-info border-3">
+          <div class="d-flex align-items-start">
+            <div class="timeline-marker me-3 mt-1">
+              <i class="fas fa-percentage text-info"></i>
+            </div>
+            <div class="timeline-content flex-grow-1">
+              <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0 fw-bold text-info">MC-LIC-2023-045 v1.1</h6>
+                <small class="text-muted">2023-12-01</small>
+              </div>
+              <p class="mb-2">Royalty rate adjustment - Increased from 1.5% to 1.8% due to market conditions</p>
+              <div class="timeline-meta d-flex align-items-center gap-2">
+                <span class="badge bg-primary">Schedule Change</span>
+                <small class="text-muted">Modified by: admin</small>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    
-    <div class="timeline-item">
-      <div class="timeline-marker">
-        <i class="fas fa-plus"></i>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-header">
-          <h5>MS-SVC-2023-033 v1.3</h5>
-          <span class="timestamp">2023-11-15</span>
-        </div>
-        <p>Performance metrics update - Added new KPIs for service quality assessment</p>
-        <div class="timeline-meta">
-          <span class="badge bg-success">Metrics Update</span>
-          <span class="user">Modified by: manager</span>
+        
+        <div class="timeline-item p-3 border-start border-success border-3">
+          <div class="d-flex align-items-start">
+            <div class="timeline-marker me-3 mt-1">
+              <i class="fas fa-plus text-success"></i>
+            </div>
+            <div class="timeline-content flex-grow-1">
+              <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0 fw-bold text-success">MS-SVC-2023-033 v1.3</h6>
+                <small class="text-muted">2023-11-15</small>
+              </div>
+              <p class="mb-2">Performance metrics update - Added new KPIs for service quality assessment</p>
+              <div class="timeline-meta d-flex align-items-center gap-2">
+                <span class="badge bg-success">Metrics Update</span>
+                <small class="text-muted">Modified by: manager</small>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Management - Consistency Validation</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="royalties.css">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .validation-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-actions, .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 10px;
+            color: #6c757d;
+        }
+        
+        .search-input {
+            padding: 0.375rem 0.75rem 0.375rem 2.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .timeline-item {
+            position: relative;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .table-pagination {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            color: #495057;
+        }
+        
+        .page-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        .bg-success { background-color: #28a745 !important; }
+        .bg-warning { background-color: #ffc107 !important; }
+        .bg-danger { background-color: #dc3545 !important; }
+        .bg-info { background-color: #17a2b8 !important; }
+        .bg-primary { background-color: #007bff !important; }
+        .bg-secondary { background-color: #6c757d !important; }
+        
+        .text-success { color: #28a745 !important; }
+        .text-warning { color: #ffc107 !important; }
+        .text-danger { color: #dc3545 !important; }
+        .text-info { color: #17a2b8 !important; }
+        .text-primary { color: #007bff !important; }
+    </style>
+</head>
+<body>
+    <div class="validation-header">
+        <div class="container">
+            <h1><i class="fas fa-file-contract me-3"></i>Contract Management - Consistency Validation</h1>
+            <p class="mb-0">Validating the fully consistent Contract Management component aligned with application standards</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <h1><i class="fas fa-file-contract"></i> Contract Management</h1>
+                <p>Comprehensive management of mining contracts, stakeholder agreements, and royalty calculation methodologies with version control and amendment tracking</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-info" id="template-library-btn" title="Access contract templates">
+                    <i class="fas fa-file-alt"></i> Template Library
+                </button>
+                <button class="btn btn-secondary" id="export-contracts-btn" title="Export contract data">
+                    <i class="fas fa-file-export"></i> Export Contracts
+                </button>
+                <button class="btn btn-success" id="add-contract-btn" title="Add new contract">
+                    <i class="fas fa-plus"></i> Add Contract
+                </button>
+            </div>
+        </div>
+
+        <!-- Contract Management Summary Cards -->
+        <div class="charts-grid" id="contract-metrics">
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-contract"></i> Active Contracts</h3>
+                </div>
+                <div class="card-body">
+                    <p>12</p>
+                    <small><i class="fas fa-handshake text-success"></i> Currently in force</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Expiring Soon</h3>
+                </div>
+                <div class="card-body">
+                    <p>3</p>
+                    <small><i class="fas fa-exclamation-triangle text-warning"></i> Within 90 days</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-money-bill-wave"></i> Total Contract Value</h3>
+                </div>
+                <div class="card-body">
+                    <p>E 2.4M</p>
+                    <small><i class="fas fa-chart-line text-success"></i> Combined portfolio value</small>
+                </div>
+            </div>
+            
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-sync-alt"></i> Pending Renewals</h3>
+                </div>
+                <div class="card-body">
+                    <p>2</p>
+                    <small><i class="fas fa-clock text-info"></i> Require attention</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contract Registry Table Container -->
+        <div class="section-header">
+            <h4><i class="fas fa-file-contract"></i> Contract Registry</h4>
+            <div class="table-actions">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="contracts-search" placeholder="Search contracts..." class="search-input">
+                </div>
+                <button class="btn btn-info btn-sm">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <button class="btn btn-secondary btn-sm">
+                    <i class="fas fa-sort"></i> Sort
+                </button>
+                <button class="btn btn-warning btn-sm">
+                    <i class="fas fa-tasks"></i> Bulk Actions
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" title="Select all contracts"></th>
+                        <th>Contract ID</th>
+                        <th>Stakeholder</th>
+                        <th>Entity</th>
+                        <th>Type</th>
+                        <th>Royalty Rate</th>
+                        <th>Calculation Method</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>MC-LIC-2023-045</td>
+                        <td>Kwalini Quarry Ltd</td>
+                        <td>Kwalini Quarry</td>
+                        <td>Mining License</td>
+                        <td>1.8%</td>
+                        <td>Gross Revenue</td>
+                        <td>2023-01-15</td>
+                        <td>2026-01-14</td>
+                        <td>v1.2</td>
+                        <td><span class="badge bg-success">Active</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td>MS-SVC-2023-033</td>
+                        <td>Maloma Colliery</td>
+                        <td>Maloma Mine</td>
+                        <td>Service Agreement</td>
+                        <td>3.2%</td>
+                        <td>Net Revenue</td>
+                        <td>2023-03-01</td>
+                        <td>2025-08-30</td>
+                        <td>v1.3</td>
+                        <td><span class="badge bg-warning">Expiring</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-success"><i class="fas fa-redo"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="table-pagination">
+                <div class="pagination-info">
+                    Showing 1 to 2 of 4 contracts
+                </div>
+                <div class="pagination-controls">
+                    <button class="btn btn-sm btn-secondary" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="pagination-pages">
+                        <a href="#" class="page-btn active">1</a>
+                    </div>
+                    <button class="btn btn-sm btn-secondary" disabled>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contract Terms & Conditions Section -->
+        <div class="section-header">
+            <h4><i class="fas fa-list-alt"></i> Key Contract Terms Tracking</h4>
+            <div class="section-actions">
+                <button class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Track New Term
+                </button>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-percentage"></i> Royalty Rates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number text-primary">2.8%</span>
+                            <span class="stat-label">Average Rate</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number text-info">1.5-4.0%</span>
+                            <span class="stat-label">Range</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar-check"></i> Payment Schedules</h5>
+                </div>
+                <div class="card-body">
+                    <div class="schedule-breakdown">
+                        <div class="schedule-item mb-2">
+                            <span class="badge bg-primary">Monthly</span> <span class="count ms-2">2 contracts</span>
+                        </div>
+                        <div class="schedule-item">
+                            <span class="badge bg-success">Quarterly</span> <span class="count ms-2">3 contracts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Escalation Clauses</h5>
+                </div>
+                <div class="card-body">
+                    <div class="escalation-summary">
+                        <div class="escalation-item mb-2">
+                            <span class="badge bg-info">CPI-Based</span> <span class="count ms-2">2 contracts</span>
+                        </div>
+                        <div class="escalation-item mb-2">
+                            <span class="badge bg-warning">Fixed Annual</span> <span class="count ms-2">1 contract</span>
+                        </div>
+                        <div class="escalation-item">
+                            <span class="badge bg-secondary">Market-Based</span> <span class="count ms-2">1 contract</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-exclamation-circle"></i> Special Conditions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="conditions-list">
+                        <div class="condition-item mb-2 d-flex align-items-center">
+                            <i class="fas fa-leaf text-success me-2"></i>
+                            <span class="flex-grow-1">Environmental Compliance</span>
+                            <span class="count badge bg-light text-dark">4 contracts</span>
+                        </div>
+                        <div class="condition-item mb-2 d-flex align-items-center">
+                            <i class="fas fa-shield-alt text-info me-2"></i>
+                            <span class="flex-grow-1">Safety Requirements</span>
+                            <span class="count badge bg-light text-dark">3 contracts</span>
+                        </div>
+                        <div class="condition-item d-flex align-items-center">
+                            <i class="fas fa-exchange-alt text-warning me-2"></i>
+                            <span class="flex-grow-1">Technology Transfer</span>
+                            <span class="count badge bg-light text-dark">1 contract</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Control & Amendment Tracking Section -->
+        <div class="section-header">
+            <h4><i class="fas fa-code-branch"></i> Version Control & Amendment Tracking</h4>
+            <div class="section-actions">
+                <button class="btn btn-info btn-sm">
+                    <i class="fas fa-history"></i> View All Amendments
+                </button>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-timeline"></i> Recent Amendments Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="amendments-timeline">
+                        <div class="timeline-item mb-4 p-3 border-start border-primary border-3">
+                            <div class="d-flex align-items-start">
+                                <div class="timeline-marker me-3 mt-1">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </div>
+                                <div class="timeline-content flex-grow-1">
+                                    <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 fw-bold text-primary">MC-LIC-2023-045 v1.2</h6>
+                                        <small class="text-muted">2024-01-10</small>
+                                    </div>
+                                    <p class="mb-2">Payment schedule modification - Changed from quarterly to monthly payments</p>
+                                    <div class="timeline-meta d-flex align-items-center gap-2">
+                                        <span class="badge bg-warning">Rate Change</span>
+                                        <small class="text-muted">Modified by: admin</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item mb-4 p-3 border-start border-info border-3">
+                            <div class="d-flex align-items-start">
+                                <div class="timeline-marker me-3 mt-1">
+                                    <i class="fas fa-percentage text-info"></i>
+                                </div>
+                                <div class="timeline-content flex-grow-1">
+                                    <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 fw-bold text-info">MC-LIC-2023-045 v1.1</h6>
+                                        <small class="text-muted">2023-12-01</small>
+                                    </div>
+                                    <p class="mb-2">Royalty rate adjustment - Increased from 1.5% to 1.8% due to market conditions</p>
+                                    <div class="timeline-meta d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary">Schedule Change</span>
+                                        <small class="text-muted">Modified by: admin</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item p-3 border-start border-success border-3">
+                            <div class="d-flex align-items-start">
+                                <div class="timeline-marker me-3 mt-1">
+                                    <i class="fas fa-plus text-success"></i>
+                                </div>
+                                <div class="timeline-content flex-grow-1">
+                                    <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0 fw-bold text-success">MS-SVC-2023-033 v1.3</h6>
+                                        <small class="text-muted">2023-11-15</small>
+                                    </div>
+                                    <p class="mb-2">Performance metrics update - Added new KPIs for service quality assessment</p>
+                                    <div class="timeline-meta d-flex align-items-center gap-2">
+                                        <span class="badge bg-success">Metrics Update</span>
+                                        <small class="text-muted">Modified by: manager</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-success mt-4">
+            <h5><i class="fas fa-check-circle me-2"></i>Contract Management Consistency Validation Summary</h5>
+            <ul class="mb-0">
+                <li><strong>Layout Standardization:</strong> All sections now use proper section-header and charts-grid patterns</li>
+                <li><strong>Card Structure:</strong> Removed nested cards within card-body, implemented proper grid layout</li>
+                <li><strong>Table Container:</strong> Moved section-header outside table-container for consistency</li>
+                <li><strong>Timeline Enhancement:</strong> Improved timeline styling with Bootstrap classes and proper visual hierarchy</li>
+                <li><strong>Badge Consistency:</strong> Standardized badge usage and spacing throughout all sections</li>
+                <li><strong>Icon Usage:</strong> Consistent FontAwesome icon implementation across all components</li>
+                <li><strong>Responsive Design:</strong> Maintained responsive grid systems and component arrangements</li>
+                <li><strong>Visual Hierarchy:</strong> Clear section headers, consistent card headers, proper button grouping</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
