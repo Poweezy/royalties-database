@@ -161,15 +161,17 @@
     
     <!-- Pagination -->
     <div class="pagination-container">
-      <div class="pagination-info">
-        Showing 1-4 of 4 records
+      <div class="pagination-info" id="pagination-info">
+        Showing 1-8 of 8 records
       </div>
       <div class="pagination-controls">
-        <button class="btn btn-sm btn-secondary" disabled>
+        <button class="btn btn-sm btn-secondary" id="prev-page-btn" disabled>
           <i class="fas fa-chevron-left"></i> Previous
         </button>
-        <button class="btn btn-sm btn-primary">1</button>
-        <button class="btn btn-sm btn-secondary" disabled>
+        <div class="page-numbers" id="page-numbers">
+          <button class="btn btn-sm btn-primary page-btn active" data-page="1">1</button>
+        </div>
+        <button class="btn btn-sm btn-secondary" id="next-page-btn" disabled>
           Next <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -207,7 +209,169 @@
       <button class="btn btn-dark quick-action-btn" onclick="auditTrail()">
         <i class="fas fa-history"></i>
         <span>Audit Trail</span>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Record Modal -->
+<div class="modal-overlay" id="record-modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modal-title"><i class="fas fa-plus"></i> Add New Record</h3>
+      <button class="modal-close" onclick="closeRecordModal()">
+        <i class="fas fa-times"></i>
       </button>
+    </div>
+    <div class="modal-body">
+      <form id="record-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="record-reference">Reference Number</label>
+            <input type="text" id="record-reference" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label for="record-entity">Entity</label>
+            <select id="record-entity" class="form-control" required>
+              <option value="">Select Entity</option>
+              <option value="Kwalini Quarry">Kwalini Quarry</option>
+              <option value="Maloma Colliery">Maloma Colliery</option>
+              <option value="Ngwenya Mine">Ngwenya Mine</option>
+              <option value="Mbabane Quarry">Mbabane Quarry</option>
+              <option value="Sidvokodvo Quarry">Sidvokodvo Quarry</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="record-mineral">Mineral</label>
+            <select id="record-mineral" class="form-control" required>
+              <option value="">Select Mineral</option>
+              <option value="Coal">Coal</option>
+              <option value="Iron Ore">Iron Ore</option>
+              <option value="Quarried Stone">Quarried Stone</option>
+              <option value="River Sand">River Sand</option>
+              <option value="Gravel">Gravel</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="record-volume">Volume</label>
+            <input type="number" id="record-volume" class="form-control" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="record-tariff">Tariff Rate (E/unit)</label>
+            <input type="number" id="record-tariff" class="form-control" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="record-royalties">Royalties (E)</label>
+            <input type="number" id="record-royalties" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label for="record-date">Date</label>
+            <input type="date" id="record-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="record-status">Status</label>
+            <select id="record-status" class="form-control" required>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeRecordModal()">Cancel</button>
+      <button class="btn btn-success" onclick="saveRecord()">
+        <i class="fas fa-save"></i> Save Record
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- View Record Modal -->
+<div class="modal-overlay" id="view-modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-eye"></i> Record Details</h3>
+      <button class="modal-close" onclick="closeViewModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="record-details">
+        <div class="detail-row">
+          <span class="detail-label">Reference Number:</span>
+          <span class="detail-value" id="view-reference"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Entity:</span>
+          <span class="detail-value" id="view-entity"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Mineral:</span>
+          <span class="detail-value" id="view-mineral"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Volume:</span>
+          <span class="detail-value" id="view-volume"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tariff Rate:</span>
+          <span class="detail-value" id="view-tariff"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Royalties:</span>
+          <span class="detail-value" id="view-royalties"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value" id="view-date"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value" id="view-status"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeViewModal()">Close</button>
+      <button class="btn btn-warning" onclick="editFromView()">
+        <i class="fas fa-edit"></i> Edit Record
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal-overlay" id="bulk-modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-tasks"></i> Bulk Actions</h3>
+      <button class="modal-close" onclick="closeBulkModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Select an action to perform on <span id="selected-count">0</span> selected records:</p>
+      <div class="bulk-actions">
+        <button class="btn btn-success bulk-action-item" onclick="bulkUpdateStatus('Paid')">
+          <i class="fas fa-check"></i> Mark as Paid
+        </button>
+        <button class="btn btn-warning bulk-action-item" onclick="bulkUpdateStatus('Pending')">
+          <i class="fas fa-clock"></i> Mark as Pending
+        </button>
+        <button class="btn btn-danger bulk-action-item" onclick="bulkUpdateStatus('Overdue')">
+          <i class="fas fa-exclamation-triangle"></i> Mark as Overdue
+        </button>
+        <button class="btn btn-info bulk-action-item" onclick="bulkExport()">
+          <i class="fas fa-download"></i> Export Selected
+        </button>
+        <button class="btn btn-danger bulk-action-item" onclick="bulkDelete()">
+          <i class="fas fa-trash"></i> Delete Selected
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeBulkModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -364,6 +528,228 @@
   .btn-group {
     flex-direction: column;
   }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Enhanced Modal Styles */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.form-group input[readonly] {
+  background-color: var(--background-light);
+  color: var(--text-muted);
+}
+
+/* Record Details Styles */
+.record-details {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.detail-value {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Bulk Actions Styles */
+.bulk-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.bulk-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.bulk-action-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pagination Enhancements */
+.page-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-btn {
+  min-width: 40px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn.active {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Quick Actions Grid Enhancement */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  border-radius: var(--border-radius);
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-btn i {
+  font-size: 1.5rem;
+}
+
+.quick-action-btn span {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Responsive Table Enhancements */
+@media (max-width: 1024px) {
+  .data-table {
+    font-size: 0.875rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Loading and Empty States */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Enhanced Progress Bar */
+.mini-progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Notification Enhancements */
+.trend-positive {
+  color: var(--success-color);
+}
+
+.trend-warning {
+  color: var(--warning-color);
+}
+
+.trend-info {
+  color: var(--info-color);
 }
 </style>
 

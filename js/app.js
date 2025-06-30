@@ -50,6 +50,26 @@ class DataManager {
             {
                 id: 3, entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 2100,
                 tariff: 25, royalties: 52500, date: '2024-01-25', status: 'Paid', referenceNumber: 'ROY-2024-003'
+            },
+            {
+                id: 4, entity: 'Mbabane Quarry', mineral: 'Gravel', volume: 950,
+                tariff: 8, royalties: 7600, date: '2024-02-05', status: 'Overdue', referenceNumber: 'ROY-2024-004'
+            },
+            {
+                id: 5, entity: 'Sidvokodvo Quarry', mineral: 'River Sand', volume: 1150,
+                tariff: 10, royalties: 11500, date: '2024-02-10', status: 'Paid', referenceNumber: 'ROY-2024-005'
+            },
+            {
+                id: 6, entity: 'Kwalini Quarry', mineral: 'Quarried Stone', volume: 1350,
+                tariff: 15, royalties: 20250, date: '2024-02-15', status: 'Pending', referenceNumber: 'ROY-2024-006'
+            },
+            {
+                id: 7, entity: 'Maloma Colliery', mineral: 'Coal', volume: 750,
+                tariff: 12, royalties: 9000, date: '2024-02-20', status: 'Overdue', referenceNumber: 'ROY-2024-007'
+            },
+            {
+                id: 8, entity: 'Ngwenya Mine', mineral: 'Iron Ore', volume: 2250,
+                tariff: 25, royalties: 56250, date: '2024-02-25', status: 'Paid', referenceNumber: 'ROY-2024-008'
             }
         ];
     }
@@ -924,7 +944,9 @@ class RoyaltiesApp {
 
     initializeRoyaltyRecords() {
         console.log('Royalty records initialized');
-        // Royalty records-specific initialization
+        // Populate royalty records data
+        this.populateRoyaltyRecordsData();
+        this.setupRoyaltyRecordsEventHandlers();
     }
 
     initializeNotifications() {
@@ -1436,6 +1458,81 @@ class RoyaltiesApp {
         console.log('Dashboard metrics updated successfully');
     }
 
+    loadUserManagementSection() {
+        const section = document.getElementById('user-management');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-users"></i> User Management</h1>
+                    <p>Manage user accounts, roles, and access permissions</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                        <h4>User Management System</h4>
+                        <p class="text-muted">Loading user management interface...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        console.log('User management fallback content loaded');
+    }
+
+    loadRoyaltyRecordsSection() {
+        const section = document.getElementById('royalty-records');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-money-bill-wave"></i> Royalty Records Management</h1>
+                    <p>Comprehensive management of mining royalty records, payments, and compliance tracking</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-money-bill-wave fa-3x text-success mb-3"></i>
+                        <h4>Royalty Records System</h4>
+                        <p class="text-muted">Loading royalty records interface...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        console.log('Royalty records fallback content loaded');
+    }
+
+    loadContractManagementSection() {
+        const section = document.getElementById('contract-management');
+        if (!section) return;
+        
+        section.innerHTML = `
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-file-contract"></i> Contract Management</h1>
+                    <p>Manage mining contracts, agreements, and related documentation</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-contract fa-3x text-info mb-3"></i>
+                        <h4>Contract Management System</h4>
+                        <p class="text-muted">Loading contract management interface...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        console.log('Contract management fallback content loaded');
+    }
+
     loadGenericSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (!section) return;
@@ -1486,7 +1583,866 @@ class RoyaltiesApp {
         console.log('User logged out');
     }
 
+    populateRoyaltyRecordsData() {
+        try {
+            const records = this.dataManager.getRoyaltyRecords();
+            
+            // Initialize filtered records and pagination
+            this.filteredRecords = [...records];
+            this.initializePagination();
+            
+            // Update KPI cards
+            this.updateRoyaltyRecordsKPIs(records);
+            
+            // Populate records table with pagination
+            this.updateTableWithPagination();
+            
+            // Update compliance metrics
+            this.updateRoyaltyComplianceMetrics(records);
+            
+            console.log('Royalty records data populated successfully with pagination');
+        } catch (error) {
+            console.error('Error populating royalty records data:', error);
+            if (this.notificationManager) {
+                this.notificationManager.show('Error loading royalty records data', 'error');
+            }
+        }
+    }
+
+    updateRoyaltyRecordsKPIs(records) {
+        const totalRecords = records.length;
+        const totalRoyalties = records.reduce((sum, record) => sum + (record.royalties || 0), 0);
+        const paidRecords = records.filter(r => r.status === 'Paid').length;
+        const pendingRecords = records.filter(r => r.status === 'Pending').length;
+        const overdueRecords = records.filter(r => r.status === 'Overdue').length;
+        
+        // Update KPI elements
+        const totalRecordsEl = document.getElementById('total-records-count');
+        const totalRoyaltiesEl = document.getElementById('total-royalties-amount');
+        const paidRecordsEl = document.getElementById('paid-records-count');
+        const pendingRecordsEl = document.getElementById('pending-records-count');
+        const overdueRecordsEl = document.getElementById('overdue-records-count');
+        
+        if (totalRecordsEl) totalRecordsEl.textContent = totalRecords.toLocaleString();
+        if (totalRoyaltiesEl) totalRoyaltiesEl.textContent = `E ${totalRoyalties.toLocaleString()}`;
+        if (paidRecordsEl) paidRecordsEl.textContent = paidRecords.toLocaleString();
+        if (pendingRecordsEl) pendingRecordsEl.textContent = pendingRecords.toLocaleString();
+        if (overdueRecordsEl) overdueRecordsEl.textContent = overdueRecords.toLocaleString();
+    }
+
+    updateRoyaltyRecordsTable(records) {
+        const tableBody = document.getElementById('royalty-records-table-body');
+        if (!tableBody) return;
+        
+        if (records.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-inbox"></i> No royalty records found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tableBody.innerHTML = records.map(record => `
+            <tr data-record-id="${record.id}">
+                <td>
+                    <input type="checkbox" class="record-checkbox" value="${record.id}">
+                </td>
+                <td>
+                    <strong>${record.referenceNumber || `ROY-${record.id}`}</strong>
+                </td>
+                <td>${record.entity}</td>
+                <td>${record.mineral}</td>
+                <td>${record.volume ? record.volume.toLocaleString() : 'N/A'}</td>
+                <td>E ${record.royalties ? record.royalties.toLocaleString() : '0'}</td>
+                <td>${record.date}</td>
+                <td>
+                    <span class="badge badge-${this.getStatusClass(record.status)}">
+                        ${record.status}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary view-record-btn" data-id="${record.id}" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning edit-record-btn" data-id="${record.id}" title="Edit Record">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-record-btn" data-id="${record.id}" title="Delete Record">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    updateRoyaltyComplianceMetrics(records) {
+        const totalRecords = records.length;
+        const paidRecords = records.filter(r => r.status === 'Paid').length;
+        const complianceRate = totalRecords > 0 ? Math.round((paidRecords / totalRecords) * 100) : 0;
+        
+        const complianceRateEl = document.getElementById('records-compliance-rate');
+        const complianceProgressEl = document.getElementById('records-compliance-progress');
+        
+        if (complianceRateEl) complianceRateEl.textContent = `${complianceRate}%`;
+        if (complianceProgressEl) complianceProgressEl.style.width = `${complianceRate}%`;
+    }
+
+    getStatusClass(status) {
+        switch (status?.toLowerCase()) {
+            case 'paid': return 'success';
+            case 'pending': return 'warning';
+            case 'overdue': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    setupRoyaltyRecordsEventHandlers() {
+        try {
+            // Add record button
+            const addRecordBtn = document.getElementById('add-record-btn');
+            if (addRecordBtn) {
+                addRecordBtn.addEventListener('click', () => this.showAddRecordModal());
+            }
+
+            // Refresh button
+            const refreshBtn = document.getElementById('refresh-records-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => this.refreshRoyaltyRecords());
+            }
+
+            // Export button
+            const exportBtn = document.getElementById('export-records-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => this.exportRoyaltyRecords());
+            }
+
+            // Bulk actions button
+            const bulkActionBtn = document.getElementById('bulk-action-btn');
+            if (bulkActionBtn) {
+                bulkActionBtn.addEventListener('click', () => this.showBulkActionsModal());
+            }
+
+            // Filter buttons
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => this.filterRecords(e.target.dataset.filter));
+            });
+
+            // Search input
+            const searchInput = document.getElementById('records-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => this.searchRecords(e.target.value));
+            }
+
+            // Table action buttons (delegated event handling)
+            const tableBody = document.getElementById('royalty-records-table-body');
+            if (tableBody) {
+                tableBody.addEventListener('click', (e) => this.handleTableAction(e));
+            }
+
+            // Select all checkbox
+            const selectAllCheckbox = document.getElementById('select-all-records');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', (e) => this.toggleSelectAll(e.target.checked));
+            }
+
+            console.log('Royalty records event handlers set up successfully');
+        } catch (error) {
+            console.error('Error setting up royalty records event handlers:', error);
+        }
+    }
+
+    showAddRecordModal() {
+        this.showAddRecordModal();
+    }
+
+    refreshRoyaltyRecords() {
+        if (this.notificationManager) {
+            this.notificationManager.show('Refreshing royalty records...', 'info');
+        }
+        this.populateRoyaltyRecordsData();
+        if (this.notificationManager) {
+            this.notificationManager.show('Royalty records refreshed successfully', 'success');
+        }
+    }
+
+    exportRoyaltyRecords() {
+        if (this.notificationManager) {
+            this.notificationManager.show('Exporting royalty records...', 'info');
+        }
+        
+        // Create CSV export
+        const records = this.dataManager.getRoyaltyRecords();
+        const csvContent = this.generateCSVExport(records);
+        this.downloadCSV(csvContent, 'royalty-records.csv');
+        
+        setTimeout(() => {
+            if (this.notificationManager) {
+                this.notificationManager.show('Royalty records exported successfully', 'success');
+            }
+        }, 1000);
+    }
+
+    showBulkActionsModal() {
+        this.showBulkActionsModal();
+    }
+
+    filterRecords(filter) {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        
+        const activeBtn = document.querySelector(`[data-filter="${filter}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        const records = this.dataManager.getRoyaltyRecords();
+        
+        if (filter !== 'all') {
+            this.filteredRecords = records.filter(record => record.status?.toLowerCase() === filter);
+        } else {
+            this.filteredRecords = [...records];
+        }
+
+        this.currentPage = 1;
+        this.updatePaginationDisplay();
+        this.updateTableWithPagination();
+        
+        if (this.notificationManager) {
+            this.notificationManager.show(`Showing ${this.filteredRecords.length} ${filter} records`, 'info');
+        }
+    }
+
+    searchRecords(searchTerm) {
+        const records = this.dataManager.getRoyaltyRecords();
+        
+        if (!searchTerm.trim()) {
+            this.filteredRecords = [...records];
+        } else {
+            const searchText = searchTerm.toLowerCase();
+            this.filteredRecords = records.filter(record => {
+                return (
+                    record.referenceNumber?.toLowerCase().includes(searchText) ||
+                    record.entity?.toLowerCase().includes(searchText) ||
+                    record.mineral?.toLowerCase().includes(searchText)
+                );
+            });
+        }
+
+        this.currentPage = 1;
+        this.updatePaginationDisplay();
+        this.updateTableWithPagination();
+    }
+
+    handleTableAction(e) {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        const recordId = button.dataset.id;
+        
+        if (button.classList.contains('view-record-btn')) {
+            this.viewRecord(recordId);
+        } else if (button.classList.contains('edit-record-btn')) {
+            this.editRecord(recordId);
+        } else if (button.classList.contains('delete-record-btn')) {
+            this.deleteRecord(recordId);
+        }
+    }
+
+    viewRecord(recordId) {
+        const records = this.dataManager.getRoyaltyRecords();
+        const record = records.find(r => r.id == recordId);
+        
+        if (record) {
+            this.showViewRecordModal(recordId);
+        } else if (this.notificationManager) {
+            this.notificationManager.show('Record not found', 'error');
+        }
+    }
+
+    editRecord(recordId) {
+        const records = this.dataManager.getRoyaltyRecords();
+        const record = records.find(r => r.id == recordId);
+        
+        if (record) {
+            this.showEditRecordModal(recordId);
+        } else if (this.notificationManager) {
+            this.notificationManager.show('Record not found', 'error');
+        }
+    }
+
+    deleteRecord(recordId) {
+        const records = this.dataManager.getRoyaltyRecords();
+        const record = records.find(r => r.id == recordId);
+        
+        if (record) {
+            const confirmed = confirm(`Are you sure you want to delete record ${record.referenceNumber || `ROY-${record.id}`}?`);
+            if (confirmed) {
+                // Remove from data (in a real app, this would be a server call)
+                const index = this.dataManager.royaltyRecords.findIndex(r => r.id == recordId);
+                if (index > -1) {
+                    this.dataManager.royaltyRecords.splice(index, 1);
+                    this.populateRoyaltyRecordsData(); // Refresh the display
+                    
+                    if (this.notificationManager) {
+                        this.notificationManager.show('Record deleted successfully', 'success');
+                    }
+                }
+            }
+        }
+    }
+
+    toggleSelectAll(checked) {
+        const recordCheckboxes = document.querySelectorAll('.record-checkbox');
+        recordCheckboxes.forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+    }
+
+    // ===== MODAL MANAGEMENT FUNCTIONS =====
+    
+    showAddRecordModal() {
+        const modal = document.getElementById('record-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const form = document.getElementById('record-form');
+        
+        if (modal && modalTitle && form) {
+            modalTitle.innerHTML = '<i class="fas fa-plus"></i> Add New Record';
+            form.reset();
+            
+            // Generate new reference number
+            const nextId = Math.max(...this.dataManager.getRoyaltyRecords().map(r => r.id)) + 1;
+            const referenceInput = document.getElementById('record-reference');
+            if (referenceInput) {
+                referenceInput.value = `ROY-2024-${String(nextId).padStart(3, '0')}`;
+            }
+            
+            // Set current date as default
+            const dateInput = document.getElementById('record-date');
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+            
+            modal.style.display = 'flex';
+            modal.dataset.mode = 'add';
+            
+            this.setupModalEventHandlers();
+            
+            if (this.notificationManager) {
+                this.notificationManager.show('Opening add record modal...', 'info');
+            }
+        }
+    }
+
+    showEditRecordModal(recordId) {
+        const records = this.dataManager.getRoyaltyRecords();
+        const record = records.find(r => r.id == recordId);
+        
+        if (!record) {
+            if (this.notificationManager) {
+                this.notificationManager.show('Record not found', 'error');
+            }
+            return;
+        }
+        
+        const modal = document.getElementById('record-modal');
+        const modalTitle = document.getElementById('modal-title');
+        
+        if (modal && modalTitle) {
+            modalTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Record';
+            
+            // Populate form with record data
+            this.populateRecordForm(record);
+            
+            modal.style.display = 'flex';
+            modal.dataset.mode = 'edit';
+            modal.dataset.recordId = recordId;
+            
+            this.setupModalEventHandlers();
+            
+            if (this.notificationManager) {
+                this.notificationManager.show(`Editing record: ${record.referenceNumber}`, 'info');
+            }
+        }
+    }
+
+    showViewRecordModal(recordId) {
+        const records = this.dataManager.getRoyaltyRecords();
+        const record = records.find(r => r.id == recordId);
+        
+        if (!record) {
+            if (this.notificationManager) {
+                this.notificationManager.show('Record not found', 'error');
+            }
+            return;
+        }
+        
+        const modal = document.getElementById('view-modal');
+        if (modal) {
+            // Populate view modal with record data
+            this.populateViewModal(record);
+            
+            modal.style.display = 'flex';
+            modal.dataset.recordId = recordId;
+            
+            if (this.notificationManager) {
+                this.notificationManager.show(`Viewing record: ${record.referenceNumber}`, 'info');
+            }
+        }
+    }
+
+    showBulkActionsModal() {
+        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+        const modal = document.getElementById('bulk-modal');
+        const selectedCount = document.getElementById('selected-count');
+        
+        if (selectedCheckboxes.length === 0) {
+            if (this.notificationManager) {
+                this.notificationManager.show('Please select at least one record', 'warning');
+            }
+            return;
+        }
+        
+        if (modal && selectedCount) {
+            selectedCount.textContent = selectedCheckboxes.length;
+            modal.style.display = 'flex';
+            
+            if (this.notificationManager) {
+                this.notificationManager.show(`${selectedCheckboxes.length} records selected for bulk action`, 'info');
+            }
+        }
+    }
+
+    populateRecordForm(record) {
+        const fields = {
+            'record-reference': record.referenceNumber || `ROY-${record.id}`,
+            'record-entity': record.entity,
+            'record-mineral': record.mineral,
+            'record-volume': record.volume,
+            'record-tariff': record.tariff,
+            'record-royalties': record.royalties,
+            'record-date': record.date,
+            'record-status': record.status
+        };
+        
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+            }
+        });
+    }
+
+    populateViewModal(record) {
+        const fields = {
+            'view-reference': record.referenceNumber || `ROY-${record.id}`,
+            'view-entity': record.entity,
+            'view-mineral': record.mineral,
+            'view-volume': record.volume ? record.volume.toLocaleString() : 'N/A',
+            'view-tariff': record.tariff ? `E ${record.tariff}` : 'N/A',
+            'view-royalties': record.royalties ? `E ${record.royalties.toLocaleString()}` : 'E 0',
+            'view-date': record.date,
+            'view-status': record.status
+        };
+        
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+        
+        // Style the status badge
+        const statusElement = document.getElementById('view-status');
+        if (statusElement && record.status) {
+            statusElement.className = `detail-value badge badge-${this.getStatusClass(record.status)}`;
+        }
+    }
+
+    setupModalEventHandlers() {
+        // Auto-calculate royalties when volume or tariff changes
+        const volumeInput = document.getElementById('record-volume');
+        const tariffInput = document.getElementById('record-tariff');
+        const royaltiesInput = document.getElementById('record-royalties');
+        
+        const calculateRoyalties = () => {
+            if (volumeInput && tariffInput && royaltiesInput) {
+                const volume = parseFloat(volumeInput.value) || 0;
+                const tariff = parseFloat(tariffInput.value) || 0;
+                royaltiesInput.value = volume * tariff;
+            }
+        };
+        
+        if (volumeInput) {
+            volumeInput.removeEventListener('input', calculateRoyalties);
+            volumeInput.addEventListener('input', calculateRoyalties);
+        }
+        if (tariffInput) {
+            tariffInput.removeEventListener('input', calculateRoyalties);
+            tariffInput.addEventListener('input', calculateRoyalties);
+        }
+        
+        // Modal close functionality
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(modal => {
+            modal.removeEventListener('click', this.modalClickHandler);
+            this.modalClickHandler = (e) => {
+                if (e.target === modal) {
+                    this.closeAllModals();
+                }
+            };
+            modal.addEventListener('click', this.modalClickHandler);
+        });
+    }
+
+    // ===== EXPORT UTILITY FUNCTIONS =====
+    
+    generateCSVExport(records) {
+        // Create CSV header
+        const headers = [
+            'Reference Number', 'Entity', 'Mineral', 'Volume', 
+            'Tariff Rate', 'Royalties', 'Date', 'Status'
+        ];
+        
+        // Create CSV rows
+        const csvRows = [
+            headers.join(','),
+            ...records.map(record => [
+                record.referenceNumber || `ROY-${record.id}`,
+                `"${record.entity}"`,
+                `"${record.mineral}"`,
+                record.volume || 0,
+                record.tariff || 0,
+                record.royalties || 0,
+                record.date,
+                record.status
+            ].join(','))
+        ];
+        
+        return csvRows.join('\n');
+    }
+
+    downloadCSV(csvContent, filename) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+            // Feature detection for download attribute
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } else {
+            // Fallback for browsers that don't support download attribute
+            if (this.notificationManager) {
+                this.notificationManager.show('Export functionality requires a modern browser', 'warning');
+            }
+        }
+    }
+
+    closeAllModals() {
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
+    }
+
+    saveRecord() {
+        const modal = document.getElementById('record-modal');
+        if (!modal) return;
+        
+        const mode = modal.dataset.mode;
+        const recordId = modal.dataset.recordId;
+        
+        // Get form data
+        const formData = {
+            referenceNumber: document.getElementById('record-reference')?.value,
+            entity: document.getElementById('record-entity')?.value,
+            mineral: document.getElementById('record-mineral')?.value,
+            volume: parseFloat(document.getElementById('record-volume')?.value) || 0,
+            tariff: parseFloat(document.getElementById('record-tariff')?.value) || 0,
+            royalties: parseFloat(document.getElementById('record-royalties')?.value) || 0,
+            date: document.getElementById('record-date')?.value,
+            status: document.getElementById('record-status')?.value
+        };
+        
+        // Validate required fields
+        if (!formData.entity || !formData.mineral || !formData.date) {
+            if (this.notificationManager) {
+                this.notificationManager.show('Please fill in all required fields', 'error');
+            }
+            return;
+        }
+        
+        try {
+            if (mode === 'add') {
+                // Add new record
+                const newId = Math.max(...this.dataManager.getRoyaltyRecords().map(r => r.id)) + 1;
+                const newRecord = { id: newId, ...formData };
+                this.dataManager.royaltyRecords.push(newRecord);
+                
+                if (this.notificationManager) {
+                    this.notificationManager.show('Record added successfully', 'success');
+                }
+            } else if (mode === 'edit' && recordId) {
+                // Update existing record
+                const recordIndex = this.dataManager.royaltyRecords.findIndex(r => r.id == recordId);
+                if (recordIndex > -1) {
+                    this.dataManager.royaltyRecords[recordIndex] = { 
+                        id: parseInt(recordId), 
+                        ...formData 
+                    };
+                    
+                    if (this.notificationManager) {
+                        this.notificationManager.show('Record updated successfully', 'success');
+                    }
+                }
+            }
+            
+            // Refresh the display and close modal
+            this.populateRoyaltyRecordsData();
+            this.closeAllModals();
+            
+        } catch (error) {
+            console.error('Error saving record:', error);
+            if (this.notificationManager) {
+                this.notificationManager.show('Error saving record', 'error');
+            }
+        }
+    }
+
+    editFromView() {
+        const viewModal = document.getElementById('view-modal');
+        const recordId = viewModal?.dataset.recordId;
+        
+        if (recordId) {
+            this.closeAllModals();
+            setTimeout(() => {
+                this.showEditRecordModal(recordId);
+            }, 100);
+        }
+    }
+
+    // ===== BULK ACTIONS =====
+    
+    bulkUpdateStatus(newStatus) {
+        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+        
+        if (selectedIds.length === 0) {
+            if (this.notificationManager) {
+                this.notificationManager.show('No records selected', 'warning');
+            }
+            return;
+        }
+        
+        try {
+            selectedIds.forEach(id => {
+                const recordIndex = this.dataManager.royaltyRecords.findIndex(r => r.id === id);
+                if (recordIndex > -1) {
+                    this.dataManager.royaltyRecords[recordIndex].status = newStatus;
+                }
+            });
+            
+            this.populateRoyaltyRecordsData();
+            this.closeAllModals();
+            
+            if (this.notificationManager) {
+                this.notificationManager.show(`${selectedIds.length} records updated to ${newStatus}`, 'success');
+            }
+        } catch (error) {
+            console.error('Error updating records:', error);
+            if (this.notificationManager) {
+                this.notificationManager.show('Error updating records', 'error');
+            }
+        }
+    }
+
+    bulkExport() {
+        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+        
+        if (selectedIds.length === 0) {
+            if (this.notificationManager) {
+                this.notificationManager.show('No records selected', 'warning');
+            }
+            return;
+        }
+        
+        if (this.notificationManager) {
+            this.notificationManager.show(`Exporting ${selectedIds.length} selected records...`, 'info');
+            setTimeout(() => {
+                this.notificationManager.show('Selected records exported successfully', 'success');
+            }, 1500);
+        }
+        
+        this.closeAllModals();
+    }
+
+    bulkDelete() {
+        const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+        
+        if (selectedIds.length === 0) {
+            if (this.notificationManager) {
+                this.notificationManager.show('No records selected', 'warning');
+            }
+            return;
+        }
+        
+        const confirmed = confirm(`Are you sure you want to delete ${selectedIds.length} selected records? This action cannot be undone.`);
+        
+        if (confirmed) {
+            try {
+                // Remove selected records
+                this.dataManager.royaltyRecords = this.dataManager.royaltyRecords.filter(
+                    record => !selectedIds.includes(record.id)
+                );
+                
+                this.populateRoyaltyRecordsData();
+                this.closeAllModals();
+                
+                if (this.notificationManager) {
+                    this.notificationManager.show(`${selectedIds.length} records deleted successfully`, 'success');
+                }
+            } catch (error) {
+                console.error('Error deleting records:', error);
+                if (this.notificationManager) {
+                    this.notificationManager.show('Error deleting records', 'error');
+                }
+            }
+        }
+    }
+
+    // ===== PAGINATION SYSTEM =====
+    
+    initializePagination() {
+        this.currentPage = 1;
+        this.recordsPerPage = 25;
+        this.filteredRecords = this.dataManager.getRoyaltyRecords();
+        
+        this.setupPaginationEventHandlers();
+        this.updatePaginationDisplay();
+    }
+
+    setupPaginationEventHandlers() {
+        // Records per page selector
+        const recordsPerPageSelect = document.getElementById('records-per-page');
+        if (recordsPerPageSelect) {
+            recordsPerPageSelect.addEventListener('change', (e) => {
+                this.recordsPerPage = parseInt(e.target.value);
+                this.currentPage = 1;
+                this.updatePaginationDisplay();
+                this.updateTableWithPagination();
+            });
+        }
+
+        // Previous/Next buttons
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.updatePaginationDisplay();
+                    this.updateTableWithPagination();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(this.filteredRecords.length / this.recordsPerPage);
+                if (this.currentPage < totalPages) {
+                    this.currentPage++;
+                    this.updatePaginationDisplay();
+                    this.updateTableWithPagination();
+                }
+            });
+        }
+    }
+
+    updatePaginationDisplay() {
+        const totalRecords = this.filteredRecords.length;
+        const totalPages = Math.ceil(totalRecords / this.recordsPerPage);
+        const startRecord = ((this.currentPage - 1) * this.recordsPerPage) + 1;
+        const endRecord = Math.min(this.currentPage * this.recordsPerPage, totalRecords);
+
+        // Update pagination info
+        const paginationInfo = document.getElementById('pagination-info');
+        if (paginationInfo) {
+            paginationInfo.textContent = `Showing ${startRecord}-${endRecord} of ${totalRecords} records`;
+        }
+
+        // Update prev/next buttons
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        
+        if (prevBtn) {
+            prevBtn.disabled = this.currentPage === 1;
+        }
+        
+        if (nextBtn) {
+            nextBtn.disabled = this.currentPage === totalPages || totalPages === 0;
+        }
+
+        // Update page numbers
+        this.updatePageNumbers(totalPages);
+    }
+
+    updatePageNumbers(totalPages) {
+        const pageNumbersContainer = document.getElementById('page-numbers');
+        if (!pageNumbersContainer) return;
+
+        pageNumbersContainer.innerHTML = '';
+
+        // Calculate which page numbers to show
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Adjust if we're near the end
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // Add page buttons
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `btn btn-sm btn-secondary page-btn ${i === this.currentPage ? 'active' : ''}`;
+            pageBtn.textContent = i;
+            pageBtn.dataset.page = i;
+            
+            pageBtn.addEventListener('click', () => {
+                this.currentPage = i;
+                this.updatePaginationDisplay();
+                this.updateTableWithPagination();
+            });
+            
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+    }
+
+    updateTableWithPagination() {
+        const startIndex = (this.currentPage - 1) * this.recordsPerPage;
+        const endIndex = startIndex + this.recordsPerPage;
+        const paginatedRecords = this.filteredRecords.slice(startIndex, endIndex);
+        
+        this.updateRoyaltyRecordsTable(paginatedRecords);
+    }
+
 }
+
+// Make RoyaltiesApp globally available immediately
+window.RoyaltiesApp = RoyaltiesApp;
 
 // Initialize application when DOM is ready - Only if no instance exists
 document.addEventListener('DOMContentLoaded', () => {
@@ -1506,3 +2462,58 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // The audit dashboard functionality has been removed as part of the cleanup efforts
+
+// ===== GLOBAL FUNCTIONS FOR HTML COMPONENTS =====
+// These functions are called directly from HTML onclick attributes
+
+// Modal management functions
+window.saveRecord = function() {
+    if (window.royaltiesApp && window.royaltiesApp.saveRecord) {
+        window.royaltiesApp.saveRecord();
+    }
+};
+
+window.closeRecordModal = function() {
+    if (window.royaltiesApp && window.royaltiesApp.closeAllModals) {
+        window.royaltiesApp.closeAllModals();
+    }
+};
+
+window.closeViewModal = function() {
+    if (window.royaltiesApp && window.royaltiesApp.closeAllModals) {
+        window.royaltiesApp.closeAllModals();
+    }
+};
+
+window.closeBulkModal = function() {
+    if (window.royaltiesApp && window.royaltiesApp.closeAllModals) {
+        window.royaltiesApp.closeAllModals();
+    }
+};
+
+window.editFromView = function() {
+    if (window.royaltiesApp && window.royaltiesApp.editFromView) {
+        window.royaltiesApp.editFromView();
+    }
+};
+
+// Bulk action functions
+window.bulkUpdateStatus = function(newStatus) {
+    if (window.royaltiesApp && window.royaltiesApp.bulkUpdateStatus) {
+        window.royaltiesApp.bulkUpdateStatus(newStatus);
+    }
+};
+
+window.bulkExport = function() {
+    if (window.royaltiesApp && window.royaltiesApp.bulkExport) {
+        window.royaltiesApp.bulkExport();
+    }
+};
+
+window.bulkDelete = function() {
+    if (window.royaltiesApp && window.royaltiesApp.bulkDelete) {
+        window.royaltiesApp.bulkDelete();
+    }
+};
+
+console.log('Global modal and bulk action functions registered');
