@@ -1,8 +1,9 @@
 /**
  * Unified Chart Solution for Mining Royalties Manager
- * @version 1.0.3
- * @date 2025-06-28
+ * @version 1.0.4
+ * @date 2025-01-09
  * @description Complete chart management system to replace all legacy chart implementations
+ * @fix Fixed premature dashboard chart initialization by replacing global calls with no-op stub
  */
 
 (function() {

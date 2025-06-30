@@ -25,10 +25,14 @@
         <div class="card profile-avatar-card">
             <div class="card-body text-center">
                 <div class="profile-avatar">
-                    <i class="fas fa-user-circle"></i>
+                    <div class="avatar-container">
+                        <img id="profile-avatar-img" class="profile-avatar-image" alt="Profile Picture" style="display: none;">
+                        <i id="profile-avatar-icon" class="fas fa-user-circle"></i>
+                    </div>
                     <button class="avatar-edit-btn" id="change-avatar-btn" title="Change Profile Picture">
                         <i class="fas fa-camera"></i>
                     </button>
+                    <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
                 </div>
                 <h4 class="profile-name" id="profile-display-name">System Administrator</h4>
                 <span class="profile-role-badge" id="profile-role-badge">Administrator</span>
@@ -343,26 +347,58 @@
     margin-bottom: 1rem;
 }
 
+.avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--primary-color, #007bff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.avatar-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--background-light, #f8f9fa);
+}
+
 .profile-avatar i {
     font-size: 4rem;
     color: var(--primary-color, #007bff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .avatar-edit-btn {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: 5px;
+    right: 5px;
     background: var(--primary-color, #007bff);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
 }
 
 .avatar-edit-btn:hover {
@@ -744,6 +780,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const changePasswordBtn = document.getElementById('change-password-btn');
     const exportProfileBtn = document.getElementById('export-profile-btn');
     const changeAvatarBtn = document.getElementById('change-avatar-btn');
+    const avatarFileInput = document.getElementById('avatar-file-input');
+    const profileAvatarImg = document.getElementById('profile-avatar-img');
+    const profileAvatarIcon = document.getElementById('profile-avatar-icon');
     const editPersonalInfoBtn = document.getElementById('edit-personal-info');
     const enable2faBtn = document.getElementById('enable-2fa');
     const changePasswordSecurityBtn = document.getElementById('change-password-security');
@@ -808,6 +847,120 @@ document.addEventListener('DOMContentLoaded', function() {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
+        }
+    }
+    
+    // Profile Picture Management Functions
+    function loadProfilePicture() {
+        try {
+            const savedAvatar = localStorage.getItem('userProfilePicture');
+            if (savedAvatar && profileAvatarImg) {
+                profileAvatarImg.src = savedAvatar;
+                profileAvatarImg.style.display = 'block';
+                profileAvatarIcon.style.display = 'none';
+                console.log('✅ Profile: Loaded saved profile picture');
+            } else {
+                // Show default icon
+                profileAvatarImg.style.display = 'none';
+                profileAvatarIcon.style.display = 'flex';
+            }
+        } catch (error) {
+            console.warn('⚠️ Profile: Error loading profile picture:', error);
+            profileAvatarImg.style.display = 'none';
+            profileAvatarIcon.style.display = 'flex';
+        }
+    }
+    
+    function saveProfilePicture(imageDataURL) {
+        try {
+            localStorage.setItem('userProfilePicture', imageDataURL);
+            console.log('✅ Profile: Profile picture saved successfully');
+            showNotification('Profile picture updated successfully!', 'success');
+        } catch (error) {
+            console.error('❌ Profile: Error saving profile picture:', error);
+            showNotification('Failed to save profile picture. Image may be too large.', 'error');
+        }
+    }
+    
+    function handleAvatarFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showNotification('Please select a valid image file', 'error');
+            return;
+        }
+        
+        // Validate file size (limit to 2MB)
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+            showNotification('Image file is too large. Please select an image smaller than 2MB.', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Create canvas to resize image if needed
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Resize to max 300x300 for performance
+                const maxDimension = 300;
+                let { width, height } = img;
+                
+                if (width > height) {
+                    if (width > maxDimension) {
+                        height = (height * maxDimension) / width;
+                        width = maxDimension;
+                    }
+                } else {
+                    if (height > maxDimension) {
+                        width = (width * maxDimension) / height;
+                        height = maxDimension;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress the image
+                ctx.drawImage(img, 0, 0, width, height);
+                const resizedImageDataURL = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Update the profile picture display
+                if (profileAvatarImg) {
+                    profileAvatarImg.src = resizedImageDataURL;
+                    profileAvatarImg.style.display = 'block';
+                    profileAvatarIcon.style.display = 'none';
+                }
+                
+                // Save to localStorage
+                saveProfilePicture(resizedImageDataURL);
+            };
+            
+            img.src = e.target.result;
+        };
+        
+        reader.onerror = function() {
+            showNotification('Error reading image file', 'error');
+        };
+        
+        reader.readAsDataURL(file);
+    }
+    
+    function removeProfilePicture() {
+        try {
+            localStorage.removeItem('userProfilePicture');
+            profileAvatarImg.style.display = 'none';
+            profileAvatarIcon.style.display = 'flex';
+            showNotification('Profile picture removed successfully', 'success');
+        } catch (error) {
+            console.error('❌ Profile: Error removing profile picture:', error);
+            showNotification('Failed to remove profile picture', 'error');
         }
     }
     
@@ -895,9 +1048,122 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (changeAvatarBtn) {
-        changeAvatarBtn.addEventListener('click', function() {
-            showNotification('Avatar upload dialog would open here', 'info');
+        changeAvatarBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Check if user already has a profile picture
+            const hasProfilePicture = profileAvatarImg.style.display === 'block';
+            
+            if (hasProfilePicture) {
+                // Show options menu
+                showAvatarOptionsMenu(event);
+            } else {
+                // Directly open file picker for new upload
+                avatarFileInput.click();
+            }
         });
+    }
+    
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', handleAvatarFileSelect);
+    }
+    
+    // Show avatar options menu
+    function showAvatarOptionsMenu(event) {
+        // Create a simple modal-style menu
+        const existingMenu = document.getElementById('avatar-options-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+        
+        const menu = document.createElement('div');
+        menu.id = 'avatar-options-menu';
+        menu.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 200px;
+            padding: 8px 0;
+        `;
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        `;
+        
+        const options = [
+            {
+                text: 'Upload New Picture',
+                icon: 'fas fa-upload',
+                action: () => {
+                    avatarFileInput.click();
+                    closeMenu();
+                }
+            },
+            {
+                text: 'Remove Picture',
+                icon: 'fas fa-trash',
+                style: 'color: #dc3545;',
+                action: () => {
+                    if (confirm('Are you sure you want to remove your profile picture?')) {
+                        removeProfilePicture();
+                    }
+                    closeMenu();
+                }
+            }
+        ];
+        
+        options.forEach(option => {
+            const item = document.createElement('div');
+            item.style.cssText = `
+                padding: 12px 16px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: background-color 0.2s;
+                ${option.style || ''}
+            `;
+            
+            item.innerHTML = `<i class="${option.icon}"></i> ${option.text}`;
+            
+            item.addEventListener('mouseenter', () => {
+                item.style.backgroundColor = '#f8f9fa';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.backgroundColor = 'transparent';
+            });
+            
+            item.addEventListener('click', option.action);
+            menu.appendChild(item);
+        });
+        
+        function closeMenu() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            if (menu.parentNode) menu.parentNode.removeChild(menu);
+        }
+        
+        overlay.addEventListener('click', closeMenu);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeMenu();
+        }, { once: true });
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(menu);
     }
     
     if (editPersonalInfoBtn) {
@@ -947,6 +1213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize profile
     updateProfileData();
     loadUserPreferences();
+    loadProfilePicture();
     
     console.log('✅ Profile: Profile page initialized successfully');
 });
