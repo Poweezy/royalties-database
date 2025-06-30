@@ -58,25 +58,8 @@
         };
       }
       
-      // Run initialization when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          if (window.initializeAllDashboardCharts) {
-            setTimeout(window.initializeAllDashboardCharts, 500);
-          }
-        });
-      } else {
-        if (window.initializeAllDashboardCharts) {
-          setTimeout(window.initializeAllDashboardCharts, 100);
-        }
-      }
-      
-      // Also run on window load
-      window.addEventListener('load', function() {
-        if (window.initializeAllDashboardCharts) {
-          setTimeout(window.initializeAllDashboardCharts, 1000);
-        }
-      });
+      // Note: Chart initialization will be handled by individual components
+      // when they are loaded, not globally here to prevent timing issues
       
       console.log('=== CHART MANAGER BASE SETUP: COMPLETE ===');
     })();

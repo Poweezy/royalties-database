@@ -157,11 +157,36 @@
 
 <!-- Analytics Charts -->
 <div class="charts-grid">
+    <!-- Primary Revenue Analytics Chart -->
+    <div class="card">
+        <div class="chart-header">
+            <h5><i class="fas fa-chart-area"></i> Revenue Analytics</h5>
+            <div class="chart-controls">
+                <button class="chart-btn active" data-period="6months">6M</button>
+                <button class="chart-btn" data-period="1year">1Y</button>
+                <button class="chart-btn" data-period="2years">2Y</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="revenue-analytics-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Production Analytics Chart -->
+    <div class="card">
+        <div class="chart-header">
+            <h5><i class="fas fa-chart-bar"></i> Production Analytics</h5>
+        </div>
+        <div class="chart-container">
+            <canvas id="production-analytics-chart"></canvas>
+        </div>
+    </div>
+
     <div class="card">
         <div class="chart-header">
             <h5><i class="fas fa-chart-area"></i> Revenue Trends</h5>
             <div class="chart-controls">
-                <button class="chart-btn active" data-period="6months">6M</button>
+                <button class="chart-btn" data-period="6months">6M</button>
                 <button class="chart-btn" data-period="1year">1Y</button>
                 <button class="chart-btn" data-period="2years">2Y</button>
             </div>
@@ -407,6 +432,75 @@ function initializeAnalyticsCharts() {
     if (typeof Chart === 'undefined') {
         console.warn('Chart.js not loaded for analytics');
         return;
+    }
+
+    // Primary Revenue Analytics Chart
+    const revenueAnalyticsCtx = document.getElementById('revenue-analytics-chart');
+    if (revenueAnalyticsCtx) {
+        new Chart(revenueAnalyticsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue (E)',
+                    data: [95000, 102000, 98000, 111000, 105000, 117000, 122000, 108000, 115000, 128000, 135000, 142000],
+                    borderColor: '#1a365d',
+                    backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'E' + (value/1000) + 'k';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Production Analytics Chart
+    const productionAnalyticsCtx = document.getElementById('production-analytics-chart');
+    if (productionAnalyticsCtx) {
+        new Chart(productionAnalyticsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Coal', 'Iron Ore', 'Quarried Stone', 'River Sand', 'Gravel'],
+                datasets: [{
+                    label: 'Production Volume (tons)',
+                    data: [185000, 125000, 95000, 65000, 45000],
+                    backgroundColor: ['#1a365d', '#2d5a88', '#4a90c2', '#7ba7cc', '#a8c5e2']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return (value/1000) + 'k tons';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // Revenue Trends Chart

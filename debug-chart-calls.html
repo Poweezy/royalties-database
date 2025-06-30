@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Chart Initialization Calls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-header {
+            background: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        .warning {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <div class="debug-header">
+            <h1>🔍 Debug Chart Initialization Calls</h1>
+            <p>Intercepting and logging all calls to initializeAllDashboardCharts</p>
+        </div>
+
+        <div id="logs" class="log-container">
+            <div class="info">Debug interceptor loaded. Monitoring for chart initialization calls...</div>
+        </div>
+    </div>
+
+    <script>
+        // Create our own logging function
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logEntry.className = type;
+            document.getElementById('logs').appendChild(logEntry);
+            document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+        }
+
+        // Intercept and log all function calls to initializeAllDashboardCharts
+        addLog('Setting up function call interceptor...', 'info');
+
+        // Override the original setTimeout to catch calls
+        const originalSetTimeout = window.setTimeout;
+        window.setTimeout = function(func, delay, ...args) {
+            if (typeof func === 'function') {
+                const funcString = func.toString();
+                if (funcString.includes('initializeAllDashboardCharts')) {
+                    addLog(`⚠ DETECTED: setTimeout call contains initializeAllDashboardCharts!`, 'warning');
+                    addLog(`Function: ${funcString.substring(0, 200)}...`, 'warning');
+                    
+                    // Get stack trace
+                    const stack = new Error().stack;
+                    addLog(`Call stack: ${stack}`, 'error');
+                }
+            }
+            return originalSetTimeout.call(this, func, delay, ...args);
+        };
+
+        // Monitor when the global function is defined
+        let chartInitFunction = null;
+        Object.defineProperty(window, 'initializeAllDashboardCharts', {
+            get: function() {
+                return chartInitFunction;
+            },
+            set: function(value) {
+                addLog('🎯 initializeAllDashboardCharts function was defined!', 'info');
+                const stack = new Error().stack;
+                addLog(`Definition stack: ${stack}`, 'info');
+                chartInitFunction = value;
+            },
+            configurable: true
+        });
+
+        // Override the function when it's called
+        const originalFunction = window.initializeAllDashboardCharts;
+        
+        // Monitor function calls
+        setInterval(() => {
+            if (window.initializeAllDashboardCharts && window.initializeAllDashboardCharts !== originalFunction) {
+                addLog('Function redefined, wrapping it...', 'info');
+                const func = window.initializeAllDashboardCharts;
+                window.initializeAllDashboardCharts = function() {
+                    addLog('🚨 initializeAllDashboardCharts called!', 'error');
+                    const stack = new Error().stack;
+                    addLog(`Call stack: ${stack}`, 'error');
+                    return func.apply(this, arguments);
+                };
+            }
+        }, 100);
+
+        addLog('Interceptor ready. Now loading the main application...', 'info');
+        
+        // Load the main scripts to monitor
+        const scripts = [
+            'js/enhanced-notification-system.js?v=1.0.2',
+            'js/unified-chart-solution.js?v=1.0.3',
+            'js/unified-component-loader.js?v=1.0.3'
+        ];
+
+        let loadedScripts = 0;
+        scripts.forEach(src => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                loadedScripts++;
+                addLog(`✓ Loaded: ${src}`, 'info');
+                if (loadedScripts === scripts.length) {
+                    addLog('All scripts loaded. Monitoring for automatic calls...', 'info');
+                }
+            };
+            script.onerror = () => {
+                addLog(`✗ Failed to load: ${src}`, 'error');
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
