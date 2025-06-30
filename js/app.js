@@ -906,6 +906,9 @@ class RoyaltiesApp {
             case 'royalty-records':
                 this.initializeRoyaltyRecords();
                 break;
+            case 'notifications':
+                this.initializeNotifications();
+                break;
         }
     }
 
@@ -922,6 +925,17 @@ class RoyaltiesApp {
     initializeRoyaltyRecords() {
         console.log('Royalty records initialized');
         // Royalty records-specific initialization
+    }
+
+    initializeNotifications() {
+        console.log('Notifications section initialized');
+        // Ensure notification system is available and update counts
+        if (window.NotificationSystem || window.notificationManager) {
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            // Force update of notification counts when viewing notifications
+            notificationSystem.updateNotificationCount();
+            console.log('Notification counts updated');
+        }
     }
 
     loadDashboard() {

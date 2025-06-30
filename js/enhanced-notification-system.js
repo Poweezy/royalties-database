@@ -1,7 +1,7 @@
 /**
  * Enhanced Notification System
- * Provides toast notifications and system alerts
- * @version 1.0.2
+ * Provides toast notifications and system alerts with persistent notification management
+ * @version 1.0.3
  */
 
 (function() {
@@ -12,6 +12,8 @@
         window.NotificationSystem = {
             container: null,
             notifications: [],
+            persistentNotifications: [],
+            unreadCount: 0,
             
             // Initialize the notification system
             init: function() {
@@ -30,7 +32,175 @@
                 `;
                 
                 document.body.appendChild(this.container);
-                console.log('NotificationSystem: Initialized');
+                
+                // Load persistent notifications from localStorage
+                this.loadPersistentNotifications();
+                
+                // Initialize notification count
+                this.updateNotificationCount();
+                
+                console.log('NotificationSystem: Initialized with persistent notification management');
+            },
+            
+            // Load persistent notifications from localStorage
+            loadPersistentNotifications: function() {
+                try {
+                    const stored = localStorage.getItem('persistentNotifications');
+                    if (stored) {
+                        this.persistentNotifications = JSON.parse(stored);
+                        this.calculateUnreadCount();
+                    } else {
+                        // Initialize with some default notifications
+                        this.initializeDefaultNotifications();
+                    }
+                } catch (error) {
+                    console.warn('NotificationSystem: Failed to load persistent notifications:', error);
+                    this.initializeDefaultNotifications();
+                }
+            },
+            
+            // Initialize with default notifications
+            initializeDefaultNotifications: function() {
+                this.persistentNotifications = [
+                    {
+                        id: 1,
+                        type: 'warning',
+                        title: 'Payment Overdue - Mbabane Quarry',
+                        message: 'Payment for ROY-2024-004 is 5 days overdue',
+                        timestamp: Date.now() - (2 * 60 * 60 * 1000), // 2 hours ago
+                        isRead: false,
+                        category: 'payment'
+                    },
+                    {
+                        id: 2,
+                        type: 'info',
+                        title: 'Contract Renewal Due',
+                        message: 'Contract LC-2024-002 expires in 30 days',
+                        timestamp: Date.now() - (24 * 60 * 60 * 1000), // 1 day ago
+                        isRead: false,
+                        category: 'contract'
+                    },
+                    {
+                        id: 3,
+                        type: 'success',
+                        title: 'Payment Received',
+                        message: 'Kwalini Quarry payment processed successfully',
+                        timestamp: Date.now() - (3 * 24 * 60 * 60 * 1000), // 3 days ago
+                        isRead: true,
+                        category: 'payment'
+                    }
+                ];
+                this.savePersistentNotifications();
+                this.calculateUnreadCount();
+            },
+            
+            // Save persistent notifications to localStorage
+            savePersistentNotifications: function() {
+                try {
+                    localStorage.setItem('persistentNotifications', JSON.stringify(this.persistentNotifications));
+                } catch (error) {
+                    console.warn('NotificationSystem: Failed to save persistent notifications:', error);
+                }
+            },
+            
+            // Calculate unread count
+            calculateUnreadCount: function() {
+                this.unreadCount = this.persistentNotifications.filter(n => !n.isRead).length;
+            },
+            
+            // Update notification count in sidebar
+            updateNotificationCount: function() {
+                const countElement = document.getElementById('notification-count');
+                if (countElement) {
+                    countElement.textContent = this.unreadCount;
+                    countElement.style.display = this.unreadCount > 0 ? 'inline' : 'none';
+                }
+                
+                // Update notification summary if visible
+                this.updateNotificationSummary();
+            },
+            
+            // Update notification summary in notifications page
+            updateNotificationSummary: function() {
+                const unreadCountEl = document.querySelector('.stat-number.text-warning');
+                const totalTodayEl = document.querySelector('.stat-number.text-success');
+                
+                if (unreadCountEl) {
+                    unreadCountEl.textContent = this.unreadCount;
+                }
+                
+                if (totalTodayEl) {
+                    const todayStart = new Date();
+                    todayStart.setHours(0, 0, 0, 0);
+                    const todayCount = this.persistentNotifications.filter(n => 
+                        n.timestamp >= todayStart.getTime()
+                    ).length;
+                    totalTodayEl.textContent = todayCount;
+                }
+            },
+            
+            // Add a persistent notification
+            addPersistentNotification: function(type, title, message, category = 'general') {
+                const notification = {
+                    id: Date.now(),
+                    type: type,
+                    title: title,
+                    message: message,
+                    timestamp: Date.now(),
+                    isRead: false,
+                    category: category
+                };
+                
+                this.persistentNotifications.unshift(notification);
+                this.savePersistentNotifications();
+                this.calculateUnreadCount();
+                this.updateNotificationCount();
+                
+                // Also show as toast
+                this.show(`${title}: ${message}`, type, 5000);
+                
+                return notification;
+            },
+            
+            // Mark notification as read
+            markAsRead: function(notificationId) {
+                const notification = this.persistentNotifications.find(n => n.id === notificationId);
+                if (notification && !notification.isRead) {
+                    notification.isRead = true;
+                    this.savePersistentNotifications();
+                    this.calculateUnreadCount();
+                    this.updateNotificationCount();
+                }
+            },
+            
+            // Mark all notifications as read
+            markAllAsRead: function() {
+                this.persistentNotifications.forEach(n => n.isRead = true);
+                this.savePersistentNotifications();
+                this.calculateUnreadCount();
+                this.updateNotificationCount();
+                this.show('All notifications marked as read', 'success', 3000);
+            },
+            
+            // Get persistent notifications
+            getPersistentNotifications: function() {
+                return [...this.persistentNotifications];
+            },
+            
+            // Get unread notifications
+            getUnreadNotifications: function() {
+                return this.persistentNotifications.filter(n => !n.isRead);
+            },
+            
+            // Remove persistent notification
+            removePersistentNotification: function(notificationId) {
+                const index = this.persistentNotifications.findIndex(n => n.id === notificationId);
+                if (index > -1) {
+                    this.persistentNotifications.splice(index, 1);
+                    this.savePersistentNotifications();
+                    this.calculateUnreadCount();
+                    this.updateNotificationCount();
+                }
             },
             
             // Show a notification

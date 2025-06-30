@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Test - Royalties Manager</title>
+    
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/badges.css">
+    <link rel="stylesheet" href="royalties.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .mini-sidebar {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .mini-sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        
+        #notification-count {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-bell"></i> Notification System Test</h1>
+        <p>Testing the enhanced notification system functionality.</p>
+        
+        <!-- Notification Count Display -->
+        <div class="test-section">
+            <h2>Sidebar Notification Count</h2>
+            <div class="mini-sidebar">
+                <a href="#notifications" class="nav-link">
+                    <i class="fas fa-bell"></i> 
+                    Notifications 
+                    <span id="notification-count">0</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <div class="test-buttons">
+                <button class="btn btn-success" id="add-success-btn">
+                    <i class="fas fa-check"></i> Add Success Notification
+                </button>
+                <button class="btn btn-warning" id="add-warning-btn">
+                    <i class="fas fa-exclamation-triangle"></i> Add Warning Notification
+                </button>
+                <button class="btn btn-danger" id="add-error-btn">
+                    <i class="fas fa-times-circle"></i> Add Error Notification
+                </button>
+                <button class="btn btn-info" id="add-info-btn">
+                    <i class="fas fa-info-circle"></i> Add Info Notification
+                </button>
+                <button class="btn btn-secondary" id="mark-all-read-btn">
+                    <i class="fas fa-check-double"></i> Mark All Read
+                </button>
+                <button class="btn btn-dark" id="clear-all-btn">
+                    <i class="fas fa-trash"></i> Clear All Notifications
+                </button>
+            </div>
+        </div>
+        
+        <!-- Notification Statistics -->
+        <div class="test-section">
+            <h2>Notification Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3 id="total-count" class="stat-number text-primary">0</h3>
+                    <small class="stat-label">Total Notifications</small>
+                </div>
+                <div class="stat-item">
+                    <h3 id="unread-count" class="stat-number text-warning">0</h3>
+                    <small class="stat-label">Unread</small>
+                </div>
+                <div class="stat-item">
+                    <h3 id="today-count" class="stat-number text-success">0</h3>
+                    <small class="stat-label">Today</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notification List -->
+        <div class="test-section">
+            <h2>Current Notifications</h2>
+            <div id="notification-display" class="notification-list">
+                <p class="text-muted">Loading notifications...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load Enhanced Notification System -->
+    <script src="js/enhanced-notification-system.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let testCounter = 1;
+            
+            // Wait for notification system to be ready
+            function waitForNotificationSystem() {
+                if (window.notificationManager || window.NotificationSystem) {
+                    initializeTest();
+                } else {
+                    setTimeout(waitForNotificationSystem, 100);
+                }
+            }
+            
+            function initializeTest() {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                console.log('Notification system ready:', notificationSystem);
+                
+                // Set up test buttons
+                document.getElementById('add-success-btn').addEventListener('click', () => {
+                    notificationSystem.addPersistentNotification(
+                        'success',
+                        `Test Success ${testCounter}`,
+                        `This is a test success notification #${testCounter}`,
+                        'test'
+                    );
+                    testCounter++;
+                    updateDisplay();
+                });
+                
+                document.getElementById('add-warning-btn').addEventListener('click', () => {
+                    notificationSystem.addPersistentNotification(
+                        'warning',
+                        `Test Warning ${testCounter}`,
+                        `This is a test warning notification #${testCounter}`,
+                        'test'
+                    );
+                    testCounter++;
+                    updateDisplay();
+                });
+                
+                document.getElementById('add-error-btn').addEventListener('click', () => {
+                    notificationSystem.addPersistentNotification(
+                        'error',
+                        `Test Error ${testCounter}`,
+                        `This is a test error notification #${testCounter}`,
+                        'test'
+                    );
+                    testCounter++;
+                    updateDisplay();
+                });
+                
+                document.getElementById('add-info-btn').addEventListener('click', () => {
+                    notificationSystem.addPersistentNotification(
+                        'info',
+                        `Test Info ${testCounter}`,
+                        `This is a test info notification #${testCounter}`,
+                        'test'
+                    );
+                    testCounter++;
+                    updateDisplay();
+                });
+                
+                document.getElementById('mark-all-read-btn').addEventListener('click', () => {
+                    notificationSystem.markAllAsRead();
+                    updateDisplay();
+                });
+                
+                document.getElementById('clear-all-btn').addEventListener('click', () => {
+                    notificationSystem.persistentNotifications = [];
+                    notificationSystem.savePersistentNotifications();
+                    notificationSystem.calculateUnreadCount();
+                    notificationSystem.updateNotificationCount();
+                    updateDisplay();
+                });
+                
+                // Initial display update
+                updateDisplay();
+            }
+            
+            function updateDisplay() {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                if (!notificationSystem) return;
+                
+                const notifications = notificationSystem.getPersistentNotifications();
+                const unreadCount = notificationSystem.unreadCount;
+                
+                // Update counts
+                document.getElementById('total-count').textContent = notifications.length;
+                document.getElementById('unread-count').textContent = unreadCount;
+                
+                // Calculate today count
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                const todayCount = notifications.filter(n => n.timestamp >= todayStart.getTime()).length;
+                document.getElementById('today-count').textContent = todayCount;
+                
+                // Update notification display
+                const displayEl = document.getElementById('notification-display');
+                if (notifications.length === 0) {
+                    displayEl.innerHTML = '<p class="text-muted">No notifications</p>';
+                } else {
+                    displayEl.innerHTML = notifications.map(n => `
+                        <div class="notification-item ${!n.isRead ? 'unread' : ''}" style="border: 1px solid #ddd; margin: 5px 0; padding: 10px; border-radius: 4px;">
+                            <strong>${n.title}</strong> (${n.type})
+                            <br><small>${n.message}</small>
+                            <br><span class="badge ${n.isRead ? 'badge-secondary' : 'badge-warning'}">${n.isRead ? 'Read' : 'Unread'}</span>
+                            <span class="badge badge-info">${getTimeAgo(n.timestamp)}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            function getTimeAgo(timestamp) {
+                const now = Date.now();
+                const diff = now - timestamp;
+                const minutes = Math.floor(diff / (1000 * 60));
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                
+                if (minutes < 60) {
+                    return minutes <= 1 ? 'Just now' : `${minutes}m ago`;
+                } else if (hours < 24) {
+                    return `${hours}h ago`;
+                } else {
+                    return `${days}d ago`;
+                }
+            }
+            
+            // Start the test
+            waitForNotificationSystem();
+        });
+    </script>
+</body>
+</html>
