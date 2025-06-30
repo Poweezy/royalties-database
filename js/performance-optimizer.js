@@ -46,6 +46,15 @@ class PerformanceOptimizer {
     }
 
     setupLazyLoading() {
+        if (!('IntersectionObserver' in window)) {
+            console.warn('IntersectionObserver not supported, loading all elements immediately');
+            // Fallback for older browsers
+            document.querySelectorAll('[data-lazy]').forEach(el => {
+                this.loadLazyElement(el);
+            });
+            return;
+        }
+
         const lazyObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -59,12 +68,15 @@ class PerformanceOptimizer {
         });
 
         // Observe all lazy elements
-        document.querySelectorAll('[data-lazy]').forEach(el => {
+        const lazyElements = document.querySelectorAll('[data-lazy]');
+        lazyElements.forEach(el => {
             lazyObserver.observe(el);
         });
 
         // Set up lazy loading for charts
         this.setupLazyChartLoading();
+        
+        console.log(`⚡ Performance: Set up lazy loading for ${lazyElements.length} elements`);
     }
 
     setupLazyChartLoading() {
@@ -605,30 +617,56 @@ class PerformanceOptimizer {
     }
 
     cleanup() {
-        // Clear all caches
-        this.clearCache();
-        
-        // Clear timers
-        this.debounceTimers.forEach(timer => clearTimeout(timer));
-        this.debounceTimers.clear();
-        
-        // Reset metrics
-        this.performanceMetrics.clear();
-        
-        console.log('🧹 Performance optimizer cleaned up');
+        try {
+            // Clear all caches
+            this.clearCache();
+            
+            // Clear timers
+            this.debounceTimers.forEach(timer => clearTimeout(timer));
+            this.debounceTimers.clear();
+            
+            // Disconnect observers
+            if (this.intersectionObserver) {
+                this.intersectionObserver.disconnect();
+                this.intersectionObserver = null;
+            }
+            
+            if (this.performanceObserver) {
+                this.performanceObserver.disconnect();
+                this.performanceObserver = null;
+            }
+            
+            // Clear observed elements
+            this.observedElements.clear();
+            
+            // Reset metrics
+            this.performanceMetrics.clear();
+            
+            // Clear lazy load queue
+            this.lazyLoadQueue.length = 0;
+            
+            console.log('🧹 Performance optimizer cleaned up successfully');
+        } catch (error) {
+            console.error('Error during performance optimizer cleanup:', error);
+        }
     }
 }
 
-// Initialize performance optimizer
+// Initialize performance optimizer and make class available globally
+window.PerformanceOptimizer = PerformanceOptimizer;
 window.performanceOptimizer = new PerformanceOptimizer();
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.performanceOptimizer.initialize();
+        window.performanceOptimizer.initialize().catch(error => {
+            console.error('Failed to initialize Performance Optimizer:', error);
+        });
     });
 } else {
-    window.performanceOptimizer.initialize();
+    window.performanceOptimizer.initialize().catch(error => {
+        console.error('Failed to initialize Performance Optimizer:', error);
+    });
 }
 
 // Export for module usage

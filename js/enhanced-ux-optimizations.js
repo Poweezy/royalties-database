@@ -727,16 +727,22 @@ class UserPreferencesManager {
     }
 }
 
-// Initialize the enhanced UX manager
+// Initialize the enhanced UX manager and make class available globally
+window.EnhancedUXManager = EnhancedUXManager;
 window.enhancedUXManager = new EnhancedUXManager();
+window.enhancedUX = window.enhancedUXManager; // Alias for consistency
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.enhancedUXManager.initialize();
+        window.enhancedUXManager.initialize().catch(error => {
+            console.error('Failed to initialize Enhanced UX Manager:', error);
+        });
     });
 } else {
-    window.enhancedUXManager.initialize();
+    window.enhancedUXManager.initialize().catch(error => {
+        console.error('Failed to initialize Enhanced UX Manager:', error);
+    });
 }
 
 // Export for module usage

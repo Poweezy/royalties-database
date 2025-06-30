@@ -97,17 +97,24 @@ class AccessibilityEnhancer {
     }
 
     setupKeyboardNavigation() {
-        // Enhanced keyboard navigation
-        document.addEventListener('keydown', this.handleKeyboardNavigation.bind(this));
-        
-        // Set up roving tabindex for complex widgets
-        this.setupRovingTabindex();
-        
-        // Add visible focus indicators
-        this.enhanceFocusIndicators();
-        
-        // Skip links for screen readers
-        this.addSkipLinks();
+        try {
+            // Enhanced keyboard navigation
+            this.handleKeyboardNavigation = this.handleKeyboardNavigation.bind(this);
+            document.addEventListener('keydown', this.handleKeyboardNavigation);
+            
+            // Set up roving tabindex for complex widgets
+            this.setupRovingTabindex();
+            
+            // Add visible focus indicators
+            this.enhanceFocusIndicators();
+            
+            // Skip links for screen readers
+            this.addSkipLinks();
+            
+            console.log('♿ Keyboard navigation enhanced');
+        } catch (error) {
+            console.error('Failed to setup keyboard navigation:', error);
+        }
     }
 
     handleKeyboardNavigation(e) {
@@ -848,24 +855,36 @@ class AccessibilityEnhancer {
     }
 
     cleanup() {
-        // Remove added elements
-        const toolbar = document.querySelector('.accessibility-toolbar');
-        if (toolbar) {
-            toolbar.remove();
+        try {
+            // Remove added elements
+            const toolbar = document.querySelector('.accessibility-toolbar');
+            if (toolbar) {
+                toolbar.remove();
+            }
+            
+            const skipLinks = document.querySelector('.skip-links');
+            if (skipLinks) {
+                skipLinks.remove();
+            }
+            
+            // Clear event listeners
+            if (this.handleKeyboardNavigation) {
+                document.removeEventListener('keydown', this.handleKeyboardNavigation);
+            }
+            
+            // Clear focus traps
+            this.keyboardTrapStack.forEach(() => this.releaseFocusTrap());
+            this.keyboardTrapStack = [];
+            
+            // Clear caches
+            this.colorContrastCache.clear();
+            this.focusHistory.length = 0;
+            this.screenReaderAnnouncements.length = 0;
+            
+            console.log('♿ Accessibility enhancer cleaned up successfully');
+        } catch (error) {
+            console.error('Error during accessibility enhancer cleanup:', error);
         }
-        
-        const skipLinks = document.querySelector('.skip-links');
-        if (skipLinks) {
-            skipLinks.remove();
-        }
-        
-        // Clear event listeners
-        document.removeEventListener('keydown', this.handleKeyboardNavigation);
-        
-        // Clear focus traps
-        this.keyboardTrapStack.forEach(() => this.releaseFocusTrap());
-        
-        console.log('♿ Accessibility enhancer cleaned up');
     }
 
     // Helper methods
@@ -914,16 +933,21 @@ class AccessibilityEnhancer {
     }
 }
 
-// Initialize accessibility enhancer
+// Initialize accessibility enhancer and make class available globally
+window.AccessibilityEnhancer = AccessibilityEnhancer;
 window.accessibilityEnhancer = new AccessibilityEnhancer();
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.accessibilityEnhancer.initialize();
+        window.accessibilityEnhancer.initialize().catch(error => {
+            console.error('Failed to initialize Accessibility Enhancer:', error);
+        });
     });
 } else {
-    window.accessibilityEnhancer.initialize();
+    window.accessibilityEnhancer.initialize().catch(error => {
+        console.error('Failed to initialize Accessibility Enhancer:', error);
+    });
 }
 
 // Export for module usage

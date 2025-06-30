@@ -15,579 +15,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-  <!-- ==== ENHANCED UX AND PERFORMANCE OPTIMIZATIONS ==== -->
-  <!-- Performance optimizer - Load early for maximum benefit -->
-  <script src="js/performance-optimizer.js?v=1.0.0"></script>
-  
-  <!-- Enhanced UX optimizations -->
-  <script src="js/enhanced-ux-optimizations.js?v=1.0.0"></script>
-  
-  <!-- Enhanced mobile navigation -->
-  <script src="js/enhanced-mobile-navigation.js?v=1.0.0"></script>
-  
-  <!-- Advanced accessibility features -->
-  <script src="js/accessibility-enhancer.js?v=1.0.0"></script>
-  
-  <!-- ==== UNIFIED SYSTEM STACK - PROPERLY ORDERED ==== -->
-  
-  <!-- 1. First load the core notification system -->
-  <script src="js/enhanced-notification-system.js?v=1.0.2"></script>
-  
-  <!-- 2. Then the core chart system -->
-  <script src="js/unified-chart-solution.js?v=1.0.3"></script>
-  
-  <!-- 3. Component loader for dynamic content -->
-  <script src="js/unified-component-loader.js?v=1.0.3"></script>
-  
-  <!-- Base chart manager instantiation - keep for compatibility -->
-  <script>
-    (function() {
-      console.log('=== CHART MANAGER BASE SETUP ===');
-      
-      // Ensure chart manager exists with required methods
-      if (!window.chartManager) {
-        window.chartManager = {
-          charts: new Map(),
-          isChartJsLoaded: typeof Chart !== 'undefined'
-        };
-      }
-      
-      // Run initialization when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          if (window.initializeAllDashboardCharts) {
-            setTimeout(window.initializeAllDashboardCharts, 500);
-          }
-        });
-      } else {
-        if (window.initializeAllDashboardCharts) {
-          setTimeout(window.initializeAllDashboardCharts, 100);
-        }
-      }
-      
-      // Also run on window load
-      window.addEventListener('load', function() {
-        if (window.initializeAllDashboardCharts) {
-          setTimeout(window.initializeAllDashboardCharts, 1000);
-        }
-      });
-      
-      console.log('=== CHART MANAGER BASE SETUP: COMPLETE ===');
-    })();
-  </script>
-  
-  <!-- Unified Component Loader - Single solution for all component loading -->
-  <script src="js/unified-component-loader.js?v=1.0.1"></script>
-  
-  <!-- CSS Files -->
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/forms.css">
-  <link rel="stylesheet" href="css/tables.css">
-  <link rel="stylesheet" href="css/buttons.css">
-  <link rel="stylesheet" href="css/badges.css">
-  <link rel="stylesheet" href="css/utilities.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="royalties.css">
-  <link rel="stylesheet" href="css/compliance-enhanced.css?v=1.0.1">
-  
-  <!-- Critical CSS for immediate loading -->
-  <style>
-    /* Critical CSS - Loading and basic layout */
-    :root {
-      --primary-color: #1a365d;
-      --gradient-primary: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
-      --text-inverse: #ffffff;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--gradient-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .loading-content {
-      text-align: center;
-      color: var(--text-inverse);
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1.5rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Hide containers by default */
-    #login-section {
-      display: none;
-    }
-
-    #app-container {
-      display: none;
-    }
-
-    /* Fix for notification styling */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 10000;
-      min-width: 300px;
-      max-width: 500px;
-      animation: slideInFromRight 0.3s ease-out;
-    }
-
-    .notification-success {
-      border-left: 4px solid #38a169;
-      background: linear-gradient(135deg, rgba(56, 161, 105, 0.05) 0%, white 100%);
-    }
-
-    .notification-error {
-      border-left: 4px solid #e53e3e;
-      background: linear-gradient(135deg, rgba(229, 62, 62, 0.05) 0%, white 100%);
-    }
-
-    .notification-info {
-      border-left: 4px solid #3182ce;
-      background: linear-gradient(135deg, rgba(49, 130, 206, 0.05) 0%, white 100%);
-    }
-
-    .notification-warning {
-      border-left: 4px solid #d69e2e;
-      background: linear-gradient(135deg, rgba(214, 158, 46, 0.05) 0%, white 100%);
-    }
-
-    .notification-content {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .notification-close {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.75rem;
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-      cursor: pointer;
-      color: #666;
-      padding: 0.25rem;
-    }
-
-    .notification-close:hover {
-      color: #333;
-    }
-
-    @keyframes slideInFromRight {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-  </style>
-</head>
-<body>  <!-- Loading Screen -->
-  <div class="loading-screen" id="loading-screen">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <p>Loading Mining Royalties Manager...</p>
-      <div id="loading-protocol-message" style="display: none; margin-top: 15px; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.2); font-size: 14px; max-width: 400px;">
-        <strong>Loading in file:// protocol mode</strong><br>
-        Limited functionality available.<br>
-        For best results, use a web server instead.
-      </div>
-      <script>
-        // Add file:// protocol message if needed
-        if (window.location.protocol === 'file:') {
-          document.getElementById('loading-protocol-message').style.display = 'block';
-        }
-      </script>
-    </div>
-  </div>
-
-  <!-- Login Section -->
-  <section class="login-section" id="login-section">
-    <div class="login-container">
-      <div class="login-header">
-        <div class="login-logo">MR</div>
-        <h2>Mining Royalties Manager</h2>
-        <p>Secure access to your royalty management system</p>
-      </div>
-      <form class="login-form" id="login-form">
-        <div class="input-group">
-          <i class="fas fa-user"></i>
-          <input type="text" id="username" name="username" placeholder="Username" required>
-        </div>
-        <div class="input-group">
-          <i class="fas fa-lock"></i>
-          <input type="password" id="password" name="password" placeholder="Password" required>
-          <button type="button" class="password-toggle">
-            <i class="fas fa-eye"></i>
-          </button>
-        </div>
-        <button type="submit" class="btn btn-primary btn-large">Sign In</button>
-      </form>
-      <div class="login-footer">
-        <p>Demo credentials: <strong>admin/admin123</strong> | <strong>editor/editor123</strong> | <strong>viewer/viewer123</strong></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main App Container -->
-  <div class="app-container" id="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <!-- Sidebar content will be loaded dynamically -->
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Dashboard Section -->
-      <section id="dashboard">
-        <!-- Dashboard content will be loaded dynamically -->
-      </section>
-
-      <!-- User Management Section -->
-      <section id="user-management" style="display: none;">
-        <!-- User management content will be loaded dynamically -->
-      </section>
-
-      <!-- Royalty Records Section -->
-      <section id="royalty-records" style="display: none;">
-        <!-- Royalty records content will be loaded dynamically -->
-      </section>
-
-      <!-- Contract Management Section -->
-      <section id="contract-management" style="display: none;">
-        <!-- Contract management content will be loaded dynamically -->
-      </section>
-
-      <!-- Reporting & Analytics Section -->
-      <section id="reporting-analytics" style="display: none;">
-        <!-- Reporting analytics content will be loaded dynamically from components/reporting-analytics.html -->
-      </section>
-
-      <!-- Communication Section -->
-      <section id="communication" style="display: none;">
-        <!-- Communication content will be loaded dynamically -->
-      </section>
-
-      <!-- Notifications Section -->
-      <section id="notifications" style="display: none;">
-        <!-- Notifications content will be loaded dynamically -->
-      </section>
-
-      <!-- Compliance Section -->
-      <section id="compliance" style="display: none;">
-        <!-- Compliance content will be loaded dynamically -->
-      </section>
-
-      <!-- Regulatory Management Section -->
-      <section id="regulatory-management" style="display: none;">
-        <!-- Regulatory management content will be loaded dynamically -->
-      </section>
-
-      <!-- Profile Section -->
-      <section id="profile" style="display: none;">
-        <!-- Profile content will be loaded dynamically -->
-      </section>
-    </main>  </div>  <!-- Scripts -->
-  <!-- Load core modules and scripts in correct order -->
-  <script src="js/utils.js?v=20250627" type="text/javascript"></script>
-  <!-- Note: unified-component-loader.js is loaded in the head section and replaces module-loader.js -->
-  <script src="app.js?v=20250628f" type="text/javascript"></script>
-  <!-- Removed deleted scripts: component-initializer.js, sidebar-manager.js, startup.js, dashboard.js -->
-  
-  <!-- Application Initialization Script -->
-  <script>
-    // Initialize the application once all scripts are loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM Content Loaded - Initializing Application');
-      
-      // Initialize the main application
-      if (typeof RoyaltiesApp !== 'undefined') {
-        try {
-          console.log('Creating and initializing RoyaltiesApp...');
-          window.royaltiesApp = new RoyaltiesApp();
-          window.royaltiesApp.initialize();
-          console.log('Application initialized successfully');
-        } catch (error) {
-          console.error('Failed to initialize application:', error);
-        }
-      } else {
-        console.error('RoyaltiesApp class not found!');
-      }
-    });
-  </script>
-  <!-- Service worker ensures all dependencies are cached for offline use -->
-  <!-- Service Worker Registration -->
-  <script>
-      // Display protocol information for debugging
-      console.log("Current protocol: " + window.location.protocol);
-      console.log("Current origin: " + window.location.origin);
-
-      // Enhanced error handling for service worker message channel errors
-      window.addEventListener('unhandledrejection', function(event) {
-        // Check for service worker message channel errors (multiple patterns)
-        if (event.reason && 
-            event.reason.message && 
-            (event.reason.message.includes('message channel closed') || 
-             event.reason.message.includes('ServiceWorker') || 
-             event.reason.message.includes('service worker'))) {
-          console.debug('Service Worker message suppressed:', event.reason.message);
-          event.preventDefault(); // Prevents the default error handling
-          event.stopPropagation(); // Stops propagation to other handlers
-          return false; // Explicitly return false
-        }
-      });
-
-      // Additional error listener for console cleanup
-      window.addEventListener('error', function(event) {
-        if (event.filename && event.filename.includes('sw.js')) {
-          console.debug('Service Worker error suppressed:', event.message);
-          event.preventDefault();
-          event.stopPropagation();
-          return false;
-        }
-      });
-
-      if ('serviceWorker' in navigator) {
-          if (window.location.protocol !== 'file:') {
-              // Only register the service worker if we're not on file:// protocol
-              navigator.serviceWorker.register('sw.js?v=3.5')
-                  .then(registration => {
-                      console.log('SW registered successfully: ', registration);
-                      
-                      // Handle updates
-                      if (registration.waiting) {
-                          console.log('SW: New version waiting, activating...');
-                          registration.waiting.postMessage({type: 'SKIP_WAITING'});
-                      }
-                      
-                      // Listen for new SW installing
-                      
-                      // Suppress any message channel errors
-                      const originalPostMessage = navigator.serviceWorker.controller?.postMessage;
-                      if (originalPostMessage) {
-                          navigator.serviceWorker.controller.postMessage = function() {
-                              try {
-                                  return originalPostMessage.apply(this, arguments);
-                              } catch (err) {
-                                  console.debug('Suppressed SW postMessage error');
-                                  return Promise.resolve(); // Return resolved promise
-                              }
-                          };
-                      }
-                      registration.addEventListener('updatefound', () => {
-                          const newWorker = registration.installing;
-                          console.log('SW: New version installing');
-                          
-                          // Add reliable waiting detection
-                          newWorker.addEventListener('statechange', () => {
-                              if (newWorker.state === 'installed') {
-                                  console.log('SW: New version installed and waiting');
-                              }
-                          });
-                      });
-                  })                  .catch(registrationError => {
-                      console.error('SW registration failed: ', registrationError);
-                      
-                      // More detailed error information
-                      console.log('Registration error details:');
-                      console.log('- Error name: ' + registrationError.name);
-                      console.log('- Error message: ' + registrationError.message);
-                  });
-              
-              // Listen for controlled page change indicating a new service worker is active
-              navigator.serviceWorker.addEventListener('controllerchange', () => {
-                  console.log('SW: New service worker controlling page');
-              });
-          } else {
-              console.warn('Service Worker cannot be registered when loading from file:// protocol. Please use a web server instead.');
-              console.log('Try using:');
-              console.log('1. VS Code Live Server extension');
-              console.log('2. Python: python -m http.server');
-              console.log('3. Node: npx http-server');
-          }
-      } else {          console.warn('Service Worker is not supported in this browser');
-      }
-  </script>
-  
-  <!-- File Protocol Detection and Warning Banner -->
-  <script>
-      // Check if running from file:// protocol and show appropriate warning
-      document.addEventListener('DOMContentLoaded', function() {
-          if (window.location.protocol === 'file:') {
-              // Create the banner if it doesn't exist
-              let banner = document.getElementById('file-protocol-banner');
-              if (!banner) {
-                  banner = document.createElement('div');
-                  banner.id = 'file-protocol-banner';
-                  banner.style.cssText = 'background: #f8d7da; color: #721c24; padding: 10px 15px; font-size: 14px; text-align: center; border-bottom: 1px solid #f5c6cb; position: fixed; top: 0; left: 0; right: 0; z-index: 10000;';
-                  
-                  banner.innerHTML = `
-                      <strong>Limited Functionality Mode:</strong> You are running the application from a local file. 
-                      Some features will be restricted. For full functionality, please serve the application through a web server.
-                      <button onclick="this.parentElement.style.display='none';" 
-                              style="background: none; border: none; cursor: pointer; font-size: 16px; float: right; margin-top: -2px;">
-                          &times;
-                      </button>
-                  `;
-                  
-                  document.body.insertBefore(banner, document.body.firstChild);
-              } else {
-                  banner.style.display = 'block';
-              }
-              
-              // Log additional guidance for users
-              console.info('%c Running in FILE:// PROTOCOL MODE - Limited Functionality ', 'background: #721c24; color: white; padding: 5px;');
-              console.info('Some features will not work due to browser security restrictions when loading from file://');
-              console.info('For full functionality, please use a web server such as:');
-              console.info('1. VS Code Live Server extension');
-              console.info('2. Python: python -m http.server');
-              console.info('3. Node: npx http-server');
-          }
-      });
-  </script>
-
-  <!-- Force chart method registration -->
-  <script>
-    // This script forces the proper registration of chart methods
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('Forcing chart methods registration...');
-      
-      setTimeout(function registerChartMethods() {
-        // Check if chartManager exists
-        if (!window.chartManager) {
-          console.error('Chart manager not found! Creating minimal instance...');
-          window.chartManager = {
-            charts: new Map(),
-            isChartJsLoaded: typeof Chart !== 'undefined'
-          };
-        }
-        
-        // Log available methods
-        console.log('Chart manager methods before patch:');
-        const methods = Object.getOwnPropertyNames(window.chartManager.__proto__);
-        console.log(methods);
-        
-        // Force create the missing method if needed
-        if (!methods.includes('createProductionChart')) {
-          console.log('Explicitly adding createProductionChart method...');
-          
-          window.chartManager.__proto__.createProductionChart = function(canvasId, data) {
-            console.log(`PATCHED: Creating production chart on canvas '${canvasId}'`);
-            
-            // Try to use the entity chart method if available
-            if (typeof this.createEntityChart === 'function') {
-              return this.createEntityChart(canvasId, data);
-            }
-            
-            // Otherwise create a basic chart
-            let canvas = document.getElementById(canvasId);
-            if (!canvas) {
-              console.error(`Canvas with id '${canvasId}' not found for production chart`);
-              return null;
-            }
-            
-            const chartData = {
-              labels: ['Entity A', 'Entity B', 'Entity C', 'Entity D', 'Entity E'],
-              datasets: [{
-                data: [300, 150, 100, 75, 50],
-                backgroundColor: ['#1a365d', '#2d5282', '#3b6eb6', '#598ade', '#84abeb']
-              }]
-            };
-            
-            return this.create(canvasId, {
-              type: 'doughnut',
-              data: chartData
-            });
-          };
-          
-          console.log('Chart manager methods after patch:');
-          console.log(Object.getOwnPropertyNames(window.chartManager.__proto__));
-        }
-      }, 1000);
-    });
-  </script>
-
-  <!-- Dashboard Initialization Script -->
-  <script>
-    // This script ensures that the dashboard content loads properly
-    document.addEventListener('DOMContentLoaded', function() {
-      // Wait for app initialization
-      setTimeout(function checkDashboard() {
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard && dashboard.innerHTML.trim() === '') {
-          console.log('Dashboard content empty, attempting to initialize...');
-          // Try to trigger component loading if available
-          if (window.unifiedComponentLoader) {
-            console.log('Loading dashboard component via unifiedComponentLoader');
-            window.unifiedComponentLoader.loadComponent('dashboard', dashboard)
-              .then(result => {
-                console.log('Dashboard component load result:', result.success ? 'success' : 'failed');
-              })
-              .catch(err => {
-                console.warn('Error loading dashboard component:', err);
-              });
-          } else if (window.moduleLoader && window.moduleLoader.loadComponent) {
-            console.log('Loading dashboard component via moduleLoader (fallback)');
-            window.moduleLoader.loadComponent('dashboard', dashboard)
-              .then(result => {
-                console.log('Dashboard component load result:', result.success ? 'success' : 'failed');
-              })
-              .catch(err => {
-                console.warn('Error loading dashboard component:', err);
-              });
-          } else if (window.app && window.app.loadSectionContent) {
-            console.log('Loading dashboard content via app.loadSectionContent');
-            window.app.loadSectionContent('dashboard');
-          } else if (window.royaltiesApp && window.royaltiesApp.loadSectionContent) {
-            console.log('Loading dashboard content via royaltiesApp.loadSectionContent');
-            window.royaltiesApp.loadSectionContent('dashboard');
-          }
-        }
-      }, 3000); // Check after 3 seconds to ensure everything has had time to load
-    });
-  </script>
-  
-  <!-- ==== CORE MANAGEMENT MODULES ==== -->
-  <!-- Core system management modules -->
+  <!-- ==== CORE MANAGEMENT MODULES - LOAD FIRST ==== -->
+  <!-- Core management modules must load before everything else -->
   <script src="js/modules/NavigationManager.js?v=1.0.0"></script>
   <script src="js/modules/UserManager.js?v=1.0.0"></script>
   <script src="js/modules/IconManager.js?v=1.0.0"></script>
   
   <!-- ==== ENHANCED UX AND PERFORMANCE OPTIMIZATIONS ==== -->
-  
   <!-- Performance optimizer - Load early for maximum benefit -->
   <script src="js/performance-optimizer.js?v=1.0.0"></script>
   
@@ -647,9 +81,6 @@
       console.log('=== CHART MANAGER BASE SETUP: COMPLETE ===');
     })();
   </script>
-  
-  <!-- Unified Component Loader - Single solution for all component loading -->
-  <script src="js/unified-component-loader.js?v=1.0.1"></script>
   
   <!-- CSS Files -->
   <link rel="stylesheet" href="css/base.css">
@@ -785,9 +216,48 @@
         opacity: 1;
       }
     }
+
+    /* Skip Links for Accessibility */
+    .skip-links {
+      position: absolute;
+      top: -40px;
+      left: 6px;
+      z-index: 10000;
+    }
+
+    .skip-link {
+      position: absolute;
+      background: var(--primary-color);
+      color: white;
+      padding: 8px 12px;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      top: -40px;
+      opacity: 0;
+    }
+
+    .skip-link:focus {
+      top: 6px;
+      opacity: 1;
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+    }
+
+    .skip-link:nth-child(2) { left: 140px; }
+    .skip-link:nth-child(3) { left: 280px; }
   </style>
 </head>
-<body>  <!-- Loading Screen -->
+<body>  <!-- Skip Links for Accessibility -->
+  <div class="skip-links">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#sidebar" class="skip-link">Skip to navigation</a>
+    <a href="#footer" class="skip-link">Skip to footer</a>
+  </div>
+
+  <!-- Loading Screen -->
   <div class="loading-screen" id="loading-screen">
     <div class="loading-content">
       <div class="loading-spinner"></div>
@@ -837,12 +307,12 @@
   <!-- Main App Container -->
   <div class="app-container" id="app-container">
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
       <!-- Sidebar content will be loaded dynamically -->
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="main-content" role="main">
       <!-- Dashboard Section -->
       <section id="dashboard">
         <!-- Dashboard content will be loaded dynamically -->

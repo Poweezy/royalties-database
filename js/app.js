@@ -694,7 +694,15 @@ class RoyaltiesApp {
 
         // Make managers globally available
         window.dataManager = this.dataManager;
-        window.notificationManager = this.notificationManager;
+        
+        // Only set notificationManager if not already set by enhanced notification system
+        if (!window.notificationManager) {
+            window.notificationManager = this.notificationManager;
+            console.log('📢 App: Using built-in notification manager');
+        } else {
+            console.log('📢 App: Using existing enhanced notification manager');
+        }
+        
         window.recordActions = this.actionHandlers.recordActions;
         window.userActions = this.actionHandlers.userActions;
         window.contractActions = this.actionHandlers.contractActions;

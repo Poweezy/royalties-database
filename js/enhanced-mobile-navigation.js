@@ -554,16 +554,22 @@ class EnhancedMobileNavigation {
     }
 }
 
-// Initialize enhanced mobile navigation
+// Initialize enhanced mobile navigation and make class available globally
+window.EnhancedMobileNavigation = EnhancedMobileNavigation;
 window.enhancedMobileNav = new EnhancedMobileNavigation();
+window.mobileNavigation = window.enhancedMobileNav; // Alias for consistency
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.enhancedMobileNav.initialize();
+        window.enhancedMobileNav.initialize().catch(error => {
+            console.error('Failed to initialize Enhanced Mobile Navigation:', error);
+        });
     });
 } else {
-    window.enhancedMobileNav.initialize();
+    window.enhancedMobileNav.initialize().catch(error => {
+        console.error('Failed to initialize Enhanced Mobile Navigation:', error);
+    });
 }
 
 // Export for module usage

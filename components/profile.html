@@ -1,7 +1,8 @@
+<!-- Profile Page Header -->
 <div class="page-header">
     <div class="page-title">
-        <h1><i class="fas fa-user"></i> My Profile</h1>
-        <p>Manage your account settings and preferences</p>
+        <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+        <p>Manage your account settings, preferences, and security</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-primary" id="edit-profile-btn">
@@ -10,166 +11,943 @@
         <button class="btn btn-warning" id="change-password-btn">
             <i class="fas fa-lock"></i> Change Password
         </button>
+        <button class="btn btn-info" id="export-profile-btn">
+            <i class="fas fa-download"></i> Export Data
+        </button>
     </div>
 </div>
 
-<div class="charts-grid">
-    <div class="card">
-        <div class="card-header">
-            <h5><i class="fas fa-user"></i> Personal Information</h5>
-        </div>
-        <div class="card-body">
-            <div class="details-section">
-                <div class="details-row">
-                    <span class="label">Username:</span>
-                    <span class="value" id="profile-username">admin</span>
+<!-- Profile Content Container -->
+<div class="profile-container">
+    <!-- Main Profile Information Row -->
+    <div class="profile-main-row">
+        <!-- User Avatar and Basic Info -->
+        <div class="card profile-avatar-card">
+            <div class="card-body text-center">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                    <button class="avatar-edit-btn" id="change-avatar-btn" title="Change Profile Picture">
+                        <i class="fas fa-camera"></i>
+                    </button>
                 </div>
-                <div class="details-row">
-                    <span class="label">Email:</span>
-                    <span class="value" id="profile-email">admin@eswacaa.sz</span>
-                </div>
-                <div class="details-row">
-                    <span class="label">Role:</span>
-                    <span class="value">
-                        <span id="profile-role" class="status-badge administrator">Administrator</span>
-                    </span>
-                </div>
-                <div class="details-row">
-                    <span class="label">Department:</span>
-                    <span class="value" id="profile-department">Management</span>
+                <h4 class="profile-name" id="profile-display-name">System Administrator</h4>
+                <span class="profile-role-badge" id="profile-role-badge">Administrator</span>
+                <div class="profile-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Online</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5>🔐 Security Settings</h5>
-        </div>
-        <div class="card-body">
-            <div class="details-section">
-                <div class="details-row">
-                    <span class="label">Two-Factor Authentication:</span>
-                    <span class="value">
-                        <button class="btn btn-sm btn-secondary">Enable</button>
-                    </span>
-                </div>
-                <div class="details-row">
-                    <span class="label">Last Login:</span>
-                    <span class="value" id="profile-last-login">Today at 14:32</span>
-                </div>
-                <div class="details-row">
-                    <span class="label">Login Sessions:</span>
-                    <span class="value text-success">1 Active</span>
-                </div>
+        <!-- Personal Information -->
+        <div class="card profile-info-card">
+            <div class="card-header">
+                <h5><i class="fas fa-user"></i> Personal Information</h5>
+                <button class="btn btn-sm btn-outline-primary" id="edit-personal-info">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
             </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h5>⚙️ Preferences</h5>
-        </div>
-        <div class="card-body">
-            <div class="form-section">
-                <div class="form-group">
-                    <label for="language-select">Language:</label>
-                    <select id="language-select" class="form-control">
-                        <option value="en" selected>English</option>
-                        <option value="ss">siSwati</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="date-format-select">Date Format:</label>
-                    <select id="date-format-select" class="form-control">
-                        <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                        <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                        <option value="yyyy-mm-dd">YYYY-MM-DD</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <div class="form-check">
-                        <input type="checkbox" id="email-notifications" class="form-check-input" checked>
-                        <label for="email-notifications" class="form-check-label">Email Notifications</label>
+            <div class="card-body">
+                <div class="profile-details-grid">
+                    <div class="detail-item">
+                        <label>Username</label>
+                        <span class="value" id="profile-username">admin</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Full Name</label>
+                        <span class="value" id="profile-fullname">System Administrator</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Email Address</label>
+                        <span class="value" id="profile-email">admin@eswacaa.sz</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Phone Number</label>
+                        <span class="value" id="profile-phone">+268 2404 2000</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Department</label>
+                        <span class="value" id="profile-department">Management</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Employee ID</label>
+                        <span class="value" id="profile-employee-id">EMP001</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5><i class="fas fa-chart-bar"></i> Activity Summary</h5>
-        </div>
-        <div class="card-body">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3 class="stat-number text-primary">47</h3>
-                    <small class="stat-label">Total Logins</small>
+    <!-- Security and Activity Row -->
+    <div class="profile-secondary-row">
+        <!-- Security Settings -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-shield-alt"></i> Security & Access</h5>
+            </div>
+            <div class="card-body">
+                <div class="security-section">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <strong>Two-Factor Authentication</strong>
+                            <small class="text-muted">Add an extra layer of security</small>
+                        </div>
+                        <button class="btn btn-sm btn-success" id="enable-2fa">
+                            <i class="fas fa-mobile-alt"></i> Enable
+                        </button>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-info">
+                            <strong>Password</strong>
+                            <small class="text-muted">Last changed 30 days ago</small>
+                        </div>
+                        <button class="btn btn-sm btn-warning" id="change-password-security">
+                            <i class="fas fa-key"></i> Change
+                        </button>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-info">
+                            <strong>Login Sessions</strong>
+                            <small class="text-success">1 Active Session</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" id="manage-sessions">
+                            <i class="fas fa-list"></i> Manage
+                        </button>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-info">
+                            <strong>Last Login</strong>
+                            <small class="text-muted" id="profile-last-login">Today at 14:32</small>
+                        </div>
+                        <span class="login-ip">IP: 192.168.1.100</span>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <h3 class="stat-number text-success">15</h3>
-                    <small class="stat-label">Actions Today</small>
+            </div>
+        </div>
+
+        <!-- Activity Summary -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Activity Summary</h5>
+                <small class="text-muted">Last 30 days</small>
+            </div>
+            <div class="card-body">
+                <div class="activity-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon text-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">47</h3>
+                            <small class="stat-label">Total Logins</small>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon text-success">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">234</h3>
+                            <small class="stat-label">Actions Performed</small>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon text-info">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">42h</h3>
+                            <small class="stat-label">Time Active</small>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon text-warning">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number">15</h3>
+                            <small class="stat-label">Reports Generated</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preferences and Recent Activity Row -->
+    <div class="profile-tertiary-row">
+        <!-- User Preferences -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cog"></i> Preferences & Settings</h5>
+            </div>
+            <div class="card-body">
+                <div class="preferences-section">
+                    <div class="preference-group">
+                        <label class="preference-label">
+                            <i class="fas fa-globe"></i> Language
+                        </label>
+                        <select id="language-select" class="form-control">
+                            <option value="en" selected>English</option>
+                            <option value="ss">siSwati</option>
+                        </select>
+                    </div>
+                    <div class="preference-group">
+                        <label class="preference-label">
+                            <i class="fas fa-calendar"></i> Date Format
+                        </label>
+                        <select id="date-format-select" class="form-control">
+                            <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    <div class="preference-group">
+                        <label class="preference-label">
+                            <i class="fas fa-palette"></i> Theme
+                        </label>
+                        <select id="theme-select" class="form-control">
+                            <option value="light" selected>Light Theme</option>
+                            <option value="dark">Dark Theme</option>
+                            <option value="auto">Auto (System)</option>
+                        </select>
+                    </div>
+                    <div class="preference-toggles">
+                        <div class="preference-toggle">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="email-notifications" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">
+                                    <i class="fas fa-envelope"></i> Email Notifications
+                                </span>
+                            </label>
+                        </div>
+                        <div class="preference-toggle">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="browser-notifications">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">
+                                    <i class="fas fa-bell"></i> Browser Notifications
+                                </span>
+                            </label>
+                        </div>
+                        <div class="preference-toggle">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="compact-mode">
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-text">
+                                    <i class="fas fa-compress"></i> Compact Mode
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                <button class="btn btn-sm btn-outline-primary" id="view-all-activity">
+                    <i class="fas fa-external-link-alt"></i> View All
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="activity-timeline">
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Logged into system</div>
+                            <div class="activity-meta">
+                                <span class="activity-time">Today at 14:32</span>
+                                <span class="activity-location">Office Network</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Viewed dashboard analytics</div>
+                            <div class="activity-meta">
+                                <span class="activity-time">Today at 14:30</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-file-export"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Generated monthly royalties report</div>
+                            <div class="activity-meta">
+                                <span class="activity-time">Yesterday at 16:45</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon primary">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Created new user account</div>
+                            <div class="activity-meta">
+                                <span class="activity-time">2 days ago</span>
+                                <span class="activity-target">User: john.doe</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h5><i class="fas fa-history"></i> Recent Activity</h5>
-    </div>
-    <div class="card-body">
-        <div class="activity-list">
-            <div class="activity-item">
-                <span class="activity-text">Logged into system</span>
-                <small class="activity-time">Today at 14:32</small>
-            </div>
-            <div class="activity-item">
-                <span class="activity-text">Viewed dashboard analytics</span>
-                <small class="activity-time">Today at 14:30</small>
-            </div>
-            <div class="activity-item">
-                <span class="activity-text">Generated monthly report</span>
-                <small class="activity-time">Yesterday at 16:45</small>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Profile Specific Styles -->
+<style>
+/* Profile Container Layout */
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Profile Rows */
+.profile-main-row {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+}
+
+.profile-secondary-row,
+.profile-tertiary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Profile Avatar Card */
+.profile-avatar-card {
+    position: relative;
+}
+
+.profile-avatar {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.profile-avatar i {
+    font-size: 4rem;
+    color: var(--primary-color, #007bff);
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary-color, #007bff);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.avatar-edit-btn:hover {
+    background: var(--primary-dark, #0056b3);
+}
+
+.profile-name {
+    margin: 0.5rem 0;
+    color: var(--text-dark, #2c3e50);
+}
+
+.profile-role-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.profile-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6c757d);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+    display: inline-block;
+}
+
+.status-indicator.online {
+    background: #28a745;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+/* Profile Details Grid */
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-item label {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6c757d);
+    font-weight: 500;
+}
+
+.detail-item .value {
+    font-weight: 600;
+    color: var(--text-dark, #2c3e50);
+}
+
+/* Security Section */
+.security-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.security-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--background-light, #f8f9fa);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--primary-color, #007bff);
+}
+
+.security-info strong {
+    display: block;
+    color: var(--text-dark, #2c3e50);
+    margin-bottom: 0.25rem;
+}
+
+.security-info small {
+    font-size: 0.875rem;
+}
+
+.login-ip {
+    font-size: 0.75rem;
+    color: var(--text-muted, #6c757d);
+    background: var(--background-white, white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color, #dee2e6);
+}
+
+/* Activity Stats */
+.activity-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--background-white, white) 0%, var(--background-light, #f8f9fa) 100%);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color, #dee2e6);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.stat-icon.text-primary { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+.stat-icon.text-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+.stat-icon.text-info { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+.stat-icon.text-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+
+.stat-details h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark, #2c3e50);
+}
+
+.stat-details .stat-label {
+    color: var(--text-secondary, #6c757d);
+    font-size: 0.875rem;
+}
+
+/* Preferences Section */
+.preferences-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.preference-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.preference-label {
+    font-weight: 500;
+    color: var(--text-dark, #2c3e50);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preference-label i {
+    color: var(--primary-color, #007bff);
+}
+
+.preference-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.preference-toggle {
+    padding: 0.75rem;
+    background: var(--background-light, #f8f9fa);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color, #dee2e6);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 3rem;
+    height: 1.5rem;
+    background: #ccc;
+    border-radius: 1rem;
+    transition: background 0.3s;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+input[type="checkbox"]:checked + .toggle-slider {
+    background: var(--primary-color, #007bff);
+}
+
+input[type="checkbox"]:checked + .toggle-slider::after {
+    transform: translateX(1.5rem);
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-text {
+    font-weight: 500;
+    color: var(--text-dark, #2c3e50);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-text i {
+    color: var(--primary-color, #007bff);
+}
+
+/* Activity Timeline */
+.activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--background-light, #f8f9fa);
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--border-color, #dee2e6);
+    transition: border-left-color 0.2s;
+}
+
+.activity-item:hover {
+    border-left-color: var(--primary-color, #007bff);
+}
+
+.activity-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.activity-icon.success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+.activity-icon.info { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+.activity-icon.warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+.activity-icon.primary { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    font-weight: 500;
+    color: var(--text-dark, #2c3e50);
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted, #6c757d);
+}
+
+.activity-time,
+.activity-location,
+.activity-target {
+    background: var(--background-white, white);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color, #dee2e6);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .profile-main-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-secondary-row,
+    .profile-tertiary-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        gap: 1rem;
+    }
+    
+    .profile-main-row {
+        gap: 1rem;
+    }
+    
+    .profile-secondary-row,
+    .profile-tertiary-row {
+        gap: 1rem;
+    }
+    
+    .page-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .page-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-avatar i {
+        font-size: 3rem;
+    }
+    
+    .security-item,
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .toggle-label {
+        justify-content: center;
+    }
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Profile: Initializing profile page...');
+    
+    // Get DOM elements
     const editProfileBtn = document.getElementById('edit-profile-btn');
     const changePasswordBtn = document.getElementById('change-password-btn');
+    const exportProfileBtn = document.getElementById('export-profile-btn');
+    const changeAvatarBtn = document.getElementById('change-avatar-btn');
+    const editPersonalInfoBtn = document.getElementById('edit-personal-info');
+    const enable2faBtn = document.getElementById('enable-2fa');
+    const changePasswordSecurityBtn = document.getElementById('change-password-security');
+    const manageSessionsBtn = document.getElementById('manage-sessions');
+    const viewAllActivityBtn = document.getElementById('view-all-activity');
     
+    // Preference controls
+    const languageSelect = document.getElementById('language-select');
+    const dateFormatSelect = document.getElementById('date-format-select');
+    const themeSelect = document.getElementById('theme-select');
+    const emailNotificationsToggle = document.getElementById('email-notifications');
+    const browserNotificationsToggle = document.getElementById('browser-notifications');
+    const compactModeToggle = document.getElementById('compact-mode');
+
     // Update profile information with current user data
-    if (window.royaltiesApp && window.royaltiesApp.authManager) {
-        const currentUser = window.royaltiesApp.authManager.getCurrentUser();
-        if (currentUser) {
-            document.getElementById('profile-username').textContent = currentUser.username;
-            document.getElementById('profile-role').textContent = currentUser.role;
-            document.getElementById('profile-department').textContent = currentUser.department;
+    function updateProfileData() {
+        try {
+            let currentUser = null;
             
-            const lastLogin = new Date(currentUser.lastLogin);
-            document.getElementById('profile-last-login').textContent = lastLogin.toLocaleString();
+            // Try multiple ways to get current user data
+            if (window.royaltiesApp && window.royaltiesApp.authManager) {
+                currentUser = window.royaltiesApp.authManager.getCurrentUser();
+            } else if (window.userManager) {
+                currentUser = window.userManager.getCurrentUser();
+            }
+            
+            if (currentUser) {
+                // Update basic info
+                updateElement('profile-username', currentUser.username || 'admin');
+                updateElement('profile-email', currentUser.email || 'admin@eswacaa.sz');
+                updateElement('profile-fullname', currentUser.fullname || currentUser.username || 'System Administrator');
+                updateElement('profile-department', currentUser.department || 'Management');
+                updateElement('profile-phone', currentUser.phone || '+268 2404 2000');
+                updateElement('profile-employee-id', currentUser.employeeId || 'EMP001');
+                
+                // Update role badge
+                const roleBadge = document.getElementById('profile-role-badge');
+                if (roleBadge) {
+                    roleBadge.textContent = currentUser.role || 'Administrator';
+                    roleBadge.className = `profile-role-badge ${(currentUser.role || '').toLowerCase()}`;
+                }
+                
+                // Update display name
+                updateElement('profile-display-name', currentUser.fullname || currentUser.username || 'System Administrator');
+                
+                // Update last login
+                if (currentUser.lastLogin) {
+                    const lastLogin = new Date(currentUser.lastLogin);
+                    updateElement('profile-last-login', lastLogin.toLocaleString());
+                }
+                
+                console.log('✅ Profile: User data updated successfully');
+            } else {
+                console.log('ℹ️ Profile: No user data available, using defaults');
+            }
+        } catch (error) {
+            console.warn('⚠️ Profile: Error updating profile data:', error);
         }
     }
     
+    function updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+    
+    // Load user preferences
+    function loadUserPreferences() {
+        try {
+            const preferences = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+            
+            if (preferences.language && languageSelect) {
+                languageSelect.value = preferences.language;
+            }
+            if (preferences.dateFormat && dateFormatSelect) {
+                dateFormatSelect.value = preferences.dateFormat;
+            }
+            if (preferences.theme && themeSelect) {
+                themeSelect.value = preferences.theme;
+            }
+            if (preferences.emailNotifications !== undefined && emailNotificationsToggle) {
+                emailNotificationsToggle.checked = preferences.emailNotifications;
+            }
+            if (preferences.browserNotifications !== undefined && browserNotificationsToggle) {
+                browserNotificationsToggle.checked = preferences.browserNotifications;
+            }
+            if (preferences.compactMode !== undefined && compactModeToggle) {
+                compactModeToggle.checked = preferences.compactMode;
+            }
+        } catch (error) {
+            console.warn('⚠️ Profile: Error loading preferences:', error);
+        }
+    }
+    
+    // Save user preferences
+    function saveUserPreferences() {
+        try {
+            const preferences = {
+                language: languageSelect?.value || 'en',
+                dateFormat: dateFormatSelect?.value || 'dd/mm/yyyy',
+                theme: themeSelect?.value || 'light',
+                emailNotifications: emailNotificationsToggle?.checked || false,
+                browserNotifications: browserNotificationsToggle?.checked || false,
+                compactMode: compactModeToggle?.checked || false
+            };
+            
+            localStorage.setItem('userPreferences', JSON.stringify(preferences));
+            
+            // Apply theme change immediately if available
+            if (window.enhancedUXManager && window.enhancedUXManager.userPreferences) {
+                window.enhancedUXManager.userPreferences.updatePreference('theme', preferences.theme);
+                window.enhancedUXManager.userPreferences.updatePreference('compactMode', preferences.compactMode);
+            }
+            
+            showNotification('Preferences saved successfully', 'success');
+        } catch (error) {
+            console.error('❌ Profile: Error saving preferences:', error);
+            showNotification('Failed to save preferences', 'error');
+        }
+    }
+    
+    // Show notification helper
+    function showNotification(message, type = 'info') {
+        if (window.notificationManager) {
+            window.notificationManager.show(message, type);
+        } else {
+            console.log(`Notification (${type}): ${message}`);
+        }
+    }
+    
+    // Event Listeners
     if (editProfileBtn) {
         editProfileBtn.addEventListener('click', function() {
-            if (window.notificationManager) {
-                window.notificationManager.show('Profile editing functionality would open here', 'info');
-            }
+            showNotification('Profile editing modal would open here', 'info');
         });
     }
     
     if (changePasswordBtn) {
         changePasswordBtn.addEventListener('click', function() {
-            if (window.notificationManager) {
-                window.notificationManager.show('Password change form would open here', 'info');
-            }
+            showNotification('Password change modal would open here', 'info');
         });
     }
+    
+    if (exportProfileBtn) {
+        exportProfileBtn.addEventListener('click', function() {
+            showNotification('Profile data export would start here', 'info');
+        });
+    }
+    
+    if (changeAvatarBtn) {
+        changeAvatarBtn.addEventListener('click', function() {
+            showNotification('Avatar upload dialog would open here', 'info');
+        });
+    }
+    
+    if (editPersonalInfoBtn) {
+        editPersonalInfoBtn.addEventListener('click', function() {
+            showNotification('Personal information edit form would open here', 'info');
+        });
+    }
+    
+    if (enable2faBtn) {
+        enable2faBtn.addEventListener('click', function() {
+            showNotification('Two-factor authentication setup would start here', 'info');
+        });
+    }
+    
+    if (changePasswordSecurityBtn) {
+        changePasswordSecurityBtn.addEventListener('click', function() {
+            showNotification('Security password change would open here', 'info');
+        });
+    }
+    
+    if (manageSessionsBtn) {
+        manageSessionsBtn.addEventListener('click', function() {
+            showNotification('Session management panel would open here', 'info');
+        });
+    }
+    
+    if (viewAllActivityBtn) {
+        viewAllActivityBtn.addEventListener('click', function() {
+            showNotification('Full activity log would open here', 'info');
+        });
+    }
+    
+    // Preference change listeners
+    const preferenceElements = [
+        languageSelect, dateFormatSelect, themeSelect,
+        emailNotificationsToggle, browserNotificationsToggle, compactModeToggle
+    ];
+    
+    preferenceElements.forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                saveUserPreferences();
+            });
+        }
+    });
+    
+    // Initialize profile
+    updateProfileData();
+    loadUserPreferences();
+    
+    console.log('✅ Profile: Profile page initialized successfully');
 });
 </script>

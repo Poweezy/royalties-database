@@ -128,9 +128,17 @@
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
                 window.NotificationSystem.init();
+                
+                // Make notification system globally accessible as notificationManager
+                window.notificationManager = window.NotificationSystem;
+                console.log('✅ Enhanced Notification System: notificationManager available globally');
             });
         } else {
             window.NotificationSystem.init();
+            
+            // Make notification system globally accessible as notificationManager
+            window.notificationManager = window.NotificationSystem;
+            console.log('✅ Enhanced Notification System: notificationManager available globally');
         }
         
         console.log('Enhanced Notification System: Loaded');
