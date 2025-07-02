@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-vial"></i> Notification System Test</h1>
+        <p>This page tests if the notification system is working correctly.</p>
+        
+        <div class="test-section">
+            <h3>Test Buttons</h3>
+            <button class="test-button" onclick="testNotificationSystem()">
+                <i class="fas fa-play"></i> Test Notification System
+            </button>
+            <button class="test-button" onclick="testPersistentNotifications()">
+                <i class="fas fa-save"></i> Test Persistent Notifications
+            </button>
+            <button class="test-button" onclick="testToastNotifications()">
+                <i class="fas fa-bell"></i> Test Toast Notifications
+            </button>
+            <button class="test-button" onclick="clearTestResults()">
+                <i class="fas fa-trash"></i> Clear Results
+            </button>
+        </div>
+        
+        <div id="test-results" class="test-results">
+            <strong>Test Results:</strong>
+            <div id="results-content">Click a test button to begin...</div>
+        </div>
+    </div>
+
+    <!-- Load the notification system -->
+    <script src="js/enhanced-notification-system.js"></script>
+    
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results-content');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '📝';
+            results.innerHTML += `<div class="status ${type}">${icon} [${timestamp}] ${message}</div>`;
+        }
+        
+        function clearTestResults() {
+            document.getElementById('results-content').innerHTML = 'Results cleared...';
+        }
+        
+        function testNotificationSystem() {
+            log('Starting notification system test...');
+            
+            // Check if notification system exists
+            if (typeof window.NotificationSystem === 'undefined') {
+                log('❌ NotificationSystem not found!', 'error');
+                return;
+            }
+            
+            log('✅ NotificationSystem found', 'success');
+            
+            // Check if notificationManager exists
+            if (typeof window.notificationManager === 'undefined') {
+                log('❌ notificationManager not found!', 'error');
+                return;
+            }
+            
+            log('✅ notificationManager found', 'success');
+            
+            // Test basic functionality
+            try {
+                if (typeof window.notificationManager.show === 'function') {
+                    log('✅ show() method available', 'success');
+                } else {
+                    log('❌ show() method not available', 'error');
+                }
+                
+                if (typeof window.notificationManager.addPersistentNotification === 'function') {
+                    log('✅ addPersistentNotification() method available', 'success');
+                } else {
+                    log('❌ addPersistentNotification() method not available', 'error');
+                }
+                
+                log('✅ Notification system test completed', 'success');
+            } catch (error) {
+                log(`❌ Error testing notification system: ${error.message}`, 'error');
+            }
+        }
+        
+        function testPersistentNotifications() {
+            log('Testing persistent notifications...');
+            
+            if (!window.notificationManager) {
+                log('❌ notificationManager not available', 'error');
+                return;
+            }
+            
+            try {
+                // Add a test notification
+                const id = window.notificationManager.addPersistentNotification(
+                    'success',
+                    'Test Notification',
+                    'This is a test persistent notification from the test page.',
+                    'system',
+                    'normal'
+                );
+                
+                log(`✅ Persistent notification added with ID: ${id}`, 'success');
+                
+                // Check if it was saved
+                const notifications = window.notificationManager.getPersistentNotifications();
+                log(`✅ Total persistent notifications: ${notifications.length}`, 'success');
+                
+                // Check unread count
+                const unreadCount = window.notificationManager.unreadCount;
+                log(`✅ Unread count: ${unreadCount}`, 'success');
+                
+            } catch (error) {
+                log(`❌ Error testing persistent notifications: ${error.message}`, 'error');
+            }
+        }
+        
+        function testToastNotifications() {
+            log('Testing toast notifications...');
+            
+            if (!window.notificationManager) {
+                log('❌ notificationManager not available', 'error');
+                return;
+            }
+            
+            try {
+                // Test different types of toast notifications
+                window.notificationManager.show('Test info notification', 'info', 3000);
+                log('✅ Info toast notification sent', 'success');
+                
+                setTimeout(() => {
+                    window.notificationManager.show('Test success notification', 'success', 3000);
+                    log('✅ Success toast notification sent', 'success');
+                }, 1000);
+                
+                setTimeout(() => {
+                    window.notificationManager.show('Test warning notification', 'warning', 3000);
+                    log('✅ Warning toast notification sent', 'success');
+                }, 2000);
+                
+                setTimeout(() => {
+                    window.notificationManager.show('Test error notification', 'error', 3000);
+                    log('✅ Error toast notification sent', 'success');
+                }, 3000);
+                
+            } catch (error) {
+                log(`❌ Error testing toast notifications: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-test when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, starting auto-test...');
+                testNotificationSystem();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

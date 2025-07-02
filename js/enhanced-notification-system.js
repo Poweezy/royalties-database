@@ -1,7 +1,7 @@
 /**
  * Enhanced Notification System
  * Provides toast notifications and system alerts with persistent notification management
- * @version 1.0.3
+ * @version 2.0.0
  */
 
 (function() {
@@ -14,6 +14,123 @@
             notifications: [],
             persistentNotifications: [],
             unreadCount: 0,
+            soundEnabled: true,
+            animationDuration: 300,
+            autoHideDelay: 5000,
+            maxToastNotifications: 5,
+            
+            // Initialize the notification system
+            init: function() {
+                if (this.container) return; // Already initialized
+                
+                // Create notification container
+                this.container = document.createElement('div');
+                this.container.id = 'notification-container';
+                this.container.className = 'notification-container enhanced-notifications';
+                this.container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    max-width: 400px;
+                    pointer-events: none;
+                `;
+                
+                document.body.appendChild(this.container);
+                
+                // Create sound elements for different notification types
+                this.createSoundElements();
+                
+                // Load persistent notifications from localStorage
+                this.loadPersistentNotifications();
+                
+                // Initialize notification count
+                this.updateNotificationCount();
+                
+                // Set up real-time simulation
+                this.startRealTimeSimulation();
+                
+                console.log('NotificationSystem: Enhanced v2.0.0 initialized with advanced features');
+            },
+            
+            // Create sound elements for notifications
+            createSoundElements: function() {
+                this.sounds = {
+                    success: this.createAudioElement('data:audio/wav;base64,UklGRvIBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBxWJ0/LUgTAIHWm+8+OUQgsYTqPl8bNiGgg5jtT01YI0ChtpvfPnlkUNGkum5fGzYRkJOY7U9NaFNQsaab3z5ZNFD'),
+                    error: this.createAudioElement('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBxWJ0/LUgTAIHWm+8+OUQgsYTqPl8bNiGgg5jtT01YI0ChtpvfPnlkUNGkum5fGzYRkJOY7U9NaFNQsaab3z5ZNFD'),
+                    warning: this.createAudioElement('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBxWJ0/LUgTAIHWm+8+OUQgsYTqPl8bNiGgg5jtT01YI0ChtpvfPnlkUNGkum5fGzYRkJOY7U9NaFNQsaab3z5ZNFD'),
+                    info: this.createAudioElement('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBxWJ0/LUgTAIHWm+8+OUQgsYTqPl8bNiGgg5jtT01YI0ChtpvfPnlkUNGkum5fGzYRkJOY7U9NaFNQsaab3z5ZNFD')
+                };
+            },
+            
+            // Create audio element helper
+            createAudioElement: function(src) {
+                const audio = document.createElement('audio');
+                audio.src = src;
+                audio.preload = 'auto';
+                audio.volume = 0.3;
+                return audio;
+            },
+            
+            // Play notification sound
+            playSound: function(type) {
+                if (!this.soundEnabled || !this.sounds[type]) return;
+                
+                try {
+                    this.sounds[type].currentTime = 0;
+                    this.sounds[type].play().catch(e => {
+                        // Silently handle audio play errors (e.g., user hasn't interacted with page)
+                    });
+                } catch (error) {
+                    // Silently handle audio errors
+                }
+            },
+            
+            // Start real-time notification simulation
+            startRealTimeSimulation: function() {
+                // Simulate real-time notifications every 30-60 seconds
+                setInterval(() => {
+                    if (Math.random() < 0.3) { // 30% chance every interval
+                        this.simulateRealTimeNotification();
+                    }
+                }, 45000); // Every 45 seconds
+            },
+            
+            // Simulate real-time notifications
+            simulateRealTimeNotification: function() {
+                const notifications = [
+                    {
+                        type: 'info',
+                        title: 'System Update',
+                        message: 'Mining compliance data has been synchronized',
+                        category: 'system'
+                    },
+                    {
+                        type: 'warning',
+                        title: 'Payment Reminder',
+                        message: 'ROY-2024-007 payment due in 3 days',
+                        category: 'payment'
+                    },
+                    {
+                        type: 'success',
+                        title: 'Document Approved',
+                        message: 'Environmental impact report has been approved',
+                        category: 'compliance'
+                    },
+                    {
+                        type: 'info',
+                        title: 'Contract Update',
+                        message: 'Mbabane Quarry contract terms updated',
+                        category: 'contract'
+                    }
+                ];
+                
+                const notification = notifications[Math.floor(Math.random() * notifications.length)];
+                this.show(notification.type, notification.title, notification.message, {
+                    persistent: true,
+                    category: notification.category
+                });
+            },
             
             // Initialize the notification system
             init: function() {
@@ -49,8 +166,14 @@
                     if (stored) {
                         this.persistentNotifications = JSON.parse(stored);
                         this.calculateUnreadCount();
+                        
+                        // Clean up old notifications (older than 30 days)
+                        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                        this.persistentNotifications = this.persistentNotifications.filter(n => 
+                            n.timestamp > thirtyDaysAgo
+                        );
+                        this.savePersistentNotifications();
                     } else {
-                        // Initialize with some default notifications
                         this.initializeDefaultNotifications();
                     }
                 } catch (error) {
@@ -64,30 +187,72 @@
                 this.persistentNotifications = [
                     {
                         id: 1,
-                        type: 'warning',
-                        title: 'Payment Overdue - Mbabane Quarry',
-                        message: 'Payment for ROY-2024-004 is 5 days overdue',
+                        type: 'error',
+                        title: 'Critical: Payment Overdue - Mbabane Quarry',
+                        message: 'Payment for ROY-2024-004 is 5 days overdue. Immediate action required.',
                         timestamp: Date.now() - (2 * 60 * 60 * 1000), // 2 hours ago
                         isRead: false,
-                        category: 'payment'
+                        category: 'payment',
+                        priority: 'urgent',
+                        actions: [
+                            { label: 'View Payment', action: 'view-payment', icon: 'fas fa-eye' },
+                            { label: 'Send Final Notice', action: 'final-notice', icon: 'fas fa-exclamation-triangle' }
+                        ]
                     },
                     {
                         id: 2,
-                        type: 'info',
-                        title: 'Contract Renewal Due',
-                        message: 'Contract LC-2024-002 expires in 30 days',
-                        timestamp: Date.now() - (24 * 60 * 60 * 1000), // 1 day ago
+                        type: 'warning',
+                        title: 'Contract Renewal Due - Kwalini Mining',
+                        message: 'Contract LC-2024-002 expires in 15 days. Schedule renewal meeting.',
+                        timestamp: Date.now() - (4 * 60 * 60 * 1000), // 4 hours ago
                         isRead: false,
-                        category: 'contract'
+                        category: 'contract',
+                        priority: 'high',
+                        actions: [
+                            { label: 'View Contract', action: 'view-contract', icon: 'fas fa-file-contract' },
+                            { label: 'Schedule Meeting', action: 'schedule-meeting', icon: 'fas fa-calendar-plus' }
+                        ]
                     },
                     {
                         id: 3,
+                        type: 'info',
+                        title: 'Environmental Report Submitted',
+                        message: 'Quarterly environmental impact report received from Sidvokodvo Quarry.',
+                        timestamp: Date.now() - (6 * 60 * 60 * 1000), // 6 hours ago
+                        isRead: false,
+                        category: 'compliance',
+                        priority: 'normal',
+                        actions: [
+                            { label: 'Review Report', action: 'review-report', icon: 'fas fa-search' },
+                            { label: 'Download PDF', action: 'download-pdf', icon: 'fas fa-download' }
+                        ]
+                    },
+                    {
+                        id: 4,
                         type: 'success',
-                        title: 'Payment Received',
-                        message: 'Kwalini Quarry payment processed successfully',
-                        timestamp: Date.now() - (3 * 24 * 60 * 60 * 1000), // 3 days ago
+                        title: 'Payment Processed Successfully',
+                        message: 'ROY-2024-005 payment of E150,000 received from Lobamba Stone Works.',
+                        timestamp: Date.now() - (12 * 60 * 60 * 1000), // 12 hours ago
                         isRead: true,
-                        category: 'payment'
+                        category: 'payment',
+                        priority: 'normal',
+                        actions: [
+                            { label: 'View Receipt', action: 'view-receipt', icon: 'fas fa-receipt' },
+                            { label: 'Send Confirmation', action: 'send-confirmation', icon: 'fas fa-check-circle' }
+                        ]
+                    },
+                    {
+                        id: 5,
+                        type: 'info',
+                        title: 'System Maintenance Scheduled',
+                        message: 'Routine system maintenance scheduled for tonight 11 PM - 2 AM.',
+                        timestamp: Date.now() - (18 * 60 * 60 * 1000), // 18 hours ago
+                        isRead: true,
+                        category: 'system',
+                        priority: 'normal',
+                        actions: [
+                            { label: 'View Schedule', action: 'view-schedule', icon: 'fas fa-clock' }
+                        ]
                     }
                 ];
                 this.savePersistentNotifications();
@@ -113,17 +278,33 @@
                 const countElement = document.getElementById('notification-count');
                 if (countElement) {
                     countElement.textContent = this.unreadCount;
-                    countElement.style.display = this.unreadCount > 0 ? 'inline' : 'none';
+                    countElement.style.display = this.unreadCount > 0 ? 'inline-block' : 'none';
+                    
+                    // Add pulse animation for new notifications
+                    if (this.unreadCount > 0) {
+                        countElement.style.animation = 'pulse 1s ease-in-out 3';
+                    }
+                } else {
+                    // If notification-count element doesn't exist, create it temporarily for diagnostic
+                    console.log(`📊 Notification count: ${this.unreadCount} (element not found in DOM)`);
                 }
                 
-                // Update notification summary if visible
-                this.updateNotificationSummary();
+                // Update dashboard stats
+                this.updateDashboardStats();
             },
             
-            // Update notification summary in notifications page
-            updateNotificationSummary: function() {
-                const unreadCountEl = document.querySelector('.stat-number.text-warning');
-                const totalTodayEl = document.querySelector('.stat-number.text-success');
+            updateDashboardStats: function() {
+                // Update various stats elements
+                const urgentCount = document.getElementById('urgent-count');
+                const unreadCountEl = document.getElementById('unread-count');
+                const totalTodayEl = document.getElementById('total-today-count');
+                
+                if (urgentCount) {
+                    const urgent = this.persistentNotifications.filter(n => 
+                        !n.isRead && n.priority === 'urgent'
+                    ).length;
+                    urgentCount.textContent = urgent;
+                }
                 
                 if (unreadCountEl) {
                     unreadCountEl.textContent = this.unreadCount;
@@ -140,15 +321,17 @@
             },
             
             // Add a persistent notification
-            addPersistentNotification: function(type, title, message, category = 'general') {
+            addPersistentNotification: function(type, title, message, category = 'general', priority = 'normal') {
                 const notification = {
-                    id: Date.now(),
+                    id: Date.now() + Math.random(),
                     type: type,
                     title: title,
                     message: message,
                     timestamp: Date.now(),
                     isRead: false,
-                    category: category
+                    category: category,
+                    priority: priority,
+                    actions: this.generateNotificationActions(type, category)
                 };
                 
                 this.persistentNotifications.unshift(notification);
@@ -156,10 +339,91 @@
                 this.calculateUnreadCount();
                 this.updateNotificationCount();
                 
+                // Trigger real-time update for notification center
+                this.triggerNotificationCenterUpdate();
+                
                 // Also show as toast
                 this.show(`${title}: ${message}`, type, 5000);
                 
-                return notification;
+                return notification.id;
+            },
+            
+            // Generate contextual actions for notifications
+            generateNotificationActions: function(type, category) {
+                const actions = [];
+                
+                switch (category) {
+                    case 'payment':
+                        actions.push(
+                            { label: 'View Payment', action: 'view-payment', icon: 'fas fa-eye' },
+                            { label: 'Send Reminder', action: 'send-reminder', icon: 'fas fa-paper-plane' }
+                        );
+                        break;
+                    case 'contract':
+                        actions.push(
+                            { label: 'View Contract', action: 'view-contract', icon: 'fas fa-file-contract' },
+                            { label: 'Schedule Review', action: 'schedule-review', icon: 'fas fa-calendar' }
+                        );
+                        break;
+                    case 'compliance':
+                        actions.push(
+                            { label: 'View Report', action: 'view-report', icon: 'fas fa-file-alt' },
+                            { label: 'Download Certificate', action: 'download-cert', icon: 'fas fa-download' }
+                        );
+                        break;
+                    case 'system':
+                        actions.push(
+                            { label: 'View Details', action: 'view-details', icon: 'fas fa-info-circle' }
+                        );
+                        break;
+                }
+                
+                return actions;
+            },
+            
+            // Trigger notification center update
+            triggerNotificationCenterUpdate: function() {
+                const event = new CustomEvent('notificationUpdate', {
+                    detail: {
+                        notifications: this.persistentNotifications,
+                        unreadCount: this.unreadCount
+                    }
+                });
+                document.dispatchEvent(event);
+            },
+            
+            // Enhanced hide method with smooth animations
+            hide: function(id) {
+                const notificationIndex = this.notifications.findIndex(n => n.id === id);
+                if (notificationIndex === -1) return;
+                
+                const notification = this.notifications[notificationIndex];
+                const element = notification.element;
+                
+                // Animate out
+                element.style.transform = 'translateX(100%)';
+                element.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                    this.notifications.splice(notificationIndex, 1);
+                }, this.animationDuration);
+            },
+            
+            // Clean up excess notifications
+            cleanupExcessNotifications: function() {
+                while (this.notifications.length > this.maxToastNotifications) {
+                    const oldestNotification = this.notifications[0];
+                    this.hide(oldestNotification.id);
+                }
+            },
+            
+            // Hide all notifications
+            hideAll: function() {
+                const notificationIds = this.notifications.map(n => n.id);
+                notificationIds.forEach(id => this.hide(id));
             },
             
             // Mark notification as read
@@ -175,105 +439,140 @@
             
             // Mark all notifications as read
             markAllAsRead: function() {
-                this.persistentNotifications.forEach(n => n.isRead = true);
-                this.savePersistentNotifications();
-                this.calculateUnreadCount();
-                this.updateNotificationCount();
-                this.show('All notifications marked as read', 'success', 3000);
+                let hasChanges = false;
+                this.persistentNotifications.forEach(notification => {
+                    if (!notification.isRead) {
+                        notification.isRead = true;
+                        hasChanges = true;
+                    }
+                });
+                
+                if (hasChanges) {
+                    this.savePersistentNotifications();
+                    this.calculateUnreadCount();
+                    this.updateNotificationCount();
+                    this.triggerNotificationCenterUpdate();
+                }
             },
             
-            // Get persistent notifications
-            getPersistentNotifications: function() {
-                return [...this.persistentNotifications];
-            },
-            
-            // Get unread notifications
-            getUnreadNotifications: function() {
-                return this.persistentNotifications.filter(n => !n.isRead);
-            },
-            
-            // Remove persistent notification
-            removePersistentNotification: function(notificationId) {
-                const index = this.persistentNotifications.findIndex(n => n.id === notificationId);
-                if (index > -1) {
+            deleteNotification: function(id) {
+                const index = this.persistentNotifications.findIndex(n => n.id === id);
+                if (index !== -1) {
                     this.persistentNotifications.splice(index, 1);
                     this.savePersistentNotifications();
                     this.calculateUnreadCount();
                     this.updateNotificationCount();
+                    this.triggerNotificationCenterUpdate();
                 }
             },
             
-            // Show a notification
-            show: function(message, type = 'info', duration = 5000) {
-                this.init(); // Ensure initialized
+            // Bulk operations
+            bulkMarkAsRead: function(ids) {
+                let hasChanges = false;
+                ids.forEach(id => {
+                    const notification = this.persistentNotifications.find(n => n.id === id);
+                    if (notification && !notification.isRead) {
+                        notification.isRead = true;
+                        hasChanges = true;
+                    }
+                });
                 
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type}`;
-                notification.style.cssText = `
-                    background: ${this.getBackgroundColor(type)};
-                    color: white;
-                    padding: 12px 16px;
-                    margin-bottom: 10px;
-                    border-radius: 6px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    transform: translateX(100%);
-                    transition: transform 0.3s ease;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    font-size: 14px;
-                    line-height: 1.4;
-                `;
+                if (hasChanges) {
+                    this.savePersistentNotifications();
+                    this.calculateUnreadCount();
+                    this.updateNotificationCount();
+                    this.triggerNotificationCenterUpdate();
+                }
+            },
+            
+            bulkDelete: function(ids) {
+                let hasChanges = false;
+                ids.forEach(id => {
+                    const index = this.persistentNotifications.findIndex(n => n.id === id);
+                    if (index !== -1) {
+                        this.persistentNotifications.splice(index, 1);
+                        hasChanges = true;
+                    }
+                });
                 
-                notification.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span>${message}</span>
-                        <button onclick="this.parentElement.parentElement.remove()" style="
-                            background: none; border: none; color: inherit; 
-                            cursor: pointer; margin-left: 12px; font-size: 16px;
-                        ">&times;</button>
-                    </div>
-                `;
-                
-                this.container.appendChild(notification);
-                this.notifications.push(notification);
-                
-                // Animate in
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 10);
-                
-                // Auto-remove after duration
-                if (duration > 0) {
-                    setTimeout(() => {
-                        this.remove(notification);
-                    }, duration);
+                if (hasChanges) {
+                    this.savePersistentNotifications();
+                    this.calculateUnreadCount();
+                    this.updateNotificationCount();
+                    this.triggerNotificationCenterUpdate();
+                }
+            },
+            
+            // Filter and search methods
+            getNotificationsByCategory: function(category) {
+                return this.persistentNotifications.filter(n => n.category === category);
+            },
+            
+            getNotificationsByType: function(type) {
+                return this.persistentNotifications.filter(n => n.type === type);
+            },
+            
+            getUnreadNotifications: function() {
+                return this.persistentNotifications.filter(n => !n.isRead);
+            },
+            
+            searchNotifications: function(query) {
+                const lowercaseQuery = query.toLowerCase();
+                return this.persistentNotifications.filter(n => 
+                    n.title.toLowerCase().includes(lowercaseQuery) ||
+                    n.message.toLowerCase().includes(lowercaseQuery)
+                );
+            },
+            
+            // Settings and preferences
+            toggleSound: function() {
+                this.soundEnabled = !this.soundEnabled;
+                localStorage.setItem('notificationSoundEnabled', this.soundEnabled);
+                return this.soundEnabled;
+            },
+            
+            // Enhanced update methods
+            updateNotificationCount: function() {
+                const countElement = document.getElementById('notification-count');
+                if (countElement) {
+                    countElement.textContent = this.unreadCount;
+                    countElement.style.display = this.unreadCount > 0 ? 'inline-block' : 'none';
+                    
+                    // Add pulse animation for new notifications
+                    if (this.unreadCount > 0) {
+                        countElement.style.animation = 'pulse 1s ease-in-out 3';
+                    }
                 }
                 
-                return notification;
+                // Update dashboard stats
+                this.updateDashboardStats();
             },
             
-            // Remove a notification
-            remove: function(notification) {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                    const index = this.notifications.indexOf(notification);
-                    if (index > -1) {
-                        this.notifications.splice(index, 1);
-                    }
-                }, 300);
-            },
-            
-            // Get background color for notification type
-            getBackgroundColor: function(type) {
-                const colors = {
-                    'success': '#10b981',
-                    'error': '#ef4444',
-                    'warning': '#f59e0b',
-                    'info': '#3b82f6'
-                };
-                return colors[type] || colors.info;
+            updateDashboardStats: function() {
+                // Update various stats elements
+                const urgentCount = document.getElementById('urgent-count');
+                const unreadCountEl = document.getElementById('unread-count');
+                const totalTodayEl = document.getElementById('total-today-count');
+                
+                if (urgentCount) {
+                    const urgent = this.persistentNotifications.filter(n => 
+                        !n.isRead && n.priority === 'urgent'
+                    ).length;
+                    urgentCount.textContent = urgent;
+                }
+                
+                if (unreadCountEl) {
+                    unreadCountEl.textContent = this.unreadCount;
+                }
+                
+                if (totalTodayEl) {
+                    const todayStart = new Date();
+                    todayStart.setHours(0, 0, 0, 0);
+                    const todayCount = this.persistentNotifications.filter(n => 
+                        n.timestamp >= todayStart.getTime()
+                    ).length;
+                    totalTodayEl.textContent = todayCount;
+                }
             },
             
             // Convenience methods
@@ -295,22 +594,84 @@
         };
         
         // Auto-initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+        function initializeNotificationSystem() {
+            try {
                 window.NotificationSystem.init();
                 
                 // Make notification system globally accessible as notificationManager
                 window.notificationManager = window.NotificationSystem;
                 console.log('✅ Enhanced Notification System: notificationManager available globally');
-            });
-        } else {
-            window.NotificationSystem.init();
-            
-            // Make notification system globally accessible as notificationManager
-            window.notificationManager = window.NotificationSystem;
-            console.log('✅ Enhanced Notification System: notificationManager available globally');
+                
+                // Force immediate availability
+                window.dispatchEvent(new CustomEvent('notificationSystemReady', {
+                    detail: { manager: window.notificationManager }
+                }));
+            } catch (error) {
+                console.error('❌ Failed to initialize notification system:', error);
+            }
         }
         
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeNotificationSystem);
+        } else {
+            initializeNotificationSystem();
+        }
+        
+        // Also ensure immediate availability for diagnostic tools
+        setTimeout(() => {
+            if (!window.notificationManager && window.NotificationSystem) {
+                window.notificationManager = window.NotificationSystem;
+                console.log('✅ Enhanced Notification System: Backup initialization completed');
+            }
+        }, 100);
+        
         console.log('Enhanced Notification System: Loaded');
+    }
+    
+    // Add CSS animations if not already present
+    if (!document.getElementById('notification-animations')) {
+        const style = document.createElement('style');
+        style.id = 'notification-animations';
+        style.textContent = `
+            @keyframes bounceIn {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            @keyframes progressShrink {
+                0% { transform: scaleX(1); }
+                100% { transform: scaleX(0); }
+            }
+            
+            .notification-container.enhanced-notifications {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            
+            .enhanced-toast {
+                cursor: pointer;
+                user-select: none;
+            }
+            
+            .enhanced-toast:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+            }
+            
+            .priority-urgent {
+                border-left: 4px solid #dc2626 !important;
+            }
+            
+            .priority-high {
+                border-left: 4px solid #f59e0b !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
 })();

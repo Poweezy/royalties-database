@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Diagnostic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diagnostic-item {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .diagnostic-section {
+            margin: 30px 0;
+        }
+        .run-test-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .run-test-btn:hover {
+            background: #0056b3;
+        }
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <h1><i class="fas fa-stethoscope"></i> Notification System Diagnostic</h1>
+        <p>This diagnostic tool will help identify any issues with the notification system.</p>
+        
+        <button class="run-test-btn" onclick="runFullDiagnostic()">
+            <i class="fas fa-play"></i> Run Full Diagnostic
+        </button>
+        
+        <div class="diagnostic-section">
+            <h2>🔧 System Status</h2>
+            <div id="system-status">Click "Run Full Diagnostic" to start...</div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h2>📂 File Availability</h2>
+            <div id="file-status">Checking files...</div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h2>🎯 Functionality Tests</h2>
+            <div id="functionality-status">Running tests...</div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h2>🔍 DOM Elements</h2>
+            <div id="dom-status">Checking DOM elements...</div>
+        </div>
+    </div>
+
+    <!-- Load dependencies like the main app -->
+    <script src="js/enhanced-notification-system.js"></script>
+    
+    <!-- Create a mock notification count element for testing -->
+    <div id="notification-count" style="display: none;">0</div>
+    
+    <script>
+        // Wait for notification system to be ready
+        let notificationSystemReady = false;
+        
+        function waitForNotificationSystem() {
+            return new Promise((resolve) => {
+                if (window.notificationManager) {
+                    notificationSystemReady = true;
+                    resolve();
+                    return;
+                }
+                
+                // Listen for system ready event
+                window.addEventListener('notificationSystemReady', () => {
+                    notificationSystemReady = true;
+                    resolve();
+                });
+                
+                // Fallback timeout
+                setTimeout(() => {
+                    if (window.NotificationSystem) {
+                        window.notificationManager = window.NotificationSystem;
+                        notificationSystemReady = true;
+                    }
+                    resolve();
+                }, 2000);
+            });
+        }
+        function addStatus(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: '📝'
+            };
+            
+            const item = document.createElement('div');
+            item.className = `diagnostic-item ${type}`;
+            item.innerHTML = `${icons[type]} ${message}`;
+            container.appendChild(item);
+        }
+        
+        function clearStatus(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+        
+        async function checkFileAvailability() {
+            clearStatus('file-status');
+            
+            const files = [
+                'js/enhanced-notification-system.js',
+                'components/notifications.html',
+                'royalties.css'
+            ];
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        addStatus('file-status', `File ${file} is accessible`, 'success');
+                    } else {
+                        addStatus('file-status', `File ${file} returned ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addStatus('file-status', `Failed to load ${file}: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        function checkSystemAvailability() {
+            clearStatus('system-status');
+            
+            addStatus('system-status', 'Checking notification system availability...', 'info');
+            
+            // Check NotificationSystem
+            if (typeof window.NotificationSystem !== 'undefined') {
+                addStatus('system-status', 'window.NotificationSystem is available', 'success');
+                
+                if (typeof window.NotificationSystem.init === 'function') {
+                    addStatus('system-status', 'NotificationSystem.init() method exists', 'success');
+                } else {
+                    addStatus('system-status', 'NotificationSystem.init() method missing', 'error');
+                }
+                
+                if (typeof window.NotificationSystem.show === 'function') {
+                    addStatus('system-status', 'NotificationSystem.show() method exists', 'success');
+                } else {
+                    addStatus('system-status', 'NotificationSystem.show() method missing', 'error');
+                }
+            } else {
+                addStatus('system-status', 'window.NotificationSystem is not available', 'error');
+            }
+            
+            // Check notificationManager
+            if (typeof window.notificationManager !== 'undefined') {
+                addStatus('system-status', 'window.notificationManager is available', 'success');
+                
+                // Test if it's the same as NotificationSystem
+                if (window.notificationManager === window.NotificationSystem) {
+                    addStatus('system-status', 'notificationManager correctly references NotificationSystem', 'success');
+                }
+                
+                // Check if it has required methods
+                const requiredMethods = ['show', 'addPersistentNotification', 'getPersistentNotifications', 'markAsRead'];
+                requiredMethods.forEach(method => {
+                    if (typeof window.notificationManager[method] === 'function') {
+                        addStatus('system-status', `notificationManager.${method}() is available`, 'success');
+                    } else {
+                        addStatus('system-status', `notificationManager.${method}() is missing`, 'error');
+                    }
+                });
+            } else {
+                addStatus('system-status', 'window.notificationManager is not available', 'error');
+                
+                // Try to manually initialize
+                if (window.NotificationSystem) {
+                    addStatus('system-status', 'Attempting manual initialization...', 'info');
+                    try {
+                        window.NotificationSystem.init();
+                        window.notificationManager = window.NotificationSystem;
+                        addStatus('system-status', 'Manual initialization successful', 'success');
+                    } catch (error) {
+                        addStatus('system-status', `Manual initialization failed: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            // Check console for any errors
+            const originalError = console.error;
+            let errorCount = 0;
+            console.error = function(...args) {
+                errorCount++;
+                originalError.apply(console, args);
+            };
+            
+            setTimeout(() => {
+                if (errorCount === 0) {
+                    addStatus('system-status', 'No console errors detected', 'success');
+                } else {
+                    addStatus('system-status', `${errorCount} console errors detected`, 'warning');
+                }
+                console.error = originalError;
+            }, 2000);
+        }
+        
+        function testFunctionality() {
+            clearStatus('functionality-status');
+            
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            
+            if (!notificationSystem) {
+                addStatus('functionality-status', 'Cannot test - No notification system available', 'error');
+                return;
+            }
+            
+            addStatus('functionality-status', `Using notification system: ${window.notificationManager ? 'notificationManager' : 'NotificationSystem'}`, 'info');
+            
+            try {
+                // Test initialization
+                if (notificationSystem.init) {
+                    notificationSystem.init();
+                    addStatus('functionality-status', 'init() executed successfully', 'success');
+                }
+                
+                // Test show method
+                if (notificationSystem.show) {
+                    notificationSystem.show('Test notification', 'info', 2000);
+                    addStatus('functionality-status', 'show() executed successfully', 'success');
+                }
+                
+                // Test persistent notifications
+                if (notificationSystem.addPersistentNotification) {
+                    const id = notificationSystem.addPersistentNotification(
+                        'info',
+                        'Diagnostic Test',
+                        'This is a test notification from the diagnostic tool.',
+                        'system'
+                    );
+                    addStatus('functionality-status', `Persistent notification added with ID: ${id}`, 'success');
+                }
+                
+                // Test getting notifications
+                if (notificationSystem.getPersistentNotifications) {
+                    const notifications = notificationSystem.getPersistentNotifications();
+                    addStatus('functionality-status', `Retrieved ${notifications.length} persistent notifications`, 'success');
+                } else {
+                    addStatus('functionality-status', 'getPersistentNotifications() method not available', 'warning');
+                }
+                
+                // Test unread count
+                if (typeof notificationSystem.unreadCount !== 'undefined') {
+                    addStatus('functionality-status', `Unread count: ${notificationSystem.unreadCount}`, 'success');
+                } else {
+                    addStatus('functionality-status', 'unreadCount property not available', 'warning');
+                }
+                
+                // Test notification count update
+                if (notificationSystem.updateNotificationCount) {
+                    notificationSystem.updateNotificationCount();
+                    addStatus('functionality-status', 'updateNotificationCount() executed successfully', 'success');
+                }
+                
+            } catch (error) {
+                addStatus('functionality-status', `Functionality test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkDOMElements() {
+            clearStatus('dom-status');
+            
+            const elementsToCheck = [
+                'notification-container',
+                'notification-count'
+            ];
+            
+            elementsToCheck.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    addStatus('dom-status', `Element #${id} exists`, 'success');
+                } else {
+                    addStatus('dom-status', `Element #${id} not found`, 'warning');
+                }
+            });
+            
+            // Check for notification containers
+            const containers = document.querySelectorAll('.notification-container');
+            if (containers.length > 0) {
+                addStatus('dom-status', `Found ${containers.length} notification container(s)`, 'success');
+            } else {
+                addStatus('dom-status', 'No notification containers found', 'info');
+            }
+        }
+        
+        async function runFullDiagnostic() {
+            addStatus('system-status', 'Starting full diagnostic...', 'info');
+            
+            // Wait for notification system to be ready
+            addStatus('system-status', 'Waiting for notification system to initialize...', 'info');
+            await waitForNotificationSystem();
+            
+            if (notificationSystemReady) {
+                addStatus('system-status', 'Notification system is ready', 'success');
+            } else {
+                addStatus('system-status', 'Notification system failed to initialize within timeout', 'warning');
+            }
+            
+            // Check system availability
+            checkSystemAvailability();
+            
+            // Check file availability
+            await checkFileAvailability();
+            
+            // Test functionality
+            testFunctionality();
+            
+            // Check DOM elements
+            checkDOMElements();
+            
+            setTimeout(() => {
+                addStatus('system-status', 'Full diagnostic completed', 'success');
+            }, 3000);
+        }
+        
+        // Auto-run when page loads
+        window.addEventListener('load', async () => {
+            // Give the notification system time to load
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await runFullDiagnostic();
+        });
+    </script>
+</body>
+</html>

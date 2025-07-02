@@ -4,13 +4,19 @@
             <i class="fas fa-bell"></i>
         </div>
         <div class="title-content">
-            <h1>Notification Center</h1>
-            <p>Stay updated with real-time alerts and system notifications</p>
+            <h1>Enhanced Notification Center</h1>
+            <p>Advanced notification management with real-time alerts, categorization, and workflow integration</p>
         </div>
     </div>
     <div class="page-actions">
+        <button class="btn btn-outline-info" id="notification-analytics-btn">
+            <i class="fas fa-chart-line"></i> Analytics
+        </button>
         <button class="btn btn-outline-secondary" id="notification-filter-btn">
             <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-outline-warning" id="bulk-actions-btn">
+            <i class="fas fa-tasks"></i> Bulk Actions
         </button>
         <button class="btn btn-outline-primary" id="mark-all-read-btn">
             <i class="fas fa-check-double"></i> Mark All Read
@@ -21,97 +27,277 @@
     </div>
 </div>
 
-<!-- Quick Stats Bar -->
-<div class="notification-stats-bar">
-    <div class="stat-card urgent">
-        <div class="stat-icon">
-            <i class="fas fa-exclamation-circle"></i>
+<!-- Enhanced Stats Dashboard -->
+<div class="notification-stats-dashboard">
+    <div class="stats-row">
+        <div class="stat-card urgent">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number" id="urgent-count">0</span>
+                <span class="stat-label">Critical</span>
+                <small class="stat-trend">Requires immediate attention</small>
+            </div>
         </div>
-        <div class="stat-content">
-            <span class="stat-number" id="urgent-count">0</span>
-            <span class="stat-label">Urgent</span>
+        <div class="stat-card unread">
+            <div class="stat-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number" id="unread-count">0</span>
+                <span class="stat-label">Unread</span>
+                <small class="stat-trend" id="unread-trend">+0 since yesterday</small>
+            </div>
+        </div>
+        <div class="stat-card today">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number" id="today-count">0</span>
+                <span class="stat-label">Today</span>
+                <small class="stat-trend" id="today-trend">Last 24 hours</small>
+            </div>
+        </div>
+        <div class="stat-card workflow">
+            <div class="stat-icon">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number" id="workflow-count">0</span>
+                <span class="stat-label">Workflow</span>
+                <small class="stat-trend">Pending actions</small>
+            </div>
+        </div>
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number" id="total-count">0</span>
+                <span class="stat-label">Total</span>
+                <small class="stat-trend" id="total-trend">All notifications</small>
+            </div>
         </div>
     </div>
-    <div class="stat-card unread">
-        <div class="stat-icon">
-            <i class="fas fa-envelope"></i>
+    
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar">
+        <button class="quick-action-btn" id="quick-payment-alerts">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Payment Alerts</span>
+            <span class="badge" id="payment-badge">0</span>
+        </button>
+        <button class="quick-action-btn" id="quick-compliance">
+            <i class="fas fa-shield-alt"></i>
+            <span>Compliance</span>
+            <span class="badge" id="compliance-badge">0</span>
+        </button>
+        <button class="quick-action-btn" id="quick-contracts">
+            <i class="fas fa-file-contract"></i>
+            <span>Contracts</span>
+            <span class="badge" id="contracts-badge">0</span>
+        </button>
+        <button class="quick-action-btn" id="quick-system">
+            <i class="fas fa-server"></i>
+            <span>System</span>
+            <span class="badge" id="system-badge">0</span>
+        </button>
+        <button class="quick-action-btn" id="quick-workflow">
+            <i class="fas fa-sitemap"></i>
+            <span>Workflow</span>
+            <span class="badge" id="workflow-badge">0</span>
+        </button>
+    </div>
+</div>
+
+<!-- Advanced Filter Bar -->
+<div class="notification-filters enhanced-filters" id="notification-filters" style="display: none;">
+    <div class="filters-header">
+        <h4><i class="fas fa-filter"></i> Advanced Filters</h4>
+        <button class="btn btn-sm btn-outline-secondary" id="save-filter-preset">
+            <i class="fas fa-save"></i> Save Preset
+        </button>
+    </div>
+    
+    <div class="filter-grid">
+        <div class="filter-group">
+            <label>Status:</label>
+            <select id="status-filter" class="form-select">
+                <option value="all">All Notifications</option>
+                <option value="unread">Unread Only</option>
+                <option value="read">Read Only</option>
+                <option value="archived">Archived</option>
+                <option value="snoozed">Snoozed</option>
+            </select>
         </div>
-        <div class="stat-content">
-            <span class="stat-number" id="unread-count">0</span>
-            <span class="stat-label">Unread</span>
+        
+        <div class="filter-group">
+            <label>Priority:</label>
+            <select id="priority-filter" class="form-select">
+                <option value="all">All Priorities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Type:</label>
+            <select id="type-filter" class="form-select">
+                <option value="all">All Types</option>
+                <option value="success">Success</option>
+                <option value="warning">Warning</option>
+                <option value="error">Error</option>
+                <option value="info">Information</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Category:</label>
+            <select id="category-filter" class="form-select">
+                <option value="all">All Categories</option>
+                <option value="payment">Payments & Royalties</option>
+                <option value="contract">Contracts</option>
+                <option value="compliance">Compliance & Regulatory</option>
+                <option value="system">System & Security</option>
+                <option value="workflow">Workflow & Approvals</option>
+                <option value="mining">Mining Operations</option>
+                <option value="reporting">Reports & Analytics</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Date Range:</label>
+            <select id="date-filter" class="form-select">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="week">Past Week</option>
+                <option value="month">Past Month</option>
+                <option value="custom">Custom Range</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>Source:</label>
+            <select id="source-filter" class="form-select">
+                <option value="all">All Sources</option>
+                <option value="system">System Generated</option>
+                <option value="user">User Actions</option>
+                <option value="external">External APIs</option>
+                <option value="scheduled">Scheduled Tasks</option>
+            </select>
         </div>
     </div>
-    <div class="stat-card today">
-        <div class="stat-icon">
-            <i class="fas fa-calendar-day"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number" id="today-count">0</span>
-            <span class="stat-label">Today</span>
-        </div>
+    
+    <div class="filter-actions">
+        <button class="btn btn-secondary" id="clear-filters-btn">
+            <i class="fas fa-times"></i> Clear All
+        </button>
+        <button class="btn btn-primary" id="apply-filters-btn">
+            <i class="fas fa-check"></i> Apply Filters
+        </button>
     </div>
-    <div class="stat-card total">
-        <div class="stat-icon">
-            <i class="fas fa-bell"></i>
-        </div>
-        <div class="stat-content">
-            <span class="stat-number" id="total-count">0</span>
-            <span class="stat-label">Total</span>
+    
+    <!-- Filter Presets -->
+    <div class="filter-presets">
+        <h5>Quick Presets:</h5>
+        <div class="preset-buttons">
+            <button class="btn btn-sm btn-outline-warning" data-preset="urgent">
+                <i class="fas fa-exclamation-triangle"></i> Urgent Only
+            </button>
+            <button class="btn btn-sm btn-outline-info" data-preset="today">
+                <i class="fas fa-calendar-day"></i> Today's Items
+            </button>
+            <button class="btn btn-sm btn-outline-success" data-preset="payments">
+                <i class="fas fa-money-bill-wave"></i> Payment Related
+            </button>
+            <button class="btn btn-sm btn-outline-primary" data-preset="workflow">
+                <i class="fas fa-tasks"></i> Pending Actions
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Filter Bar -->
-<div class="notification-filters" id="notification-filters" style="display: none;">
-    <div class="filter-group">
-        <label>Status:</label>
-        <select id="status-filter" class="form-select">
-            <option value="all">All Notifications</option>
-            <option value="unread">Unread Only</option>
-            <option value="read">Read Only</option>
-        </select>
+<!-- Enhanced Main Notifications Area -->
+<div class="notifications-container enhanced-container">
+    <!-- Bulk Actions Bar -->
+    <div class="bulk-actions-bar" id="bulk-actions-bar" style="display: none;">
+        <div class="bulk-selection">
+            <input type="checkbox" id="select-all-notifications" class="form-check-input">
+            <label for="select-all-notifications">Select All</label>
+            <span id="selected-count">0 selected</span>
+        </div>
+        <div class="bulk-buttons">
+            <button class="btn btn-sm btn-success" id="bulk-mark-read">
+                <i class="fas fa-check"></i> Mark Read
+            </button>
+            <button class="btn btn-sm btn-warning" id="bulk-snooze">
+                <i class="fas fa-clock"></i> Snooze
+            </button>
+            <button class="btn btn-sm btn-info" id="bulk-archive">
+                <i class="fas fa-archive"></i> Archive
+            </button>
+            <button class="btn btn-sm btn-danger" id="bulk-delete">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
     </div>
-    <div class="filter-group">
-        <label>Type:</label>
-        <select id="type-filter" class="form-select">
-            <option value="all">All Types</option>
-            <option value="success">Success</option>
-            <option value="warning">Warning</option>
-            <option value="error">Error</option>
-            <option value="info">Information</option>
-        </select>
-    </div>
-    <div class="filter-group">
-        <label>Category:</label>
-        <select id="category-filter" class="form-select">
-            <option value="all">All Categories</option>
-            <option value="payment">Payments</option>
-            <option value="contract">Contracts</option>
-            <option value="system">System</option>
-            <option value="compliance">Compliance</option>
-        </select>
-    </div>
-    <button class="btn btn-secondary" id="clear-filters-btn">
-        <i class="fas fa-times"></i> Clear Filters
-    </button>
-</div>
 
-<!-- Main Notifications Area -->
-<div class="notifications-container">
     <div class="notifications-main">
         <div class="notifications-header">
-            <h3><i class="fas fa-inbox"></i> Recent Notifications</h3>
-            <div class="view-options">
-                <button class="btn btn-sm btn-outline-secondary active" data-view="list">
-                    <i class="fas fa-list"></i> List
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" data-view="cards">
-                    <i class="fas fa-th"></i> Cards
-                </button>
+            <h3><i class="fas fa-inbox"></i> Notification Center</h3>
+            <div class="header-controls">
+                <div class="search-box">
+                    <input type="text" id="notification-search" class="form-control" placeholder="Search notifications...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="sort-options">
+                    <select id="sort-notifications" class="form-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priority">Priority</option>
+                        <option value="category">Category</option>
+                        <option value="unread">Unread First</option>
+                    </select>
+                </div>
+                <div class="view-options">
+                    <button class="btn btn-sm btn-outline-secondary active" data-view="list" title="List View">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" data-view="cards" title="Card View">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" data-view="compact" title="Compact View">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
-        <div id="notifications-list" class="notifications-list modern-list">
+        <!-- Notification Categories Tabs -->
+        <div class="notification-tabs">
+            <button class="tab-btn active" data-tab="all">
+                <i class="fas fa-inbox"></i> All <span class="tab-count" id="all-tab-count">0</span>
+            </button>
+            <button class="tab-btn" data-tab="unread">
+                <i class="fas fa-envelope"></i> Unread <span class="tab-count" id="unread-tab-count">0</span>
+            </button>
+            <button class="tab-btn" data-tab="important">
+                <i class="fas fa-star"></i> Important <span class="tab-count" id="important-tab-count">0</span>
+            </button>
+            <button class="tab-btn" data-tab="workflow">
+                <i class="fas fa-tasks"></i> Actions <span class="tab-count" id="workflow-tab-count">0</span>
+            </button>
+            <button class="tab-btn" data-tab="archived">
+                <i class="fas fa-archive"></i> Archived <span class="tab-count" id="archived-tab-count">0</span>
+            </button>
+        </div>
+        
+        <div id="notifications-list" class="notifications-list enhanced-list">
             <!-- Loading state -->
             <div id="loading-notifications" class="loading-state">
                 <div class="loading-spinner"></div>
@@ -130,24 +316,757 @@
                 </button>
             </div>
         </div>
+        
+        <!-- Pagination -->
+        <div class="notifications-pagination" id="notifications-pagination" style="display: none;">
+            <div class="pagination-info">
+                Showing <span id="showing-start">1</span> to <span id="showing-end">20</span> of <span id="total-notifications">0</span> notifications
+            </div>
+            <div class="pagination-controls">
+                <button class="btn btn-sm btn-outline-secondary" id="prev-page" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-numbers" id="page-numbers"></span>
+                <button class="btn btn-sm btn-outline-secondary" id="next-page">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
     
-    <!-- Notification Detail Panel -->
-    <div class="notification-detail-panel" id="notification-detail-panel" style="display: none;">
+    <!-- Enhanced Notification Detail Panel -->
+    <div class="notification-detail-panel enhanced-detail" id="notification-detail-panel" style="display: none;">
         <div class="detail-header">
-            <h4>Notification Details</h4>
-            <button class="btn btn-sm btn-outline-secondary" id="close-detail-btn">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="detail-title">
+                <h4 id="detail-notification-title">Notification Details</h4>
+                <div class="detail-meta">
+                    <span class="priority-badge" id="detail-priority"></span>
+                    <span class="category-badge" id="detail-category"></span>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <button class="btn btn-sm btn-outline-warning" id="snooze-notification" title="Snooze">
+                    <i class="fas fa-clock"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-info" id="archive-notification" title="Archive">
+                    <i class="fas fa-archive"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-success" id="mark-read-notification" title="Mark as Read">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="close-detail-btn" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
         <div class="detail-content" id="detail-content">
             <!-- Notification details will be loaded here -->
+        </div>
+        <div class="detail-footer">
+            <div class="related-actions" id="related-actions">
+                <!-- Related actions will be populated based on notification type -->
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
+
+    // Enhanced Notification Center Manager
+    class EnhancedNotificationCenter {
+        constructor() {
+            this.notifications = [];
+            this.filteredNotifications = [];
+            this.currentView = 'list';
+            this.currentTab = 'all';
+            this.currentPage = 1;
+            this.itemsPerPage = 20;
+            this.selectedNotifications = new Set();
+            this.filters = {
+                status: 'all',
+                priority: 'all',
+                type: 'all',
+                category: 'all',
+                dateRange: 'all',
+                source: 'all',
+                search: ''
+            };
+            
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.loadNotificationsFromSystem();
+            this.setupRealTimeUpdates();
+            this.applyFilters();
+            this.updateStats();
+            this.renderNotifications();
+            this.startAutoRefresh();
+        }
+
+        // Load notifications from the global notification system
+        loadNotificationsFromSystem() {
+            if (window.NotificationSystem && window.NotificationSystem.persistentNotifications) {
+                this.notifications = [...window.NotificationSystem.persistentNotifications];
+            } else {
+                this.generateSampleNotifications();
+            }
+        }
+
+        // Setup real-time updates listener
+        setupRealTimeUpdates() {
+            // Listen for notification system updates
+            document.addEventListener('notificationUpdate', (event) => {
+                this.notifications = [...event.detail.notifications];
+                this.applyFilters();
+                this.updateStats();
+                this.renderNotifications();
+                this.showUpdateIndicator();
+            });
+        }
+
+        // Show update indicator when new notifications arrive
+        showUpdateIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'update-indicator';
+            indicator.innerHTML = '<i class="fas fa-bell"></i> New notifications received';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+                animation: slideInFromRight 0.3s ease-out;
+                font-size: 14px;
+                font-weight: 500;
+            `;
+            
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                indicator.style.animation = 'slideOutToRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.parentNode.removeChild(indicator);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Start auto-refresh for real-time updates
+        startAutoRefresh() {
+            this.refreshInterval = setInterval(() => {
+                this.refreshNotificationStats();
+            }, 30000); // Refresh every 30 seconds
+        }
+
+        // Refresh notification statistics
+        refreshNotificationStats() {
+            this.updateStats();
+            
+            // Check for new unread notifications
+            const unreadCount = this.notifications.filter(n => !n.isRead).length;
+            const lastUnreadCount = parseInt(localStorage.getItem('lastUnreadCount') || '0');
+            
+            if (unreadCount > lastUnreadCount) {
+                this.showNewNotificationAlert(unreadCount - lastUnreadCount);
+            }
+            
+            localStorage.setItem('lastUnreadCount', unreadCount.toString());
+        }
+
+        // Show alert for new notifications
+        showNewNotificationAlert(newCount) {
+            if (window.NotificationSystem) {
+                window.NotificationSystem.info(
+                    'New Notifications',
+                    `${newCount} new notification${newCount > 1 ? 's' : ''} received`,
+                    { autoHide: true, persistent: false }
+                );
+            }
+        }
+
+        bindEvents() {
+            // Filter and search events
+            document.getElementById('notification-filter-btn')?.addEventListener('click', () => this.toggleFilters());
+            document.getElementById('apply-filters-btn')?.addEventListener('click', () => this.applyFilters());
+            document.getElementById('clear-filters-btn')?.addEventListener('click', () => this.clearFilters());
+            document.getElementById('notification-search')?.addEventListener('input', (e) => this.handleSearch(e.target.value));
+            
+            // Bulk actions
+            document.getElementById('bulk-actions-btn')?.addEventListener('click', () => this.toggleBulkActions());
+            document.getElementById('select-all-notifications')?.addEventListener('change', (e) => this.selectAll(e.target.checked));
+            document.getElementById('bulk-mark-read')?.addEventListener('click', () => this.bulkMarkRead());
+            document.getElementById('bulk-archive')?.addEventListener('click', () => this.bulkArchive());
+            document.getElementById('bulk-delete')?.addEventListener('click', () => this.bulkDelete());
+            
+            // View controls
+            document.querySelectorAll('[data-view]').forEach(btn => {
+                btn.addEventListener('click', (e) => this.changeView(e.target.closest('[data-view]').dataset.view));
+            });
+            
+            // Tab controls
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                btn.addEventListener('click', (e) => this.changeTab(e.target.closest('[data-tab]').dataset.tab));
+            });
+            
+            // Quick actions
+            document.getElementById('quick-payment-alerts')?.addEventListener('click', () => this.quickFilter('payment'));
+            document.getElementById('quick-compliance')?.addEventListener('click', () => this.quickFilter('compliance'));
+            document.getElementById('quick-contracts')?.addEventListener('click', () => this.quickFilter('contract'));
+            document.getElementById('quick-system')?.addEventListener('click', () => this.quickFilter('system'));
+            document.getElementById('quick-workflow')?.addEventListener('click', () => this.quickFilter('workflow'));
+            
+            // Settings and other actions
+            document.getElementById('mark-all-read-btn')?.addEventListener('click', () => this.markAllRead());
+            document.getElementById('notification-settings-btn')?.addEventListener('click', () => this.openSettings());
+            document.getElementById('refresh-notifications-btn')?.addEventListener('click', () => this.refreshNotifications());
+            
+            // Detail panel
+            document.getElementById('close-detail-btn')?.addEventListener('click', () => this.closeDetail());
+            
+            // Filter presets
+            document.querySelectorAll('[data-preset]').forEach(btn => {
+                btn.addEventListener('click', (e) => this.applyPreset(e.target.closest('[data-preset]').dataset.preset));
+            });
+        }
+
+        generateSampleNotifications() {
+            const categories = ['payment', 'contract', 'compliance', 'system', 'workflow', 'mining', 'reporting'];
+            const types = ['success', 'warning', 'error', 'info'];
+            const priorities = ['critical', 'high', 'medium', 'low'];
+            const sources = ['system', 'user', 'external', 'scheduled'];
+            
+            const sampleTitles = {
+                payment: ['Payment Received', 'Royalty Due', 'Payment Failed', 'Invoice Generated'],
+                contract: ['Contract Expiring', 'Contract Signed', 'Amendment Required', 'Review Needed'],
+                compliance: ['Compliance Check Due', 'Regulation Updated', 'Audit Required', 'License Expiring'],
+                system: ['System Maintenance', 'Backup Completed', 'Security Alert', 'Update Available'],
+                workflow: ['Approval Pending', 'Task Completed', 'Document Submitted', 'Review Required'],
+                mining: ['Production Target Met', 'Equipment Maintenance', 'Safety Inspection', 'Site Report'],
+                reporting: ['Report Generated', 'Data Export Ready', 'Analytics Updated', 'Dashboard Refresh']
+            };
+
+            this.notifications = [];
+            
+            // Generate 50 sample notifications
+            for (let i = 0; i < 50; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const priority = priorities[Math.floor(Math.random() * priorities.length)];
+                const source = sources[Math.floor(Math.random() * sources.length)];
+                const title = sampleTitles[category][Math.floor(Math.random() * sampleTitles[category].length)];
+                
+                const notification = {
+                    id: `notif_${i + 1}`,
+                    title: title,
+                    message: `Sample notification message for ${title.toLowerCase()}. This is notification #${i + 1}.`,
+                    category: category,
+                    type: type,
+                    priority: priority,
+                    source: source,
+                    timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random time within last week
+                    read: Math.random() > 0.6, // 40% unread
+                    starred: Math.random() > 0.8, // 20% starred
+                    archived: Math.random() > 0.9, // 10% archived
+                    snoozed: false,
+                    actions: this.getActionsForCategory(category)
+                };
+                
+                this.notifications.push(notification);
+            }
+            
+            // Sort by timestamp (newest first)
+            this.notifications.sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        getActionsForCategory(category) {
+            const actions = {
+                payment: [
+                    { label: 'View Payment Details', action: 'viewPayment', icon: 'fas fa-eye' },
+                    { label: 'Process Payment', action: 'processPayment', icon: 'fas fa-credit-card' }
+                ],
+                contract: [
+                    { label: 'View Contract', action: 'viewContract', icon: 'fas fa-file-contract' },
+                    { label: 'Schedule Review', action: 'scheduleReview', icon: 'fas fa-calendar' }
+                ],
+                compliance: [
+                    { label: 'View Compliance Details', action: 'viewCompliance', icon: 'fas fa-shield-alt' },
+                    { label: 'Generate Report', action: 'generateReport', icon: 'fas fa-file-alt' }
+                ],
+                system: [
+                    { label: 'View System Status', action: 'viewSystem', icon: 'fas fa-server' },
+                    { label: 'Acknowledge Alert', action: 'acknowledge', icon: 'fas fa-check' }
+                ],
+                workflow: [
+                    { label: 'Take Action', action: 'takeAction', icon: 'fas fa-play' },
+                    { label: 'Assign Task', action: 'assignTask', icon: 'fas fa-user-plus' }
+                ]
+            };
+            
+            return actions[category] || [];
+        }
+
+        applyFilters() {
+            this.filteredNotifications = this.notifications.filter(notification => {
+                // Status filter
+                if (this.filters.status !== 'all') {
+                    if (this.filters.status === 'unread' && notification.read) return false;
+                    if (this.filters.status === 'read' && !notification.read) return false;
+                    if (this.filters.status === 'archived' && !notification.archived) return false;
+                    if (this.filters.status === 'snoozed' && !notification.snoozed) return false;
+                }
+                
+                // Tab filter
+                if (this.currentTab !== 'all') {
+                    if (this.currentTab === 'unread' && notification.read) return false;
+                    if (this.currentTab === 'important' && !notification.starred) return false;
+                    if (this.currentTab === 'workflow' && notification.category !== 'workflow') return false;
+                    if (this.currentTab === 'archived' && !notification.archived) return false;
+                }
+                
+                // Other filters
+                if (this.filters.priority !== 'all' && notification.priority !== this.filters.priority) return false;
+                if (this.filters.type !== 'all' && notification.type !== this.filters.type) return false;
+                if (this.filters.category !== 'all' && notification.category !== this.filters.category) return false;
+                if (this.filters.source !== 'all' && notification.source !== this.filters.source) return false;
+                
+                // Search filter
+                if (this.filters.search) {
+                    const searchTerm = this.filters.search.toLowerCase();
+                    return notification.title.toLowerCase().includes(searchTerm) || 
+                           notification.message.toLowerCase().includes(searchTerm);
+                }
+                
+                return true;
+            });
+            
+            this.currentPage = 1;
+            this.updateStats();
+            this.renderNotifications();
+        }
+
+        updateStats() {
+            const stats = {
+                urgent: this.notifications.filter(n => n.priority === 'critical').length,
+                unread: this.notifications.filter(n => !n.read).length,
+                today: this.notifications.filter(n => this.isToday(n.timestamp)).length,
+                workflow: this.notifications.filter(n => n.category === 'workflow' && !n.read).length,
+                total: this.notifications.length
+            };
+            
+            document.getElementById('urgent-count').textContent = stats.urgent;
+            document.getElementById('unread-count').textContent = stats.unread;
+            document.getElementById('today-count').textContent = stats.today;
+            document.getElementById('workflow-count').textContent = stats.workflow;
+            document.getElementById('total-count').textContent = stats.total;
+            
+            // Update tab counts
+            document.getElementById('all-tab-count').textContent = this.notifications.length;
+            document.getElementById('unread-tab-count').textContent = stats.unread;
+            document.getElementById('important-tab-count').textContent = this.notifications.filter(n => n.starred).length;
+            document.getElementById('workflow-tab-count').textContent = stats.workflow;
+            document.getElementById('archived-tab-count').textContent = this.notifications.filter(n => n.archived).length;
+            
+            // Update quick action badges
+            const categoryStats = {
+                payment: this.notifications.filter(n => n.category === 'payment' && !n.read).length,
+                compliance: this.notifications.filter(n => n.category === 'compliance' && !n.read).length,
+                contract: this.notifications.filter(n => n.category === 'contract' && !n.read).length,
+                system: this.notifications.filter(n => n.category === 'system' && !n.read).length,
+                workflow: stats.workflow
+            };
+            
+            Object.entries(categoryStats).forEach(([key, count]) => {
+                const badge = document.getElementById(`${key === 'contract' ? 'contracts' : key}-badge`);
+                if (badge) badge.textContent = count;
+            });
+        }
+
+        renderNotifications() {
+            const container = document.getElementById('notifications-list');
+            const loading = document.getElementById('loading-notifications');
+            const empty = document.getElementById('no-notifications');
+            
+            // Hide loading state
+            loading.style.display = 'none';
+            
+            if (this.filteredNotifications.length === 0) {
+                container.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            
+            const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+            const endIndex = startIndex + this.itemsPerPage;
+            const pageNotifications = this.filteredNotifications.slice(startIndex, endIndex);
+            
+            container.innerHTML = pageNotifications.map(notification => this.renderNotification(notification)).join('');
+            
+            // Update pagination
+            this.updatePagination();
+            
+            // Bind notification events
+            this.bindNotificationEvents();
+        }
+
+        renderNotification(notification) {
+            const timeAgo = this.getTimeAgo(notification.timestamp);
+            const priorityClass = `priority-${notification.priority}`;
+            const typeClass = `type-${notification.type}`;
+            const unreadClass = notification.read ? '' : 'unread';
+            
+            return `
+                <div class="notification-item ${unreadClass} ${priorityClass} ${typeClass}" data-id="${notification.id}">
+                    <div class="notification-checkbox">
+                        <input type="checkbox" class="notification-select" data-id="${notification.id}">
+                    </div>
+                    <div class="notification-content" onclick="notificationCenter.showDetail('${notification.id}')">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <span class="title-text">${notification.title}</span>
+                                ${notification.starred ? '<i class="fas fa-star starred"></i>' : ''}
+                                ${!notification.read ? '<span class="unread-indicator"></span>' : ''}
+                            </div>
+                            <div class="notification-meta">
+                                <span class="priority-badge ${notification.priority}">${notification.priority}</span>
+                                <span class="category-badge">${notification.category}</span>
+                                <span class="timestamp">${timeAgo}</span>
+                            </div>
+                        </div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-actions">
+                            ${notification.actions.map(action => `
+                                <button class="btn btn-sm btn-outline-primary notification-action" 
+                                        data-action="${action.action}" data-id="${notification.id}">
+                                    <i class="${action.icon}"></i> ${action.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="notification-controls">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="notificationCenter.toggleRead('${notification.id}')" title="${notification.read ? 'Mark as Unread' : 'Mark as Read'}">
+                            <i class="fas ${notification.read ? 'fa-envelope' : 'fa-check'}"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="notificationCenter.toggleStar('${notification.id}')" title="${notification.starred ? 'Remove Star' : 'Add Star'}">
+                            <i class="fas fa-star ${notification.starred ? '' : 'far'}"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-info" onclick="notificationCenter.archiveNotification('${notification.id}')" title="Archive">
+                            <i class="fas fa-archive"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Additional helper methods
+        isToday(date) {
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        }
+
+        getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Event handlers
+        toggleFilters() {
+            const panel = document.getElementById('notification-filters');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        toggleBulkActions() {
+            const bar = document.getElementById('bulk-actions-bar');
+            bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        changeView(view) {
+            this.currentView = view;
+            document.querySelectorAll('[data-view]').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-view="${view}"]`).classList.add('active');
+            this.renderNotifications();
+        }
+
+        changeTab(tab) {
+            this.currentTab = tab;
+            document.querySelectorAll('[data-tab]').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            this.applyFilters();
+        }
+
+        quickFilter(category) {
+            this.filters.category = category;
+            document.getElementById('category-filter').value = category;
+            this.applyFilters();
+        }
+
+        handleSearch(searchTerm) {
+            this.filters.search = searchTerm;
+            this.applyFilters();
+        }
+
+        showDetail(id) {
+            const notification = this.notifications.find(n => n.id === id);
+            if (!notification) return;
+            
+            // Mark as read when viewing
+            if (!notification.read) {
+                this.toggleRead(id);
+            }
+            
+            const panel = document.getElementById('notification-detail-panel');
+            const content = document.getElementById('detail-content');
+            
+            content.innerHTML = `
+                <div class="detail-main">
+                    <h5>${notification.title}</h5>
+                    <p class="detail-timestamp">
+                        <i class="fas fa-clock"></i> ${notification.timestamp.toLocaleString()}
+                    </p>
+                    <div class="detail-message">
+                        ${notification.message}
+                    </div>
+                    <div class="detail-metadata">
+                        <div class="metadata-item">
+                            <strong>Source:</strong> ${notification.source}
+                        </div>
+                        <div class="metadata-item">
+                            <strong>Type:</strong> ${notification.type}
+                        </div>
+                        <div class="metadata-item">
+                            <strong>Category:</strong> ${notification.category}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update detail header
+            document.getElementById('detail-notification-title').textContent = notification.title;
+            document.getElementById('detail-priority').textContent = notification.priority;
+            document.getElementById('detail-priority').className = `priority-badge ${notification.priority}`;
+            document.getElementById('detail-category').textContent = notification.category;
+            
+            // Show related actions
+            const actionsContainer = document.getElementById('related-actions');
+            actionsContainer.innerHTML = notification.actions.map(action => `
+                <button class="btn btn-primary me-2 mb-2" onclick="notificationCenter.handleAction('${action.action}', '${id}')">
+                    <i class="${action.icon}"></i> ${action.label}
+                </button>
+            `).join('');
+            
+            panel.style.display = 'block';
+            document.querySelector('.enhanced-container').classList.remove('detail-closed');
+        }
+
+        closeDetail() {
+            document.getElementById('notification-detail-panel').style.display = 'none';
+            document.querySelector('.enhanced-container').classList.add('detail-closed');
+        }
+
+        toggleRead(id) {
+            const notification = this.notifications.find(n => n.id === id);
+            if (notification) {
+                notification.read = !notification.read;
+                this.updateStats();
+                this.renderNotifications();
+            }
+        }
+
+        toggleStar(id) {
+            const notification = this.notifications.find(n => n.id === id);
+            if (notification) {
+                notification.starred = !notification.starred;
+                this.updateStats();
+                this.renderNotifications();
+            }
+        }
+
+        archiveNotification(id) {
+            const notification = this.notifications.find(n => n.id === id);
+            if (notification) {
+                notification.archived = !notification.archived;
+                this.updateStats();
+                this.renderNotifications();
+            }
+        }
+
+        markAllRead() {
+            this.notifications.forEach(n => n.read = true);
+            this.updateStats();
+            this.renderNotifications();
+        }
+
+        refreshNotifications() {
+            document.getElementById('loading-notifications').style.display = 'block';
+            setTimeout(() => {
+                this.generateSampleNotifications();
+                this.applyFilters();
+            }, 1000);
+        }
+
+        clearFilters() {
+            this.filters = {
+                status: 'all',
+                priority: 'all',
+                type: 'all',
+                category: 'all',
+                dateRange: 'all',
+                source: 'all',
+                search: ''
+            };
+            
+            // Reset filter controls
+            document.getElementById('status-filter').value = 'all';
+            document.getElementById('priority-filter').value = 'all';
+            document.getElementById('type-filter').value = 'all';
+            document.getElementById('category-filter').value = 'all';
+            document.getElementById('date-filter').value = 'all';
+            document.getElementById('source-filter').value = 'all';
+            document.getElementById('notification-search').value = '';
+            
+            this.applyFilters();
+        }
+
+        openSettings() {
+            // Implement notification settings modal
+            alert('Notification settings panel would open here');
+        }
+
+        bindNotificationEvents() {
+            // Bind checkbox events
+            document.querySelectorAll('.notification-select').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) {
+                        this.selectedNotifications.add(id);
+                    } else {
+                        this.selectedNotifications.delete(id);
+                    }
+                    this.updateBulkSelection();
+                });
+            });
+        }
+
+        updateBulkSelection() {
+            const count = this.selectedNotifications.size;
+            document.getElementById('selected-count').textContent = `${count} selected`;
+        }
+
+        updatePagination() {
+            const totalPages = Math.ceil(this.filteredNotifications.length / this.itemsPerPage);
+            const pagination = document.getElementById('notifications-pagination');
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+            
+            // Update pagination info
+            const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+            const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredNotifications.length);
+            
+            document.getElementById('showing-start').textContent = start;
+            document.getElementById('showing-end').textContent = end;
+            document.getElementById('total-notifications').textContent = this.filteredNotifications.length;
+        }
+
+        handleAction(action, notificationId) {
+            console.log(`Executing action: ${action} for notification: ${notificationId}`);
+            // Implement specific actions based on the action type
+            alert(`Action "${action}" would be executed for notification ${notificationId}`);
+        }
+
+        // Additional methods for bulk actions, presets, etc.
+        selectAll(checked) {
+            document.querySelectorAll('.notification-select').forEach(checkbox => {
+                checkbox.checked = checked;
+                const id = checkbox.dataset.id;
+                if (checked) {
+                    this.selectedNotifications.add(id);
+                } else {
+                    this.selectedNotifications.delete(id);
+                }
+            });
+            this.updateBulkSelection();
+        }
+
+        bulkMarkRead() {
+            this.selectedNotifications.forEach(id => {
+                const notification = this.notifications.find(n => n.id === id);
+                if (notification) notification.read = true;
+            });
+            this.updateStats();
+            this.renderNotifications();
+            this.selectedNotifications.clear();
+            this.updateBulkSelection();
+        }
+
+        bulkArchive() {
+            this.selectedNotifications.forEach(id => {
+                const notification = this.notifications.find(n => n.id === id);
+                if (notification) notification.archived = true;
+            });
+            this.updateStats();
+            this.renderNotifications();
+            this.selectedNotifications.clear();
+            this.updateBulkSelection();
+        }
+
+        bulkDelete() {
+            if (confirm(`Delete ${this.selectedNotifications.size} notifications permanently?`)) {
+                this.notifications = this.notifications.filter(n => !this.selectedNotifications.has(n.id));
+                this.selectedNotifications.clear();
+                this.updateBulkSelection();
+                this.applyFilters();
+            }
+        }
+
+        applyPreset(preset) {
+            switch (preset) {
+                case 'urgent':
+                    this.filters.priority = 'critical';
+                    this.filters.status = 'unread';
+                    break;
+                case 'today':
+                    this.filters.dateRange = 'today';
+                    break;
+                case 'payments':
+                    this.filters.category = 'payment';
+                    break;
+                case 'workflow':
+                    this.filters.category = 'workflow';
+                    this.filters.status = 'unread';
+                    break;
+            }
+            this.applyFilters();
+        }
+    }
+
+    // Initialize the enhanced notification center
+    window.notificationCenter = new EnhancedNotificationCenter();
+});
+</script>
     // UI Elements
     const elements = {
         markAllReadBtn: document.getElementById('mark-all-read-btn'),
@@ -367,18 +1286,38 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeAgo = getTimeAgo(notification.timestamp);
         const priorityBadge = getPriorityBadge(notification.type);
         
-        div.innerHTML = `
-            <div class="notification-content-wrapper">
-                <div class="notification-icon" style="background-color: ${typeColor};">
-                    <i class="${iconClass}"></i>
-                </div>
-                <div class="notification-content">
-                    <div class="notification-header">
-                        <h6 class="notification-title">${notification.title}</h6>
-                        <div class="notification-meta">
-                            ${priorityBadge}
-                            <span class="notification-time">${timeAgo}</span>
-                        </div>
+        // Create elements programmatically to avoid template literal issues
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'notification-content-wrapper';
+        
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'notification-icon';
+        iconDiv.style.backgroundColor = typeColor;
+        iconDiv.innerHTML = `<i class="${iconClass}"></i>`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'notification-content';
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'notification-header';
+        
+        const titleElement = document.createElement('h6');
+        titleElement.className = 'notification-title';
+        titleElement.textContent = notification.title;
+        
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'notification-meta';
+        metaDiv.innerHTML = priorityBadge + `<span class="notification-time">${timeAgo}</span>`;
+        
+        headerDiv.appendChild(titleElement);
+        headerDiv.appendChild(metaDiv);
+        
+        const messageElement = document.createElement('p');
+        messageElement.className = 'notification-message';
+        messageElement.textContent = notification.message;
+        
+        contentDiv.appendChild(headerDiv);
+        contentDiv.appendChild(messageElement);
                     </div>
                     <p class="notification-message">${notification.message}</p>
                     <div class="notification-footer">
@@ -462,23 +1401,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeAgo = getTimeAgo(notification.timestamp);
         const fullDate = new Date(notification.timestamp).toLocaleString();
         
-        elements.detailContent.innerHTML = `
-            <div class="notification-detail">
-                <div class="detail-header-info">
-                    <div class="detail-icon" style="background-color: ${typeColor};">
-                        <i class="${iconClass}"></i>
-                    </div>
-                    <div class="detail-title-area">
-                        <h5>${notification.title}</h5>
-                        <div class="detail-meta">
-                            <span class="badge badge-${notification.type}">${notification.type.toUpperCase()}</span>
-                            <span class="badge badge-outline-secondary">${notification.category}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="detail-message">
-                    <h6>Message:</h6>
+        // Create detail content programmatically to avoid template literal issues
+        const detailDiv = document.createElement('div');
+        detailDiv.className = 'notification-detail';
+        
+        const headerInfo = document.createElement('div');
+        headerInfo.className = 'detail-header-info';
+        
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'detail-icon';
+        iconDiv.style.backgroundColor = typeColor;
+        iconDiv.innerHTML = `<i class="${iconClass}"></i>`;
+        
+        const titleArea = document.createElement('div');
+        titleArea.className = 'detail-title-area';
+        
+        const titleElement = document.createElement('h5');
+        titleElement.textContent = notification.title;
+        
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'detail-meta';
+        metaDiv.innerHTML = `
+            <span class="badge badge-${notification.type}">${notification.type.toUpperCase()}</span>
+            <span class="badge badge-outline-secondary">${notification.category}</span>
+        `;
+        
+        titleArea.appendChild(titleElement);
+        titleArea.appendChild(metaDiv);
+        headerInfo.appendChild(iconDiv);
+        headerInfo.appendChild(titleArea);
+        detailDiv.appendChild(headerInfo);
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'detail-message';
+        messageDiv.innerHTML = `<h6>Message:</h6><p>${notification.message}</p>`;
                     <p>${notification.message}</p>
                 </div>
                 

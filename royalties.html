@@ -37,7 +37,47 @@
   <!-- ==== UNIFIED SYSTEM STACK - PROPERLY ORDERED ==== -->
   
   <!-- 1. First load the core notification system -->
-  <script src="js/enhanced-notification-system.js?v=1.0.2"></script>
+  <script src="js/enhanced-notification-system.js?v=2.0.1"></script>
+  
+  <!-- Notification System Verification Script -->
+  <script>
+    (function() {
+      console.log('=== NOTIFICATION SYSTEM VERIFICATION ===');
+      
+      // Ensure notification system is available
+      function verifyNotificationSystem() {
+        if (typeof window.NotificationSystem !== 'undefined') {
+          console.log('✅ NotificationSystem loaded successfully');
+          
+          // Ensure notificationManager is set
+          if (!window.notificationManager) {
+            window.notificationManager = window.NotificationSystem;
+            console.log('✅ notificationManager reference created');
+          }
+          
+          // Test basic functionality
+          if (typeof window.notificationManager.init === 'function') {
+            try {
+              window.notificationManager.init();
+              console.log('✅ NotificationSystem initialized successfully');
+            } catch (error) {
+              console.warn('⚠️ NotificationSystem initialization warning:', error);
+            }
+          }
+          
+          console.log('✅ Notification system verification complete');
+        } else {
+          console.error('❌ NotificationSystem not found after loading');
+          setTimeout(verifyNotificationSystem, 100); // Retry
+        }
+      }
+      
+      // Run verification after a short delay
+      setTimeout(verifyNotificationSystem, 50);
+      
+      console.log('=== NOTIFICATION SYSTEM VERIFICATION: SETUP COMPLETE ===');
+    })();
+  </script>
   
   <!-- 2. Then the core chart system -->
   <script src="js/unified-chart-solution.js?v=1.0.4"></script>
@@ -76,7 +116,7 @@
   <link rel="stylesheet" href="css/badges.css">
   <link rel="stylesheet" href="css/utilities.css">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="royalties.css?v=1.0.6">
+  <link rel="stylesheet" href="royalties.css?v=2.0.0">
   <link rel="stylesheet" href="css/compliance-enhanced.css?v=1.0.1">
   
   <!-- WIDTH DEBUGGING AND FORCE FIX -->
@@ -368,7 +408,7 @@
 
       <!-- Notifications Section -->
       <section id="notifications" style="display: none;">
-        <!-- Notifications content will be loaded dynamically -->
+        <div id="notifications-content"></div>
       </section>
 
       <!-- Compliance Section -->
@@ -643,6 +683,194 @@
         }
       }, 3000); // Check after 3 seconds to ensure everything has had time to load
     });
+  </script>
+
+  <!-- Demo functionality - add sample notification triggers -->
+  <script>
+    setTimeout(() => {
+        if (window.NotificationSystem) {
+            // Add demo button to trigger various notifications
+            const demoButton = document.createElement('button');
+            demoButton.innerHTML = '<i class="fas fa-bell"></i> Demo Notifications';
+            demoButton.className = 'btn btn-outline-info demo-notifications-btn';
+            demoButton.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9998;
+                border-radius: 25px;
+                padding: 10px 20px;
+                font-size: 14px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.9);
+                border: 1px solid rgba(59, 130, 246, 0.3);
+                color: #3b82f6;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+            
+            let demoCount = 0;
+            const demoNotifications = [
+                {
+                    type: 'success',
+                    title: 'Payment Processed',
+                    message: 'Royalty payment of E75,000 received from Ngwenya Iron Ore Mine',
+                    options: { persistent: true, category: 'payment', priority: 'normal' }
+                },
+                {
+                    type: 'warning',
+                    title: 'Contract Expiring Soon',
+                    message: 'Mining contract MC-2024-008 will expire in 14 days',
+                    options: { persistent: true, category: 'contract', priority: 'high' }
+                },
+                {
+                    type: 'error',
+                    title: 'Critical: Compliance Issue',
+                    message: 'Environmental report overdue by 7 days for Lobamba Quarry',
+                    options: { persistent: true, category: 'compliance', priority: 'urgent' }
+                },
+                {
+                    type: 'info',
+                    title: 'System Maintenance',
+                    message: 'Scheduled backup completed successfully at 2:30 AM',
+                    options: { persistent: true, category: 'system', priority: 'normal' }
+                },
+                {
+                    type: 'success',
+                    title: 'Document Approved',
+                    message: 'Mining permit renewal for Sidvokodvo has been approved',
+                    options: { persistent: true, category: 'compliance', priority: 'normal' }
+                },
+                {
+                    type: 'warning',
+                    title: 'Payment Reminder',
+                    message: 'ROY-2024-009 payment due in 3 days - Amount: E125,000',
+                    options: { persistent: true, category: 'payment', priority: 'high' }
+                }
+            ];
+            
+            demoButton.addEventListener('click', () => {
+                const notification = demoNotifications[demoCount % demoNotifications.length];
+                window.NotificationSystem.show(
+                    notification.type,
+                    notification.title,
+                    notification.message,
+                    notification.options
+                );
+                demoCount++;
+                
+                // Show success feedback
+                demoButton.innerHTML = '<i class="fas fa-check"></i> Sent!';
+                demoButton.style.background = 'rgba(16, 185, 129, 0.1)';
+                demoButton.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                demoButton.style.color = '#10b981';
+                
+                setTimeout(() => {
+                    demoButton.innerHTML = '<i class="fas fa-bell"></i> Demo Notifications';
+                    demoButton.style.background = 'rgba(255, 255, 255, 0.9)';
+                    demoButton.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                    demoButton.style.color = '#3b82f6';
+                }, 1000);
+            });
+            
+            demoButton.addEventListener('mouseenter', () => {
+                demoButton.style.transform = 'translateY(-2px)';
+                demoButton.style.boxShadow = '0 6px 25px rgba(0, 0, 0, 0.15)';
+            });
+            
+            demoButton.addEventListener('mouseleave', () => {
+                demoButton.style.transform = 'translateY(0)';
+                demoButton.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            });
+            
+            document.body.appendChild(demoButton);
+            
+            console.log('Enhanced Notification System: Demo button added! Click to test notifications.');
+        }
+    }, 1000);
+
+    // Add notification sound toggle button
+    setTimeout(() => {
+        if (window.NotificationSystem) {
+            const soundToggle = document.createElement('button');
+            soundToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+            soundToggle.className = 'btn btn-outline-secondary sound-toggle-btn';
+            soundToggle.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                z-index: 9998;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.9);
+                border: 1px solid rgba(107, 114, 128, 0.3);
+                color: #6b7280;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+            
+            soundToggle.addEventListener('click', () => {
+                const soundEnabled = window.NotificationSystem.toggleSound();
+                soundToggle.innerHTML = soundEnabled ? 
+                    '<i class="fas fa-volume-up"></i>' : 
+                    '<i class="fas fa-volume-mute"></i>';
+                soundToggle.style.color = soundEnabled ? '#6b7280' : '#ef4444';
+                soundToggle.style.borderColor = soundEnabled ? 'rgba(107, 114, 128, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+                
+                // Show feedback
+                window.NotificationSystem.info(
+                    'Sound Settings',
+                    `Notification sounds ${soundEnabled ? 'enabled' : 'disabled'}`,
+                    { autoHide: true, persistent: false }
+                );
+            });
+            
+            document.body.appendChild(soundToggle);
+        }
+    }, 1000);
+
+    // Enhanced: Load notifications center UI when Notifications section is shown
+      function loadNotificationsSection() {
+        const notificationsSection = document.getElementById('notifications');
+        const notificationsContent = document.getElementById('notifications-content');
+        if (notificationsSection && notificationsContent && !notificationsContent.dataset.loaded) {
+          fetch('components/notifications.html')
+            .then(response => response.text())
+            .then(html => {
+              notificationsContent.innerHTML = html;
+              notificationsContent.dataset.loaded = 'true';
+              // Re-initialize notification center logic if needed
+              if (window.EnhancedNotificationCenter && typeof window.EnhancedNotificationCenter.init === 'function') {
+                window.EnhancedNotificationCenter.init();
+              }
+              // Also initialize window.notificationCenter if present
+              if (window.notificationCenter && typeof window.notificationCenter.init === 'function') {
+                window.notificationCenter.init();
+              }
+              // If notificationCenter is a class, instantiate if not already
+              if (typeof window.EnhancedNotificationCenter === 'function' && !window.notificationCenter) {
+                window.notificationCenter = new window.EnhancedNotificationCenter();
+              }
+            });
+        }
+      }
+      // Listen for section navigation
+      document.addEventListener('sectionChange', function(e) {
+        if (e.detail && e.detail.section === 'notifications') {
+          loadNotificationsSection();
+        }
+      });
+      // If notifications section is already visible on load, load it
+      if (document.getElementById('notifications')?.style.display !== 'none') {
+        loadNotificationsSection();
+      }
   </script>
 </body>
 </html>

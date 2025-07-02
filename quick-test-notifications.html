@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Quick Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Notification System Quick Test</h1>
+        
+        <div id="status-container">
+            <div class="status info">Loading notification system...</div>
+        </div>
+        
+        <div id="test-buttons" style="display: none;">
+            <button onclick="testShow()">Test Show Notification</button>
+            <button onclick="testPersistent()">Test Persistent Notification</button>
+            <button onclick="testCount()">Test Count Update</button>
+            <button onclick="clearTests()">Clear Status</button>
+        </div>
+        
+        <!-- Mock notification count element -->
+        <div id="notification-count" style="display: none;">0</div>
+    </div>
+
+    <script src="js/enhanced-notification-system.js"></script>
+    
+    <script>
+        const statusContainer = document.getElementById('status-container');
+        const testButtons = document.getElementById('test-buttons');
+        
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusContainer.appendChild(div);
+        }
+        
+        function clearTests() {
+            statusContainer.innerHTML = '';
+        }
+        
+        function testShow() {
+            if (window.notificationManager) {
+                window.notificationManager.show('Test notification from quick test', 'success', 3000);
+                addStatus('✅ Show notification test executed', 'success');
+            } else {
+                addStatus('❌ notificationManager not available', 'error');
+            }
+        }
+        
+        function testPersistent() {
+            if (window.notificationManager) {
+                const id = window.notificationManager.addPersistentNotification(
+                    'info',
+                    'Quick Test',
+                    'This is a persistent notification from the quick test.',
+                    'system'
+                );
+                addStatus(`✅ Persistent notification added: ${id}`, 'success');
+            } else {
+                addStatus('❌ notificationManager not available', 'error');
+            }
+        }
+        
+        function testCount() {
+            if (window.notificationManager) {
+                window.notificationManager.updateNotificationCount();
+                addStatus(`✅ Count updated: ${window.notificationManager.unreadCount}`, 'success');
+            } else {
+                addStatus('❌ notificationManager not available', 'error');
+            }
+        }
+        
+        // Check system availability
+        function checkSystem() {
+            clearTests();
+            
+            if (typeof window.NotificationSystem !== 'undefined') {
+                addStatus('✅ NotificationSystem is available', 'success');
+            } else {
+                addStatus('❌ NotificationSystem is not available', 'error');
+                return;
+            }
+            
+            if (typeof window.notificationManager !== 'undefined') {
+                addStatus('✅ notificationManager is available', 'success');
+            } else {
+                addStatus('❌ notificationManager is not available', 'error');
+                
+                // Try to fix it
+                if (window.NotificationSystem) {
+                    window.notificationManager = window.NotificationSystem;
+                    addStatus('🔧 Created notificationManager reference', 'info');
+                }
+            }
+            
+            // Test if it's initialized
+            if (window.notificationManager && window.notificationManager.container) {
+                addStatus('✅ Notification system is initialized', 'success');
+            } else {
+                addStatus('⚠️ Notification system may not be initialized', 'info');
+                
+                // Try to initialize
+                if (window.notificationManager && window.notificationManager.init) {
+                    try {
+                        window.notificationManager.init();
+                        addStatus('🔧 Initialized notification system', 'info');
+                    } catch (error) {
+                        addStatus(`❌ Initialization failed: ${error.message}`, 'error');
+                    }
+                }
+            }
+            
+            // Show test buttons if system is available
+            if (window.notificationManager) {
+                testButtons.style.display = 'block';
+                addStatus('🎯 System ready for testing!', 'success');
+            }
+        }
+        
+        // Wait for system to load
+        window.addEventListener('load', () => {
+            setTimeout(checkSystem, 500);
+        });
+        
+        // Also listen for notification system ready event
+        window.addEventListener('notificationSystemReady', () => {
+            checkSystem();
+        });
+    </script>
+</body>
+</html>
