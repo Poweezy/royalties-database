@@ -76,8 +76,48 @@
   <link rel="stylesheet" href="css/badges.css">
   <link rel="stylesheet" href="css/utilities.css">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="royalties.css">
+  <link rel="stylesheet" href="royalties.css?v=1.0.6">
   <link rel="stylesheet" href="css/compliance-enhanced.css?v=1.0.1">
+  
+  <!-- WIDTH DEBUGGING AND FORCE FIX -->
+  <script>
+    // Force Contract Management width to match User Management after DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+      function forceContractManagementWidth() {
+        const userMgmt = document.getElementById('user-management');
+        const contractMgmt = document.getElementById('contract-management');
+        
+        if (userMgmt && contractMgmt) {
+          console.log('=== WIDTH DEBUGGING ===');
+          console.log('User Management computed width:', window.getComputedStyle(userMgmt).width);
+          console.log('Contract Management computed width:', window.getComputedStyle(contractMgmt).width);
+          console.log('User Management client width:', userMgmt.clientWidth);
+          console.log('Contract Management client width:', contractMgmt.clientWidth);
+          
+          // Force same width
+          contractMgmt.style.cssText = `
+            width: ${userMgmt.clientWidth}px !important;
+            max-width: ${userMgmt.clientWidth}px !important;
+            padding: ${window.getComputedStyle(userMgmt).padding} !important;
+            margin: ${window.getComputedStyle(userMgmt).margin} !important;
+            box-sizing: border-box !important;
+          `;
+          
+          console.log('After force - Contract Management width:', window.getComputedStyle(contractMgmt).width);
+        }
+      }
+      
+      // Run initially
+      setTimeout(forceContractManagementWidth, 1000);
+      
+      // Run whenever navigation occurs
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-section="contract-management"]')) {
+          setTimeout(forceContractManagementWidth, 500);
+        }
+      });
+    });
+  </script>
   
   <!-- Critical CSS for immediate loading -->
   <style>
