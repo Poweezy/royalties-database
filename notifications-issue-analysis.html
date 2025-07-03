@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Notifications Section - Issue Analysis & Solutions</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .issue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .issue-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #e53e3e;
+            transition: all 0.3s ease;
+        }
+        
+        .issue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .issue-card.warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .issue-card.success {
+            border-left-color: #10b981;
+        }
+        
+        .issue-card h3 {
+            margin-top: 0;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .issue-description {
+            color: #4a5568;
+            margin: 10px 0;
+        }
+        
+        .solution {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .solution h4 {
+            margin-top: 0;
+            color: #234e52;
+            font-size: 1rem;
+        }
+        
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #2c5aa0;
+            transform: translateY(-1px);
+        }
+        
+        .btn.btn-danger {
+            background: #e53e3e;
+        }
+        
+        .btn.btn-warning {
+            background: #f59e0b;
+        }
+        
+        .btn.btn-success {
+            background: #10b981;
+        }
+        
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+        
+        .priority-high {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+        
+        .priority-medium {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .priority-low {
+            border-left-color: #059669;
+            background: #ecfdf5;
+        }
+        
+        .issue-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-exclamation-triangle"></i> Notifications Section Issues</h1>
+            <p>Comprehensive analysis of potential problems and their solutions</p>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-danger" onclick="analyzeIssues()">
+                <i class="fas fa-search"></i> Analyze Current Issues
+            </button>
+            <button class="btn btn-warning" onclick="testBasicFunctionality()">
+                <i class="fas fa-test-tube"></i> Test Basic Functions
+            </button>
+            <button class="btn btn-success" onclick="applyQuickFixes()">
+                <i class="fas fa-tools"></i> Apply Quick Fixes
+            </button>
+            <a href="royalties.html" class="btn" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Open Main App
+            </a>
+        </div>
+        
+        <div class="issue-grid" id="issues-container">
+            <!-- Issues will be populated here -->
+        </div>
+        
+        <div id="analysis-results" style="display: none;">
+            <h2>📋 Analysis Results</h2>
+            <div id="results-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const commonIssues = [
+            {
+                id: 'component-loading',
+                title: 'Component Loading Issues',
+                priority: 'high',
+                status: 'critical',
+                description: 'The notifications component may not be loading properly due to path resolution or component loader conflicts.',
+                symptoms: [
+                    'Notifications section appears empty',
+                    'Console errors about missing components',
+                    'Fallback content showing instead of full UI'
+                ],
+                causes: [
+                    'Unified Component Loader path conflicts',
+                    'Missing components/notifications.html file',
+                    'Component loader initialization issues'
+                ],
+                solutions: [
+                    'Verify components/notifications.html exists and is accessible',
+                    'Check component loader initialization order',
+                    'Ensure proper error handling in component loading'
+                ]
+            },
+            {
+                id: 'notification-system-init',
+                title: 'Notification System Initialization',
+                priority: 'high',
+                status: 'critical',
+                description: 'The enhanced notification system may not be initializing correctly, causing global methods to be unavailable.',
+                symptoms: [
+                    'window.notificationManager is undefined',
+                    'window.NotificationSystem is undefined',
+                    'Notification methods not working'
+                ],
+                causes: [
+                    'Script loading order issues',
+                    'Initialization timing problems',
+                    'Global reference assignment failures'
+                ],
+                solutions: [
+                    'Ensure enhanced-notification-system.js loads before app.js',
+                    'Add initialization verification checks',
+                    'Implement fallback initialization methods'
+                ]
+            },
+            {
+                id: 'dom-element-missing',
+                title: 'Missing DOM Elements',
+                priority: 'medium',
+                status: 'warning',
+                description: 'Required DOM elements for the notification system may be missing from the main HTML file.',
+                symptoms: [
+                    'getElementById returns null for notification elements',
+                    'Event handlers not binding correctly',
+                    'UI elements not responding to interactions'
+                ],
+                causes: [
+                    'Missing notification-count element in sidebar',
+                    'Missing notifications section in main HTML',
+                    'Incorrect element IDs or selectors'
+                ],
+                solutions: [
+                    'Add missing DOM elements to royalties.html',
+                    'Verify element IDs match JavaScript references',
+                    'Add defensive null checks in JavaScript'
+                ]
+            },
+            {
+                id: 'navigation-integration',
+                title: 'Navigation Integration Problems',
+                priority: 'medium',
+                status: 'warning',
+                description: 'The notifications section may not be properly integrated with the navigation system.',
+                symptoms: [
+                    'Clicking notifications link does nothing',
+                    'Section not switching properly',
+                    'Navigation state not updating'
+                ],
+                causes: [
+                    'Missing data-section attributes',
+                    'Navigation manager not recognizing notifications',
+                    'Event listener conflicts'
+                ],
+                solutions: [
+                    'Verify navigation link has correct data-section="notifications"',
+                    'Add notifications to valid sections list',
+                    'Check navigation event handling'
+                ]
+            },
+            {
+                id: 'css-styling-issues',
+                title: 'CSS Styling Issues',
+                priority: 'low',
+                status: 'info',
+                description: 'Notification styles may not be loading correctly or may have conflicts.',
+                symptoms: [
+                    'Notifications appear unstyled',
+                    'Layout is broken or overlapping',
+                    'Responsive design not working'
+                ],
+                causes: [
+                    'CSS files not loading in correct order',
+                    'Style conflicts between frameworks',
+                    'Missing responsive breakpoints'
+                ],
+                solutions: [
+                    'Verify CSS load order: base.css, components.css, main.css',
+                    'Check for CSS specificity conflicts',
+                    'Add missing responsive styles'
+                ]
+            },
+            {
+                id: 'persistent-storage',
+                title: 'Persistent Storage Issues',
+                priority: 'medium',
+                status: 'warning',
+                description: 'Notification data may not be persisting correctly between sessions.',
+                symptoms: [
+                    'Notifications disappear on page reload',
+                    'Read/unread state not saving',
+                    'Settings not persisting'
+                ],
+                causes: [
+                    'localStorage quota exceeded',
+                    'Serialization/deserialization errors',
+                    'Browser storage restrictions'
+                ],
+                solutions: [
+                    'Add localStorage error handling',
+                    'Implement storage quota checks',
+                    'Add fallback storage methods'
+                ]
+            }
+        ];
+
+        function displayIssues() {
+            const container = document.getElementById('issues-container');
+            container.innerHTML = '';
+            
+            commonIssues.forEach(issue => {
+                const card = document.createElement('div');
+                card.className = `issue-card priority-${issue.priority}`;
+                
+                card.innerHTML = `
+                    <h3>
+                        <i class="fas fa-exclamation-circle"></i>
+                        ${issue.title}
+                        <span class="issue-status status-${issue.status}">${issue.status}</span>
+                    </h3>
+                    <div class="issue-description">
+                        ${issue.description}
+                    </div>
+                    
+                    <div class="solution">
+                        <h4><i class="fas fa-lightbulb"></i> Symptoms:</h4>
+                        <ul>
+                            ${issue.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                        </ul>
+                        
+                        <h4><i class="fas fa-search"></i> Possible Causes:</h4>
+                        <ul>
+                            ${issue.causes.map(cause => `<li>${cause}</li>`).join('')}
+                        </ul>
+                        
+                        <h4><i class="fas fa-tools"></i> Solutions:</h4>
+                        <ul>
+                            ${issue.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                        </ul>
+                        
+                        <button class="btn btn-success" onclick="diagnoseIssue('${issue.id}')">
+                            <i class="fas fa-stethoscope"></i> Diagnose This Issue
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        function analyzeIssues() {
+            const results = document.getElementById('analysis-results');
+            const content = document.getElementById('results-content');
+            
+            results.style.display = 'block';
+            content.innerHTML = '<div style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Analyzing issues...</div>';
+            
+            setTimeout(() => {
+                const analysisResults = performRealTimeAnalysis();
+                content.innerHTML = generateAnalysisReport(analysisResults);
+            }, 2000);
+        }
+
+        function performRealTimeAnalysis() {
+            const results = {
+                notificationSystem: {
+                    available: typeof window.NotificationSystem !== 'undefined',
+                    managerReference: typeof window.notificationManager !== 'undefined',
+                    initialized: window.NotificationSystem?.container ? true : false
+                },
+                domElements: {
+                    notificationsSection: !!document.getElementById('notifications'),
+                    notificationsContent: !!document.getElementById('notifications-content'),
+                    notificationCount: !!document.getElementById('notification-count')
+                },
+                navigation: {
+                    navLink: !!document.querySelector('a[data-section="notifications"]'),
+                    navManager: typeof window.navigationManager !== 'undefined' || typeof window.NavigationManager !== 'undefined'
+                },
+                components: {
+                    unifiedLoader: typeof window.unifiedComponentLoader !== 'undefined',
+                    appInstance: typeof window.royaltiesApp !== 'undefined'
+                },
+                scripts: {
+                    enhancedNotificationSystem: Array.from(document.scripts).some(s => s.src.includes('enhanced-notification-system.js')),
+                    app: Array.from(document.scripts).some(s => s.src.includes('app.js'))
+                }
+            };
+            
+            return results;
+        }
+
+        function generateAnalysisReport(results) {
+            let html = '<div style="background: #f7fafc; padding: 20px; border-radius: 12px;">';
+            
+            // Notification System Status
+            html += '<h3><i class="fas fa-bell"></i> Notification System Status</h3>';
+            html += `<p><strong>NotificationSystem:</strong> ${results.notificationSystem.available ? '✅ Available' : '❌ Missing'}</p>`;
+            html += `<p><strong>notificationManager:</strong> ${results.notificationSystem.managerReference ? '✅ Available' : '❌ Missing'}</p>`;
+            html += `<p><strong>Initialized:</strong> ${results.notificationSystem.initialized ? '✅ Yes' : '❌ No'}</p>`;
+            
+            // DOM Elements Status
+            html += '<h3><i class="fas fa-code"></i> DOM Elements Status</h3>';
+            html += `<p><strong>Notifications Section:</strong> ${results.domElements.notificationsSection ? '✅ Present' : '❌ Missing'}</p>`;
+            html += `<p><strong>Notifications Content:</strong> ${results.domElements.notificationsContent ? '✅ Present' : '❌ Missing'}</p>`;
+            html += `<p><strong>Notification Count:</strong> ${results.domElements.notificationCount ? '✅ Present' : '❌ Missing'}</p>`;
+            
+            // Navigation Status
+            html += '<h3><i class="fas fa-navigation"></i> Navigation Status</h3>';
+            html += `<p><strong>Navigation Link:</strong> ${results.navigation.navLink ? '✅ Present' : '❌ Missing'}</p>`;
+            html += `<p><strong>Navigation Manager:</strong> ${results.navigation.navManager ? '✅ Available' : '❌ Missing'}</p>`;
+            
+            // Components Status
+            html += '<h3><i class="fas fa-puzzle-piece"></i> Components Status</h3>';
+            html += `<p><strong>Unified Component Loader:</strong> ${results.components.unifiedLoader ? '✅ Available' : '❌ Missing'}</p>`;
+            html += `<p><strong>App Instance:</strong> ${results.components.appInstance ? '✅ Available' : '❌ Missing'}</p>`;
+            
+            // Scripts Status
+            html += '<h3><i class="fas fa-file-code"></i> Scripts Status</h3>';
+            html += `<p><strong>Enhanced Notification System:</strong> ${results.scripts.enhancedNotificationSystem ? '✅ Loaded' : '❌ Missing'}</p>`;
+            html += `<p><strong>App.js:</strong> ${results.scripts.app ? '✅ Loaded' : '❌ Missing'}</p>`;
+            
+            // Recommendations
+            html += '<h3><i class="fas fa-lightbulb"></i> Recommendations</h3>';
+            
+            if (!results.notificationSystem.available) {
+                html += '<div class="code-block">// Add to royalties.html before closing &lt;/body&gt;<br>&lt;script src="js/enhanced-notification-system.js?v=2.0.2"&gt;&lt;/script&gt;</div>';
+            }
+            
+            if (!results.domElements.notificationsSection) {
+                html += '<div class="code-block">// Add to royalties.html in main content area<br>&lt;section id="notifications" style="display: none;"&gt;<br>  &lt;div id="notifications-content"&gt;&lt;/div&gt;<br>&lt;/section&gt;</div>';
+            }
+            
+            if (!results.navigation.navLink) {
+                html += '<div class="code-block">// Add to sidebar navigation<br>&lt;a href="#notifications" class="nav-link" data-section="notifications"&gt;<br>  &lt;i class="fas fa-bell"&gt;&lt;/i&gt; Notifications<br>&lt;/a&gt;</div>';
+            }
+            
+            html += '</div>';
+            
+            return html;
+        }
+
+        function diagnoseIssue(issueId) {
+            const issue = commonIssues.find(i => i.id === issueId);
+            if (!issue) return;
+            
+            alert(`🔍 Diagnosing: ${issue.title}\n\nThis would run specific diagnostic tests for this issue type. Check the browser console for detailed information.`);
+            
+            console.group(`🔍 Diagnosing: ${issue.title}`);
+            
+            switch(issueId) {
+                case 'component-loading':
+                    diagnoseComponentLoading();
+                    break;
+                case 'notification-system-init':
+                    diagnoseNotificationSystemInit();
+                    break;
+                case 'dom-element-missing':
+                    diagnoseDOMElements();
+                    break;
+                case 'navigation-integration':
+                    diagnoseNavigationIntegration();
+                    break;
+                case 'css-styling-issues':
+                    diagnoseCSSIssues();
+                    break;
+                case 'persistent-storage':
+                    diagnosePersistentStorage();
+                    break;
+            }
+            
+            console.groupEnd();
+        }
+
+        function diagnoseComponentLoading() {
+            console.log('🔍 Component Loading Diagnosis:');
+            
+            // Check unified component loader
+            if (window.unifiedComponentLoader) {
+                console.log('✅ Unified Component Loader is available');
+                const stats = window.unifiedComponentLoader.getCacheStats ? window.unifiedComponentLoader.getCacheStats() : 'No stats available';
+                console.log('📊 Cache Stats:', stats);
+            } else {
+                console.log('❌ Unified Component Loader is missing');
+            }
+            
+            // Test component loading
+            fetch('components/notifications.html')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ components/notifications.html is accessible');
+                        return response.text();
+                    } else {
+                        console.log('❌ components/notifications.html returned:', response.status, response.statusText);
+                    }
+                })
+                .then(html => {
+                    if (html) {
+                        console.log('✅ Component content loaded:', html.length, 'characters');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Failed to load component:', error.message);
+                });
+        }
+
+        function diagnoseNotificationSystemInit() {
+            console.log('🔍 Notification System Initialization Diagnosis:');
+            
+            console.log('NotificationSystem available:', typeof window.NotificationSystem !== 'undefined');
+            console.log('notificationManager available:', typeof window.notificationManager !== 'undefined');
+            
+            if (window.NotificationSystem) {
+                console.log('Container initialized:', !!window.NotificationSystem.container);
+                console.log('Persistent notifications:', window.NotificationSystem.persistentNotifications?.length || 0);
+                console.log('Available methods:', Object.getOwnPropertyNames(window.NotificationSystem).filter(prop => typeof window.NotificationSystem[prop] === 'function'));
+            }
+            
+            if (window.notificationManager) {
+                console.log('Manager references NotificationSystem:', window.notificationManager === window.NotificationSystem);
+            }
+        }
+
+        function diagnoseDOMElements() {
+            console.log('🔍 DOM Elements Diagnosis:');
+            
+            const requiredElements = [
+                'notifications',
+                'notifications-content', 
+                'notification-count'
+            ];
+            
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`Element #${id}:`, element ? `✅ Found (${element.tagName})` : '❌ Missing');
+            });
+            
+            const navLink = document.querySelector('a[data-section="notifications"]');
+            console.log('Navigation link:', navLink ? '✅ Found' : '❌ Missing');
+        }
+
+        function diagnoseNavigationIntegration() {
+            console.log('🔍 Navigation Integration Diagnosis:');
+            
+            console.log('NavigationManager available:', typeof window.NavigationManager !== 'undefined');
+            console.log('navigationManager available:', typeof window.navigationManager !== 'undefined');
+            
+            const navLinks = document.querySelectorAll('a[data-section]');
+            console.log('Navigation links found:', navLinks.length);
+            
+            navLinks.forEach(link => {
+                console.log(`  - ${link.dataset.section}: ${link.textContent.trim()}`);
+            });
+        }
+
+        function diagnoseCSSIssues() {
+            console.log('🔍 CSS Issues Diagnosis:');
+            
+            const requiredClasses = [
+                'notification-stats-dashboard',
+                'notification-filters',
+                'notifications-list',
+                'notification-item'
+            ];
+            
+            requiredClasses.forEach(className => {
+                const elements = document.querySelectorAll(`.${className}`);
+                console.log(`Class .${className}:`, elements.length > 0 ? `✅ Found (${elements.length} elements)` : '❌ Not found');
+            });
+            
+            const stylesheets = Array.from(document.styleSheets);
+            console.log('Loaded stylesheets:', stylesheets.length);
+            stylesheets.forEach((sheet, index) => {
+                try {
+                    console.log(`  ${index + 1}. ${sheet.href || 'Inline styles'}: ${sheet.cssRules?.length || 0} rules`);
+                } catch (e) {
+                    console.log(`  ${index + 1}. ${sheet.href || 'Inline styles'}: Cannot access (CORS)`);
+                }
+            });
+        }
+
+        function diagnosePersistentStorage() {
+            console.log('🔍 Persistent Storage Diagnosis:');
+            
+            try {
+                const stored = localStorage.getItem('persistentNotifications');
+                console.log('Stored notifications:', stored ? `✅ Found (${stored.length} characters)` : '❌ None');
+                
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    console.log('Parsed notifications:', Array.isArray(parsed) ? `${parsed.length} items` : 'Invalid format');
+                }
+                
+                // Test storage availability
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                console.log('localStorage:', '✅ Available');
+            } catch (error) {
+                console.log('localStorage:', `❌ Error: ${error.message}`);
+            }
+        }
+
+        function testBasicFunctionality() {
+            console.group('🧪 Testing Basic Functionality');
+            
+            if (window.notificationManager || window.NotificationSystem) {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                
+                // Test notification creation
+                try {
+                    const testId = notificationSystem.addPersistentNotification(
+                        'info',
+                        'Test Notification',
+                        'This is a test from the issue analysis tool.',
+                        'test'
+                    );
+                    console.log('✅ Test notification created:', testId);
+                    
+                    // Test retrieval
+                    const notifications = notificationSystem.getPersistentNotifications();
+                    console.log('✅ Notifications retrieved:', notifications.length);
+                    
+                    // Clean up test notification
+                    notificationSystem.removePersistentNotification(testId);
+                    console.log('✅ Test notification cleaned up');
+                    
+                } catch (error) {
+                    console.log('❌ Basic functionality test failed:', error.message);
+                }
+            } else {
+                console.log('❌ Notification system not available for testing');
+            }
+            
+            console.groupEnd();
+            alert('🧪 Basic functionality test completed. Check browser console for detailed results.');
+        }
+
+        function applyQuickFixes() {
+            console.group('🔧 Applying Quick Fixes');
+            
+            let fixesApplied = 0;
+            
+            // Fix 1: Ensure notification manager reference
+            if (typeof window.notificationManager === 'undefined' && typeof window.NotificationSystem !== 'undefined') {
+                window.notificationManager = window.NotificationSystem;
+                console.log('✅ Fixed: Created notificationManager reference');
+                fixesApplied++;
+            }
+            
+            // Fix 2: Initialize notification system if not initialized
+            if (window.NotificationSystem && !window.NotificationSystem.container) {
+                try {
+                    window.NotificationSystem.init();
+                    console.log('✅ Fixed: Initialized notification system');
+                    fixesApplied++;
+                } catch (error) {
+                    console.log('❌ Failed to initialize notification system:', error.message);
+                }
+            }
+            
+            // Fix 3: Add missing notification count element if sidebar exists
+            if (!document.getElementById('notification-count')) {
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('nav');
+                if (sidebar) {
+                    const countElement = document.createElement('span');
+                    countElement.id = 'notification-count';
+                    countElement.className = 'notification-count';
+                    countElement.textContent = '0';
+                    countElement.style.cssText = 'display: inline-block; background: #e53e3e; color: white; border-radius: 50%; width: 20px; height: 20px; text-align: center; font-size: 12px; line-height: 20px;';
+                    
+                    const notificationLink = document.querySelector('a[data-section="notifications"]');
+                    if (notificationLink) {
+                        notificationLink.appendChild(countElement);
+                        console.log('✅ Fixed: Added notification count element');
+                        fixesApplied++;
+                    }
+                }
+            }
+            
+            // Fix 4: Trigger notification count update
+            if (window.notificationManager && window.notificationManager.updateNotificationCount) {
+                window.notificationManager.updateNotificationCount();
+                console.log('✅ Fixed: Updated notification count');
+                fixesApplied++;
+            }
+            
+            console.groupEnd();
+            alert(`🔧 Applied ${fixesApplied} quick fixes. Check browser console for details.`);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            displayIssues();
+            
+            // Auto-analyze after a short delay
+            setTimeout(() => {
+                console.log('🔍 Auto-analyzing current state...');
+                analyzeIssues();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

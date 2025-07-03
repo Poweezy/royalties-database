@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Section Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+        }
+        .diagnostic-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .issue-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .issue-card.warning {
+            border-left-color: #ffc107;
+        }
+        .issue-card.success {
+            border-left-color: #28a745;
+        }
+        .issue-title {
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+        .issue-card.warning .issue-title {
+            color: #856404;
+        }
+        .issue-card.success .issue-title {
+            color: #155724;
+        }
+        .fix-code {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <h1>🔍 Notifications Section Diagnostic Report</h1>
+        <p>This tool analyzes the notifications section to identify what's wrong and provide fixes.</p>
+        
+        <button class="test-button" onclick="runDiagnostic()">🚀 Run Full Diagnostic</button>
+        <button class="test-button" onclick="testNotificationLoading()">📋 Test Notification Loading</button>
+        <button class="test-button" onclick="checkDOMElements()">🔍 Check DOM Elements</button>
+        <button class="test-button" onclick="testNavigation()">🧭 Test Navigation</button>
+        
+        <div id="diagnostic-results"></div>
+    </div>
+
+    <script>
+        function addIssue(title, description, type = 'error', fix = null) {
+            const resultsDiv = document.getElementById('diagnostic-results');
+            const issueCard = document.createElement('div');
+            issueCard.className = `issue-card ${type}`;
+            
+            let content = `
+                <div class="issue-title">${getIcon(type)} ${title}</div>
+                <div class="issue-description">${description}</div>
+            `;
+            
+            if (fix) {
+                content += `<div class="fix-code">${fix}</div>`;
+            }
+            
+            issueCard.innerHTML = content;
+            resultsDiv.appendChild(issueCard);
+        }
+        
+        function getIcon(type) {
+            switch(type) {
+                case 'success': return '✅';
+                case 'warning': return '⚠️';
+                case 'error': return '❌';
+                default: return '📝';
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('diagnostic-results').innerHTML = '';
+        }
+
+        function runDiagnostic() {
+            clearResults();
+            
+            // Check 1: Does notifications section exist?
+            checkNotificationsSection();
+            
+            // Check 2: Is notification system loaded?
+            checkNotificationSystem();
+            
+            // Check 3: Check component loading
+            checkComponentLoading();
+            
+            // Check 4: Check CSS files
+            checkCSSFiles();
+            
+            // Check 5: Check script loading
+            checkScriptLoading();
+            
+            // Check 6: Check navigation integration
+            checkNavigation();
+        }
+        
+        function checkNotificationsSection() {
+            const notificationsSection = document.getElementById('notifications');
+            if (!notificationsSection) {
+                addIssue(
+                    'Missing Notifications Section', 
+                    'The notifications section element is not found in the DOM. This is likely the main issue.',
+                    'error',
+                    'Add this to royalties.html:\\n\\n<section id="notifications" style="display: none;">\\n  <div id="notifications-content"></div>\\n</section>'
+                );
+                return false;
+            } else {
+                addIssue('Notifications Section Found', 'The notifications section exists in the DOM.', 'success');
+            }
+            
+            const notificationsContent = document.getElementById('notifications-content');
+            if (!notificationsContent) {
+                addIssue(
+                    'Missing Notifications Content Container', 
+                    'The notifications-content div is missing.',
+                    'error',
+                    'The notifications section should contain: <div id="notifications-content"></div>'
+                );
+                return false;
+            } else {
+                addIssue('Notifications Content Container Found', 'The notifications-content div exists.', 'success');
+            }
+            
+            return true;
+        }
+        
+        function checkNotificationSystem() {
+            if (typeof window.NotificationSystem === 'undefined') {
+                addIssue(
+                    'Notification System Not Loaded', 
+                    'The enhanced notification system is not loaded.',
+                    'error',
+                    'Add this script tag to royalties.html:\\n<script src="js/enhanced-notification-system.js?v=2.0.2"><\/script>'
+                );
+                return false;
+            } else {
+                addIssue('Notification System Loaded', 'Enhanced notification system is available.', 'success');
+            }
+            
+            if (typeof window.notificationManager === 'undefined') {
+                addIssue(
+                    'Notification Manager Reference Missing', 
+                    'The global notificationManager reference is not set.',
+                    'warning',
+                    'Add this after loading the notification system:\\nwindow.notificationManager = window.NotificationSystem;'
+                );
+            } else {
+                addIssue('Notification Manager Available', 'Global notificationManager reference exists.', 'success');
+            }
+            
+            return true;
+        }
+        
+        function checkComponentLoading() {
+            // Check if the component file exists (we can't directly test file existence in browser)
+            addIssue(
+                'Component File Check', 
+                'Cannot directly test if components/notifications.html exists from browser. Verify this file exists and is accessible.',
+                'warning',
+                'Ensure components/notifications.html exists and contains the notification center UI.'
+            );
+        }
+        
+        function checkCSSFiles() {
+            const requiredStyles = [
+                'notification-stats-dashboard',
+                'notification-filters',
+                'notifications-list'
+            ];
+            
+            let missingStyles = [];
+            
+            requiredStyles.forEach(className => {
+                const rules = Array.from(document.styleSheets).some(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules || []).some(rule => 
+                            rule.selectorText && rule.selectorText.includes(className)
+                        );
+                    } catch (e) {
+                        return false;
+                    }
+                });
+                
+                if (!rules) {
+                    missingStyles.push(className);
+                }
+            });
+            
+            if (missingStyles.length > 0) {
+                addIssue(
+                    'Missing CSS Styles', 
+                    `The following required CSS classes are missing: ${missingStyles.join(', ')}`,
+                    'warning',
+                    'Ensure all CSS files are loaded: main.css, components.css, utilities.css'
+                );
+            } else {
+                addIssue('CSS Styles Found', 'Required notification CSS styles are loaded.', 'success');
+            }
+        }
+        
+        function checkScriptLoading() {
+            const scripts = Array.from(document.scripts).map(s => s.src);
+            const requiredScripts = [
+                'enhanced-notification-system.js',
+                'app.js'
+            ];
+            
+            let missingScripts = [];
+            
+            requiredScripts.forEach(script => {
+                const found = scripts.some(src => src.includes(script));
+                if (!found) {
+                    missingScripts.push(script);
+                }
+            });
+            
+            if (missingScripts.length > 0) {
+                addIssue(
+                    'Missing Scripts', 
+                    `The following required scripts are missing: ${missingScripts.join(', ')}`,
+                    'error',
+                    'Ensure all required JavaScript files are loaded in the correct order.'
+                );
+            } else {
+                addIssue('Required Scripts Loaded', 'All required JavaScript files are loaded.', 'success');
+            }
+        }
+        
+        function checkNavigation() {
+            // Check if navigation manager exists
+            if (typeof window.NavigationManager === 'undefined' && typeof window.navigationManager === 'undefined') {
+                addIssue(
+                    'Navigation Manager Missing', 
+                    'Navigation manager is not available. This may prevent section switching.',
+                    'warning',
+                    'Ensure NavigationManager.js is loaded and initialized.'
+                );
+            } else {
+                addIssue('Navigation Manager Available', 'Navigation system is loaded.', 'success');
+            }
+            
+            // Check sidebar navigation
+            const notificationLink = document.querySelector('a[data-section="notifications"]');
+            if (!notificationLink) {
+                addIssue(
+                    'Notification Navigation Link Missing', 
+                    'The navigation link to notifications section is missing from sidebar.',
+                    'error',
+                    'Add to sidebar: <a href="#notifications" class="nav-link" data-section="notifications">\\n  <i class="fas fa-bell"></i> Notifications\\n</a>'
+                );
+            } else {
+                addIssue('Navigation Link Found', 'Notifications navigation link exists in sidebar.', 'success');
+            }
+        }
+        
+        function testNotificationLoading() {
+            clearResults();
+            
+            addIssue('Testing Notification Loading', 'Attempting to load notifications component...', 'warning');
+            
+            fetch('components/notifications.html')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    addIssue(
+                        'Component Loading Successful', 
+                        `Successfully loaded notifications.html (${html.length} characters)`,
+                        'success'
+                    );
+                    
+                    // Test if we can inject it
+                    const testContainer = document.createElement('div');
+                    testContainer.innerHTML = html;
+                    
+                    const statsElements = testContainer.querySelectorAll('.stat-card');
+                    addIssue(
+                        'Component Content Validation', 
+                        `Found ${statsElements.length} stat cards in component`,
+                        statsElements.length > 0 ? 'success' : 'warning'
+                    );
+                })
+                .catch(error => {
+                    addIssue(
+                        'Component Loading Failed', 
+                        `Failed to load components/notifications.html: ${error.message}`,
+                        'error',
+                        'Verify that components/notifications.html exists and is accessible from the web server.'
+                    );
+                });
+        }
+        
+        function checkDOMElements() {
+            clearResults();
+            
+            const elementsToCheck = [
+                'notifications',
+                'notifications-content',
+                'notification-count'
+            ];
+            
+            elementsToCheck.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    addIssue(`Element #${id}`, `Found: ${element.tagName}`, 'success');
+                } else {
+                    addIssue(`Element #${id}`, `Missing from DOM`, 'error');
+                }
+            });
+            
+            // Check sidebar elements
+            const sidebarCheck = document.querySelector('.sidebar') || document.querySelector('nav');
+            if (sidebarCheck) {
+                addIssue('Sidebar Navigation', 'Sidebar/navigation container found', 'success');
+            } else {
+                addIssue('Sidebar Navigation', 'Sidebar/navigation container missing', 'error');
+            }
+        }
+        
+        function testNavigation() {
+            clearResults();
+            
+            // Test clicking on notifications link
+            const notificationLink = document.querySelector('a[data-section="notifications"]');
+            if (notificationLink) {
+                addIssue('Navigation Link Test', 'Found notifications navigation link', 'success');
+                
+                // Simulate click (but don't actually navigate)
+                addIssue(
+                    'Navigation Click Test', 
+                    'To test navigation, click the Notifications link in the sidebar and check console for errors.',
+                    'warning'
+                );
+            } else {
+                addIssue('Navigation Link Test', 'Notifications navigation link not found', 'error');
+            }
+        }
+        
+        // Auto-run basic diagnostic on load
+        setTimeout(() => {
+            addIssue('Page Loaded', 'Notification diagnostic tool is ready. Click "Run Full Diagnostic" to identify issues.', 'success');
+        }, 500);
+    </script>
+</body>
+</html>

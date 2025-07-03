@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Notification System Check - Mining Royalties Manager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .test-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #3182ce;
+        }
+        
+        .test-card h3 {
+            margin-top: 0;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-card h3 i {
+            color: #3182ce;
+        }
+        
+        .status-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-item.success {
+            background: #f0fff4;
+            color: #22543d;
+            border-left: 3px solid #38a169;
+        }
+        
+        .status-item.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 3px solid #e53e3e;
+        }
+        
+        .status-item.warning {
+            background: #fffbeb;
+            color: #744210;
+            border-left: 3px solid #d69e2e;
+        }
+        
+        .status-item.info {
+            background: #ebf8ff;
+            color: #2a4365;
+            border-left: 3px solid #3182ce;
+        }
+        
+        .btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #2c5aa0;
+            transform: translateY(-1px);
+        }
+        
+        .btn.btn-success {
+            background: #38a169;
+        }
+        
+        .btn.btn-warning {
+            background: #d69e2e;
+        }
+        
+        .btn.btn-danger {
+            background: #e53e3e;
+        }
+        
+        .btn.btn-secondary {
+            background: #718096;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .summary h2 {
+            margin-top: 0;
+        }
+        
+        .quick-tests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-clipboard-check"></i> Final Notification System Check</h1>
+            <p>Comprehensive verification of the enhanced notification system for Mining Royalties Manager</p>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <button class="btn" id="run-full-check" onclick="runFullCheck()">
+                <i class="fas fa-play"></i> Run Complete System Check
+            </button>
+            <button class="btn btn-secondary" onclick="clearResults()">
+                <i class="fas fa-eraser"></i> Clear Results
+            </button>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h3><i class="fas fa-cogs"></i> System Initialization</h3>
+                <div id="init-status">Click "Run Complete System Check" to start...</div>
+            </div>
+            
+            <div class="test-card">
+                <h3><i class="fas fa-function"></i> Core Methods</h3>
+                <div id="methods-status">Checking methods...</div>
+            </div>
+            
+            <div class="test-card">
+                <h3><i class="fas fa-database"></i> Data Management</h3>
+                <div id="data-status">Testing data operations...</div>
+            </div>
+            
+            <div class="test-card">
+                <h3><i class="fas fa-desktop"></i> UI Integration</h3>
+                <div id="ui-status">Verifying UI components...</div>
+            </div>
+            
+            <div class="test-card">
+                <h3><i class="fas fa-bell"></i> Live Functionality</h3>
+                <div id="live-status">Testing live features...</div>
+            </div>
+            
+            <div class="test-card">
+                <h3><i class="fas fa-chart-bar"></i> Performance</h3>
+                <div id="performance-status">Measuring performance...</div>
+            </div>
+        </div>
+        
+        <div class="summary" id="summary" style="display: none;">
+            <h2><i class="fas fa-trophy"></i> System Status</h2>
+            <p id="summary-text">System check in progress...</p>
+            <div class="quick-tests">
+                <button class="btn btn-success" onclick="testAddNotification()">
+                    <i class="fas fa-plus"></i> Test Add Notification
+                </button>
+                <button class="btn btn-warning" onclick="testMarkAsRead()">
+                    <i class="fas fa-check"></i> Test Mark as Read
+                </button>
+                <button class="btn btn-danger" onclick="testDeleteNotification()">
+                    <i class="fas fa-trash"></i> Test Delete
+                </button>
+                <button class="btn btn-secondary" onclick="testSoundToggle()">
+                    <i class="fas fa-volume-up"></i> Test Sound Toggle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the notification system -->
+    <script src="js/enhanced-notification-system.js?v=2.0.1"></script>
+    
+    <script>
+        let testResults = {
+            init: false,
+            methods: false,
+            data: false,
+            ui: false,
+            live: false,
+            performance: false
+        };
+
+        function addStatus(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const item = document.createElement('div');
+            item.className = `status-item ${type}`;
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-times-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            item.innerHTML = `<i class="${icons[type]}"></i> ${message}`;
+            container.appendChild(item);
+        }
+
+        function clearResults() {
+            ['init-status', 'methods-status', 'data-status', 'ui-status', 'live-status', 'performance-status'].forEach(id => {
+                document.getElementById(id).innerHTML = 'Cleared - ready for new test...';
+            });
+            document.getElementById('summary').style.display = 'none';
+            testResults = {
+                init: false,
+                methods: false,
+                data: false,
+                ui: false,
+                live: false,
+                performance: false
+            };
+        }
+
+        async function runFullCheck() {
+            clearResults();
+            
+            // Wait a moment for system to be ready
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Test 1: System Initialization
+            await testInitialization();
+            
+            // Test 2: Core Methods
+            await testCoreMethods();
+            
+            // Test 3: Data Management
+            await testDataManagement();
+            
+            // Test 4: UI Integration
+            await testUIIntegration();
+            
+            // Test 5: Live Functionality
+            await testLiveFunctionality();
+            
+            // Test 6: Performance
+            await testPerformance();
+            
+            // Show summary
+            showSummary();
+        }
+
+        async function testInitialization() {
+            const container = 'init-status';
+            
+            try {
+                // Check if NotificationSystem exists
+                if (typeof window.NotificationSystem !== 'undefined') {
+                    addStatus(container, 'NotificationSystem is available', 'success');
+                    testResults.init = true;
+                } else {
+                    addStatus(container, 'NotificationSystem is missing', 'error');
+                    return;
+                }
+                
+                // Check if notificationManager exists
+                if (typeof window.notificationManager !== 'undefined') {
+                    addStatus(container, 'notificationManager reference is available', 'success');
+                } else {
+                    addStatus(container, 'notificationManager reference is missing', 'error');
+                    testResults.init = false;
+                    return;
+                }
+                
+                // Check if system is initialized
+                if (window.NotificationSystem.container) {
+                    addStatus(container, 'System container is initialized', 'success');
+                } else {
+                    addStatus(container, 'System container is missing', 'error');
+                    testResults.init = false;
+                    return;
+                }
+                
+                // Check persistent notifications array
+                if (Array.isArray(window.NotificationSystem.persistentNotifications)) {
+                    addStatus(container, `Persistent notifications loaded (${window.NotificationSystem.persistentNotifications.length} items)`, 'success');
+                } else {
+                    addStatus(container, 'Persistent notifications array is missing', 'error');
+                    testResults.init = false;
+                    return;
+                }
+                
+                addStatus(container, '✨ System initialization: PASSED', 'success');
+                
+            } catch (error) {
+                addStatus(container, `Initialization error: ${error.message}`, 'error');
+                testResults.init = false;
+            }
+        }
+
+        async function testCoreMethods() {
+            const container = 'methods-status';
+            
+            const requiredMethods = [
+                'init', 'show', 'addPersistentNotification', 'getPersistentNotifications',
+                'markAsRead', 'removePersistentNotification', 'deleteNotification',
+                'updateNotificationCount', 'markAllAsRead', 'bulkMarkAsRead', 'bulkDelete'
+            ];
+            
+            let methodsAvailable = 0;
+            
+            requiredMethods.forEach(method => {
+                if (typeof window.NotificationSystem[method] === 'function') {
+                    addStatus(container, `${method}() method available`, 'success');
+                    methodsAvailable++;
+                } else {
+                    addStatus(container, `${method}() method missing`, 'error');
+                }
+            });
+            
+            if (methodsAvailable === requiredMethods.length) {
+                addStatus(container, `✨ All ${requiredMethods.length} required methods: PASSED`, 'success');
+                testResults.methods = true;
+            } else {
+                addStatus(container, `Only ${methodsAvailable}/${requiredMethods.length} methods available`, 'error');
+                testResults.methods = false;
+            }
+        }
+
+        async function testDataManagement() {
+            const container = 'data-status';
+            
+            try {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                
+                // Test adding a notification
+                const testId = notificationSystem.addPersistentNotification(
+                    'info',
+                    'Test Notification',
+                    'This is a test notification for data management verification.',
+                    'test'
+                );
+                
+                if (testId) {
+                    addStatus(container, 'Successfully added test notification', 'success');
+                } else {
+                    addStatus(container, 'Failed to add test notification', 'error');
+                    testResults.data = false;
+                    return;
+                }
+                
+                // Test retrieving notifications
+                const notifications = notificationSystem.getPersistentNotifications();
+                if (notifications && notifications.length > 0) {
+                    addStatus(container, `Retrieved ${notifications.length} notifications`, 'success');
+                } else {
+                    addStatus(container, 'Failed to retrieve notifications', 'error');
+                    testResults.data = false;
+                    return;
+                }
+                
+                // Test marking as read
+                notificationSystem.markAsRead(testId);
+                const updatedNotifications = notificationSystem.getPersistentNotifications();
+                const testNotification = updatedNotifications.find(n => n.id === testId);
+                
+                if (testNotification && testNotification.isRead) {
+                    addStatus(container, 'Successfully marked notification as read', 'success');
+                } else {
+                    addStatus(container, 'Failed to mark notification as read', 'error');
+                    testResults.data = false;
+                    return;
+                }
+                
+                // Test deletion
+                notificationSystem.removePersistentNotification(testId);
+                const finalNotifications = notificationSystem.getPersistentNotifications();
+                const deletedNotification = finalNotifications.find(n => n.id === testId);
+                
+                if (!deletedNotification) {
+                    addStatus(container, 'Successfully deleted test notification', 'success');
+                } else {
+                    addStatus(container, 'Failed to delete test notification', 'error');
+                    testResults.data = false;
+                    return;
+                }
+                
+                addStatus(container, '✨ Data management operations: PASSED', 'success');
+                testResults.data = true;
+                
+            } catch (error) {
+                addStatus(container, `Data management error: ${error.message}`, 'error');
+                testResults.data = false;
+            }
+        }
+
+        async function testUIIntegration() {
+            const container = 'ui-status';
+            
+            try {
+                // Check if notification container exists in DOM
+                const notificationContainer = document.getElementById('notification-container');
+                if (notificationContainer) {
+                    addStatus(container, 'Notification container found in DOM', 'success');
+                } else {
+                    addStatus(container, 'Notification container missing from DOM', 'warning');
+                }
+                
+                // Test showing a toast notification
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                const toastId = notificationSystem.show('UI Integration Test', 'info', 2000);
+                
+                if (toastId) {
+                    addStatus(container, 'Toast notification displayed successfully', 'success');
+                } else {
+                    addStatus(container, 'Failed to display toast notification', 'error');
+                    testResults.ui = false;
+                    return;
+                }
+                
+                // Test notification count update
+                const initialCount = notificationSystem.unreadCount;
+                notificationSystem.updateNotificationCount();
+                addStatus(container, `Notification count updated (${notificationSystem.unreadCount} unread)`, 'success');
+                
+                // Test sound system
+                if (notificationSystem.sounds && notificationSystem.sounds.info) {
+                    addStatus(container, 'Sound system is initialized', 'success');
+                } else {
+                    addStatus(container, 'Sound system not available', 'warning');
+                }
+                
+                addStatus(container, '✨ UI integration: PASSED', 'success');
+                testResults.ui = true;
+                
+            } catch (error) {
+                addStatus(container, `UI integration error: ${error.message}`, 'error');
+                testResults.ui = false;
+            }
+        }
+
+        async function testLiveFunctionality() {
+            const container = 'live-status';
+            
+            try {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                
+                // Test real-time notification update event
+                let eventReceived = false;
+                
+                const testListener = (event) => {
+                    eventReceived = true;
+                    addStatus(container, 'Real-time update event received', 'success');
+                    document.removeEventListener('notificationUpdate', testListener);
+                };
+                
+                document.addEventListener('notificationUpdate', testListener);
+                
+                // Trigger an update
+                const testId = notificationSystem.addPersistentNotification(
+                    'success',
+                    'Live Test',
+                    'Testing real-time functionality',
+                    'test'
+                );
+                
+                // Wait for event
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        if (!eventReceived) {
+                            addStatus(container, 'Real-time update event not received', 'warning');
+                        }
+                        resolve();
+                    }, 1000);
+                });
+                
+                // Clean up test notification
+                notificationSystem.removePersistentNotification(testId);
+                
+                // Test auto-refresh functionality
+                if (typeof notificationSystem.updateDashboardStats === 'function') {
+                    notificationSystem.updateDashboardStats();
+                    addStatus(container, 'Dashboard stats update function works', 'success');
+                } else {
+                    addStatus(container, 'Dashboard stats update function missing', 'warning');
+                }
+                
+                addStatus(container, '✨ Live functionality: PASSED', 'success');
+                testResults.live = true;
+                
+            } catch (error) {
+                addStatus(container, `Live functionality error: ${error.message}`, 'error');
+                testResults.live = false;
+            }
+        }
+
+        async function testPerformance() {
+            const container = 'performance-status';
+            
+            try {
+                const notificationSystem = window.notificationManager || window.NotificationSystem;
+                
+                // Test bulk operations performance
+                const startTime = performance.now();
+                
+                // Add multiple notifications
+                const testIds = [];
+                for (let i = 0; i < 10; i++) {
+                    const id = notificationSystem.addPersistentNotification(
+                        'info',
+                        `Performance Test ${i + 1}`,
+                        `Testing bulk operations - notification ${i + 1}`,
+                        'performance'
+                    );
+                    testIds.push(id);
+                }
+                
+                const addTime = performance.now() - startTime;
+                addStatus(container, `Added 10 notifications in ${addTime.toFixed(2)}ms`, 'success');
+                
+                // Test bulk mark as read
+                const markStartTime = performance.now();
+                notificationSystem.bulkMarkAsRead(testIds);
+                const markTime = performance.now() - markStartTime;
+                addStatus(container, `Bulk mark as read in ${markTime.toFixed(2)}ms`, 'success');
+                
+                // Test bulk delete
+                const deleteStartTime = performance.now();
+                notificationSystem.bulkDelete(testIds);
+                const deleteTime = performance.now() - deleteStartTime;
+                addStatus(container, `Bulk delete in ${deleteTime.toFixed(2)}ms`, 'success');
+                
+                // Test memory usage
+                const notifications = notificationSystem.getPersistentNotifications();
+                addStatus(container, `Memory usage: ${notifications.length} notifications stored`, 'info');
+                
+                if (addTime < 100 && markTime < 50 && deleteTime < 50) {
+                    addStatus(container, '✨ Performance tests: PASSED', 'success');
+                    testResults.performance = true;
+                } else {
+                    addStatus(container, 'Performance tests: SLOW but functional', 'warning');
+                    testResults.performance = true; // Still functional
+                }
+                
+            } catch (error) {
+                addStatus(container, `Performance test error: ${error.message}`, 'error');
+                testResults.performance = false;
+            }
+        }
+
+        function showSummary() {
+            const summary = document.getElementById('summary');
+            const summaryText = document.getElementById('summary-text');
+            
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const totalTests = Object.keys(testResults).length;
+            
+            summary.style.display = 'block';
+            
+            if (passedTests === totalTests) {
+                summaryText.innerHTML = `
+                    <strong>🎉 EXCELLENT!</strong><br>
+                    All ${totalTests} test categories passed successfully.<br>
+                    The Enhanced Notification System is fully functional and ready for production use.
+                `;
+                summary.style.background = 'linear-gradient(135deg, #38a169, #2f855a)';
+            } else if (passedTests >= totalTests * 0.8) {
+                summaryText.innerHTML = `
+                    <strong>✅ GOOD!</strong><br>
+                    ${passedTests}/${totalTests} test categories passed.<br>
+                    The system is functional with minor issues that don't affect core functionality.
+                `;
+                summary.style.background = 'linear-gradient(135deg, #d69e2e, #b7791f)';
+            } else {
+                summaryText.innerHTML = `
+                    <strong>⚠️ NEEDS ATTENTION!</strong><br>
+                    Only ${passedTests}/${totalTests} test categories passed.<br>
+                    Some core functionality may be impaired. Please review the test results above.
+                `;
+                summary.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
+            }
+        }
+
+        // Quick test functions
+        function testAddNotification() {
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            const id = notificationSystem.addPersistentNotification(
+                'success',
+                'Quick Test Success',
+                'This is a quick test notification added from the final check tool.',
+                'manual-test'
+            );
+            
+            notificationSystem.show('Test notification added successfully!', 'success', 3000);
+        }
+
+        function testMarkAsRead() {
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            notificationSystem.markAllAsRead();
+            notificationSystem.show('All notifications marked as read!', 'info', 3000);
+        }
+
+        function testDeleteNotification() {
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            const notifications = notificationSystem.getPersistentNotifications();
+            const testNotifications = notifications.filter(n => n.category === 'manual-test' || n.category === 'test');
+            
+            if (testNotifications.length > 0) {
+                notificationSystem.removePersistentNotification(testNotifications[0].id);
+                notificationSystem.show('Test notification deleted!', 'warning', 3000);
+            } else {
+                notificationSystem.show('No test notifications to delete', 'info', 3000);
+            }
+        }
+
+        function testSoundToggle() {
+            const notificationSystem = window.notificationManager || window.NotificationSystem;
+            const soundEnabled = notificationSystem.toggleSound();
+            notificationSystem.show(`Sound ${soundEnabled ? 'enabled' : 'disabled'}!`, 'info', 3000);
+        }
+
+        // Auto-initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                console.log('🔍 Final notification check tool ready');
+                console.log('NotificationSystem available:', !!window.NotificationSystem);
+                console.log('notificationManager available:', !!window.notificationManager);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -215,7 +215,15 @@
                 }
                 
                 // Check if it has required methods
-                const requiredMethods = ['show', 'addPersistentNotification', 'getPersistentNotifications', 'markAsRead'];
+                const requiredMethods = [
+                    'show', 
+                    'addPersistentNotification', 
+                    'getPersistentNotifications', 
+                    'markAsRead',
+                    'removePersistentNotification',
+                    'deleteNotification',
+                    'updateNotificationCount'
+                ];
                 requiredMethods.forEach(method => {
                     if (typeof window.notificationManager[method] === 'function') {
                         addStatus('system-status', `notificationManager.${method}() is available`, 'success');

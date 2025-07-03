@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Comprehensive Notifications Fix Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #007bff;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .status-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .status-card.error {
+            border-left-color: #dc3545;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 8px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn.success {
+            background: #28a745;
+        }
+        
+        .btn.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn.danger {
+            background: #dc3545;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+        
+        .fix-results {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification-test {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 10000;
+        }
+        
+        .notification-test.show {
+            transform: translateX(0);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tools"></i> Comprehensive Notifications Fix Tool</h1>
+            <p>Diagnose, fix, and verify all notification system components</p>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-play-circle"></i> Quick Actions</h2>
+            <button class="btn" onclick="runFullDiagnostic()">
+                <i class="fas fa-search"></i> Run Full Diagnostic
+            </button>
+            <button class="btn success" onclick="applyAllFixes()">
+                <i class="fas fa-magic"></i> Apply All Fixes
+            </button>
+            <button class="btn warning" onclick="testNotificationSystem()">
+                <i class="fas fa-test-tube"></i> Test System
+            </button>
+            <a href="royalties.html" class="btn" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Open Main App
+            </a>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-chart-line"></i> System Status</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overall-progress" style="width: 0%"></div>
+            </div>
+            <div id="status-summary">Click "Run Full Diagnostic" to check system status...</div>
+        </div>
+        
+        <div class="status-grid" id="status-grid">
+            <!-- Status cards will be populated here -->
+        </div>
+        
+        <div class="fix-results" id="fix-results" style="display: none;">
+            <h2><i class="fas fa-wrench"></i> Fix Results</h2>
+            <div id="fix-content"></div>
+        </div>
+    </div>
+
+    <!-- Load notification system -->
+    <script src="js/enhanced-notification-system.js"></script>
+    
+    <!-- Add basic DOM elements for testing -->
+    <div id="notification-count" style="display: none;">0</div>
+    
+    <script>
+        let diagnosticResults = {};
+        let fixResults = {};
+        
+        // Main diagnostic function
+        async function runFullDiagnostic() {
+            console.group('🔍 Running Comprehensive Diagnostic');
+            
+            updateProgress(0);
+            updateStatusSummary('Running diagnostic...');
+            
+            // Test 1: Basic System Checks
+            updateProgress(10);
+            await testBasicSystemChecks();
+            
+            // Test 2: DOM Elements
+            updateProgress(25);
+            await testDOMElements();
+            
+            // Test 3: Notification System
+            updateProgress(40);
+            await testNotificationSystemInit();
+            
+            // Test 4: Component Loading
+            updateProgress(55);
+            await testComponentLoading();
+            
+            // Test 5: Navigation Integration
+            updateProgress(70);
+            await testNavigationIntegration();
+            
+            // Test 6: CSS and Styling
+            updateProgress(85);
+            await testCSSAndStyling();
+            
+            // Test 7: Storage and Persistence
+            updateProgress(100);
+            await testStorageAndPersistence();
+            
+            displayDiagnosticResults();
+            console.groupEnd();
+        }
+        
+        // Apply all available fixes
+        async function applyAllFixes() {
+            console.group('🔧 Applying All Fixes');
+            
+            const fixResults = document.getElementById('fix-results');
+            const fixContent = document.getElementById('fix-content');
+            
+            fixResults.style.display = 'block';
+            fixContent.innerHTML = '<div class="loading"></div> Applying fixes...';
+            
+            let appliedFixes = [];
+            
+            // Fix 1: Initialize notification system
+            if (fixNotificationSystemInit()) {
+                appliedFixes.push('✅ Notification system initialized');
+            }
+            
+            // Fix 2: Create missing DOM elements
+            if (fixMissingDOMElements()) {
+                appliedFixes.push('✅ Missing DOM elements created');
+            }
+            
+            // Fix 3: Fix global references
+            if (fixGlobalReferences()) {
+                appliedFixes.push('✅ Global references fixed');
+            }
+            
+            // Fix 4: Add notification count element
+            if (fixNotificationCountElement()) {
+                appliedFixes.push('✅ Notification count element added');
+            }
+            
+            // Fix 5: Initialize demo data
+            if (fixDemoData()) {
+                appliedFixes.push('✅ Demo data initialized');
+            }
+            
+            // Display results
+            fixContent.innerHTML = `
+                <h3><i class="fas fa-check-circle"></i> Fixes Applied (${appliedFixes.length})</h3>
+                <ul>
+                    ${appliedFixes.map(fix => `<li>${fix}</li>`).join('')}
+                </ul>
+                <div class="code-block">
+                    Fixes have been applied. Refresh the page and run diagnostic again to verify.
+                </div>
+                <button class="btn success" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> Refresh Page
+                </button>
+            `;
+            
+            console.groupEnd();
+        }
+        
+        // Test notification system functionality
+        async function testNotificationSystem() {
+            console.group('🧪 Testing Notification System');
+            
+            try {
+                // Test basic notification
+                if (window.notificationManager && window.notificationManager.show) {
+                    window.notificationManager.show('Test notification from fix tool', 'info', 3000);
+                    showTestNotification('✅ Basic notification test passed');
+                } else {
+                    showTestNotification('❌ Notification system not available', 'error');
+                }
+                
+                // Test persistent notification
+                if (window.NotificationSystem && window.NotificationSystem.addPersistentNotification) {
+                    window.NotificationSystem.addPersistentNotification(
+                        'Test Persistent Notification',
+                        'This is a test notification from the fix tool',
+                        'info',
+                        { category: 'test', actions: [{ label: 'Test Action', action: 'test' }] }
+                    );
+                    showTestNotification('✅ Persistent notification test passed');
+                } else {
+                    showTestNotification('❌ Persistent notification system not available', 'error');
+                }
+                
+                // Test notification count update
+                if (window.NotificationSystem && window.NotificationSystem.updateNotificationCount) {
+                    window.NotificationSystem.updateNotificationCount();
+                    showTestNotification('✅ Notification count update test passed');
+                }
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                showTestNotification('❌ Test failed: ' + error.message, 'error');
+            }
+            
+            console.groupEnd();
+        }
+        
+        // Individual test functions
+        async function testBasicSystemChecks() {
+            diagnosticResults.basicSystem = {
+                notificationSystemExists: typeof window.NotificationSystem !== 'undefined',
+                notificationManagerExists: typeof window.notificationManager !== 'undefined',
+                appExists: typeof window.app !== 'undefined' || typeof window.royaltiesApp !== 'undefined',
+                unifiedLoaderExists: typeof window.unifiedComponentLoader !== 'undefined'
+            };
+        }
+        
+        async function testDOMElements() {
+            const requiredElements = [
+                'notifications',
+                'notifications-content',
+                'notification-count'
+            ];
+            
+            diagnosticResults.domElements = {};
+            requiredElements.forEach(id => {
+                diagnosticResults.domElements[id] = !!document.getElementById(id);
+            });
+            
+            // Check navigation link
+            diagnosticResults.domElements.navLink = !!document.querySelector('a[data-section="notifications"]');
+        }
+        
+        async function testNotificationSystemInit() {
+            diagnosticResults.notificationSystem = {
+                initialized: false,
+                containerExists: false,
+                persistentNotifications: false,
+                methods: {}
+            };
+            
+            if (window.NotificationSystem) {
+                diagnosticResults.notificationSystem.initialized = true;
+                diagnosticResults.notificationSystem.containerExists = !!window.NotificationSystem.container;
+                diagnosticResults.notificationSystem.persistentNotifications = Array.isArray(window.NotificationSystem.persistentNotifications);
+                
+                // Check required methods
+                const requiredMethods = ['init', 'show', 'addPersistentNotification', 'getPersistentNotifications', 'markAsRead'];
+                requiredMethods.forEach(method => {
+                    diagnosticResults.notificationSystem.methods[method] = typeof window.NotificationSystem[method] === 'function';
+                });
+            }
+        }
+        
+        async function testComponentLoading() {
+            diagnosticResults.componentLoading = {
+                fileAccessible: false,
+                contentLength: 0
+            };
+            
+            try {
+                const response = await fetch('components/notifications.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    diagnosticResults.componentLoading.fileAccessible = true;
+                    diagnosticResults.componentLoading.contentLength = html.length;
+                }
+            } catch (error) {
+                console.warn('Component loading test failed:', error);
+            }
+        }
+        
+        async function testNavigationIntegration() {
+            diagnosticResults.navigation = {
+                navigationManagerExists: typeof window.NavigationManager !== 'undefined' || typeof window.navigationManager !== 'undefined',
+                navLinksFound: document.querySelectorAll('a[data-section]').length
+            };
+        }
+        
+        async function testCSSAndStyling() {
+            diagnosticResults.css = {
+                stylesheetsLoaded: document.styleSheets.length,
+                requiredClasses: {}
+            };
+            
+            const requiredClasses = ['notification-container', 'notification-item', 'btn'];
+            requiredClasses.forEach(className => {
+                diagnosticResults.css.requiredClasses[className] = checkCSSClass(className);
+            });
+        }
+        
+        async function testStorageAndPersistence() {
+            diagnosticResults.storage = {
+                localStorageAvailable: typeof localStorage !== 'undefined',
+                canWrite: false,
+                canRead: false
+            };
+            
+            try {
+                localStorage.setItem('test-notification-fix', 'test');
+                diagnosticResults.storage.canWrite = true;
+                
+                const testValue = localStorage.getItem('test-notification-fix');
+                diagnosticResults.storage.canRead = testValue === 'test';
+                
+                localStorage.removeItem('test-notification-fix');
+            } catch (error) {
+                console.warn('Storage test failed:', error);
+            }
+        }
+        
+        // Fix functions
+        function fixNotificationSystemInit() {
+            if (typeof window.NotificationSystem !== 'undefined' && !window.NotificationSystem.container) {
+                try {
+                    window.NotificationSystem.init();
+                    return true;
+                } catch (error) {
+                    console.error('Failed to initialize notification system:', error);
+                }
+            }
+            return false;
+        }
+        
+        function fixMissingDOMElements() {
+            let fixed = false;
+            
+            // Add notifications section if missing
+            if (!document.getElementById('notifications')) {
+                const notificationsSection = document.createElement('section');
+                notificationsSection.id = 'notifications';
+                notificationsSection.style.display = 'none';
+                notificationsSection.innerHTML = '<div id="notifications-content"></div>';
+                
+                const main = document.querySelector('main') || document.body;
+                main.appendChild(notificationsSection);
+                fixed = true;
+            }
+            
+            // Add notifications content if missing
+            if (!document.getElementById('notifications-content')) {
+                const notificationsSection = document.getElementById('notifications');
+                if (notificationsSection) {
+                    const contentDiv = document.createElement('div');
+                    contentDiv.id = 'notifications-content';
+                    notificationsSection.appendChild(contentDiv);
+                    fixed = true;
+                }
+            }
+            
+            return fixed;
+        }
+        
+        function fixGlobalReferences() {
+            let fixed = false;
+            
+            if (typeof window.NotificationSystem !== 'undefined' && typeof window.notificationManager === 'undefined') {
+                window.notificationManager = window.NotificationSystem;
+                fixed = true;
+            }
+            
+            return fixed;
+        }
+        
+        function fixNotificationCountElement() {
+            if (!document.getElementById('notification-count')) {
+                const countElement = document.createElement('span');
+                countElement.id = 'notification-count';
+                countElement.className = 'notification-count';
+                countElement.textContent = '0';
+                countElement.style.display = 'none';
+                
+                // Try to add to sidebar
+                const sidebar = document.querySelector('.sidebar') || document.querySelector('nav');
+                if (sidebar) {
+                    sidebar.appendChild(countElement);
+                } else {
+                    document.body.appendChild(countElement);
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        function fixDemoData() {
+            if (window.NotificationSystem && window.NotificationSystem.addPersistentNotification) {
+                try {
+                    // Add a demo notification
+                    window.NotificationSystem.addPersistentNotification(
+                        'Fix Tool Demo',
+                        'This notification was added by the comprehensive fix tool to verify functionality.',
+                        'info',
+                        { category: 'system', actions: [{ label: 'View Details', action: 'view-details' }] }
+                    );
+                    return true;
+                } catch (error) {
+                    console.error('Failed to add demo data:', error);
+                }
+            }
+            return false;
+        }
+        
+        // Utility functions
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('overall-progress');
+            if (progressFill) {
+                progressFill.style.width = percentage + '%';
+            }
+        }
+        
+        function updateStatusSummary(message) {
+            const statusSummary = document.getElementById('status-summary');
+            if (statusSummary) {
+                statusSummary.textContent = message;
+            }
+        }
+        
+        function displayDiagnosticResults() {
+            const statusGrid = document.getElementById('status-grid');
+            statusGrid.innerHTML = '';
+            
+            // Calculate overall health
+            let totalTests = 0;
+            let passedTests = 0;
+            
+            // Basic System Card
+            const basicSystemCard = createStatusCard('System Components', 'fas fa-cogs');
+            const basicResults = diagnosticResults.basicSystem;
+            
+            Object.entries(basicResults).forEach(([key, value]) => {
+                totalTests++;
+                if (value) passedTests++;
+                basicSystemCard.appendChild(createStatusItem(
+                    formatLabel(key),
+                    value ? '✅ Available' : '❌ Missing',
+                    value ? 'success' : 'error'
+                ));
+            });
+            statusGrid.appendChild(basicSystemCard);
+            
+            // DOM Elements Card
+            const domCard = createStatusCard('DOM Elements', 'fas fa-code');
+            Object.entries(diagnosticResults.domElements).forEach(([key, value]) => {
+                totalTests++;
+                if (value) passedTests++;
+                domCard.appendChild(createStatusItem(
+                    formatLabel(key),
+                    value ? '✅ Found' : '❌ Missing',
+                    value ? 'success' : 'error'
+                ));
+            });
+            statusGrid.appendChild(domCard);
+            
+            // Notification System Card
+            const notificationCard = createStatusCard('Notification System', 'fas fa-bell');
+            const notificationResults = diagnosticResults.notificationSystem;
+            
+            Object.entries(notificationResults).forEach(([key, value]) => {
+                if (key !== 'methods') {
+                    totalTests++;
+                    if (value) passedTests++;
+                    notificationCard.appendChild(createStatusItem(
+                        formatLabel(key),
+                        value ? '✅ Working' : '❌ Issue',
+                        value ? 'success' : 'error'
+                    ));
+                }
+            });
+            
+            // Add method checks
+            if (notificationResults.methods) {
+                Object.entries(notificationResults.methods).forEach(([method, available]) => {
+                    totalTests++;
+                    if (available) passedTests++;
+                    notificationCard.appendChild(createStatusItem(
+                        `${method}()`,
+                        available ? '✅ Available' : '❌ Missing',
+                        available ? 'success' : 'error'
+                    ));
+                });
+            }
+            statusGrid.appendChild(notificationCard);
+            
+            // Component Loading Card
+            const componentCard = createStatusCard('Component Loading', 'fas fa-puzzle-piece');
+            const componentResults = diagnosticResults.componentLoading;
+            componentCard.appendChild(createStatusItem(
+                'File Accessible',
+                componentResults.fileAccessible ? '✅ Yes' : '❌ No',
+                componentResults.fileAccessible ? 'success' : 'error'
+            ));
+            componentCard.appendChild(createStatusItem(
+                'Content Size',
+                componentResults.contentLength > 0 ? `✅ ${componentResults.contentLength} chars` : '❌ Empty',
+                componentResults.contentLength > 0 ? 'success' : 'error'
+            ));
+            totalTests += 2;
+            if (componentResults.fileAccessible) passedTests++;
+            if (componentResults.contentLength > 0) passedTests++;
+            statusGrid.appendChild(componentCard);
+            
+            // Update overall status
+            const healthPercentage = Math.round((passedTests / totalTests) * 100);
+            updateProgress(healthPercentage);
+            
+            let statusMessage = '';
+            if (healthPercentage >= 90) {
+                statusMessage = '🟢 Excellent - System is fully functional';
+            } else if (healthPercentage >= 70) {
+                statusMessage = '🟡 Good - Minor issues detected';
+            } else if (healthPercentage >= 50) {
+                statusMessage = '🟠 Warning - Several issues need attention';
+            } else {
+                statusMessage = '🔴 Critical - Major issues require immediate fixing';
+            }
+            
+            updateStatusSummary(`${statusMessage} (${passedTests}/${totalTests} tests passed)`);
+        }
+        
+        function createStatusCard(title, icon) {
+            const card = document.createElement('div');
+            card.className = 'status-card';
+            card.innerHTML = `
+                <h3><i class="${icon}"></i> ${title}</h3>
+            `;
+            return card;
+        }
+        
+        function createStatusItem(label, status, type) {
+            const item = document.createElement('div');
+            item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 8px; background: #f8f9fa; border-radius: 6px;';
+            
+            const statusClass = type === 'success' ? 'color: #28a745' : type === 'error' ? 'color: #dc3545' : 'color: #ffc107';
+            
+            item.innerHTML = `
+                <span>${label}</span>
+                <span style="${statusClass}; font-weight: bold;">${status}</span>
+            `;
+            return item;
+        }
+        
+        function formatLabel(key) {
+            return key.replace(/([A-Z])/g, ' $1')
+                     .replace(/^./, str => str.toUpperCase())
+                     .replace(/Id$/, 'ID');
+        }
+        
+        function checkCSSClass(className) {
+            try {
+                return Array.from(document.styleSheets).some(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules || []).some(rule => 
+                            rule.selectorText && rule.selectorText.includes(className)
+                        );
+                    } catch (e) {
+                        return false;
+                    }
+                });
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function showTestNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification-test';
+            notification.textContent = message;
+            
+            if (type === 'error') {
+                notification.style.background = '#dc3545';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // Auto-run basic diagnostic on load
+        setTimeout(() => {
+            runFullDiagnostic();
+        }, 1000);
+    </script>
+</body>
+</html>

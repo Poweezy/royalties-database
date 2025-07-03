@@ -50,6 +50,8 @@
         <div id="test-buttons" style="display: none;">
             <button onclick="testShow()">Test Show Notification</button>
             <button onclick="testPersistent()">Test Persistent Notification</button>
+            <button onclick="testGet()">Test Get Notifications</button>
+            <button onclick="testMarkRead()">Test Mark As Read</button>
             <button onclick="testCount()">Test Count Update</button>
             <button onclick="clearTests()">Clear Status</button>
         </div>
@@ -107,6 +109,38 @@
             }
         }
         
+        function testGet() {
+            if (window.notificationManager && window.notificationManager.getPersistentNotifications) {
+                const notifications = window.notificationManager.getPersistentNotifications();
+                addStatus(`✅ Retrieved ${notifications.length} persistent notifications`, 'success');
+                
+                if (notifications.length > 0) {
+                    const unread = notifications.filter(n => !n.isRead).length;
+                    addStatus(`📊 Found ${unread} unread notifications`, 'info');
+                }
+            } else {
+                addStatus('❌ getPersistentNotifications method not available', 'error');
+            }
+        }
+        
+        function testMarkRead() {
+            if (window.notificationManager && window.notificationManager.getPersistentNotifications) {
+                const notifications = window.notificationManager.getPersistentNotifications();
+                const unreadNotification = notifications.find(n => !n.isRead);
+                
+                if (unreadNotification && window.notificationManager.markAsRead) {
+                    window.notificationManager.markAsRead(unreadNotification.id);
+                    addStatus(`✅ Marked notification ${unreadNotification.id} as read`, 'success');
+                } else if (!unreadNotification) {
+                    addStatus('ℹ️ No unread notifications to mark as read', 'info');
+                } else {
+                    addStatus('❌ markAsRead method not available', 'error');
+                }
+            } else {
+                addStatus('❌ Required methods not available for mark read test', 'error');
+            }
+        }
+        
         // Check system availability
         function checkSystem() {
             clearTests();
@@ -120,6 +154,31 @@
             
             if (typeof window.notificationManager !== 'undefined') {
                 addStatus('✅ notificationManager is available', 'success');
+                
+                // Test required methods
+                const requiredMethods = [
+                    'show',
+                    'addPersistentNotification', 
+                    'getPersistentNotifications',
+                    'markAsRead',
+                    'removePersistentNotification',
+                    'updateNotificationCount'
+                ];
+                
+                let allMethodsAvailable = true;
+                requiredMethods.forEach(method => {
+                    if (typeof window.notificationManager[method] === 'function') {
+                        addStatus(`✅ ${method}() method available`, 'success');
+                    } else {
+                        addStatus(`❌ ${method}() method missing`, 'error');
+                        allMethodsAvailable = false;
+                    }
+                });
+                
+                if (allMethodsAvailable) {
+                    addStatus('🎉 All required methods are available!', 'success');
+                }
+                
             } else {
                 addStatus('❌ notificationManager is not available', 'error');
                 

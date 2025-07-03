@@ -466,6 +466,11 @@
                 }
             },
             
+            // Alias for deleteNotification to match component expectations
+            removePersistentNotification: function(id) {
+                return this.deleteNotification(id);
+            },
+            
             // Bulk operations
             bulkMarkAsRead: function(ids) {
                 let hasChanges = false;
@@ -504,6 +509,10 @@
             },
             
             // Filter and search methods
+            getPersistentNotifications: function() {
+                return this.persistentNotifications || [];
+            },
+            
             getNotificationsByCategory: function(category) {
                 return this.persistentNotifications.filter(n => n.category === category);
             },
