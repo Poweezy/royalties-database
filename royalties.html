@@ -35,6 +35,13 @@
   <!-- Advanced accessibility features -->
   <script src="js/accessibility-enhancer.js?v=1.0.0"></script>
   
+  <!-- ==== MODERN UI/UX ENHANCEMENT SYSTEM ==== -->
+  <!-- Load modern UI system early for optimal integration -->
+  <script src="js/modern-theme-manager.js?v=1.0.0"></script>
+  <script src="js/modern-ui-orchestrator.js?v=1.0.0"></script>
+  <script src="js/modern-semantic-search.js?v=1.0.0"></script>
+  <script src="js/modern-ui-integration.js?v=1.0.0"></script>
+  
   <!-- ==== UNIFIED SYSTEM STACK - PROPERLY ORDERED ==== -->
   
   <!-- 1. First load the core notification system -->
@@ -50,10 +57,30 @@
         if (typeof window.NotificationSystem !== 'undefined') {
           console.log('✅ NotificationSystem loaded successfully');
           
-          // Ensure notificationManager is set
+          // Ensure notificationManager is set with proper methods
           if (!window.notificationManager) {
             window.notificationManager = window.NotificationSystem;
             console.log('✅ notificationManager reference created');
+          }
+          
+          // Ensure show method exists and works
+          if (typeof window.notificationManager.show !== 'function') {
+            console.warn('⚠️ notificationManager.show method not found, creating fallback');
+            window.notificationManager.show = function(message, type = 'info', options = {}) {
+              console.log(`Notification (${type}): ${message}`, options);
+              
+              // Try to use the actual notification system if available
+              if (window.NotificationSystem && typeof window.NotificationSystem.show === 'function') {
+                return window.NotificationSystem.show(message, type, options);
+              }
+              
+              // Fallback to browser alert for critical messages
+              if (type === 'error' || type === 'critical') {
+                alert(`${type.toUpperCase()}: ${message}`);
+              }
+              
+              return true;
+            };
           }
           
           // Test basic functionality
@@ -64,6 +91,14 @@
             } catch (error) {
               console.warn('⚠️ NotificationSystem initialization warning:', error);
             }
+          }
+          
+          // Test show method
+          try {
+            window.notificationManager.show('Notification system ready', 'success', { duration: 2000 });
+            console.log('✅ NotificationSystem show method working');
+          } catch (error) {
+            console.warn('⚠️ NotificationSystem show method issue:', error);
           }
           
           console.log('✅ Notification system verification complete');
@@ -492,13 +527,7 @@
   </div>  <!-- Scripts -->
   <!-- Load core modules and scripts in correct order -->
   <script src="js/utils.js?v=20250627" type="text/javascript"></script>
-  
-  <!-- Modern UI/UX Enhancement Modules -->
-  <script src="js/modern-theme-manager.js?v=1.0.0" type="text/javascript"></script>
-  <script src="js/modern-ui-orchestrator.js?v=1.0.0" type="text/javascript"></script>
-  <script src="js/modern-semantic-search.js?v=1.0.0" type="text/javascript"></script>
-  <script src="js/modern-ui-integration.js?v=1.0.0" type="text/javascript"></script>
-  <!-- <script src="js/modern-semantic-search-demo.js?v=1.0.0" type="text/javascript"></script> -->
+  <script src="js/compliance-functions.js?v=1.0.0" type="text/javascript"></script>
   
   <!-- Note: unified-component-loader.js is loaded in the head section and replaces module-loader.js -->
   <script src="app.js?v=20250628g" type="text/javascript"></script>
@@ -1035,5 +1064,10 @@
       document.addEventListener('DOMContentLoaded', initializeTheme);
     })();
   </script>
+
+  <!-- Development Testing Script (remove in production) -->
+  <script src="js/test-modernization.js?v=1.0.0"></script>
+
+  <!-- Main Application Script - Load Last -->
 </body>
 </html>
