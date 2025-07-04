@@ -105,15 +105,18 @@
       <div class="filter-group">
         <label>Filter by Status:</label>
         <div class="filter-buttons">
-          <button class="btn btn-sm btn-secondary filter-btn active" data-filter="all">All Records</button>
-          <button class="btn btn-sm btn-success filter-btn" data-filter="paid">Paid</button>
-          <button class="btn btn-sm btn-warning filter-btn" data-filter="pending">Pending</button>
-          <button class="btn btn-sm btn-danger filter-btn" data-filter="overdue">Overdue</button>
+          <button class="btn-modern btn-modern-secondary filter-btn active" data-filter="all">All Records</button>
+          <button class="btn-modern btn-modern-success filter-btn" data-filter="paid">Paid</button>
+          <button class="btn-modern btn-modern-warning filter-btn" data-filter="pending">Pending</button>
+          <button class="btn-modern btn-modern-danger filter-btn" data-filter="overdue">Overdue</button>
         </div>
       </div>
       <div class="filter-group">
         <label for="records-search">Search Records:</label>
-        <input type="text" id="records-search" placeholder="Search by reference, entity, or mineral..." class="form-control">
+        <div class="search-box-modern">
+          <input type="text" id="records-search" placeholder="Search by reference, entity, or mineral..." class="search-input-modern">
+          <i class="fas fa-search search-icon-modern"></i>
+        </div>
       </div>
     </div>
   </div>

@@ -17,6 +17,7 @@
   
   <!-- ==== CORE MANAGEMENT MODULES - LOAD FIRST ==== -->
   <!-- Core management modules must load before everything else -->
+  <script src="js/theme-manager.js?v=1.0.0"></script>
   <script src="js/modules/NavigationManager.js?v=1.0.0"></script>
   <script src="js/modules/UserManager.js?v=1.0.0"></script>
   <script src="js/modules/IconManager.js?v=1.0.0"></script>
@@ -105,9 +106,19 @@
     })();
   </script>
   
-  <!-- CSS Files -->
+  <!-- CSS Files - Modern Design System -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/variables.css">
+  
+  <!-- Modern CSS Files -->
+  <link rel="stylesheet" href="css/modern-layout.css">
+  <link rel="stylesheet" href="css/modern-components.css">
+  <link rel="stylesheet" href="css/modern-data-visualization.css">
+  <!-- Modern UI/UX Enhancements -->
+  <link rel="stylesheet" href="css/modern-ui-enhancements.css">
+  <link rel="stylesheet" href="css/modern-semantic-search.css">
+
+  <!-- Legacy CSS Files (for compatibility) -->
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/forms.css">
@@ -118,6 +129,10 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="royalties.css?v=2.0.0">
   <link rel="stylesheet" href="css/compliance-enhanced.css?v=1.0.1">
+  
+  <!-- Dark Mode CSS (loaded last for proper cascade) -->
+  <link rel="stylesheet" href="css/modern-dark-mode.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="css/modern-dark-mode.css" id="dark-mode-styles" disabled>
   
   <!-- WIDTH DEBUGGING AND FORCE FIX -->
   <script>
@@ -163,10 +178,18 @@
   <style>
     /* Critical CSS - Loading and basic layout */
     :root {
-      --primary-color: #1a365d;
-      --gradient-primary: linear-gradient(135deg, #1a365d 0%, #2d5282 100%);
+      --primary-color: #0066cc;
+      --gradient-primary: linear-gradient(135deg, #0066cc 0%, #004499 100%);
       --text-inverse: #ffffff;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --surface-glass: rgba(255, 255, 255, 0.1);
+      --backdrop-blur: blur(20px);
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3b82f6;
+      --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      --surface-glass: rgba(0, 0, 0, 0.2);
     }
 
     .loading-screen {
@@ -180,11 +203,17 @@
       align-items: center;
       justify-content: center;
       z-index: 9999;
+      backdrop-filter: var(--backdrop-blur);
     }
 
     .loading-content {
       text-align: center;
       color: var(--text-inverse);
+      background: var(--surface-glass);
+      backdrop-filter: var(--backdrop-blur);
+      padding: 2rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .loading-spinner {
@@ -200,6 +229,32 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* Theme toggle styles */
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10001;
+      background: var(--surface-glass);
+      backdrop-filter: var(--backdrop-blur);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-inverse);
+      font-size: 1.25rem;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
     }
 
     /* Hide containers by default */
@@ -313,7 +368,12 @@
     .skip-link:nth-child(3) { left: 280px; }
   </style>
 </head>
-<body>  <!-- Skip Links for Accessibility -->
+<body>  <!-- Theme Toggle -->
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle between light and dark theme">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+
+  <!-- Skip Links for Accessibility -->
   <div class="skip-links">
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <a href="#sidebar" class="skip-link">Skip to navigation</a>
@@ -368,66 +428,78 @@
   </section>
 
   <!-- Main App Container -->
-  <div class="app-container" id="app-container">
+  <div class="app-container modern-layout" id="app-container">
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <aside class="sidebar modern-sidebar glass-morphism" id="sidebar" role="navigation" aria-label="Main navigation">
       <!-- Sidebar content will be loaded dynamically -->
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content" id="main-content" role="main">
+    <main class="main-content modern-main-content" id="main-content" role="main">
+      <!-- Global Semantic Search -->
+      <div class="semantic-search-container" style="margin-bottom: 2rem;"></div>
+      
       <!-- Dashboard Section -->
-      <section id="dashboard">
+      <section id="dashboard" class="content-section">
         <!-- Dashboard content will be loaded dynamically -->
       </section>
 
       <!-- User Management Section -->
-      <section id="user-management" style="display: none;">
+      <section id="user-management" class="content-section" style="display: none;">
         <!-- User management content will be loaded dynamically -->
       </section>
 
       <!-- Royalty Records Section -->
-      <section id="royalty-records" style="display: none;">
+      <section id="royalty-records" class="content-section" style="display: none;">
         <!-- Royalty records content will be loaded dynamically -->
       </section>
 
       <!-- Contract Management Section -->
-      <section id="contract-management" style="display: none;">
+      <section id="contract-management" class="content-section" style="display: none;">
         <!-- Contract management content will be loaded dynamically -->
       </section>
 
       <!-- Reporting & Analytics Section -->
-      <section id="reporting-analytics" style="display: none;">
+      <section id="reporting-analytics" class="content-section" style="display: none;">
         <!-- Reporting analytics content will be loaded dynamically from components/reporting-analytics.html -->
       </section>
 
       <!-- Communication Section -->
-      <section id="communication" style="display: none;">
+      <section id="communication" class="content-section" style="display: none;">
         <!-- Communication content will be loaded dynamically -->
       </section>
 
       <!-- Notifications Section -->
-      <section id="notifications" style="display: none;">
+      <section id="notifications" class="content-section" style="display: none;">
         <div id="notifications-content"></div>
       </section>
 
       <!-- Compliance Section -->
-      <section id="compliance" style="display: none;">
+      <section id="compliance" class="content-section" style="display: none;">
         <!-- Compliance content will be loaded dynamically -->
       </section>
 
       <!-- Regulatory Management Section -->
-      <section id="regulatory-management" style="display: none;">
+      <section id="regulatory-management" class="content-section" style="display: none;">
         <!-- Regulatory management content will be loaded dynamically -->
       </section>
 
       <!-- Profile Section -->
-      <section id="profile" style="display: none;">
+      <section id="profile" class="content-section" style="display: none;">
         <!-- Profile content will be loaded dynamically -->
       </section>
-    </main>  </div>  <!-- Scripts -->
+    </main>
+  </div>  <!-- Scripts -->
   <!-- Load core modules and scripts in correct order -->
   <script src="js/utils.js?v=20250627" type="text/javascript"></script>
+  
+  <!-- Modern UI/UX Enhancement Modules -->
+  <script src="js/modern-theme-manager.js?v=1.0.0" type="text/javascript"></script>
+  <script src="js/modern-ui-orchestrator.js?v=1.0.0" type="text/javascript"></script>
+  <script src="js/modern-semantic-search.js?v=1.0.0" type="text/javascript"></script>
+  <script src="js/modern-ui-integration.js?v=1.0.0" type="text/javascript"></script>
+  <!-- <script src="js/modern-semantic-search-demo.js?v=1.0.0" type="text/javascript"></script> -->
+  
   <!-- Note: unified-component-loader.js is loaded in the head section and replaces module-loader.js -->
   <script src="app.js?v=20250628g" type="text/javascript"></script>
   <!-- Removed deleted scripts: component-initializer.js, sidebar-manager.js, startup.js, dashboard.js -->
@@ -871,6 +943,97 @@
       if (document.getElementById('notifications')?.style.display !== 'none') {
         loadNotificationsSection();
       }
+  </script>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    (function() {
+      // Theme management
+      const THEME_KEY = 'royalties-theme';
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      const darkModeStyles = document.getElementById('dark-mode-styles');
+      
+      // Get saved theme or default to system preference
+      function getCurrentTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY);
+        if (savedTheme) return savedTheme;
+        
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      
+      // Apply theme
+      function applyTheme(theme) {
+        const html = document.documentElement;
+        
+        if (theme === 'dark') {
+          html.setAttribute('data-theme', 'dark');
+          darkModeStyles.disabled = false;
+          themeIcon.className = 'fas fa-sun';
+          themeToggle.setAttribute('aria-label', 'Switch to light theme');
+          themeToggle.setAttribute('title', 'Switch to light theme');
+        } else {
+          html.removeAttribute('data-theme');
+          darkModeStyles.disabled = true;
+          themeIcon.className = 'fas fa-moon';
+          themeToggle.setAttribute('aria-label', 'Switch to dark theme');
+          themeToggle.setAttribute('title', 'Switch to dark theme');
+        }
+        
+        localStorage.setItem(THEME_KEY, theme);
+        
+        // Dispatch custom event for other components
+        window.dispatchEvent(new CustomEvent('themeChanged', { 
+          detail: { theme } 
+        }));
+      }
+      
+      // Toggle theme
+      function toggleTheme() {
+        const currentTheme = getCurrentTheme();
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+        
+        // Add animation feedback
+        themeToggle.style.transform = 'scale(0.9) rotate(180deg)';
+        setTimeout(() => {
+          themeToggle.style.transform = '';
+        }, 200);
+      }
+      
+      // Initialize theme on page load
+      function initializeTheme() {
+        const theme = getCurrentTheme();
+        applyTheme(theme);
+      }
+      
+      // Event listeners
+      if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Keyboard support
+        themeToggle.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTheme();
+          }
+        });
+      }
+      
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        // Only auto-switch if user hasn't manually set a preference
+        if (!localStorage.getItem(THEME_KEY)) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+      
+      // Initialize immediately
+      initializeTheme();
+      
+      // Also initialize when DOM is ready (in case this runs before theme toggle is in DOM)
+      document.addEventListener('DOMContentLoaded', initializeTheme);
+    })();
   </script>
 </body>
 </html>
