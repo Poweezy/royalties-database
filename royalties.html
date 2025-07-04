@@ -141,29 +141,16 @@
     })();
   </script>
   
-  <!-- CSS Files - Modern Design System -->
+  <!-- Modern CSS Design System -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/variables.css">
   
   <!-- Modern CSS Files -->
-  <link rel="stylesheet" href="css/modern-layout.css">
-  <link rel="stylesheet" href="css/modern-components.css">
-  <link rel="stylesheet" href="css/modern-data-visualization.css">
-  <!-- Modern UI/UX Enhancements -->
-  <link rel="stylesheet" href="css/modern-ui-enhancements.css">
-  <link rel="stylesheet" href="css/modern-semantic-search.css">
-
-  <!-- Legacy CSS Files (for compatibility) -->
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/forms.css">
-  <link rel="stylesheet" href="css/tables.css">
-  <link rel="stylesheet" href="css/buttons.css">
-  <link rel="stylesheet" href="css/badges.css">
-  <link rel="stylesheet" href="css/utilities.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="royalties.css?v=2.0.0">
-  <link rel="stylesheet" href="css/compliance-enhanced.css?v=1.0.1">
+  <link rel="stylesheet" href="css/modern-layout.css?v=2.0.0">
+  <link rel="stylesheet" href="css/modern-components.css?v=2.0.0">
+  <link rel="stylesheet" href="css/modern-data-visualization.css?v=2.0.0">
+  <link rel="stylesheet" href="css/modern-ui-enhancements.css?v=2.0.0">
+  <link rel="stylesheet" href="css/modern-semantic-search.css?v=2.0.0">
   
   <!-- Dark Mode CSS (loaded last for proper cascade) -->
   <link rel="stylesheet" href="css/modern-dark-mode.css" media="(prefers-color-scheme: dark)">
@@ -1068,6 +1055,50 @@
   <!-- Development Testing Script (remove in production) -->
   <script src="js/test-modernization.js?v=1.0.0"></script>
 
-  <!-- Main Application Script - Load Last -->
+  <!-- Main Application Script - Load Last -->  
+  <!-- Modern Styles Enhancement Script -->
+  <script>
+    (function() {
+      console.log('=== MODERN STYLES ENHANCEMENT ===');
+      
+      function enhanceModernStyles() {
+        // Apply modern classes to key elements
+        const appContainer = document.getElementById('app-container');
+        if (appContainer) {
+          appContainer.classList.add('modern-layout');
+        }
+        
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+          sidebar.classList.add('modern-sidebar', 'glass-morphism');
+        }
+        
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+          mainContent.classList.add('modern-main-content');
+        }
+        
+        // Apply modern styles to dynamically loaded content
+        const cards = document.querySelectorAll('.card, .dashboard-card, .stats-card');
+        cards.forEach(card => {
+          card.classList.add('glass-card');
+        });
+        
+        console.log('✅ Modern styles enhancement complete');
+      }
+      
+      // Apply on DOM content loaded
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhanceModernStyles);
+      } else {
+        enhanceModernStyles();
+      }
+      
+      // Also apply after a short delay for dynamic content
+      setTimeout(enhanceModernStyles, 1000);
+      
+      console.log('=== MODERN STYLES ENHANCEMENT: SETUP COMPLETE ===');
+    })();
+  </script>
 </body>
 </html>
