@@ -141,20 +141,165 @@
     })();
   </script>
   
+  <!-- Critical Modern CSS - Inline for immediate loading -->
+  <style>
+    /* Critical Modern Design Tokens */
+    :root {
+      --ui-primary: #2563eb !important;
+      --ui-primary-dark: #1d4ed8 !important;
+      --ui-accent: #06b6d4 !important;
+      --ui-secondary: #64748b !important;
+      
+      --surface-primary: rgba(255, 255, 255, 0.95) !important;
+      --surface-secondary: rgba(255, 255, 255, 0.8) !important;
+      --surface-glass: rgba(255, 255, 255, 0.1) !important;
+      
+      --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.15) !important;
+      --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+      --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3) !important;
+      
+      --glass-blur: blur(20px) !important;
+      --glass-strong: blur(40px) !important;
+      --glass-border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)) !important;
+      
+      --duration-fast: 250ms !important;
+      --duration-normal: 350ms !important;
+      --smooth: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Critical Modern Layout */
+    .modern-layout {
+      background: var(--surface-primary) !important;
+      backdrop-filter: var(--glass-blur) !important;
+      -webkit-backdrop-filter: var(--glass-blur) !important;
+    }
+    
+    .modern-sidebar {
+      background: var(--glass-gradient) !important;
+      backdrop-filter: var(--glass-strong) !important;
+      -webkit-backdrop-filter: var(--glass-strong) !important;
+      border: var(--glass-border) !important;
+      box-shadow: var(--shadow-glass) !important;
+    }
+    
+    .modern-main-content {
+      background: var(--surface-secondary) !important;
+      border-radius: 1rem !important;
+      padding: 2rem !important;
+      margin: 1rem !important;
+      backdrop-filter: var(--glass-blur) !important;
+      -webkit-backdrop-filter: var(--glass-blur) !important;
+      box-shadow: var(--shadow-float) !important;
+    }
+    
+    .glass-morphism {
+      background: var(--glass-gradient) !important;
+      backdrop-filter: var(--glass-strong) !important;
+      -webkit-backdrop-filter: var(--glass-strong) !important;
+      border: var(--glass-border) !important;
+      border-radius: 1rem !important;
+      box-shadow: var(--shadow-glass) !important;
+    }
+    
+    .glass-card {
+      background: var(--glass-gradient) !important;
+      backdrop-filter: var(--glass-blur) !important;
+      -webkit-backdrop-filter: var(--glass-blur) !important;
+      border: var(--glass-border) !important;
+      border-radius: 1rem !important;
+      padding: 1.5rem !important;
+      box-shadow: var(--shadow-glass) !important;
+      transition: all var(--duration-normal) var(--smooth) !important;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: var(--shadow-float) !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Critical Modern Navigation */
+    .modern-nav-link {
+      background: var(--glass-gradient) !important;
+      backdrop-filter: var(--glass-blur) !important;
+      -webkit-backdrop-filter: var(--glass-blur) !important;
+      border: var(--glass-border) !important;
+      border-radius: 0.75rem !important;
+      transition: all var(--duration-fast) var(--smooth) !important;
+      padding: 0.75rem 1rem !important;
+      margin: 0.25rem !important;
+      color: var(--ui-secondary) !important;
+      text-decoration: none !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.75rem !important;
+    }
+    
+    .modern-nav-link:hover {
+      transform: translateX(4px) !important;
+      background: rgba(37, 99, 235, 0.1) !important;
+      border-color: rgba(37, 99, 235, 0.3) !important;
+      box-shadow: var(--shadow-glow) !important;
+      color: var(--ui-primary) !important;
+    }
+    
+    .modern-nav-link.active {
+      background: var(--ui-primary) !important;
+      color: white !important;
+      border-color: var(--ui-primary) !important;
+      box-shadow: var(--shadow-glow) !important;
+    }
+    
+    /* Modern Button Styles */
+    .btn {
+      background: var(--glass-gradient) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      border: var(--glass-border) !important;
+      border-radius: 0.75rem !important;
+      transition: all var(--duration-normal) var(--smooth) !important;
+      padding: 0.75rem 1.5rem !important;
+      color: var(--ui-secondary) !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 0.5rem !important;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: var(--shadow-float) !important;
+      color: var(--ui-primary) !important;
+    }
+    
+    .btn-primary {
+      background: var(--ui-primary) !important;
+      color: white !important;
+      border-color: var(--ui-primary) !important;
+    }
+    
+    .btn-primary:hover {
+      background: var(--ui-primary-dark) !important;
+      border-color: var(--ui-primary-dark) !important;
+      color: white !important;
+    }
+  </style>
+
   <!-- Modern CSS Design System -->
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css" type="text/css">
+  <link rel="stylesheet" href="css/variables.css" type="text/css">
   
   <!-- Modern CSS Files -->
-  <link rel="stylesheet" href="css/modern-layout.css?v=2.0.0">
-  <link rel="stylesheet" href="css/modern-components.css?v=2.0.0">
-  <link rel="stylesheet" href="css/modern-data-visualization.css?v=2.0.0">
-  <link rel="stylesheet" href="css/modern-ui-enhancements.css?v=2.0.0">
-  <link rel="stylesheet" href="css/modern-semantic-search.css?v=2.0.0">
+  <link rel="stylesheet" href="css/modern-layout.css?v=2.0.0" type="text/css">
+  <link rel="stylesheet" href="css/modern-components.css?v=2.0.0" type="text/css">
+  <link rel="stylesheet" href="css/modern-data-visualization.css?v=2.0.0" type="text/css">
+  <link rel="stylesheet" href="css/modern-ui-enhancements.css?v=2.0.0" type="text/css">
+  <link rel="stylesheet" href="css/modern-semantic-search.css?v=2.0.0" type="text/css">
   
   <!-- Dark Mode CSS (loaded last for proper cascade) -->
-  <link rel="stylesheet" href="css/modern-dark-mode.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="css/modern-dark-mode.css" id="dark-mode-styles" disabled>
+  <link rel="stylesheet" href="css/modern-dark-mode.css" type="text/css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="css/modern-dark-mode.css" type="text/css" id="dark-mode-styles" disabled>
   
   <!-- WIDTH DEBUGGING AND FORCE FIX -->
   <script>
@@ -1098,6 +1243,116 @@
       setTimeout(enhanceModernStyles, 1000);
       
       console.log('=== MODERN STYLES ENHANCEMENT: SETUP COMPLETE ===');
+    })();
+  </script>
+
+  <!-- CSS Loading Detection and Fix Script -->
+  <script>
+    (function() {
+      console.log('=== CSS LOADING DETECTION AND FIX ===');
+      
+      function checkCSSLoading() {
+        const stylesheets = Array.from(document.styleSheets);
+        const modernCSSFiles = [
+          'modern-layout.css',
+          'modern-components.css', 
+          'modern-ui-enhancements.css',
+          'modern-data-visualization.css',
+          'modern-semantic-search.css'
+        ];
+        
+        const loadedCSS = [];
+        const failedCSS = [];
+        
+        stylesheets.forEach(sheet => {
+          try {
+            if (sheet.href) {
+              const filename = sheet.href.split('/').pop().split('?')[0];
+              if (modernCSSFiles.includes(filename)) {
+                loadedCSS.push(filename);
+              }
+            }
+          } catch (e) {
+            console.warn('CSS access error:', e);
+          }
+        });
+        
+        modernCSSFiles.forEach(file => {
+          if (!loadedCSS.includes(file)) {
+            failedCSS.push(file);
+          }
+        });
+        
+        console.log('✅ CSS Loaded:', loadedCSS);
+        if (failedCSS.length > 0) {
+          console.warn('❌ CSS Failed to load:', failedCSS);
+          console.log('Using inline fallback styles for modern design');
+        } else {
+          console.log('🎉 All modern CSS files loaded successfully');
+        }
+        
+        return failedCSS.length === 0;
+      }
+      
+      function forceModernStyling() {
+        // Force modern CSS variables
+        const root = document.documentElement;
+        root.style.setProperty('--primary-color', '#2563eb');
+        root.style.setProperty('--accent-color', '#06b6d4');
+        root.style.setProperty('--transition', 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)');
+        
+        // Apply modern classes to key elements
+        setTimeout(() => {
+          const appContainer = document.getElementById('app-container');
+          if (appContainer && !appContainer.classList.contains('modern-layout')) {
+            appContainer.classList.add('modern-layout');
+            console.log('✅ Applied modern-layout class to app container');
+          }
+          
+          const sidebar = document.getElementById('sidebar');
+          if (sidebar && !sidebar.classList.contains('modern-sidebar')) {
+            sidebar.classList.add('modern-sidebar', 'glass-morphism');
+            console.log('✅ Applied modern-sidebar classes');
+          }
+          
+          const mainContent = document.getElementById('main-content');
+          if (mainContent && !mainContent.classList.contains('modern-main-content')) {
+            mainContent.classList.add('modern-main-content');
+            console.log('✅ Applied modern-main-content class');
+          }
+          
+          // Apply glass-card to cards
+          const cards = document.querySelectorAll('.card, .dashboard-card, .stats-card');
+          cards.forEach(card => {
+            if (!card.classList.contains('glass-card')) {
+              card.classList.add('glass-card');
+            }
+          });
+          console.log(`✅ Applied glass-card to ${cards.length} cards`);
+          
+          // Apply modern navigation styles
+          const navLinks = document.querySelectorAll('.nav-link');
+          navLinks.forEach(link => {
+            if (!link.classList.contains('modern-nav-link')) {
+              link.classList.add('modern-nav-link');
+            }
+          });
+          console.log(`✅ Applied modern-nav-link to ${navLinks.length} navigation links`);
+          
+        }, 500);
+      }
+      
+      // Check CSS loading after a short delay
+      setTimeout(() => {
+        const cssLoaded = checkCSSLoading();
+        forceModernStyling(); // Apply modern styling regardless
+        
+        if (!cssLoaded) {
+          console.log('⚠️ Some CSS files failed to load, but inline styles will provide modern design');
+        }
+      }, 1000);
+      
+      console.log('=== CSS LOADING DETECTION: SETUP COMPLETE ===');
     })();
   </script>
 </body>

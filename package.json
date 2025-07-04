@@ -1,0 +1,22 @@
+{
+  "name": "Royalties Database",
+  "version": "2.0.0",
+  "description": "Mining Royalties Management System with Modern UI",
+  "main": "royalties.html",
+  "scripts": {
+    "start": "serve -s . -l 3000",
+    "dev": "live-server --port=3000 --entry-file=royalties.html"
+  },
+  "devDependencies": {
+    "serve": "^14.0.0",
+    "live-server": "^1.2.2"
+  },
+  "serve": {
+    "static": ".",
+    "extensions": {
+      ".css": "text/css",
+      ".js": "application/javascript",
+      ".html": "text/html"
+    }
+  }
+}

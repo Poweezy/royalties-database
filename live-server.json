@@ -1,0 +1,10 @@
+{
+  "port": 3000,
+  "root": ".",
+  "file": "royalties.html",
+  "cors": true,
+  "logLevel": 2,
+  "middleware": [
+    "./middleware/css-mime-fix.js"
+  ]
+}
