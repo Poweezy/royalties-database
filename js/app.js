@@ -17,6 +17,7 @@ const AppState = {
   currentSection: 'dashboard',
   users: [],
   royaltyRecords: [],
+  contracts: [],
   auditLog: [],
   notifications: [],
   charts: {},
@@ -129,6 +130,7 @@ function initializeEventListeners() {
   
   // Chart controls
   initializeChartControls();
+  initializePeriodSelectors();
   
   // User management
   initializeUserManagement();
@@ -271,6 +273,20 @@ function initializeMainApplication() {
   // Load initial data
   loadSampleData();
   
+  // Initialize all UI components
+  initializeUserManagement();
+  initializeNavigation();
+  initializeChartControls();
+  initializePeriodSelectors();
+  initializeContractManagement();
+  initializeReporting();
+  
+  // Populate all tables with data
+  populateUserAccounts();
+  populateRoyaltyRecords();
+  populateContractTable();
+  populateAuditLog();
+  
   // Show dashboard by default
   showSection('dashboard');
   
@@ -368,140 +384,19 @@ function initializeSection(sectionId) {
  * Load sample data for demonstration
  */
 function loadSampleData() {
-  // Sample royalty records
-  AppState.royaltyRecords = [
-    {
-      id: 1,
-      entity: 'Kwalini Quarry',
-      mineral: 'Quarried Stone',
-      volume: 1250,
-      tariff: 15,
-      amount: 18750,
-      date: '2024-01-15',
-      status: 'Paid'
-    },
-    {
-      id: 2,
-      entity: 'Maloma Colliery',
-      mineral: 'Coal',
-      volume: 2500,
-      tariff: 25,
-      amount: 62500,
-      date: '2024-01-20',
-      status: 'Pending'
-    },
-    {
-      id: 3,
-      entity: 'Ngwenya Mine',
-      mineral: 'Iron Ore',
-      volume: 1800,
-      tariff: 40,
-      amount: 72000,
-      date: '2024-01-25',
-      status: 'Paid'
-    },
-    {
-      id: 4,
-      entity: 'Mbabane Quarry',
-      mineral: 'Gravel',
-      volume: 950,
-      tariff: 12,
-      amount: 11400,
-      date: '2024-02-01',
-      status: 'Overdue'
-    },
-    {
-      id: 5,
-      entity: 'Sidvokodvo Quarry',
-      mineral: 'River Sand',
-      volume: 800,
-      tariff: 18,
-      amount: 14400,
-      date: '2024-02-05',
-      status: 'Paid'
-    }
-  ];
+  console.log('Loading sample data...');
   
-  console.log('Added 5 sample royalty records');
+  // Initialize all sample data
+  initializeSampleRoyaltyRecords();
+  initializeSampleUsers();
+  initializeSampleContracts();
+  initializeSampleAuditLog();
   
-  // Sample user accounts
-  AppState.users = [
-    {
-      id: 1,
-      username: 'admin',
-      email: 'admin@eswacaa.sz',
-      role: 'Administrator',
-      department: 'Management',
-      status: 'Active',
-      lastLogin: '2024-02-10 09:15:00',
-      failedAttempts: 0,
-      expires: null,
-      created: '2023-01-15'
-    },
-    {
-      id: 2,
-      username: 'finance.manager',
-      email: 'finance@eswacaa.sz',
-      role: 'Finance',
-      department: 'Finance',
-      status: 'Active',
-      lastLogin: '2024-02-09 14:30:00',
-      failedAttempts: 0,
-      expires: null,
-      created: '2023-03-10'
-    },
-    {
-      id: 3,
-      username: 'auditor.chief',
-      email: 'audit@eswacaa.sz',
-      role: 'Auditor',
-      department: 'Audit',
-      status: 'Active',
-      lastLogin: '2024-02-08 11:45:00',
-      failedAttempts: 1,
-      expires: '2024-12-31',
-      created: '2023-06-20'
-    }
-  ];
-  
-  console.log('Added 3 user accounts');
-  
-  // Sample audit log
-  console.log('Populating audit log...');
-  AppState.auditLog = [
-    {
-      id: 1,
-      timestamp: '2024-02-10 09:15:23',
-      user: 'admin',
-      action: 'Login',
-      target: 'System',
-      ipAddress: '192.168.1.100',
-      status: 'Success',
-      details: 'Successful login from dashboard'
-    },
-    {
-      id: 2,
-      timestamp: '2024-02-10 09:18:45',
-      user: 'admin',
-      action: 'Create User',
-      target: 'finance.manager',
-      ipAddress: '192.168.1.100',
-      status: 'Success',
-      details: 'Created new finance manager account'
-    },
-    {
-      id: 3,
-      timestamp: '2024-02-09 16:30:12',
-      user: 'finance.manager',
-      action: 'Data Access',
-      target: 'Royalty Records',
-      ipAddress: '192.168.1.105',
-      status: 'Success',
-      details: 'Accessed royalty records for January 2024'
-    }
-  ];
-  
-  console.log('Added 3 audit log entries');
+  console.log('Sample data loaded successfully');
+  console.log(`Loaded ${AppState.royaltyRecords.length} royalty records`);
+  console.log(`Loaded ${AppState.users.length} users`);
+  console.log(`Loaded ${AppState.contracts.length} contracts`);
+  console.log(`Loaded ${AppState.auditLog.length} audit log entries`);
 }
 
 /**
@@ -750,6 +645,18 @@ function updateChart(chartId, chartType) {
  * Initialize user management functionality
  */
 function initializeUserManagement() {
+  // Initialize user form validation
+  const userForm = document.getElementById('user-form');
+  if (userForm) {
+    userForm.addEventListener('submit', handleUserFormSubmit);
+  }
+
+  // Add user button
+  const addUserBtn = document.getElementById('add-user-btn');
+  if (addUserBtn) {
+    addUserBtn.addEventListener('click', showAddUserModal);
+  }
+
   // Filter functionality
   const applyFiltersBtn = document.getElementById('apply-user-filters');
   if (applyFiltersBtn) {
@@ -778,18 +685,269 @@ function initializeUserManagement() {
   if (refreshUsersBtn) {
     refreshUsersBtn.addEventListener('click', populateUserAccounts);
   }
+
+  // Initialize table actions
+  initializeUserTableActions();
+  
+  // Populate initial data
+  populateUserAccounts();
+}
+
+/**
+ * Show add user modal
+ */
+function showAddUserModal() {
+  const modal = document.getElementById('user-modal');
+  const modalTitle = document.getElementById('user-modal-title');
+  const userForm = document.getElementById('user-form');
+  
+  if (modal && modalTitle && userForm) {
+    modalTitle.textContent = 'Add New User';
+    userForm.reset();
+    userForm.removeAttribute('data-user-id');
+    modal.style.display = 'block';
+  }
+}
+
+/**
+ * Handle user form submission
+ */
+function handleUserFormSubmit(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const userData = {
+    username: formData.get('username'),
+    email: formData.get('email'),
+    role: formData.get('role'),
+    department: formData.get('department'),
+    status: formData.get('status') || 'Active'
+  };
+
+  // Validation
+  if (!userData.username || !userData.email || !userData.role) {
+    showNotification('Please fill in all required fields', 'error');
+    return;
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(userData.email)) {
+    showNotification('Please enter a valid email address', 'error');
+    return;
+  }
+
+  const userId = e.target.getAttribute('data-user-id');
+  
+  if (userId) {
+    // Update existing user
+    const userIndex = AppState.users.findIndex(u => u.id === parseInt(userId));
+    if (userIndex !== -1) {
+      AppState.users[userIndex] = { ...AppState.users[userIndex], ...userData };
+      showNotification('User updated successfully', 'success');
+    }
+  } else {
+    // Add new user
+    const newUser = {
+      id: Date.now(),
+      ...userData,
+      createdAt: new Date().toISOString().split('T')[0],
+      lastLogin: 'Never'
+    };
+    AppState.users.push(newUser);
+    showNotification('User added successfully', 'success');
+  }
+
+  // Close modal and refresh table
+  closeUserModal();
+  populateUserAccounts();
+}
+
+/**
+ * Initialize user table actions
+ */
+function initializeUserTableActions() {
+  const userTable = document.getElementById('users-table');
+  if (!userTable) return;
+
+  userTable.addEventListener('click', (e) => {
+    const target = e.target;
+    const row = target.closest('tr');
+    
+    if (target.classList.contains('edit-user')) {
+      const userId = target.getAttribute('data-user-id');
+      editUser(userId);
+    } else if (target.classList.contains('delete-user')) {
+      const userId = target.getAttribute('data-user-id');
+      deleteUser(userId);
+    } else if (target.classList.contains('toggle-user-status')) {
+      const userId = target.getAttribute('data-user-id');
+      toggleUserStatus(userId);
+    }
+  });
+
+  // Select all checkbox
+  const selectAllCheckbox = document.getElementById('select-all-users');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', (e) => {
+      const checkboxes = document.querySelectorAll('#users-table tbody input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = e.target.checked);
+    });
+  }
+}
+
+/**
+ * Edit user
+ */
+function editUser(userId) {
+  const user = AppState.users.find(u => u.id === parseInt(userId));
+  if (!user) return;
+
+  const modal = document.getElementById('user-modal');
+  const modalTitle = document.getElementById('user-modal-title');
+  const userForm = document.getElementById('user-form');
+  
+  if (modal && modalTitle && userForm) {
+    modalTitle.textContent = 'Edit User';
+    userForm.setAttribute('data-user-id', userId);
+    
+    // Populate form fields
+    userForm.querySelector('[name="username"]').value = user.username;
+    userForm.querySelector('[name="email"]').value = user.email;
+    userForm.querySelector('[name="role"]').value = user.role;
+    userForm.querySelector('[name="department"]').value = user.department;
+    userForm.querySelector('[name="status"]').value = user.status;
+    
+    modal.style.display = 'block';
+  }
+}
+
+/**
+ * Delete user
+ */
+function deleteUser(userId) {
+  if (confirm('Are you sure you want to delete this user?')) {
+    const userIndex = AppState.users.findIndex(u => u.id === parseInt(userId));
+    if (userIndex !== -1) {
+      AppState.users.splice(userIndex, 1);
+      populateUserAccounts();
+      showNotification('User deleted successfully', 'success');
+    }
+  }
+}
+
+/**
+ * Toggle user status
+ */
+function toggleUserStatus(userId) {
+  const user = AppState.users.find(u => u.id === parseInt(userId));
+  if (user) {
+    user.status = user.status === 'Active' ? 'Inactive' : 'Active';
+    populateUserAccounts();
+    showNotification(`User ${user.status.toLowerCase()}`, 'success');
+  }
+}
+
+/**
+ * Close user modal
+ */
+function closeUserModal() {
+  const modal = document.getElementById('user-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+/**
+ * Apply user filters
+ */
+function applyUserFilters() {
+  const roleFilter = document.getElementById('role-filter')?.value;
+  const departmentFilter = document.getElementById('department-filter')?.value;
+  const statusFilter = document.getElementById('status-filter')?.value;
+  const searchTerm = document.getElementById('user-search')?.value.toLowerCase();
+
+  let filteredUsers = AppState.users;
+
+  if (roleFilter) {
+    filteredUsers = filteredUsers.filter(user => user.role === roleFilter);
+  }
+
+  if (departmentFilter) {
+    filteredUsers = filteredUsers.filter(user => user.department === departmentFilter);
+  }
+
+  if (statusFilter) {
+    filteredUsers = filteredUsers.filter(user => user.status === statusFilter);
+  }
+
+  if (searchTerm) {
+    filteredUsers = filteredUsers.filter(user => 
+      user.username.toLowerCase().includes(searchTerm) ||
+      user.email.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  populateUserTable(filteredUsers);
+}
+
+/**
+ * Clear user filters
+ */
+function clearUserFilters() {
+  document.getElementById('role-filter').value = '';
+  document.getElementById('department-filter').value = '';
+  document.getElementById('status-filter').value = '';
+  document.getElementById('user-search').value = '';
+  populateUserAccounts();
+}
+
+/**
+ * Handle bulk delete
+ */
+function handleBulkDelete() {
+  const selectedCheckboxes = document.querySelectorAll('#users-table tbody input[type="checkbox"]:checked');
+  const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.getAttribute('data-user-id')));
+
+  if (selectedIds.length === 0) {
+    showNotification('Please select users to delete', 'warning');
+    return;
+  }
+
+  if (confirm(`Are you sure you want to delete ${selectedIds.length} user(s)?`)) {
+    AppState.users = AppState.users.filter(user => !selectedIds.includes(user.id));
+    populateUserAccounts();
+    showNotification(`${selectedIds.length} user(s) deleted successfully`, 'success');
+  }
 }
 
 /**
  * Populate user accounts table
  */
 function populateUserAccounts() {
+  // Ensure we have sample data if users array is empty
+  if (AppState.users.length === 0) {
+    initializeSampleUsers();
+  }
+  
+  populateUserTable(AppState.users);
+}
+
+/**
+ * Populate user table with given data
+ */
+function populateUserTable(users) {
   const tbody = document.getElementById('users-table-tbody');
   if (!tbody) return;
   
   tbody.innerHTML = '';
   
-  AppState.users.forEach(user => {
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center">No users found</td></tr>';
+    return;
+  }
+  
+  users.forEach(user => {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td><input type="checkbox" data-user-id="${user.id}"></td>
@@ -798,18 +956,17 @@ function populateUserAccounts() {
       <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
       <td>${user.department}</td>
       <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-      <td>${formatDateTime(user.lastLogin)}</td>
-      <td>${user.failedAttempts}</td>
-      <td>${user.expires || 'Never'}</td>
+      <td>${user.createdAt}</td>
+      <td>${user.lastLogin}</td>
       <td>
         <div class="btn-group">
-          <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})" title="Edit user">
+          <button class="btn btn-sm btn-secondary edit-user" data-user-id="${user.id}" title="Edit user">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-sm btn-warning" onclick="resetPassword(${user.id})" title="Reset password">
-            <i class="fas fa-key"></i>
+          <button class="btn btn-sm btn-info toggle-user-status" data-user-id="${user.id}" title="Toggle status">
+            <i class="fas fa-toggle-${user.status === 'Active' ? 'on' : 'off'}"></i>
           </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete user">
+          <button class="btn btn-sm btn-danger delete-user" data-user-id="${user.id}" title="Delete user">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -817,14 +974,222 @@ function populateUserAccounts() {
     `;
     tbody.appendChild(row);
   });
-  
-  // Add event listeners for checkboxes
-  const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', updateBulkActions);
-  });
-  
-  updateUserStats();
+}
+
+/**
+ * Initialize sample users data
+ */
+function initializeSampleUsers() {
+  AppState.users = [
+    {
+      id: 1,
+      username: 'admin',
+      email: 'admin@eswatini.gov.sz',
+      role: 'Administrator',
+      department: 'IT Administration',
+      status: 'Active',
+      createdAt: '2024-01-15',
+      lastLogin: '2024-01-20'
+    },
+    {
+      id: 2,
+      username: 'john.mamba',
+      email: 'john.mamba@mining.gov.sz',
+      role: 'Manager',
+      department: 'Mining Operations',
+      status: 'Active',
+      createdAt: '2024-01-10',
+      lastLogin: '2024-01-19'
+    },
+    {
+      id: 3,
+      username: 'sarah.dlamini',
+      email: 'sarah.dlamini@finance.gov.sz',
+      role: 'Analyst',
+      department: 'Finance',
+      status: 'Active',
+      createdAt: '2024-01-08',
+      lastLogin: '2024-01-18'
+    },
+    {
+      id: 4,
+      username: 'peter.nkomo',
+      email: 'peter.nkomo@audit.gov.sz',
+      role: 'Auditor',
+      department: 'Audit',
+      status: 'Inactive',
+      createdAt: '2024-01-05',
+      lastLogin: '2024-01-12'
+    },
+    {
+      id: 5,
+      username: 'mary.simelane',
+      email: 'mary.simelane@legal.gov.sz',
+      role: 'Legal Officer',
+      department: 'Legal Affairs',
+      status: 'Active',
+      createdAt: '2024-01-03',
+      lastLogin: '2024-01-17'
+    }
+  ];
+}
+
+/**
+ * Initialize sample royalty records
+ */
+function initializeSampleRoyaltyRecords() {
+  if (AppState.royaltyRecords.length === 0) {
+    AppState.royaltyRecords = [
+      {
+        id: 1,
+        entity: 'Kwalini Quarry',
+        mineral: 'Stone Aggregate',
+        volume: 15000,
+        tariff: 12.50,
+        amount: 187500,
+        date: '2024-01-15',
+        status: 'Paid'
+      },
+      {
+        id: 2,
+        entity: 'Maloma Colliery',
+        mineral: 'Coal',
+        volume: 8500,
+        tariff: 25.00,
+        amount: 212500,
+        date: '2024-01-20',
+        status: 'Pending'
+      },
+      {
+        id: 3,
+        entity: 'Ngwenya Mine',
+        mineral: 'Iron Ore',
+        volume: 12000,
+        tariff: 35.00,
+        amount: 420000,
+        date: '2024-01-18',
+        status: 'Paid'
+      },
+      {
+        id: 4,
+        entity: 'Mbabane Quarry',
+        mineral: 'Stone Aggregate',
+        volume: 9000,
+        tariff: 12.50,
+        amount: 112500,
+        date: '2024-01-22',
+        status: 'Overdue'
+      },
+      {
+        id: 5,
+        entity: 'Sidvokodvo Quarry',
+        mineral: 'Sand',
+        volume: 7500,
+        tariff: 8.00,
+        amount: 60000,
+        date: '2024-01-25',
+        status: 'Paid'
+      }
+    ];
+  }
+}
+
+/**
+ * Initialize sample contracts
+ */
+function initializeSampleContracts() {
+  if (AppState.contracts.length === 0) {
+    AppState.contracts = [
+      {
+        id: 1,
+        entity: 'Kwalini Quarry',
+        rate: 12.50,
+        startDate: '2024-01-01',
+        status: 'Active'
+      },
+      {
+        id: 2,
+        entity: 'Maloma Colliery',
+        rate: 25.00,
+        startDate: '2024-01-01',
+        status: 'Active'
+      },
+      {
+        id: 3,
+        entity: 'Ngwenya Mine',
+        rate: 35.00,
+        startDate: '2024-01-01',
+        status: 'Active'
+      },
+      {
+        id: 4,
+        entity: 'Mbabane Quarry',
+        rate: 12.50,
+        startDate: '2024-01-01',
+        status: 'Under Review'
+      }
+    ];
+  }
+}
+
+/**
+ * Initialize sample audit log
+ */
+function initializeSampleAuditLog() {
+  if (AppState.auditLog.length === 0) {
+    AppState.auditLog = [
+      {
+        id: 1,
+        timestamp: '2024-01-20 09:15:23',
+        user: 'admin',
+        action: 'Login',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Chrome 121.0.0.0',
+        status: 'Success',
+        details: 'Standard login'
+      },
+      {
+        id: 2,
+        timestamp: '2024-01-20 09:20:45',
+        user: 'admin',
+        action: 'Data Access',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Chrome 121.0.0.0',
+        status: 'Success',
+        details: 'Accessed royalty records'
+      },
+      {
+        id: 3,
+        timestamp: '2024-01-19 14:30:12',
+        user: 'john.mamba',
+        action: 'Create Record',
+        ipAddress: '192.168.1.105',
+        userAgent: 'Firefox 123.0',
+        status: 'Success',
+        details: 'Created new royalty record for Kwalini Quarry'
+      },
+      {
+        id: 4,
+        timestamp: '2024-01-19 11:45:33',
+        user: 'unknown',
+        action: 'Failed Login',
+        ipAddress: '192.168.1.200',
+        userAgent: 'Safari 17.0',
+        status: 'Failed',
+        details: 'Invalid credentials - 3 attempts'
+      },
+      {
+        id: 5,
+        timestamp: '2024-01-18 16:15:55',
+        user: 'sarah.dlamini',
+        action: 'Export Data',
+        ipAddress: '192.168.1.110',
+        userAgent: 'Chrome 121.0.0.0',
+        status: 'Success',
+        details: 'Exported user management report'
+      }
+    ];
+  }
 }
 
 /**
@@ -955,10 +1320,6 @@ function saveRoyaltyRecord() {
 /**
  * Initialize profile management
  */
-function initializeProfileManagement() {
-  console.log('Profile management initialized');
-}
-
 /**
  * Initialize reporting charts
  */
@@ -1074,51 +1435,6 @@ function togglePasswordVisibility() {
 /**
  * Handle logout
  */
-function handleLogout() {
-  if (confirm('Are you sure you want to logout?')) {
-    // Log the logout
-    logAuditEvent('Logout', AppState.currentUser.username, 'System', 'Success', 'User logged out');
-    
-    // Reset application state
-    AppState.currentUser = null;
-    AppState.currentSection = 'dashboard';
-    
-    // Show login section
-    const appContainer = document.getElementById('app-container');
-    const loginSection = document.getElementById('login-section');
-    
-    if (appContainer) appContainer.style.display = 'none';
-    if (loginSection) loginSection.style.display = 'flex';
-    
-    // Clear form fields
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    
-    showNotification('You have been logged out successfully', 'info');
-  }
-}
-
-/**
- * Filter and search functions
- */
-function applyUserFilters() {
-  const roleFilter = document.getElementById('filter-user-role').value;
-  const statusFilter = document.getElementById('filter-user-status').value;
-  const departmentFilter = document.getElementById('filter-user-department').value;
-  
-  console.log('Applying filters:', { roleFilter, statusFilter, departmentFilter });
-  showNotification('Filters applied successfully', 'success');
-}
-
-function clearUserFilters() {
-  document.getElementById('filter-user-role').value = '';
-  document.getElementById('filter-user-status').value = '';
-  document.getElementById('filter-user-department').value = '';
-  
-  populateUserAccounts();
-  showNotification('Filters cleared', 'info');
-}
-
 /**
  * Bulk actions
  */
@@ -1140,28 +1456,6 @@ function updateBulkActions() {
       bulkDeleteBtn.style.display = 'none';
       bulkDeleteBtn.disabled = true;
     }
-  }
-}
-
-function handleBulkDelete() {
-  const checkboxes = document.querySelectorAll('#users-table-tbody input[type="checkbox"]:checked');
-  
-  if (checkboxes.length === 0) {
-    showNotification('No users selected', 'warning');
-    return;
-  }
-  
-  if (confirm(`Are you sure you want to delete ${checkboxes.length} selected user(s)?`)) {
-    checkboxes.forEach(checkbox => {
-      const userId = parseInt(checkbox.getAttribute('data-user-id'));
-      AppState.users = AppState.users.filter(user => user.id !== userId);
-    });
-    
-    populateUserAccounts();
-    showNotification(`${checkboxes.length} user(s) deleted successfully`, 'success');
-    
-    // Log the action
-    logAuditEvent('Bulk Delete', AppState.currentUser.username, `${checkboxes.length} users`, 'Success', `Bulk deleted ${checkboxes.length} user accounts`);
   }
 }
 
@@ -1234,10 +1528,39 @@ function updateUserStats() {
   }
 }
 
-// User action functions (called from HTML)
+// Window-scoped functions for user management
 window.editUser = function(userId) {
-  console.log('Edit user:', userId);
-  showNotification('Edit user functionality would be implemented here', 'info');
+  const user = AppState.users.find(u => u.id === parseInt(userId));
+  if (!user) return;
+
+  const modal = document.getElementById('user-modal');
+  const modalTitle = document.getElementById('user-modal-title');
+  const userForm = document.getElementById('user-form');
+  
+  if (modal && modalTitle && userForm) {
+    modalTitle.textContent = 'Edit User';
+    userForm.setAttribute('data-user-id', userId);
+    
+    // Populate form fields
+    userForm.querySelector('[name="username"]').value = user.username;
+    userForm.querySelector('[name="email"]').value = user.email;
+    userForm.querySelector('[name="role"]').value = user.role;
+    userForm.querySelector('[name="department"]').value = user.department;
+    userForm.querySelector('[name="status"]').value = user.status;
+    
+    modal.style.display = 'block';
+  }
+};
+
+window.deleteUser = function(userId) {
+  if (confirm('Are you sure you want to delete this user?')) {
+    const userIndex = AppState.users.findIndex(u => u.id === parseInt(userId));
+    if (userIndex !== -1) {
+      AppState.users.splice(userIndex, 1);
+      populateUserAccounts();
+      showNotification('User deleted successfully', 'success');
+    }
+  }
 };
 
 window.resetPassword = function(userId) {
@@ -1245,14 +1568,10 @@ window.resetPassword = function(userId) {
   showNotification('Password reset functionality would be implemented here', 'info');
 };
 
-window.deleteUser = function(userId) {
-  if (confirm('Are you sure you want to delete this user?')) {
-    AppState.users = AppState.users.filter(user => user.id !== userId);
-    populateUserAccounts();
-    showNotification('User deleted successfully', 'success');
-    
-    // Log the action
-    logAuditEvent('Delete User', AppState.currentUser.username, `User ID ${userId}`, 'Success', `Deleted user account`);
+window.closeUserModal = function() {
+  const modal = document.getElementById('user-modal');
+  if (modal) {
+    modal.style.display = 'none';
   }
 };
 
@@ -1276,6 +1595,337 @@ window.deleteRoyaltyRecord = function(recordId) {
 window.viewAuditDetails = function(entryId) {
   console.log('View audit details:', entryId);
   showNotification('Audit details view would be implemented here', 'info');
+};
+
+/**
+ * Initialize Period Selectors
+ */
+function initializePeriodSelectors() {
+  // Period selector changes
+  const periodSelectors = document.querySelectorAll('.metric-period, .chart-period');
+  periodSelectors.forEach(selector => {
+    selector.addEventListener('change', function() {
+      const chartContainer = this.closest('.metric-card, .analytics-chart');
+      if (chartContainer) {
+        updateChartData(chartContainer, this.value);
+      }
+    });
+  });
+}
+
+/**
+ * Initialize Contract Management
+ */
+function initializeContractManagement() {
+  const saveContractBtns = document.querySelectorAll('button');
+  saveContractBtns.forEach(btn => {
+    if (btn.textContent.includes('Save Contract')) {
+      btn.addEventListener('click', handleSaveContract);
+    }
+  });
+  
+  const addContractBtns = document.querySelectorAll('button');
+  addContractBtns.forEach(btn => {
+    if (btn.textContent.includes('Add Contract')) {
+      btn.addEventListener('click', showAddContractForm);
+    }
+  });
+}
+
+/**
+ * Handle Save Contract
+ */
+function handleSaveContract(event) {
+  event.preventDefault();
+  
+  const entity = document.getElementById('contract-entity')?.value;
+  const rate = document.getElementById('royalty-rate')?.value;
+  const startDate = document.getElementById('start-date')?.value;
+  
+  if (!entity || !rate || !startDate) {
+    showNotification('Please fill in all contract fields', 'error');
+    return;
+  }
+  
+  const newContract = {
+    id: Date.now(),
+    entity,
+    rate: parseFloat(rate),
+    startDate,
+    status: 'Active'
+  };
+  
+  // Add to contracts array (you'd need to add this to AppState)
+  if (!AppState.contracts) AppState.contracts = [];
+  AppState.contracts.push(newContract);
+  
+  showNotification('Contract saved successfully', 'success');
+  
+  // Reset form
+  document.getElementById('contract-entity').value = '';
+  document.getElementById('royalty-rate').value = '';
+  document.getElementById('start-date').value = '';
+  
+  // Refresh contract table if it exists
+  populateContractTable();
+}
+
+/**
+ * Show Add Contract Form
+ */
+function showAddContractForm() {
+  showSection('contract-management');
+  // Scroll to form
+  setTimeout(() => {
+    const form = document.querySelector('#contract-management .user-form-container');
+    if (form) {
+      form.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100);
+}
+
+/**
+ * Initialize Reporting
+ */
+function initializeReporting() {
+  // Report generation buttons
+  const generateBtns = document.querySelectorAll('.report-card button, button');
+  generateBtns.forEach(btn => {
+    if (btn.textContent.includes('Generate')) {
+      btn.addEventListener('click', handleGenerateReport);
+    }
+  });
+  
+  // Export buttons
+  const exportBtns = document.querySelectorAll('button');
+  exportBtns.forEach(btn => {
+    if (btn.textContent.includes('Export')) {
+      btn.addEventListener('click', handleExportData);
+    }
+  });
+  
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', handleTabSwitch);
+  });
+}
+
+/**
+ * Handle Generate Report
+ */
+function handleGenerateReport(event) {
+  const reportCard = event.target.closest('.report-card');
+  let reportType = 'General Report';
+  
+  if (reportCard) {
+    const titleElement = reportCard.querySelector('h5');
+    if (titleElement) {
+      reportType = titleElement.textContent;
+    }
+  }
+  
+  showNotification(`Generating ${reportType}...`, 'info');
+  
+  // Simulate report generation
+  setTimeout(() => {
+    showNotification(`${reportType} generated successfully`, 'success');
+  }, 2000);
+}
+
+/**
+ * Handle Export Data
+ */
+function handleExportData(event) {
+  const section = event.target.closest('section');
+  let dataType = 'data';
+  
+  if (section) {
+    const title = section.querySelector('h1');
+    if (title) {
+      dataType = title.textContent;
+    }
+  }
+  
+  showNotification(`Exporting ${dataType}...`, 'info');
+  
+  // Simulate export
+  setTimeout(() => {
+    showNotification(`${dataType} exported successfully`, 'success');
+  }, 1500);
+}
+
+/**
+ * Handle Tab Switch
+ */
+function handleTabSwitch(event) {
+  const targetTab = event.target.getAttribute('data-tab');
+  if (!targetTab) return;
+  
+  // Remove active class from all tabs and content
+  const tabContainer = event.target.closest('.user-form-container');
+  if (tabContainer) {
+    tabContainer.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    tabContainer.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab and corresponding content
+    event.target.classList.add('active');
+    const targetContent = document.querySelector(targetTab);
+    if (targetContent) {
+      targetContent.classList.add('active');
+    }
+  }
+}
+
+/**
+ * Populate Contract Table
+ */
+function populateContractTable() {
+  const tbody = document.querySelector('#contract-management table tbody');
+  if (!tbody || !AppState.contracts) return;
+  
+  tbody.innerHTML = '';
+  
+  AppState.contracts.forEach(contract => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${contract.entity}</td>
+      <td>E${contract.rate.toFixed(2)}</td>
+      <td>${formatDate(contract.startDate)}</td>
+      <td>
+        <button class="btn btn-sm btn-info" title="View contract document">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+      </td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-primary" onclick="editContract(${contract.id})" title="Edit contract">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-secondary" onclick="downloadContract(${contract.id})" title="Download contract">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="terminateContract(${contract.id})" title="Terminate contract">
+            <i class="fas fa-ban"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+/**
+ * Update Chart Data
+ */
+function updateChartData(chartContainer, period) {
+  const chartTitle = chartContainer.querySelector('h3');
+  const chartBody = chartContainer.querySelector('.card-body p, .metric-value');
+  
+  if (chartTitle && chartBody) {
+    showNotification(`Updating ${chartTitle.textContent} for ${period}...`, 'info');
+    
+    // Simulate data update
+    setTimeout(() => {
+      // You would update with real data here
+      showNotification('Chart data updated', 'success');
+    }, 1000);
+  }
+}
+
+/**
+ * Initialize Profile Management
+ */
+function initializeProfileManagement() {
+  const profileBtns = document.querySelectorAll('#profile button');
+  
+  profileBtns.forEach(btn => {
+    if (btn.textContent.includes('Save Changes') || btn.textContent.includes('Update Profile')) {
+      btn.addEventListener('click', handleSaveProfile);
+    }
+  });
+}
+
+/**
+ * Handle Save Profile
+ */
+function handleSaveProfile(event) {
+  event.preventDefault();
+  
+  const username = document.getElementById('profile-username')?.value;
+  const email = document.getElementById('profile-email')?.value;
+  const department = document.getElementById('profile-department')?.value;
+  
+  if (!username || !email || !department) {
+    showNotification('Please fill in all profile fields', 'error');
+    return;
+  }
+  
+  // Update current user profile
+  if (AppState.currentUser) {
+    AppState.currentUser.username = username;
+    AppState.currentUser.email = email;
+    AppState.currentUser.department = department;
+  }
+  
+  showNotification('Profile updated successfully', 'success');
+  
+  // Log the action
+  logAuditEvent('Update Profile', username, 'Profile Settings', 'Success', 'Updated user profile information');
+}
+
+/**
+ * Handle Logout
+ */
+function handleLogout() {
+  if (confirm('Are you sure you want to logout?')) {
+    // Log the action
+    if (AppState.currentUser) {
+      logAuditEvent('Logout', AppState.currentUser.username, 'System', 'Success', 'User logged out');
+    }
+    
+    // Clear current user
+    AppState.currentUser = null;
+    
+    // Hide app and show login
+    hideAppContainer();
+    showLoginSection();
+    
+    showNotification('Logged out successfully', 'success');
+  }
+}
+
+/**
+ * Hide App Container
+ */
+function hideAppContainer() {
+  const appContainer = document.getElementById('app-container');
+  if (appContainer) {
+    appContainer.style.display = 'none';
+  }
+}
+
+// Contract management functions for window scope
+window.editContract = function(contractId) {
+  console.log('Edit contract:', contractId);
+  showNotification('Edit contract functionality would be implemented here', 'info');
+};
+
+window.downloadContract = function(contractId) {
+  console.log('Download contract:', contractId);
+  showNotification('Contract downloaded successfully', 'success');
+};
+
+window.terminateContract = function(contractId) {
+  if (confirm('Are you sure you want to terminate this contract?')) {
+    AppState.contracts = AppState.contracts.filter(contract => contract.id !== contractId);
+    populateContractTable();
+    showNotification('Contract terminated successfully', 'success');
+  }
 };
 
 // Export functions for use in HTML

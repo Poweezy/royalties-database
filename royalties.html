@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
   </div>
 
   <!-- Login Section -->
-  <section class="login-section" id="login-section">
+  <section class="login-section" id="login-section" style="display: none;">
     <div class="login-container">
       <div class="login-header">
         <div class="login-logo" aria-label="Mining Royalties Manager Logo">MR</div>
@@ -30,12 +30,12 @@
       <form class="login-form">
         <div class="input-group">
           <i class="fas fa-user"></i>
-          <input type="text" id="username" placeholder="Username" aria-describedby="username-error">
+          <input type="text" id="username" placeholder="Username" aria-describedby="username-error" autocomplete="username">
           <div class="validation-error" id="username-error">Username is required</div>
         </div>
         <div class="input-group">
           <i class="fas fa-lock"></i>
-          <input type="password" id="password" placeholder="Password" aria-describedby="password-error">
+          <input type="password" id="password" placeholder="Password" aria-describedby="password-error" autocomplete="current-password">
           <button type="button" class="password-toggle" aria-label="Toggle password visibility">
             <i class="fas fa-eye"></i>
           </button>
@@ -228,7 +228,7 @@
             <div class="chart-summary">
               <small>
                 <i class="fas fa-info-circle"></i> 
-                Total production: <strong><span id="total-production">0</span> m³</strong> | 
+                Total production: <strong><span id="total-production">0</span> mÂ³</strong> | 
                 Top producer: <strong><span id="top-producer">-</span></strong>
               </small>
             </div>
@@ -361,7 +361,7 @@
       <section id="user-management">
         <div class="page-header">
           <div class="page-title">
-            <h1>👥 User Management</h1>
+            <h1>User Management</h1>
             <p>Comprehensive user administration with role-based access control, security monitoring, and audit trails</p>
           </div>
           <div class="page-actions">
@@ -446,7 +446,7 @@
               <!-- Username Field -->
               <div class="form-group">
                 <label for="new-username">Username</label>
-                <input type="text" id="new-username" placeholder="Enter username" aria-describedby="new-username-error">
+                <input type="text" id="new-username" placeholder="Enter username" aria-describedby="new-username-error" autocomplete="username">
                 <div class="validation-error" id="new-username-error">Username is required</div>
                 <div class="validation-success" id="new-username-success">Username is available</div>
               </div>
@@ -493,7 +493,7 @@
               <div class="form-group">
                 <label for="new-password">Password</label>
                 <div class="password-input-container">
-                  <input type="password" id="new-password" placeholder="Enter secure password" aria-describedby="new-password-error">
+                  <input type="password" id="new-password" placeholder="Enter secure password" aria-describedby="new-password-error" autocomplete="new-password">
                   <button type="button" class="password-toggle-btn" onclick="togglePassword('new-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
@@ -512,7 +512,7 @@
               <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
                 <div class="password-input-container">
-                  <input type="password" id="confirm-password" placeholder="Confirm password" aria-describedby="confirm-password-error">
+                  <input type="password" id="confirm-password" placeholder="Confirm password" aria-describedby="confirm-password-error" autocomplete="new-password">
                   <button type="button" class="password-toggle-btn" onclick="togglePassword('confirm-password')" aria-label="Show password">
                     <i class="fas fa-eye"></i>
                   </button>
@@ -937,13 +937,13 @@
               <div class="validation-error" id="mineral-validation">Mineral is required</div>
             </div>
             <div class="form-group">
-              <label for="volume">Volume (m³)</label>
-              <input type="number" id="volume" placeholder="Volume (m³)" aria-describedby="volume-validation">
+              <label for="volume">Volume (mÂ³)</label>
+              <input type="number" id="volume" placeholder="Volume (mÂ³)" aria-describedby="volume-validation">
               <div class="validation-error" id="volume-validation">Volume must be a positive number</div>
             </div>
             <div class="form-group">
-              <label for="tariff">Royalty Tariff (E/m³)</label>
-              <input type="number" id="tariff" placeholder="Tariff (E/m³)" aria-describedby="tariff-validation">
+              <label for="tariff">Royalty Tariff (E/mÂ³)</label>
+              <input type="number" id="tariff" placeholder="Tariff (E/mÂ³)" aria-describedby="tariff-validation">
               <div class="validation-error" id="tariff-validation">Tariff must be a positive number</div>
             </div>
             <div class="form-group">
@@ -982,8 +982,8 @@
                 <tr>
                   <th>Entity</th>
                   <th>Mineral</th>
-                  <th>Volume (m³)</th>
-                  <th>Tariff (E/m³)</th>
+                  <th>Volume (mÂ³)</th>
+                  <th>Tariff (E/mÂ³)</th>
                   <th>Royalties (E)</th>
                   <th>Date</th>
                   <th>Status</th>
@@ -1024,8 +1024,8 @@
               <div class="validation-error" id="contract-entity-validation">Entity is required</div>
             </div>
             <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
+              <label for="royalty-rate">Royalty Rate (E/mÂ³)</label>
+              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/mÂ³)" aria-describedby="royalty-rate-validation">
               <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
             </div>
             <div class="form-group">
@@ -1043,7 +1043,7 @@
             <thead>
               <tr>
                 <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
+                <th>Royalty Rate (E/mÂ³)</th>
                 <th>Start Date</th>
                 <th>Document</th>
                 <th>Actions</th>
@@ -1090,8 +1090,8 @@
                 <tr>
                   <th>Project</th>
                   <th>Mineral</th>
-                  <th>Declared (m³)</th>
-                  <th>Verified (m³)</th>
+                  <th>Declared (mÂ³)</th>
+                  <th>Verified (mÂ³)</th>
                   <th>Outstanding (E)</th>
                   <th>Status</th>
                 </tr>
@@ -1141,7 +1141,7 @@
               </select>
             </div>
             <div class="card-body">
-              <p>485,250 m³</p>
+              <p>485,250 mÂ³</p>
               <small class="trend-positive">+08.2% from last quarter</small>
             </div>
           </div>
@@ -1178,7 +1178,7 @@
           <div class="tab-content active" id="quick-reports">
             <div class="quick-reports-grid">
               <div class="report-card">
-                <div class="report-icon">📊</div>
+                <div class="report-icon">ðŸ“Š</div>
                 <div class="report-info">
                   <h5>Monthly Royalty Summary</h5>
                   <p>Comprehensive overview of all royalty payments for the current month</p>
@@ -1190,7 +1190,7 @@
                 <button class="btn btn-primary">Generate</button>
               </div>
               <div class="report-card">
-                <div class="report-icon">📈</div>
+                <div class="report-icon">ðŸ“ˆ</div>
                 <div class="report-info">
                   <h5>Entity Performance Analysis</h5>
                   <p>Production and payment metrics by mining entity</p>
@@ -1202,7 +1202,7 @@
                 <button class="btn btn-primary">Generate</button>
               </div>
               <div class="report-card">
-                <div class="report-icon">📋</div>
+                <div class="report-icon">ðŸ“‹</div>
                 <div class="report-info">
                   <h5>Compliance Status Report</h5>
                   <p>Current compliance standings and upcoming requirements</p>
@@ -1214,7 +1214,7 @@
                 <button class="btn btn-primary">Generate</button>
               </div>
               <div class="report-card">
-                <div class="report-icon">💰</div>
+                <div class="report-icon">ðŸ’°</div>
                 <div class="report-info">
                   <h5>Outstanding Payments</h5>
                   <p>Detailed breakdown of overdue and pending payments</p>
@@ -1403,406 +1403,722 @@
         </div>
       </section>
 
-      <!-- Royalty Records -->
-      <section id="royalty-records">
+      <!-- Communication -->
+      <section id="communication">
         <div class="page-header">
           <div class="page-title">
-            <h1>Royalty Records</h1>
-            <p>Manage and review all royalty payments</p>
+            <h1>📧 Communication Hub</h1>
+            <p>Centralized communication management for stakeholders, entities, and regulatory bodies</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success">Record Payment</button>
+            <button class="btn btn-success" id="compose-message-btn">
+              <i class="fas fa-plus"></i> Compose Message
+            </button>
+            <button class="btn btn-primary" id="message-templates-btn">
+              <i class="fas fa-file-alt"></i> Templates
+            </button>
+            <button class="btn btn-info" id="communication-settings-btn">
+              <i class="fas fa-cog"></i> Settings
+            </button>
           </div>
         </div>
-        <div class="user-form-container">
-          <h4>Record Royalty Payment</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="entity">Entity</label>
-              <select id="entity" aria-describedby="entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-              <div class="validation-error" id="entity-validation">Entity is required</div>
-            </div>
-            <div class="form-group">
-              <label for="mineral">Mineral</label>
-              <select id="mineral" aria-describedby="mineral-validation">
-                <option>Select Mineral</option>
-                <option>Coal</option>
-                <option>Iron Ore</option>
-                <option>Green Chert</option>
-                <option>Gravel</option>
-                <option>River Sand</option>
-                <option>Plaster Sand</option>
-                <option>Quarried Stone</option>
-              </select>
-              <div class="validation-error" id="mineral-validation">Mineral is required</div>
-            </div>
-            <div class="form-group">
-              <label for="volume">Volume (m³)</label>
-              <input type="number" id="volume" placeholder="Volume (m³)" aria-describedby="volume-validation">
-              <div class="validation-error" id="volume-validation">Volume must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="tariff">Royalty Tariff (E/m³)</label>
-              <input type="number" id="tariff" placeholder="Tariff (E/m³)" aria-describedby="tariff-validation">
-              <div class="validation-error" id="tariff-validation">Tariff must be a positive number</div>
-            </div>
-            <div class="form-group">
-              <label for="payment-date">Date</label>
-              <input type="date" id="payment-date" aria-describedby="date-validation">
-              <div class="validation-error" id="date-validation">Date is required</div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-success" id="save-royalty-btn">Save Royalty</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <h4>Royalty Records Table</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="filter-entity">Entity</label>
-              <select id="filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
-              <button class="btn btn-primary">Export Report</button>
-            </div>
-          </div>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Entity</th>
-                  <th>Mineral</th>
-                  <th>Volume (m³)</th>
-                  <th>Tariff (E/m³)</th>
-                  <th>Royalties (E)</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="royalty-records-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
 
-      <!-- Contract Management -->
-      <section id="contract-management">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Contract Management</h1>
-            <p>Manage royalty agreements for mines and quarries</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-success">Add Contract</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <h4>Add Contract</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="contract-entity">Entity</label>
-              <select id="contract-entity" aria-describedby="contract-entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-              <div class="validation-error" id="contract-entity-validation">Entity is required</div>
-            </div>
-            <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
-              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
-            </div>
-            <div class="form-group">
-              <label for="start-date">Start Date</label>
-              <input type="date" id="start-date" aria-describedby="start-date-validation">
-              <div class="validation-error" id="start-date-validation">Start date is required</div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-success">Save Contract</button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
-                <th>Start Date</th>
-                <th>Document</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Audit Dashboard -->
-      <section id="audit-dashboard">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Audit Dashboard</h1>
-            <p>Review discrepancies and audit reports</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">Export Report</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="audit-filter-entity">Entity</label>
-              <select id="audit-filter-entity">
-                <option>All Entities</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary">Apply Filters</button>
-            </div>
-          </div>
-          <h4>Discrepancies</h4>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>Mineral</th>
-                  <th>Declared (m³)</th>
-                  <th>Verified (m³)</th>
-                  <th>Outstanding (E)</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Reporting & Analytics -->
-      <section id="reporting-analytics">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Reporting & Analytics</h1>
-            <p>Comprehensive reporting, real-time analytics, and KPI dashboards for stakeholder insights</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">Export Dashboard</button>
-            <button class="btn btn-primary">Schedule Report</button>
-            <button class="btn btn-success">Generate Report</button>
-          </div>
-        </div>
+        <!-- Communication Dashboard -->
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Total Revenue (YTD)</h3>
+              <h3><i class="fas fa-envelope"></i> Messages Sent</h3>
               <select class="metric-period">
-                <option>2024</option>
-                <option>2023</option>
-                <option>All Time</option>
+                <option>This Month</option>
+                <option>Last Month</option>
+                <option>This Year</option>
               </select>
             </div>
             <div class="card-body">
-              <p>E 2,847,650.00</p>
-              <small class="trend-positive">+15.8% from last year</small>
-              <div class="mini-chart">Trend</div>
+              <p id="messages-sent-count">127</p>
+              <small class="trend-positive">+15% from last month</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Production Volume</h3>
-              <select class="metric-period">
-                <option>This Quarter</option>
-                <option>Last Quarter</option>
-                <option>YTD</option>
-              </select>
+              <h3><i class="fas fa-reply"></i> Response Rate</h3>
             </div>
             <div class="card-body">
-              <p>485,250 m³</p>
-              <small class="trend-positive">+08.2% from last quarter</small>
+              <p id="response-rate">89%</p>
+              <small>Average response time: 2.3 hours</small>
+              <div class="mini-progress">
+                <div class="progress-bar" style="width: 89%;"></div>
+              </div>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Collection Rate</h3>
+              <h3><i class="fas fa-users"></i> Active Conversations</h3>
             </div>
             <div class="card-body">
-              <p>96.5%</p>
-              <small>Maintained high collection rate</small>
-              <div class="collection-progress">
-                <div class="progress-bar" style="width: 96.5%;"></div>
-              </div>
+              <p id="active-conversations">23</p>
+              <small><i class="fas fa-circle text-success"></i> All conversations monitored</small>
             </div>
           </div>
           <div class="metric-card card">
             <div class="card-header">
-              <h3>Outstanding Amounts</h3>
-            </
-          <div class="tab-content active" id="quick-reports">
-            <div class="quick-reports-grid">
-              <div class="report-card">
-                <div class="report-icon">📊</div>
-                <div class="report-info">
-                  <h5>Monthly Royalty Summary</h5>
-                  <p>Comprehensive overview of all royalty payments for the current month</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 2-3 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
+              <h3><i class="fas fa-exclamation-triangle"></i> Urgent Messages</h3>
+            </div>
+            <div class="card-body">
+              <p id="urgent-messages">3</p>
+              <small><i class="fas fa-clock text-warning"></i> Requires immediate attention</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Composition -->
+        <div class="user-form-container" id="compose-message-container" style="display: none;">
+          <div class="section-header">
+            <h4><i class="fas fa-edit"></i> Compose New Message</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="close-compose-form">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
+          </div>
+          
+          <form id="compose-message-form" novalidate>
+            <div class="grid-4">
+              <div class="form-group">
+                <label for="message-recipients">Recipients</label>
+                <select id="message-recipients" multiple aria-describedby="recipients-validation">
+                  <option value="all-entities">All Mining Entities</option>
+                  <option value="overdue-entities">Entities with Overdue Payments</option>
+                  <option value="regulatory-bodies">Regulatory Bodies</option>
+                  <option value="internal-staff">Internal Staff</option>
+                  <option value="custom">Custom Recipients...</option>
+                </select>
+                <div class="validation-error" id="recipients-validation">Recipients are required</div>
               </div>
-              <div class="report-card">
-                <div class="report-icon">📈</div>
-                <div class="report-info">
-                  <h5>Entity Performance Analysis</h5>
-                  <p>Production and payment metrics by mining entity</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 3-5 minutes</span>
-                    <span><i class="fas fa-file-excel"></i> Excel</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
+              
+              <div class="form-group">
+                <label for="message-priority">Priority Level</label>
+                <select id="message-priority" aria-describedby="priority-validation">
+                  <option value="low">Low</option>
+                  <option value="normal" selected>Normal</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+                <div class="validation-error" id="priority-validation">Priority is required</div>
               </div>
-              <div class="report-card">
-                <div class="report-icon">📋</div>
-                <div class="report-info">
-                  <h5>Compliance Status Report</h5>
-                  <p>Current compliance standings and upcoming requirements</p>
-                  <div class="report-meta">
-                    <span><i class="fas fa-clock"></i> 1-2 minutes</span>
-                    <span><i class="fas fa-file-pdf"></i> PDF</span>
-                  </div>
-                </div>
-                <button class="btn btn-primary">Generate</button>
+              
+              <div class="form-group">
+                <label for="message-template">Use Template</label>
+                <select id="message-template">
+                  <option value="">Start from scratch</option>
+                  <option value="payment-reminder">Payment Reminder</option>
+                  <option value="compliance-notice">Compliance Notice</option>
+                  <option value="regulatory-update">Regulatory Update</option>
+                  <option value="audit-notification">Audit Notification</option>
+                </select>
               </div>
+              
+              <div class="form-group">
+                <label for="message-schedule">Schedule Delivery</label>
+                <input type="datetime-local" id="message-schedule">
+                <small class="form-help">Leave empty to send immediately</small>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="message-subject">Subject</label>
+              <input type="text" id="message-subject" placeholder="Enter message subject" aria-describedby="subject-validation">
+              <div class="validation-error" id="subject-validation">Subject is required</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="message-content">Message Content</label>
+              <textarea id="message-content" rows="8" placeholder="Enter your message here..." aria-describedby="content-validation"></textarea>
+              <div class="validation-error" id="content-validation">Message content is required</div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="save-draft-btn">
+                <i class="fas fa-save"></i> Save Draft
+              </button>
+              <button type="button" class="btn btn-info" id="preview-message-btn">
+                <i class="fas fa-eye"></i> Preview
+              </button>
+              <button type="submit" class="btn btn-success" id="send-message-btn">
+                <i class="fas fa-paper-plane"></i> Send Message
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Message History and Tracking -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-history"></i> Message History & Tracking</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="refresh-messages">
+                <i class="fas fa-sync"></i> Refresh
+              </button>
+              <button class="btn btn-info btn-sm" id="export-messages">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table" id="messages-table">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Recipients</th>
+                  <th>Subject</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Response Rate</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="messages-table-tbody">
+                <tr>
+                  <td>2024-02-15 10:30</td>
+                  <td>All Mining Entities (12)</td>
+                  <td>Monthly Royalty Payment Reminder</td>
+                  <td><span class="priority-badge normal">Normal</span></td>
+                  <td><span class="status-badge sent">Sent</span></td>
+                  <td>75% (9/12)</td>
                   <td>
-                    <button class="btn btn-primary btn-sm">Prepare</button>
-                    <button class="btn btn-success btn-sm">Submit</button>
+                    <button class="btn btn-sm btn-info" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" title="Resend">
+                      <i class="fas fa-redo"></i>
+                    </button>
                   </td>
                 </tr>
                 <tr>
-                  <td>Environmental Report</td>
-                  <td>Environmental Authority</td>
-                  <td>28 Feb 2024</td>
-                  <td><span class="status-badge warning">In Progress</span></td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>2024-02-14 15:45</td>
+                  <td>Overdue Entities (3)</td>
+                  <td>Urgent: Payment Overdue Notice</td>
+                  <td><span class="priority-badge urgent">Urgent</span></td>
+                  <td><span class="status-badge delivered">Delivered</span></td>
+                  <td>100% (3/3)</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm">Continue</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Quarterly Production</td>
-                  <td>Ministry of Natural Resources</td>
-                  <td>31 Jan 2024</td>
-                  <td><span class="status-badge compliant">Submitted</span></td>
-                  <td>29 Jan 2024</td>
-                  <td>MNR-Q4-2023-001</td>
-                  <td>
-                    <button class="btn btn-secondary btn-sm">View</button>
+                    <button class="btn btn-sm btn-info" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success" title="Follow Up">
+                      <i class="fas fa-reply"></i>
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+      </section>
 
-        <!-- Compliance Alerts & Notifications -->
+      <!-- Notifications -->
+      <section id="notifications">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>🔔 Notifications Center</h1>
+            <p>System alerts, reminders, and important updates for mining royalty management</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-info" id="mark-all-read-btn">
+              <i class="fas fa-check-double"></i> Mark All Read
+            </button>
+            <button class="btn btn-secondary" id="notification-settings-btn">
+              <i class="fas fa-cog"></i> Settings
+            </button>
+            <button class="btn btn-primary" id="create-notification-btn">
+              <i class="fas fa-plus"></i> Create Alert
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification Stats -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-bell"></i> Active Notifications</h3>
+            </div>
+            <div class="card-body">
+              <p id="active-notifications-count">7</p>
+              <small><i class="fas fa-circle text-info"></i> 3 unread, 4 read</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Critical Alerts</h3>
+            </div>
+            <div class="card-body">
+              <p id="critical-alerts-count">2</p>
+              <small><i class="fas fa-clock text-danger"></i> Requires immediate attention</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar-alt"></i> Scheduled Reminders</h3>
+            </div>
+            <div class="card-body">
+              <p id="scheduled-reminders-count">12</p>
+              <small><i class="fas fa-calendar-check text-success"></i> Next: Feb 16, 2024</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-line"></i> System Health</h3>
+            </div>
+            <div class="card-body">
+              <p id="system-health-status">Optimal</p>
+              <small><i class="fas fa-check-circle text-success"></i> All systems operational</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Categories -->
         <div class="user-form-container">
-          <h4>🚨 Compliance Alerts & Deadlines</h4>
-          <div class="alert-dashboard">
-            <div class="alert-item urgent">
-              <div class="alert-icon">🔴</div>
-              <div class="alert-content">
-                <h6>Environmental Impact Report Overdue</h6>
-                <p>Due: 28 Feb 2024 | Days Overdue: 2</p>
-                <div class="alert-actions">
-                  <button class="btn btn-danger btn-sm">Submit Now</button>
-                  <button class="btn btn-secondary btn-sm">Request Extension</button>
+          <div class="section-header">
+            <h4><i class="fas fa-list"></i> Notification Categories</h4>
+            <div class="table-actions">
+              <div class="notification-filters">
+                <button class="filter-btn active" data-filter="all">All (7)</button>
+                <button class="filter-btn" data-filter="unread">Unread (3)</button>
+                <button class="filter-btn" data-filter="critical">Critical (2)</button>
+                <button class="filter-btn" data-filter="payments">Payments (4)</button>
+                <button class="filter-btn" data-filter="compliance">Compliance (1)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications List -->
+          <div class="notifications-list" id="notifications-list">
+            <div class="notification-item unread critical">
+              <div class="notification-icon critical">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h5>Critical: Payment Overdue - Maloma Colliery</h5>
+                  <span class="notification-time">2 hours ago</span>
+                </div>
+                <p>Maloma Colliery payment is 15 days overdue. Total outstanding: E 145,750.00</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-primary">View Details</button>
+                  <button class="btn btn-sm btn-warning">Send Reminder</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
                 </div>
               </div>
             </div>
-            <div class="alert-item warning">
-              <div class="alert-icon">🟡</div>
-              <div class="alert-content">
-                <h6>Monthly Royalty Return Due Soon</h6>
-                <p>Due: 15 Feb 2024 | Days Remaining: 5</p>
-                <div class="alert-actions">
-                  <button class="btn btn-primary btn-sm">Prepare Report</button>
+
+            <div class="notification-item unread critical">
+              <div class="notification-icon critical">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h5>Security Alert: Multiple Failed Login Attempts</h5>
+                  <span class="notification-time">4 hours ago</span>
+                </div>
+                <p>Detected 5 failed login attempts from IP 203.0.113.45 in the last hour</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-danger">Block IP</button>
+                  <button class="btn btn-sm btn-info">View Logs</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
                 </div>
               </div>
             </div>
-            <div class="alert-item info">
-              <div class="alert-icon">🔵</div>
-              <div class="alert-content">
-                <h6>New Mining Act Amendment</h6>
-                <p>Effective: 1 Apr 2024 | Review required for compliance impact</p>
-                <div class="alert-actions">
-                  <button class="btn btn-secondary btn-sm">Review Changes</button>
+
+            <div class="notification-item unread">
+              <div class="notification-icon info">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h5>Reminder: Monthly Report Due Tomorrow</h5>
+                  <span class="notification-time">6 hours ago</span>
+                </div>
+                <p>February 2024 royalty report submission deadline is tomorrow at 5:00 PM</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-success">Generate Report</button>
+                  <button class="btn btn-sm btn-secondary">Mark Read</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="notification-item read">
+              <div class="notification-icon success">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h5>Payment Received - Kwalini Quarry</h5>
+                  <span class="notification-time">1 day ago</span>
+                </div>
+                <p>Received royalty payment of E 45,200.00 from Kwalini Quarry for January 2024</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-info">View Receipt</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="notification-item read">
+              <div class="notification-icon info">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-header">
+                  <h5>New User Account Created</h5>
+                  <span class="notification-time">2 days ago</span>
+                </div>
+                <p>User account 'm.smith' created successfully with Auditor role</p>
+                <div class="notification-actions">
+                  <button class="btn btn-sm btn-info">View User</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Regulatory Calendar -->
-        <div class="user-form-container">
-          <h4>📅 Regulatory Calendar</h4>
-          <div class="calendar-view">
-            <div class="calendar-header">
-              <button class="btn btn-secondary">&lt; Previous</button>
-              <h5>February 2024</h5>
-              <button class="btn btn-secondary">Next &gt;</button>
+        <!-- Notification Settings -->
+        <div class="user-form-container" id="notification-settings-container" style="display: none;">
+          <div class="section-header">
+            <h4><i class="fas fa-cog"></i> Notification Preferences</h4>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="close-settings">
+                <i class="fas fa-times"></i> Close
+              </button>
             </div>
-            <div class="calendar-grid">
-              <!-- Simplified calendar representation -->
-              <div class="calendar-week">
-                <div class="calendar-day">
-                  <span class="day-number">15</span>
-                  <div class="day-events">
-                    <div class="event royalty">Royalty Return Due</div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-category">
+              <h6>📧 Email Notifications</h6>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox" checked> Payment reminders
+                </label>
+              </div>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox" checked> Overdue notifications
+                </label>
+              </div>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox"> Daily summaries
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-category">
+              <h6>🔔 System Alerts</h6>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox" checked> Security alerts
+                </label>
+              </div>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox" checked> System maintenance
+                </label>
+              </div>
+              <div class="setting-item">
+                <label class="setting-label">
+                  <input type="checkbox"> Performance warnings
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary">Reset to Defaults</button>
+            <button class="btn btn-success">Save Preferences</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compliance & Regulatory -->
+      <section id="compliance">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>⚖️ Compliance & Regulatory</h1>
+            <p>Comprehensive compliance monitoring, regulatory adherence, and audit trail management</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="run-compliance-check-btn">
+              <i class="fas fa-check-double"></i> Run Compliance Check
+            </button>
+            <button class="btn btn-primary" id="generate-compliance-report-btn">
+              <i class="fas fa-file-alt"></i> Generate Report
+            </button>
+            <button class="btn btn-info" id="regulatory-calendar-btn">
+              <i class="fas fa-calendar"></i> Regulatory Calendar
+            </button>
+          </div>
+        </div>
+
+        <!-- Compliance Dashboard -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-shield-check"></i> Overall Compliance</h3>
+              <select class="metric-period">
+                <option>Current Status</option>
+                <option>Last Month</option>
+                <option>Last Quarter</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <p id="overall-compliance-rate">94%</p>
+              <small class="trend-positive">+3% improvement this month</small>
+              <div class="compliance-progress">
+                <div class="progress-bar" style="width: 94%; background: var(--success-color);"></div>
+              </div>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-exclamation-triangle"></i> Non-Compliance Issues</h3>
+            </div>
+            <div class="card-body">
+              <p id="non-compliance-count">3</p>
+              <small><i class="fas fa-clock text-warning"></i> 2 minor, 1 moderate</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar-check"></i> Upcoming Deadlines</h3>
+            </div>
+            <div class="card-body">
+              <p id="upcoming-deadlines-count">5</p>
+              <small><i class="fas fa-clock text-info"></i> Next: Feb 20, 2024</small>
+            </div>
+          </div>
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-file-contract"></i> Regulatory Updates</h3>
+            </div>
+            <div class="card-body">
+              <p id="regulatory-updates-count">2</p>
+              <small><i class="fas fa-info-circle text-info"></i> Require review</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Categories -->
+        <div class="user-form-container">
+          <div class="regulatory-tabs">
+            <button class="tab-btn active" data-tab="#financial-compliance">Financial Compliance</button>
+            <button class="tab-btn" data-tab="#environmental-compliance">Environmental</button>
+            <button class="tab-btn" data-tab="#operational-compliance">Operational</button>
+            <button class="tab-btn" data-tab="#regulatory-updates">Regulatory Updates</button>
+          </div>
+
+          <!-- Financial Compliance -->
+          <div class="tab-content active" id="financial-compliance">
+            <h5><i class="fas fa-coins"></i> Financial Compliance Status</h5>
+            <div class="compliance-grid">
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Royalty Payment Compliance</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>96% of entities up-to-date with payments</p>
+                  <div class="progress-mini">
+                    <div class="progress-bar" style="width: 96%;"></div>
+                  </div>
+                  <small>47/49 entities compliant</small>
+                </div>
+              </div>
+
+              <div class="compliance-item warning">
+                <div class="compliance-header">
+                  <h6>Tax Reporting Compliance</h6>
+                  <span class="compliance-badge warning">Needs Attention</span>
+                </div>
+                <div class="compliance-details">
+                  <p>3 entities have pending tax returns</p>
+                  <small>Deadline: February 28, 2024</small>
+                </div>
+              </div>
+
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Audit Trail Maintenance</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>All transactions properly documented</p>
+                  <small>100% audit trail coverage</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Environmental Compliance -->
+          <div class="tab-content" id="environmental-compliance">
+            <h5><i class="fas fa-leaf"></i> Environmental Compliance Status</h5>
+            <div class="compliance-grid">
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Environmental Impact Assessments</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>All active sites have valid EIAs</p>
+                  <small>12/12 sites compliant</small>
+                </div>
+              </div>
+
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Water Usage Permits</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>All water usage within permitted limits</p>
+                  <small>Monitoring: Real-time</small>
+                </div>
+              </div>
+
+              <div class="compliance-item warning">
+                <div class="compliance-header">
+                  <h6>Rehabilitation Bonds</h6>
+                  <span class="compliance-badge warning">Review Required</span>
+                </div>
+                <div class="compliance-details">
+                  <p>2 bonds require renewal this quarter</p>
+                  <small>Next review: March 15, 2024</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Operational Compliance -->
+          <div class="tab-content" id="operational-compliance">
+            <h5><i class="fas fa-cogs"></i> Operational Compliance Status</h5>
+            <div class="compliance-grid">
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Mining Licenses</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>All licenses valid and up-to-date</p>
+                  <small>Next renewal: June 2024</small>
+                </div>
+              </div>
+
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Safety Compliance</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>All sites meet safety standards</p>
+                  <small>Last inspection: February 10, 2024</small>
+                </div>
+              </div>
+
+              <div class="compliance-item compliant">
+                <div class="compliance-header">
+                  <h6>Production Reporting</h6>
+                  <span class="compliance-badge success">Compliant</span>
+                </div>
+                <div class="compliance-details">
+                  <p>Monthly reports submitted on time</p>
+                  <small>100% reporting compliance</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Regulatory Updates -->
+          <div class="tab-content" id="regulatory-updates">
+            <h5><i class="fas fa-newspaper"></i> Recent Regulatory Updates</h5>
+            <div class="regulatory-updates-list">
+              <div class="update-item">
+                <div class="update-header">
+                  <h6>Mining Tax Amendment Act 2024</h6>
+                  <span class="update-date">February 12, 2024</span>
+                  <span class="update-priority high">High Priority</span>
+                </div>
+                <div class="update-content">
+                  <p>New tax rates effective April 1, 2024. Royalty rates increased for iron ore and coal.</p>
+                  <div class="update-actions">
+                    <button class="btn btn-sm btn-primary">Review Changes</button>
+                    <button class="btn btn-sm btn-success">Mark Reviewed</button>
                   </div>
                 </div>
-                <div class="calendar-day">
-                  <span class="day-number">28</span>
-                  <div class="day-events">
-                    <div class="event environmental">Environmental Report</div>
+              </div>
+
+              <div class="update-item">
+                <div class="update-header">
+                  <h6>Environmental Compliance Guidelines Update</h6>
+                  <span class="update-date">February 8, 2024</span>
+                  <span class="update-priority medium">Medium Priority</span>
+                </div>
+                <div class="update-content">
+                  <p>Updated guidelines for water usage monitoring and reporting requirements.</p>
+                  <div class="update-actions">
+                    <button class="btn btn-sm btn-primary">Review Changes</button>
+                    <button class="btn btn-sm btn-success">Mark Reviewed</button>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Compliance Actions -->
+        <div class="user-form-container">
+          <div class="section-header">
+            <h4><i class="fas fa-tasks"></i> Required Actions & Deadlines</h4>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table" id="compliance-actions-table">
+              <thead>
+                <tr>
+                  <th>Action Required</th>
+                  <th>Entity/Department</th>
+                  <th>Priority</th>
+                  <th>Deadline</th>
+                  <th>Status</th>
+                  <th>Assigned To</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Update tax return submission</td>
+                  <td>Maloma Colliery</td>
+                  <td><span class="priority-badge high">High</span></td>
+                  <td>2024-02-28</td>
+                  <td><span class="status-badge pending">Pending</span></td>
+                  <td>Finance Team</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary">Assign</button>
+                    <button class="btn btn-sm btn-success">Complete</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Renew environmental permit</td>
+                  <td>Ngwenya Mine</td>
+                  <td><span class="priority-badge medium">Medium</span></td>
+                  <td>2024-03-15</td>
+                  <td><span class="status-badge in-progress">In Progress</span></td>
+                  <td>Compliance Officer</td>
+                  <td>
+                    <button class="btn btn-sm btn-info">View Progress</button>
+                    <button class="btn btn-sm btn-warning">Escalate</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -1827,47 +2143,30 @@
             <div class="grid-4">
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h6>🇸🇿 Eswatini (Local)</h6>
-                  <span class="compliance-score">94%</span>
+                  <h5>🇸🇿 Kingdom of Eswatini</h5>
+                  <span class="jurisdiction-status active">Primary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
-                  <div class="requirement-item">
-                    <span class="requirement-name">Mining Licenses</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Royalty Payments</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Environmental Permits</span>
-                    <span class="requirement-status warning">⚠️</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Tax Filings</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
+                  <ul>
+                    <li><i class="fas fa-check-circle text-success"></i> Mining License: Current</li>
+                    <li><i class="fas fa-check-circle text-success"></i> Environmental Permit: Valid</li>
+                    <li><i class="fas fa-exclamation-triangle text-warning"></i> Annual Return: Due Soon</li>
+                    <li><i class="fas fa-check-circle text-success"></i> Tax Compliance: Up to Date</li>
+                  </ul>
                 </div>
               </div>
               
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h6>🏛️ SADC Regional</h6>
-                  <span class="compliance-score">100%</span>
+                  <h5>🌍 SADC Regional</h5>
+                  <span class="jurisdiction-status secondary">Secondary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
-                  <div class="requirement-item">
-                    <span class="requirement-name">Regional Protocols</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Cross-border Trade</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
-                  <div class="requirement-item">
-                    <span class="requirement-name">Environmental Standards</span>
-                    <span class="requirement-status compliant">✅</span>
-                  </div>
+                  <ul>
+                    <li><i class="fas fa-check-circle text-success"></i> Cross-border Trade: Compliant</li>
+                    <li><i class="fas fa-check-circle text-success"></i> Environmental Standards: Met</li>
+                    <li><i class="fas fa-info-circle text-info"></i> Regional Reporting: Optional</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1882,24 +2181,19 @@
               <h6>Mineral Royalties</h6>
               <div class="tax-rates">
                 <div class="rate-item">
-                  <span>Coal</span>
-                  <span class="rate">3%</span>
-                  <span class="basis">of gross value</span>
+                  <span class="mineral-type">Coal</span>
+                  <span class="rate-value">E 2.50/m³</span>
+                  <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
-                  <span>Iron Ore</span>
-                  <span class="rate">5%</span>
-                  <span class="basis">of gross value</span>
+                  <span class="mineral-type">Iron Ore</span>
+                  <span class="rate-value">E 3.75/m³</span>
+                  <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
-                  <span>Quarry Products</span>
-                  <span class="rate">E15/m³</span>
-                  <span class="basis">flat rate</span>
-                </div>
-                <div class="rate-item">
-                  <span>Precious Minerals</span>
-                  <span class="rate">10%</span>
-                  <span class="basis">of gross value</span>
+                  <span class="mineral-type">Quarried Stone</span>
+                  <span class="rate-value">E 1.25/m³</span>
+                  <span class="rate-status current">Current</span>
                 </div>
               </div>
             </div>
@@ -1908,19 +2202,14 @@
               <h6>Corporate Taxes</h6>
               <div class="tax-rates">
                 <div class="rate-item">
-                  <span>Corporate Income Tax</span>
-                  <span class="rate">27.5%</span>
-                  <span class="basis">on net profit</span>
+                  <span class="mineral-type">Corporate Income Tax</span>
+                  <span class="rate-value">27.5%</span>
+                  <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
-                  <span>Withholding Tax (Dividends)</span>
-                  <span class="rate">15%</span>
-                  <span class="basis">on distributions</span>
-                </div>
-                <div class="rate-item">
-                  <span>VAT</span>
-                  <span class="rate">15%</span>
-                  <span class="basis">on applicable sales</span>
+                  <span class="mineral-type">Withholding Tax</span>
+                  <span class="rate-value">15%</span>
+                  <span class="rate-status current">Current</span>
                 </div>
               </div>
             </div>
@@ -1929,6 +2218,48 @@
           <div class="form-actions">
             <button class="btn btn-primary">Update Tax Rates</button>
             <button class="btn btn-secondary">Export Tax Schedule</button>
+          </div>
+        </div>
+
+        <!-- Regulatory Calendar -->
+        <div class="user-form-container">
+          <h4>📅 Regulatory Calendar & Deadlines</h4>
+          <div class="calendar-view">
+            <div class="upcoming-deadlines">
+              <h6>📅 Upcoming Regulatory Deadlines</h6>
+              <div class="deadline-list">
+                <div class="deadline-item">
+                  <div class="deadline-date">
+                    <span class="day">15</span>
+                    <span class="month">Feb</span>
+                  </div>
+                  <div class="deadline-info">
+                    <h6>Monthly Royalty Return</h6>
+                    <p>Ministry of Natural Resources</p>
+                    <span class="days-remaining">5 days remaining</span>
+                  </div>
+                  <div class="deadline-actions">
+                    <button class="btn btn-primary btn-sm">Prepare</button>
+                    <button class="btn btn-success btn-sm">Submit</button>
+                  </div>
+                </div>
+                <div class="deadline-item">
+                  <div class="deadline-date">
+                    <span class="day">28</span>
+                    <span class="month">Feb</span>
+                  </div>
+                  <div class="deadline-info">
+                    <h6>Environmental Report</h6>
+                    <p>Environmental Authority</p>
+                    <span class="days-remaining">13 days remaining</span>
+                  </div>
+                  <div class="deadline-actions">
+                    <button class="btn btn-primary btn-sm">Prepare</button>
+                    <button class="btn btn-success btn-sm">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1971,23 +2302,27 @@
             </div>
           </div>
           <h4>Change Password</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="current-password">Current Password</label>
-              <input type="password" id="current-password" placeholder="Current Password" aria-describedby="current-password-validation">
-              <div class="validation-error" id="current-password-validation">Current password is required</div>
+          <form id="change-password-form" novalidate>
+            <!-- Hidden username field for accessibility -->
+            <input type="text" id="profile-username-hidden" style="display: none;" autocomplete="username">
+            <div class="grid-4">
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" placeholder="Current Password" aria-describedby="current-password-validation" autocomplete="current-password">
+                <div class="validation-error" id="current-password-validation">Current password is required</div>
+              </div>
+              <div class="form-group">
+                <label for="new-profile-password">New Password</label>
+                <input type="password" id="new-profile-password" placeholder="New Password" aria-describedby="new-profile-password-validation" autocomplete="new-password">
+                <div class="validation-error" id="new-profile-password-validation">New password is required</div>
+              </div>
+              <div class="form-group">
+                <label for="confirm-profile-password">Confirm New Password</label>
+                <input type="password" id="confirm-profile-password" placeholder="Confirm New Password" aria-describedby="confirm-profile-password-validation" autocomplete="new-password">
+                <div class="validation-error" id="confirm-profile-password-validation">Passwords must match</div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="new-profile-password">New Password</label>
-              <input type="password" id="new-profile-password" placeholder="New Password" aria-describedby="new-profile-password-validation">
-              <div class="validation-error" id="new-profile-password-validation">New password is required</div>
-            </div>
-            <div class="form-group">
-              <label for="confirm-profile-password">Confirm New Password</label>
-              <input type="password" id="confirm-profile-password" placeholder="Confirm New Password" aria-describedby="confirm-profile-password-validation">
-              <div class="validation-error" id="confirm-profile-password-validation">Passwords must match</div>
-            </div>
-          </div>
+          </form>
           <div class="form-actions">
             <button class="btn btn-secondary">Cancel</button>
             <button class="btn btn-success">Update Profile</button>
@@ -2009,7 +2344,7 @@
         <div class="user-form-container">
           <p>Click the button above to log out of the Mining Royalties Manager. Ensure all changes are saved before logging out.</p>
           <div class="logout-warning">
-            <h5>⚠️ Before you logout:</h5>
+            <h5>âš ï¸ Before you logout:</h5>
             <ul>
               <li>Save any unsaved changes</li>
               <li>Complete any pending operations</li>
@@ -2191,7 +2526,7 @@ function showFieldValidation(fieldId, validation) {
     field.classList.add('field-valid');
     if (errorElement) errorElement.style.display = 'none';
     if (successElement) {
-      successElement.textContent = `✓ ${validation.message}`;
+      successElement.textContent = `âœ“ ${validation.message}`;
       successElement.style.display = 'block';
     }
   } else {
@@ -2437,3 +2772,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
+
