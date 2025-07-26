@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - Mining Royalties Manager</title>
+    <link rel="stylesheet" href="royalties.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Inline styles to ensure login works -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .login-section {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-logo {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .login-header h2 {
+            color: #1a365d;
+            margin: 0 0 0.5rem;
+        }
+        
+        .login-header p {
+            color: #64748b;
+            margin: 0;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            z-index: 1;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.875rem 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .password-toggle-btn {
+            position: absolute;
+            right: 0.75rem; top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        
+        .password-toggle-btn:hover {
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.1);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-large {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .login-footer p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+        
+        .validation-error {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .app-container {
+            display: none;
+            min-height: 100vh;
+            background: #f8fafc;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .success-message {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .success-message h1 {
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message p {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">MR</div>
+            <h2>Mining Royalties Manager</h2>
+            <div class="loading-spinner"></div>
+            <p>Loading your secure workspace...</p>
+        </div>
+    </div>
+
+    <!-- Login Section -->
+    <section class="login-section" id="login-section">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">MR</div>
+                <h2>Mining Royalties Manager</h2>
+                <p>Secure access to your royalty management system</p>
+            </div>
+            
+            <form class="login-form" id="login-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="Username" required>
+                    <div class="validation-error" id="username-error">Username is required</div>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="validation-error" id="password-error">Password is required</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Please contact your administrator for credentials.</p>
+                <p><strong>Demo:</strong> Use any username/password to test</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Screen -->
+    <div class="app-container" id="app-container">
+        <div class="success-message">
+            <h1>✅ Login Screen Fixed!</h1>
+            <p>Welcome, <strong id="user-name">User</strong>!</p>
+            <p>The login screen is now displaying properly without JavaScript code.</p>
+            <button onclick="location.reload()" class="btn btn-primary">Test Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Ensure no JavaScript errors break the display
+        try {
+            // Password toggle function
+            function togglePassword(inputId) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                
+                const button = input.parentElement.querySelector('.password-toggle-btn');
+                const icon = button?.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.className = 'fas fa-eye-slash';
+                } else {
+                    input.type = 'password';
+                    if (icon) icon.className = 'fas fa-eye';
+                }
+            }
+
+            // Make function globally available
+            window.togglePassword = togglePassword;
+
+            // Initialize application
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Debug Login initialized');
+                
+                const loadingScreen = document.getElementById('loading-screen');
+                const loginSection = document.getElementById('login-section');
+                const loginForm = document.getElementById('login-form');
+                
+                // Show loading, then login
+                setTimeout(() => {
+                    if (loadingScreen) loadingScreen.style.display = 'none';
+                    if (loginSection) loginSection.style.display = 'flex';
+                }, 2000);
+                
+                // Handle login form
+                if (loginForm) {
+                    loginForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const username = document.getElementById('username').value.trim();
+                        const password = document.getElementById('password').value.trim();
+                        const usernameError = document.getElementById('username-error');
+                        const passwordError = document.getElementById('password-error');
+                        
+                        // Reset errors
+                        usernameError.style.display = 'none';
+                        passwordError.style.display = 'none';
+                        
+                        let isValid = true;
+                        
+                        if (!username) {
+                            usernameError.style.display = 'block';
+                            isValid = false;
+                        }
+                        
+                        if (!password) {
+                            passwordError.style.display = 'block';
+                            isValid = false;
+                        }
+                        
+                        if (!isValid) return;
+                        
+                        // Show loading state
+                        const submitBtn = loginForm.querySelector('button[type="submit"]');
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                        submitBtn.disabled = true;
+                        
+                        // Simulate login
+                        setTimeout(() => {
+                            loginSection.style.display = 'none';
+                            const appContainer = document.getElementById('app-container');
+                            if (appContainer) appContainer.style.display = 'flex';
+                            
+                            const userNameElement = document.getElementById('user-name');
+                            if (userNameElement) userNameElement.textContent = username;
+                        }, 1500);
+                    });
+                    
+                    // Real-time validation
+                    document.getElementById('username').addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            document.getElementById('username-error').style.display = 'none';
+                        }
+                    });
+                    
+                    document.getElementById('password').addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            document.getElementById('password-error').style.display = 'none';
+                        }
+                    });
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error in debug login:', error);
+            // Fallback: just show the login form
+            document.addEventListener('DOMContentLoaded', function() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const loginSection = document.getElementById('login-section');
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                if (loginSection) loginSection.style.display = 'flex';
+            });
+        }
+    </script>
+</body>
+</html>

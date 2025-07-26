@@ -1,4 +1,30 @@
-// Global application state
+// Security utility functions
+function escapeHtml(text) {
+    if (typeof text !== 'string') return text;
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sanitizeInput(input, type = 'text') {
+    if (!input) return '';
+    
+    input = input.toString().trim();
+    
+    switch (type) {
+        case 'email':
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(input) ? input : '';
+        case 'username':
+            return input.replace(/[^a-zA-Z0-9._-]/g, '');
+        case 'number':
+            return parseInt(input) || 0;
+        default:
+            return escapeHtml(input);
+    }
+}
+
+// Global variables
 let currentUser = null;
 let currentSection = 'dashboard';
 let royaltyRecords = [];
@@ -599,29 +625,64 @@ function setupUserManagement() {
 
 function handleUserCreation() {
     const formData = new FormData(document.getElementById('add-user-form'));
+    
+    // Sanitize and validate input data
     const userData = {
         id: userAccounts.length + 1,
-        username: formData.get('username'),
-        email: formData.get('email'),
-        role: formData.get('role'),
-        department: formData.get('department'),
+        username: sanitizeInput(formData.get('username'), 'username'),
+        email: sanitizeInput(formData.get('email'), 'email'),
+        role: escapeHtml(formData.get('role') || ''),
+        department: escapeHtml(formData.get('department') || ''),
         status: 'Active',
         lastLogin: 'Never',
         failedAttempts: 0,
-        expires: formData.get('expires') || null,
+        expires: escapeHtml(formData.get('expires') || '') || null,
         created: new Date().toISOString().split('T')[0]
     };
+    
+    // Validate required fields
+    if (!userData.username || userData.username.length < 3) {
+        showNotification('Username must be at least 3 characters long', 'error');
+        return;
+    }
+    
+    if (!userData.email) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    if (!userData.role) {
+        showNotification('Please select a role', 'error');
+        return;
+    }
+    
+    if (!userData.department) {
+        showNotification('Please select a department', 'error');
+        return;
+    }
+    
+    // Check for duplicate username
+    if (userAccounts.some(user => user.username === userData.username)) {
+        showNotification('Username already exists', 'error');
+        return;
+    }
+    
+    // Check for duplicate email
+    if (userAccounts.some(user => user.email === userData.email)) {
+        showNotification('Email address already exists', 'error');
+        return;
+    }
     
     // Add to user accounts
     userAccounts.push(userData);
     
-    // Add to audit log
+    // Add to audit log with sanitized data
     auditLog.unshift({
         id: auditLog.length + 1,
         timestamp: new Date().toLocaleString(),
-        user: currentUser.username,
+        user: escapeHtml(currentUser.username),
         action: 'Create User',
-        target: userData.username,
+        target: escapeHtml(userData.username),
         ipAddress: '192.168.1.100',
         status: 'Success',
         details: `Created new ${userData.role} user account for ${userData.department} department`
@@ -645,24 +706,24 @@ function populateUserAccounts() {
     userAccounts.forEach((user, index) => {
         const row = userTableBody.insertRow();
         row.innerHTML = `
-            <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
-            <td>${user.username}</td>
-            <td>${user.email}</td>
-            <td><span class="role-badge ${user.role.toLowerCase()}">${user.role}</span></td>
-            <td>${user.department}</td>
-            <td><span class="status-badge ${user.status.toLowerCase()}">${user.status}</span></td>
-            <td>${user.lastLogin || 'Never'}</td>
-            <td>${user.failedAttempts || 0}</td>
-            <td>${user.expires || 'Never'}</td>
+            <td><input type="checkbox" class="user-checkbox" data-user-id="${sanitizeInput(user.id, 'number')}"></td>
+            <td>${escapeHtml(user.username)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td><span class="role-badge ${escapeHtml(user.role.toLowerCase())}">${escapeHtml(user.role)}</span></td>
+            <td>${escapeHtml(user.department)}</td>
+            <td><span class="status-badge ${escapeHtml(user.status.toLowerCase())}">${escapeHtml(user.status)}</span></td>
+            <td>${escapeHtml(user.lastLogin || 'Never')}</td>
+            <td>${sanitizeInput(user.failedAttempts || 0, 'number')}</td>
+            <td>${escapeHtml(user.expires || 'Never')}</td>
             <td>
                 <div class="btn-group">
-                    <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})" title="Edit user">
+                    <button class="btn btn-sm btn-secondary" onclick="editUser(${sanitizeInput(user.id, 'number')})" title="Edit user">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-warning" onclick="resetPassword(${user.id})" title="Reset password">
+                    <button class="btn btn-sm btn-warning" onclick="resetPassword(${sanitizeInput(user.id, 'number')})" title="Reset password">
                         <i class="fas fa-key"></i> Reset
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete user">
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${sanitizeInput(user.id, 'number')})" title="Delete user">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -818,19 +879,19 @@ function populateAuditLog() {
     auditLog.forEach(entry => {
         const row = auditTableBody.insertRow();
         row.innerHTML = `
-            <td>${entry.timestamp}</td>
-            <td>${entry.user}</td>
-            <td><span class="action-badge ${entry.action.toLowerCase().replace(/\s+/g, '-')}">${entry.action}</span></td>
-            <td>${entry.target}</td>
-            <td>${entry.ipAddress}</td>
-            <td><span class="status-badge ${entry.status.toLowerCase()}">${entry.status}</span></td>
-            <td>${entry.details}</td>
+            <td>${escapeHtml(entry.timestamp)}</td>
+            <td>${escapeHtml(entry.user)}</td>
+            <td><span class="action-badge ${escapeHtml(entry.action.toLowerCase().replace(/\s+/g, '-'))}">${escapeHtml(entry.action)}</span></td>
+            <td>${escapeHtml(entry.target)}</td>
+            <td>${escapeHtml(entry.ipAddress)}</td>
+            <td><span class="status-badge ${escapeHtml(entry.status.toLowerCase())}">${escapeHtml(entry.status)}</span></td>
+            <td>${escapeHtml(entry.details)}</td>
             <td>
                 <div class="btn-group">
-                    <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails(${entry.id})" title="View details">
+                    <button class="btn btn-sm btn-secondary" onclick="viewAuditDetails(${sanitizeInput(entry.id, 'number')})" title="View details">
                         <i class="fas fa-eye"></i> View
                     </button>
-                    <button class="btn btn-sm btn-info" onclick="exportAuditEntry(${entry.id})" title="Export entry">
+                    <button class="btn btn-sm btn-info" onclick="exportAuditEntry(${sanitizeInput(entry.id, 'number')})" title="Export entry">
                         <i class="fas fa-download"></i> Export
                     </button>
                 </div>
@@ -865,22 +926,22 @@ function populateRoyaltyRecords() {
     royaltyRecords.forEach(record => {
         const row = tbody.insertRow();
         row.innerHTML = `
-            <td>${record.entity}</td>
-            <td>${record.mineral}</td>
-            <td>${record.volume.toLocaleString()}</td>
-            <td>E${record.tariff}</td>
-            <td>E${record.royalties.toLocaleString()}</td>
-            <td>${record.date}</td>
-            <td><span class="status-badge ${record.status.toLowerCase()}">${record.status}</span></td>
+            <td>${escapeHtml(record.entity)}</td>
+            <td>${escapeHtml(record.mineral)}</td>
+            <td>${sanitizeInput(record.volume, 'number').toLocaleString()}</td>
+            <td>E${escapeHtml(record.tariff)}</td>
+            <td>E${sanitizeInput(record.royalties, 'number').toLocaleString()}</td>
+            <td>${escapeHtml(record.date)}</td>
+            <td><span class="status-badge ${escapeHtml(record.status.toLowerCase())}">${escapeHtml(record.status)}</span></td>
             <td>
                 <div class="btn-group">
-                    <button class="btn btn-sm btn-secondary" onclick="editRecord(${record.id})">
+                    <button class="btn btn-sm btn-secondary" onclick="editRecord(${sanitizeInput(record.id, 'number')})">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-info" onclick="viewRecord(${record.id})">
+                    <button class="btn btn-sm btn-info" onclick="viewRecord(${sanitizeInput(record.id, 'number')})">
                         <i class="fas fa-eye"></i> View
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRecord(${record.id})">
+                    <button class="btn btn-sm btn-danger" onclick="deleteRecord(${sanitizeInput(record.id, 'number')})">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -959,7 +1020,7 @@ function showNotification(message, type = 'info') {
     notification.innerHTML = `
         <div class="notification-content">
             <i class="${icon}"></i>
-            <span>${message}</span>
+            <span>${escapeHtml(message)}</span>
         </div>
         <button class="notification-close" onclick="this.parentElement.remove()">
             <i class="fas fa-times"></i>

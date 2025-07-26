@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test - Mining Royalties Manager</title>
+    <link rel="stylesheet" href="royalties.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen Test -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">MR</div>
+            <h2>Mining Royalties Manager</h2>
+            <div class="loading-spinner"></div>
+            <p>Loading your dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Login Section Test -->
+    <section class="login-section" id="login-section" style="display: none;">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+                <h2>Mining Royalties Manager</h2>
+                <p>Secure access to your royalty management system</p>
+            </div>
+            <form class="login-form" id="login-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="Username" aria-describedby="username-error" autocomplete="username" required>
+                    <div class="validation-error" id="username-error" style="display: none;">Username is required</div>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" aria-describedby="password-error" autocomplete="current-password" required>
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="validation-error" id="password-error" style="display: none;">Password is required</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+            </form>
+            <div class="login-footer">
+                <p>Please contact your administrator for credentials.</p>
+                <p><strong>Test Credentials:</strong> admin / password</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Message -->
+    <div class="app-container" id="app-container" style="display: none;">
+        <div style="padding: 2rem; text-align: center; background: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <div>
+                <h1 style="color: #10b981; margin-bottom: 1rem;">✅ Login Successful!</h1>
+                <p style="color: #64748b; margin-bottom: 2rem;">Welcome, <strong id="user-name">User</strong>!</p>
+                <button onclick="location.reload()" class="btn btn-primary">Test Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced password toggle functionality with error handling
+        function togglePassword(inputId) {
+            try {
+                const input = document.getElementById(inputId);
+                if (!input) {
+                    console.warn(`Password input with ID '${inputId}' not found`);
+                    return;
+                }
+                
+                const container = input.parentElement;
+                const button = container?.querySelector('.password-toggle-btn');
+                const icon = button?.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) {
+                        icon.className = 'fas fa-eye-slash';
+                        button.setAttribute('aria-label', 'Hide password');
+                    }
+                } else {
+                    input.type = 'password';
+                    if (icon) {
+                        icon.className = 'fas fa-eye';
+                        button.setAttribute('aria-label', 'Show password');
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling password visibility:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const loginSection = document.getElementById('login-section');
+            
+            // Show loading screen first, then login section
+            setTimeout(() => {
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                if (loginSection) loginSection.style.display = 'flex';
+            }, 2000);
+            
+            // Enhanced login functionality with proper validation
+            const loginForm = document.querySelector('.login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form inputs
+                    const usernameInput = document.getElementById('username');
+                    const passwordInput = document.getElementById('password');
+                    const usernameError = document.getElementById('username-error');
+                    const passwordError = document.getElementById('password-error');
+                    
+                    // Reset error states
+                    usernameError.style.display = 'none';
+                    passwordError.style.display = 'none';
+                    usernameInput.style.borderColor = '';
+                    passwordInput.style.borderColor = '';
+                    
+                    let isValid = true;
+                    
+                    // Validate username
+                    if (!usernameInput.value.trim()) {
+                        usernameError.style.display = 'block';
+                        usernameInput.style.borderColor = '#dc2626';
+                        isValid = false;
+                    }
+                    
+                    // Validate password
+                    if (!passwordInput.value.trim()) {
+                        passwordError.style.display = 'block';
+                        passwordInput.style.borderColor = '#dc2626';
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
+                        return;
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = loginForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate authentication delay
+                    setTimeout(() => {
+                        // Get app container
+                        const appContainer = document.getElementById('app-container');
+                        
+                        // Hide login and show app
+                        if (loginSection) loginSection.style.display = 'none';
+                        if (appContainer) appContainer.style.display = 'flex';
+                        
+                        // Update user display if element exists
+                        const userNameElement = document.getElementById('user-name');
+                        if (userNameElement) {
+                            userNameElement.textContent = usernameInput.value;
+                        }
+                        
+                        // Reset button
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        
+                        // Show success message
+                        console.log('Login successful for user:', usernameInput.value);
+                    }, 1000);
+                });
+                
+                // Add input event listeners for real-time validation
+                const usernameInput = document.getElementById('username');
+                const passwordInput = document.getElementById('password');
+                
+                if (usernameInput) {
+                    usernameInput.addEventListener('input', function() {
+                        const usernameError = document.getElementById('username-error');
+                        if (this.value.trim()) {
+                            usernameError.style.display = 'none';
+                            this.style.borderColor = '';
+                        }
+                    });
+                }
+                
+                if (passwordInput) {
+                    passwordInput.addEventListener('input', function() {
+                        const passwordError = document.getElementById('password-error');
+                        if (this.value.trim()) {
+                            passwordError.style.display = 'none';
+                            this.style.borderColor = '';
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -319,11 +319,12 @@ nav ul li a span {
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-secondary);
+  z-index: 1;
 }
 
 .login-form input {
   width: 100%;
-  padding: 0.875rem 1rem 0.875rem 3rem;
+  padding: 0.875rem 3rem 0.875rem 3rem;
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   font-size: 1rem;
@@ -338,15 +339,34 @@ nav ul li a span {
   box-shadow: 0 0 0 3px rgb(99 102 241 / 0.1);
 }
 
-.password-toggle {
+.login-form .password-toggle-btn {
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.login-form .password-toggle-btn:hover {
+  color: var(--primary-color);
+  background: rgb(26 54 93 / 0.1);
+}
+
+.validation-error {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: none;
 }
 
 .login-footer {

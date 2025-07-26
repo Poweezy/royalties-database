@@ -78,7 +78,7 @@
     <!-- Main Content -->
     <main class="main-content">
       <!-- Dashboard -->
-      <section id="dashboard" style="display: block;">
+      <section id="dashboard">
         <div class="page-header">
           <div class="page-title">
             <h1>Dashboard</h1>
@@ -109,12 +109,12 @@
               </select>
             </div>
             <div class="card-body">
-              <p id="total-royalties">E 992,500.00</p>
+              <p id="total-royalties">E 0.00</p>
               <small class="trend-indicator" id="royalties-trend">
-                <i class="fas fa-arrow-up trend-positive"></i> +15.8% from last year
+                <i class="fas fa-arrow-up trend-positive"></i> +0% from last year
               </small>
               <div class="mini-progress">
-                <div class="progress-bar" id="royalties-progress" style="width: 75%;"></div>
+                <div class="progress-bar" id="royalties-progress" style="width: 0%;"></div>
               </div>
             </div>
           </div>
@@ -129,14 +129,14 @@
               </select>
             </div>
             <div class="card-body">
-              <p id="active-entities">6</p>
+              <p id="active-entities">0</p>
               <small class="trend-indicator" id="entities-trend">
-                <i class="fas fa-arrow-up trend-positive"></i> +2 new this month
+                <i class="fas fa-minus trend-stable"></i> No change
               </small>
               <div class="entities-breakdown">
                 <small>
-                  <span class="entity-type">Mines: <span id="mines-count">2</span></span> | 
-                  <span class="entity-type">Quarries: <span id="quarries-count">4</span></span>
+                  <span class="entity-type">Mines: <span id="mines-count">0</span></span> | 
+                  <span class="entity-type">Quarries: <span id="quarries-count">0</span></span>
                 </small>
               </div>
             </div>
@@ -150,14 +150,14 @@
               </button>
             </div>
             <div class="card-body">
-              <p id="compliance-rate">80%</p>
+              <p id="compliance-rate">0%</p>
               <div class="collection-progress">
-                <div class="progress-bar" id="compliance-progress" style="width: 80%;"></div>
+                <div class="progress-bar" id="compliance-progress" style="width: 0%;"></div>
               </div>
               <small class="compliance-breakdown">
-                <span>Paid: <span id="paid-count">3</span></span> | 
-                <span>Pending: <span id="pending-count">1</span></span> | 
-                <span>Overdue: <span id="overdue-count">1</span></span>
+                <span>Paid: <span id="paid-count">0</span></span> | 
+                <span>Pending: <span id="pending-count">0</span></span> | 
+                <span>Overdue: <span id="overdue-count">0</span></span>
               </small>
             </div>
           </div>
@@ -170,11 +170,11 @@
               </button>
             </div>
             <div class="card-body">
-              <p id="pending-approvals">2</p>
-              <small id="pending-urgency">1 urgent item requires attention</small>
+              <p id="pending-approvals">0</p>
+              <small id="pending-urgency">No urgent items</small>
               <div class="urgency-indicator">
-                <span class="urgent-badge" id="urgent-items" style="display: inline-flex;">
-                  <i class="fas fa-exclamation-triangle"></i> <span id="urgent-count">1</span> Urgent
+                <span class="urgent-badge" id="urgent-items" style="display: none;">
+                  <i class="fas fa-exclamation-triangle"></i> <span id="urgent-count">0</span> Urgent
                 </span>
               </div>
             </div>
@@ -204,8 +204,8 @@
             <div class="chart-summary">
               <small>
                 <i class="fas fa-info-circle"></i> 
-                Average monthly collection: <strong>E <span id="avg-monthly">82,708</span></strong> | 
-                Peak month: <strong><span id="peak-month">January 2024</span></strong>
+                Average monthly collection: <strong>E <span id="avg-monthly">0</span></strong> | 
+                Peak month: <strong><span id="peak-month">-</span></strong>
               </small>
             </div>
           </div>
@@ -228,8 +228,8 @@
             <div class="chart-summary">
               <small>
                 <i class="fas fa-info-circle"></i> 
-                Total production: <strong><span id="total-production">52,000</span> mÂ³</strong> | 
-                Top producer: <strong><span id="top-producer">Kwalini Quarry</span></strong>
+                Total production: <strong><span id="total-production">0</span> mÂ³</strong> | 
+                Top producer: <strong><span id="top-producer">-</span></strong>
               </small>
             </div>
           </div>
@@ -358,7 +358,7 @@
       </section>
 
       <!-- User Management -->
-      <section id="user-management" style="display: none;">
+      <section id="user-management">
         <div class="page-header">
           <div class="page-title">
             <h1>User Management</h1>
@@ -896,7 +896,7 @@
       </section>
 
       <!-- Royalty Records -->
-      <section id="royalty-records" style="display: none;">
+      <section id="royalty-records">
         <div class="page-header">
           <div class="page-title">
             <h1>Royalty Records</h1>
@@ -997,7 +997,7 @@
       </section>
 
       <!-- Contract Management -->
-      <section id="contract-management" style="display: none;">
+      <section id="contract-management">
         <div class="page-header">
           <div class="page-title">
             <h1>Contract Management</h1>
@@ -1049,82 +1049,13 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Kwalini Quarry</td>
-                <td>E15.00</td>
-                <td>2024-01-01</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Mbabane Quarry</td>
-                <td>E18.50</td>
-                <td>2023-06-15</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Maloma Colliery</td>
-                <td>E25.00</td>
-                <td>2023-12-01</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody></table>
+            <tbody></tbody>
+          </table>
         </div>
       </section>
 
       <!-- Audit Dashboard -->
-      <section id="audit-dashboard" style="display: none;">
+      <section id="audit-dashboard">
         <div class="page-header">
           <div class="page-title">
             <h1>Audit Dashboard</h1>
@@ -1165,39 +1096,14 @@
                   <th>Status</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Sidvokodvo Quarry</td>
-                  <td>Gravel</td>
-                  <td>1,250</td>
-                  <td>1,320</td>
-                  <td>E1,050.00</td>
-                  <td><span class="status-badge warning">Under Review</span></td>
-                </tr>
-                <tr>
-                  <td>Ngwenya Mine</td>
-                  <td>Iron Ore</td>
-                  <td>2,150</td>
-                  <td>2,080</td>
-                  <td>E-1,750.00</td>
-                  <td><span class="status-badge success">Resolved</span></td>
-                </tr>
-                <tr>
-                  <td>Malolotja Mine</td>
-                  <td>Coal</td>
-                  <td>980</td>
-                  <td>1,100</td>
-                  <td>E3,000.00</td>
-                  <td><span class="status-badge danger">Critical</span></td>
-                </tr>
-              </tbody>
+              <tbody></tbody>
             </table>
           </div>
         </div>
       </section>
 
       <!-- Reporting & Analytics -->
-      <section id="reporting-analytics" style="display: none;">
+      <section id="reporting-analytics">
         <div class="page-header">
           <div class="page-title">
             <h1>Reporting & Analytics</h1>
@@ -1498,7 +1404,7 @@
       </section>
 
       <!-- Communication -->
-      <section id="communication" style="display: none;">
+      <section id="communication">
         <div class="page-header">
           <div class="page-title">
             <h1>?? Communication Hub</h1>
@@ -1712,7 +1618,7 @@
       </section>
 
       <!-- Notifications -->
-      <section id="notifications" style="display: none;">
+      <section id="notifications">
         <div class="page-header">
           <div class="page-title">
             <h1>?? Notifications Center</h1>
@@ -2276,17 +2182,17 @@
               <div class="tax-rates">
                 <div class="rate-item">
                   <span class="mineral-type">Coal</span>
-                  <span class="rate-value">E 2.50/mï¿½</span>
+                  <span class="rate-value">E 2.50/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
                   <span class="mineral-type">Iron Ore</span>
-                  <span class="rate-value">E 3.75/mï¿½</span>
+                  <span class="rate-value">E 3.75/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
                   <span class="mineral-type">Quarried Stone</span>
-                  <span class="rate-value">E 1.25/mï¿½</span>
+                  <span class="rate-value">E 1.25/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
               </div>
@@ -2455,14 +2361,6 @@
   
   <!-- Enhanced Communication & Notifications Functionality -->
   <script>
-    // Note: Login functionality is handled by js/app.js module
-    // Valid credentials for demo:
-    // - admin / demo123
-    // - finance / demo123  
-    // - auditor / demo123
-  </script>
-  
-  <script>
     // Enhanced Communication Hub Functionality
     document.addEventListener('DOMContentLoaded', function() {
       // Communication form handling
@@ -2623,7 +2521,7 @@
         notification.innerHTML = `
           <span>${type === 'success' ? '?' : type === 'error' ? '?' : type === 'warning' ? '??' : '??'}</span>
           <span>${message}</span>
-          <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">ï¿½</button>
+          <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">×</button>
         `;
         
         document.body.appendChild(notification);
@@ -2756,25 +2654,34 @@
         initializeDashboardWithData();
       }, 30000);
       
-      // Add basic form validation for login - handled by main app.js
-      // Login functionality is managed by the modular js/app.js
+      // Add basic form validation for login
+      const loginForm = document.getElementById('login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const username = document.getElementById('username')?.value;
+          const password = document.getElementById('password')?.value;
+          
+          if (username && password) {
+            // Hide login section and show app
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            
+            // Update user name
+            const userNameSpan = document.getElementById('user-name');
+            if (userNameSpan) {
+              userNameSpan.textContent = username;
+            }
+          }
+        });
+      }
       
-      // Enhanced navigation functionality
+      // Basic navigation functionality
       document.addEventListener('click', function(e) {
         const link = e.target.closest('nav a[href^="#"]');
         if (link) {
           e.preventDefault();
           const targetId = link.getAttribute('href').substring(1);
-          
-          // Handle logout separately
-          if (targetId === 'logout') {
-            if (confirm('Are you sure you want to logout?')) {
-              // Reset to login
-              document.getElementById('app-container').style.display = 'none';
-              document.getElementById('login-section').style.display = 'flex';
-            }
-            return;
-          }
           
           // Hide all sections
           document.querySelectorAll('main section').forEach(section => {
@@ -2785,33 +2692,12 @@
           const targetSection = document.getElementById(targetId);
           if (targetSection) {
             targetSection.style.display = 'block';
-            console.log(`Switched to section: ${targetId}`);
           }
           
           // Update navigation active state
           document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
           link.classList.add('active');
         }
-      });
-      
-      // Initialize dashboard as active on page load
-      document.addEventListener('DOMContentLoaded', function() {
-        // Set dashboard nav as active
-        const dashboardNav = document.querySelector('nav a[href="#dashboard"]');
-        if (dashboardNav) {
-          dashboardNav.classList.add('active');
-        }
-        
-        // Ensure dashboard is visible
-        const dashboardSection = document.getElementById('dashboard');
-        if (dashboardSection) {
-          dashboardSection.style.display = 'block';
-        }
-        
-        // Hide all other sections
-        document.querySelectorAll('main section:not(#dashboard)').forEach(section => {
-          section.style.display = 'none';
-        });
       });
       
       // Enhanced chart initialization
@@ -2903,7 +2789,7 @@
             <div style="padding: 2rem; text-align: center; background: #f8fafc; border-radius: 8px;">
               <i class="fas fa-chart-pie" style="font-size: 2rem; color: #64748b; margin-bottom: 1rem;"></i>
               <h4 style="color: #334155; margin: 0.5rem 0;">Production Overview</h4>
-              <p style="color: #64748b; margin: 0.5rem 0;">Total Volume: <strong>240,000 mï¿½</strong></p>
+              <p style="color: #64748b; margin: 0.5rem 0;">Total Volume: <strong>240,000 m³</strong></p>
               <p style="color: #64748b; margin: 0;">Top Producer: <strong>Maloma Colliery</strong></p>
             </div>
           `;
@@ -2952,72 +2838,108 @@
         if (loginSection) loginSection.style.display = 'flex';
       }, 2000);
       
-      // Login functionality is handled by js/app.js module
-      // No duplicate login handlers needed here
-    });
-  </script>
-
-  <script>
-    // Dashboard initialization function
-    function initializeDashboardWithData() {
-      console.log('Initializing dashboard with sample data...');
-      
-      // Update all dashboard metrics
-      const metrics = {
-        'total-royalties': 'E 992,500.00',
-        'active-entities': '6',
-        'compliance-rate': '80%',
-        'pending-approvals': '2',
-        'mines-count': '2',
-        'quarries-count': '4',
-        'paid-count': '3',
-        'pending-count': '1',
-        'overdue-count': '1',
-        'avg-monthly': '82,708',
-        'peak-month': 'January 2024',
-        'total-production': '52,000',
-        'top-producer': 'Kwalini Quarry'
-      };
-      
-      // Update all metric elements
-      Object.entries(metrics).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.textContent = value;
+      // Enhanced login functionality with proper validation
+      const loginForm = document.querySelector('.login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Get form inputs
+          const usernameInput = document.getElementById('username');
+          const passwordInput = document.getElementById('password');
+          const usernameError = document.getElementById('username-error');
+          const passwordError = document.getElementById('password-error');
+          
+          // Reset error states
+          usernameError.style.display = 'none';
+          passwordError.style.display = 'none';
+          usernameInput.style.borderColor = '';
+          passwordInput.style.borderColor = '';
+          
+          let isValid = true;
+          
+          // Validate username
+          if (!usernameInput.value.trim()) {
+            usernameError.style.display = 'block';
+            usernameInput.style.borderColor = '#dc2626';
+            isValid = false;
+          }
+          
+          // Validate password
+          if (!passwordInput.value.trim()) {
+            passwordError.style.display = 'block';
+            passwordInput.style.borderColor = '#dc2626';
+            isValid = false;
+          }
+          
+          if (!isValid) {
+            return;
+          }
+          
+          // Show loading state
+          const submitBtn = loginForm.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+          submitBtn.disabled = true;
+          
+          // Simulate authentication delay
+          setTimeout(() => {
+            // Get app container
+            const appContainer = document.getElementById('app-container');
+            
+            // Hide login and show app
+            if (loginSection) loginSection.style.display = 'none';
+            if (appContainer) appContainer.style.display = 'flex';
+            
+            // Show dashboard by default
+            const dashboardSection = document.getElementById('dashboard');
+            if (dashboardSection) {
+              dashboardSection.style.display = 'block';
+              // Mark dashboard nav as active
+              const dashboardNav = document.querySelector('nav a[href="#dashboard"]');
+              if (dashboardNav) dashboardNav.classList.add('active');
+            }
+            
+            // Update user display if element exists
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+              userNameElement.textContent = usernameInput.value;
+            }
+            
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            // Show success message
+            console.log('Login successful for user:', usernameInput.value);
+          }, 1000);
+        });
+        
+        // Add input event listeners for real-time validation
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        if (usernameInput) {
+          usernameInput.addEventListener('input', function() {
+            const usernameError = document.getElementById('username-error');
+            if (this.value.trim()) {
+              usernameError.style.display = 'none';
+              this.style.borderColor = '';
+            }
+          });
         }
-      });
-      
-      // Update progress bars
-      const progressBars = {
-        'compliance-progress': '80%',
-        'royalties-progress': '75%'
-      };
-      
-      Object.entries(progressBars).forEach(([id, width]) => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.style.width = width;
+        
+        if (passwordInput) {
+          passwordInput.addEventListener('input', function() {
+            const passwordError = document.getElementById('password-error');
+            if (this.value.trim()) {
+              passwordError.style.display = 'none';
+              this.style.borderColor = '';
+            }
+          });
         }
-      });
-      
-      // Show urgent items
-      const urgentItems = document.getElementById('urgent-items');
-      if (urgentItems) {
-        urgentItems.style.display = 'inline-flex';
       }
-      
-      // Update trends to show positive indicators
-      const trendsElements = document.querySelectorAll('.trend-indicator');
-      trendsElements.forEach(trend => {
-        if (trend.id === 'royalties-trend') {
-          trend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +15.8% from last year';
-        } else if (trend.id === 'entities-trend') {
-          trend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +2 new this month';
-        }
-      });
-      
-      console.log('Dashboard initialized successfully');
-    }
+    });
   </script>
 
   <script>
