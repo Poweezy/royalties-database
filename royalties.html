@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mining Royalties Manager</title>
   <link rel="stylesheet" href="royalties.css">
+  <link rel="stylesheet" href="semantic-search.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -69,6 +70,7 @@
           <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span>3</span></a></li>
           <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
           <li><a href="#regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
+          <li><a href="#semantic-search"><i class="fas fa-search"></i> AI Search</a></li>
           <li><a href="#profile"><i class="fas fa-user"></i> My Profile</a></li>
           <li><a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -2354,6 +2356,363 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Semantic Search -->
+      <section id="semantic-search" style="display: none;">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>🤖 AI-Powered Semantic Search</h1>
+            <p>Intelligent search across all royalty data, documents, and system information using natural language</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-info" id="search-settings-btn">
+              <i class="fas fa-cog"></i> Search Settings
+            </button>
+            <button class="btn btn-primary" id="advanced-search-btn">
+              <i class="fas fa-filter"></i> Advanced Search
+            </button>
+            <button class="btn btn-success" id="export-results-btn">
+              <i class="fas fa-download"></i> Export Results
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Interface -->
+        <div class="semantic-search-container">
+          <div class="search-input-section">
+            <div class="search-box-wrapper">
+              <div class="search-icon-container">
+                <i class="fas fa-search"></i>
+              </div>
+              <input type="text" 
+                     id="semantic-search-input" 
+                     class="semantic-search-input" 
+                     placeholder="Ask anything about your royalty data... e.g., 'Show me overdue payments from quarries' or 'Find compliance issues this month'"
+                     autocomplete="off">
+              <div class="search-actions">
+                <button class="btn btn-ghost" id="clear-search-btn" title="Clear search">
+                  <i class="fas fa-times"></i>
+                </button>
+                <button class="btn btn-primary" id="execute-search-btn" title="Search">
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Search Suggestions -->
+            <div class="search-suggestions" id="search-suggestions" style="display: none;">
+              <div class="suggestions-header">
+                <h6><i class="fas fa-lightbulb"></i> Suggested Searches</h6>
+              </div>
+              <div class="suggestions-list">
+                <button class="suggestion-item" data-query="Show me all overdue payments">
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                  <span>Show me all overdue payments</span>
+                </button>
+                <button class="suggestion-item" data-query="Which entities have the highest production this year?">
+                  <i class="fas fa-chart-line text-success"></i>
+                  <span>Which entities have the highest production this year?</span>
+                </button>
+                <button class="suggestion-item" data-query="Find compliance issues for environmental permits">
+                  <i class="fas fa-leaf text-info"></i>
+                  <span>Find compliance issues for environmental permits</span>
+                </button>
+                <button class="suggestion-item" data-query="Compare royalty rates between coal and iron ore">
+                  <i class="fas fa-balance-scale text-primary"></i>
+                  <span>Compare royalty rates between coal and iron ore</span>
+                </button>
+                <button class="suggestion-item" data-query="Show audit trail for user management changes">
+                  <i class="fas fa-shield-alt text-secondary"></i>
+                  <span>Show audit trail for user management changes</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Filters -->
+          <div class="search-filters-section">
+            <div class="filter-toggle">
+              <button class="btn btn-outline" id="toggle-filters-btn">
+                <i class="fas fa-sliders-h"></i> Filters
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            
+            <div class="filters-container" id="filters-container" style="display: none;">
+              <div class="filter-row">
+                <div class="filter-group">
+                  <label>Search Scope</label>
+                  <div class="filter-checkboxes">
+                    <label class="filter-checkbox">
+                      <input type="checkbox" value="royalty-records" checked>
+                      <span class="checkmark"></span>
+                      Royalty Records
+                    </label>
+                    <label class="filter-checkbox">
+                      <input type="checkbox" value="entities" checked>
+                      <span class="checkmark"></span>
+                      Mining Entities
+                    </label>
+                    <label class="filter-checkbox">
+                      <input type="checkbox" value="compliance" checked>
+                      <span class="checkmark"></span>
+                      Compliance Data
+                    </label>
+                    <label class="filter-checkbox">
+                      <input type="checkbox" value="users">
+                      <span class="checkmark"></span>
+                      User Management
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="filter-group">
+                  <label>Date Range</label>
+                  <div class="date-range-inputs">
+                    <input type="date" id="search-date-from" class="filter-input">
+                    <span class="date-separator">to</span>
+                    <input type="date" id="search-date-to" class="filter-input">
+                  </div>
+                </div>
+                
+                <div class="filter-group">
+                  <label>Entity Type</label>
+                  <select class="filter-select" id="entity-type-filter">
+                    <option value="">All Types</option>
+                    <option value="mine">Mines</option>
+                    <option value="quarry">Quarries</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="search-results-container" id="search-results-container" style="display: none;">
+          <div class="results-header">
+            <div class="results-info">
+              <h5 id="results-title">Search Results</h5>
+              <p id="results-summary">Found <span id="results-count">0</span> results in <span id="search-time">0.00</span> seconds</p>
+            </div>
+            <div class="results-actions">
+              <div class="view-toggle">
+                <button class="btn btn-sm btn-outline active" data-view="list">
+                  <i class="fas fa-list"></i>
+                </button>
+                <button class="btn btn-sm btn-outline" data-view="grid">
+                  <i class="fas fa-th"></i>
+                </button>
+                <button class="btn btn-sm btn-outline" data-view="chart">
+                  <i class="fas fa-chart-bar"></i>
+                </button>
+              </div>
+              <div class="sort-options">
+                <select class="form-control form-control-sm" id="results-sort">
+                  <option value="relevance">Sort by Relevance</option>
+                  <option value="date">Sort by Date</option>
+                  <option value="amount">Sort by Amount</option>
+                  <option value="entity">Sort by Entity</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Insights Panel -->
+          <div class="ai-insights-panel">
+            <div class="insights-header">
+              <i class="fas fa-brain"></i>
+              <h6>AI Insights</h6>
+              <button class="btn btn-ghost btn-sm" id="regenerate-insights">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <div class="insights-content" id="ai-insights-content">
+              <div class="insight-item">
+                <div class="insight-icon">
+                  <i class="fas fa-lightbulb text-warning"></i>
+                </div>
+                <div class="insight-text">
+                  <p><strong>Key Finding:</strong> Based on your search, there are 3 entities with overdue payments totaling E 145,750.00</p>
+                </div>
+              </div>
+              <div class="insight-item">
+                <div class="insight-icon">
+                  <i class="fas fa-trend-up text-success"></i>
+                </div>
+                <div class="insight-text">
+                  <p><strong>Trend Analysis:</strong> Payment compliance has improved by 12% compared to last quarter</p>
+                </div>
+              </div>
+              <div class="insight-item">
+                <div class="insight-icon">
+                  <i class="fas fa-flag text-info"></i>
+                </div>
+                <div class="insight-text">
+                  <p><strong>Recommendation:</strong> Consider implementing automated payment reminders for better compliance</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results List View -->
+          <div class="results-list-view" id="results-list-view">
+            <div class="result-item">
+              <div class="result-header">
+                <div class="result-type">
+                  <i class="fas fa-file-invoice text-primary"></i>
+                  <span>Royalty Record</span>
+                </div>
+                <div class="result-relevance">
+                  <div class="relevance-score">98% match</div>
+                </div>
+              </div>
+              <div class="result-content">
+                <h6>Maloma Colliery - Outstanding Payment</h6>
+                <p>Coal royalty payment overdue by 15 days. Amount: <strong>E 145,750.00</strong></p>
+                <div class="result-metadata">
+                  <span class="metadata-item">
+                    <i class="fas fa-calendar"></i>
+                    Due: Feb 15, 2024
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-industry"></i>
+                    Coal Mine
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    Critical
+                  </span>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-sm btn-primary">View Details</button>
+                <button class="btn btn-sm btn-warning">Send Reminder</button>
+                <button class="btn btn-sm btn-ghost">
+                  <i class="fas fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="result-item">
+              <div class="result-header">
+                <div class="result-type">
+                  <i class="fas fa-shield-alt text-info"></i>
+                  <span>Compliance Alert</span>
+                </div>
+                <div class="result-relevance">
+                  <div class="relevance-score">94% match</div>
+                </div>
+              </div>
+              <div class="result-content">
+                <h6>Environmental Permit Renewal Required</h6>
+                <p>Ngwenya Mine environmental permit expires in 30 days</p>
+                <div class="result-metadata">
+                  <span class="metadata-item">
+                    <i class="fas fa-calendar"></i>
+                    Expires: Mar 15, 2024
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-leaf"></i>
+                    Environmental
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-clock text-info"></i>
+                    Upcoming
+                  </span>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-sm btn-primary">View Details</button>
+                <button class="btn btn-sm btn-info">Track Progress</button>
+                <button class="btn btn-sm btn-ghost">
+                  <i class="fas fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="result-item">
+              <div class="result-header">
+                <div class="result-type">
+                  <i class="fas fa-chart-line text-success"></i>
+                  <span>Analytics Data</span>
+                </div>
+                <div class="result-relevance">
+                  <div class="relevance-score">89% match</div>
+                </div>
+              </div>
+              <div class="result-content">
+                <h6>Q1 2024 Production Summary</h6>
+                <p>Kwalini Quarry leads production with 52,000 m³ of quarried stone</p>
+                <div class="result-metadata">
+                  <span class="metadata-item">
+                    <i class="fas fa-calendar"></i>
+                    Period: Q1 2024
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-mountain"></i>
+                    Quarry Operations
+                  </span>
+                  <span class="metadata-item">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    +15% Growth
+                  </span>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn btn-sm btn-primary">View Report</button>
+                <button class="btn btn-sm btn-success">Generate Chart</button>
+                <button class="btn btn-sm btn-ghost">
+                  <i class="fas fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Results State -->
+          <div class="no-results-state" id="no-results-state" style="display: none;">
+            <div class="no-results-icon">
+              <i class="fas fa-search-minus"></i>
+            </div>
+            <h5>No results found</h5>
+            <p>Try adjusting your search terms or filters to find what you're looking for.</p>
+            <div class="no-results-suggestions">
+              <h6>Try searching for:</h6>
+              <div class="suggestion-tags">
+                <button class="tag-btn" data-query="overdue payments">overdue payments</button>
+                <button class="tag-btn" data-query="compliance status">compliance status</button>
+                <button class="tag-btn" data-query="production reports">production reports</button>
+                <button class="tag-btn" data-query="entity performance">entity performance</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search History -->
+        <div class="search-history-section">
+          <div class="history-header">
+            <h6><i class="fas fa-history"></i> Recent Searches</h6>
+            <button class="btn btn-ghost btn-sm" id="clear-history-btn">Clear All</button>
+          </div>
+          <div class="history-list" id="search-history-list">
+            <button class="history-item" data-query="overdue payments from quarries">
+              <i class="fas fa-clock-rotate-left"></i>
+              <span>overdue payments from quarries</span>
+              <small>2 hours ago</small>
+            </button>
+            <button class="history-item" data-query="compliance issues this month">
+              <i class="fas fa-clock-rotate-left"></i>
+              <span>compliance issues this month</span>
+              <small>Yesterday</small>
+            </button>
+            <button class="history-item" data-query="Maloma Colliery production data">
+              <i class="fas fa-clock-rotate-left"></i>
+              <span>Maloma Colliery production data</span>
+              <small>3 days ago</small>
+            </button>
           </div>
         </div>
       </section>
