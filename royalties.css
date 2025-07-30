@@ -3208,9 +3208,7 @@ nav ul li a span {
   text-align: center;
 }
 /* ===== SEMANTIC SEARCH STYLES ===== */
-#semantic-search {
-  /* Ensure consistent styling with other sections */
-}
+/* Removed empty #semantic-search ruleset */
 
 #semantic-search .page-header {
   /* Align with existing page header styles */
@@ -3388,9 +3386,7 @@ nav ul li a span {
   font-size: 0.85rem; /* Smaller summary text */
 }
 
-.results-list {
-  /* Results will be populated dynamically */
-}
+/* Results will be populated dynamically */
 
 .results-list .card {
   margin-bottom: 1rem;
