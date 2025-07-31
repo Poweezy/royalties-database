@@ -133,53 +133,18 @@ class App {
      */
     async loadUserData() {
         try {
-            // Get current user from auth service
-            const currentUser = authService.getCurrentUser();
-            if (!currentUser) {
-                throw new Error('No authenticated user found');
-            }
+            const [userData, preferences] = await Promise.all([
+                this.fetchUserData(),
+                this.fetchUserPreferences()
+            ]);
 
-            // Get demo preferences
-            const preferences = {
-                theme: localStorage.getItem('app_theme') || 'light',
-                recordsPerPage: parseInt(localStorage.getItem('records_per_page')) || 10,
-                autoSave: localStorage.getItem('auto_save') !== 'false',
-                notifications: {
-                    email: true,
-                    browser: true,
-                    desktop: false
-                },
-                dashboardLayout: localStorage.getItem('dashboard_layout') || 'default'
-            };
-
-            this.state.currentUser = currentUser;
+            this.state.currentUser = userData;
             this.state.settings = { ...this.state.settings, ...preferences };
 
             // Update UI with user info
             this.updateUserInfo();
         } catch (error) {
-            console.error('Load user data error:', error);
             throw new Error('Failed to load user data');
-        }
-    }
-
-    /**
-     * Update UI with user information
-     */
-    updateUserInfo() {
-        // Update profile section
-        const usernameEl = document.getElementById('profile-username');
-        const emailEl = document.getElementById('profile-email');
-        const departmentEl = document.getElementById('profile-department');
-        
-        if (usernameEl) usernameEl.value = this.state.currentUser.username;
-        if (emailEl) emailEl.value = this.state.currentUser.email;
-        if (departmentEl) departmentEl.value = this.state.currentUser.department;
-
-        // Update user display in header if exists
-        const userDisplayEl = document.querySelector('.user-display');
-        if (userDisplayEl) {
-            userDisplayEl.textContent = this.state.currentUser.username;
         }
     }
 
@@ -188,53 +153,25 @@ class App {
      */
     async initializeDashboard() {
         try {
-            // Load demo dashboard data
-            const royaltyData = {
-                totalRoyalties: 2847650.00,
-                paidRoyalties: 2135737.50,
-                pendingRoyalties: 711912.50,
-                yearlyTarget: 3500000.00
-            };
+            // Load dashboard data
+            const [
+                royaltyData,
+                entityData,
+                complianceData,
+                recentActivity
+            ] = await Promise.all([
+                this.fetchRoyaltyData(),
+                this.fetchEntityData(),
+                this.fetchComplianceData(),
+                this.fetchRecentActivity()
+            ]);
 
-            const entityData = {
-                totalEntities: 15,
-                activeEntities: 12,
-                inactiveEntities: 3,
-                entityTypes: {
-                    mines: 8,
-                    quarries: 7
-                }
-            };
-
-            const complianceData = {
-                overallRate: 94,
-                compliantEntities: 14,
-                nonCompliantEntities: 1,
-                upcomingDeadlines: 5
-            };
-
-            const recentActivity = [
-                { type: 'payment', entity: 'Maloma Colliery', amount: 156000.00, date: '2025-07-30' },
-                { type: 'audit', entity: 'Kwalini Quarry', status: 'completed', date: '2025-07-29' },
-                { type: 'report', name: 'Q2 Summary', generated: '2025-07-28' }
-            ];
-
-            // Update UI with demo data
+            // Update UI
             this.updateDashboardMetrics(royaltyData, entityData, complianceData);
             this.updateRecentActivity(recentActivity);
             
-            // Initialize charts with demo data
-            await this.chartManager.initializeCharts({
-                royalties: royaltyData,
-                entities: entityData,
-                compliance: complianceData
-            });
-            
-            // Show success notification
-            this.notificationManager.show({
-                message: 'Dashboard initialized successfully',
-                type: 'success'
-            });
+            // Initialize charts
+            await this.chartManager.initializeCharts();
         } catch (error) {
             throw new Error('Failed to initialize dashboard');
         }
@@ -325,87 +262,8 @@ class App {
     }
 
     showError(message) {
-        this.notificationManager.show({
-            message,
-            type: 'error'
-        });
-    }
-
-    /**
-     * Update dashboard metrics
-     */
-    updateDashboardMetrics(royaltyData, entityData, complianceData) {
-        // Update royalty metrics
-        const totalRoyaltiesEl = document.getElementById('total-royalties');
-        if (totalRoyaltiesEl) {
-            totalRoyaltiesEl.textContent = `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ')}`;
-        }
-
-        const activeEntitiesEl = document.getElementById('active-entities');
-        if (activeEntitiesEl) {
-            activeEntitiesEl.textContent = entityData.activeEntities.toString();
-        }
-
-        const complianceRateEl = document.getElementById('compliance-rate');
-        if (complianceRateEl) {
-            complianceRateEl.textContent = `${complianceData.overallRate}%`;
-        }
-
-        const pendingApprovalsEl = document.getElementById('pending-approvals');
-        if (pendingApprovalsEl) {
-            pendingApprovalsEl.textContent = (entityData.totalEntities - entityData.activeEntities).toString();
-        }
-
-        // Update progress bars
-        const royaltiesProgress = document.getElementById('royalties-progress');
-        if (royaltiesProgress) {
-            const progressPercent = (royaltyData.totalRoyalties / royaltyData.yearlyTarget * 100).toFixed(1);
-            royaltiesProgress.style.width = `${progressPercent}%`;
-        }
-
-        const complianceProgress = document.getElementById('compliance-progress');
-        if (complianceProgress) {
-            complianceProgress.style.width = `${complianceData.overallRate}%`;
-        }
-    }
-
-    /**
-     * Update recent activity
-     */
-    updateRecentActivity(activities) {
-        const container = document.getElementById('recent-activity');
-        if (!container) return;
-
-        container.innerHTML = activities.map(activity => {
-            let icon, title;
-            switch (activity.type) {
-                case 'payment':
-                    icon = 'fa-money-bill';
-                    title = `Payment received from ${activity.entity}`;
-                    break;
-                case 'audit':
-                    icon = 'fa-clipboard-check';
-                    title = `Audit ${activity.status} for ${activity.entity}`;
-                    break;
-                case 'report':
-                    icon = 'fa-file-alt';
-                    title = `Report generated: ${activity.name}`;
-                    break;
-                default:
-                    icon = 'fa-info-circle';
-                    title = 'Activity recorded';
-            }
-
-            return `
-                <div class="activity-item">
-                    <i class="fas ${icon}"></i>
-                    <div class="activity-details">
-                        <p>${title}</p>
-                        <small>${new Date(activity.date).toLocaleDateString()}</small>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        // TODO: Implement error notification system
+        alert(message);
     }
 }
 

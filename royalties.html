@@ -10,7 +10,46 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="js/semantic-search.js"></script>
+  <script type="module" src="js/utils/security.js"></script>
+  <script type="module" src="js/utils/error-handler.js"></script>
+  <script type="module" src="js/services/database.service.js"></script>
+  <script type="module" src="js/services/auth.service.js"></script>
+  <script type="module" src="js/modules/NotificationManager.js"></script>
+  <script type="module" src="js/modules/ChartManager.js"></script>
+  <script type="module" src="js/modules/FileManager.js"></script>
+  <script type="module" src="js/modules/IconManager.js"></script>
+  <script type="module" src="js/modules/NavigationManager.js"></script>
+  <script type="module" src="js/semantic-search.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('js/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+            
+            // Request notification permission
+            if ('Notification' in window) {
+              Notification.requestPermission();
+            }
+            
+            // Subscribe to push notifications
+            // Push notifications will be configured later
+            if (false && 'PushManager' in window) {
+              // Disabled for now until we have proper VAPID keys
+              /*registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: 'YOUR_PUBLIC_VAPID_KEY'
+              });*/
+            }
+          })
+          .catch(err => {
+            console.error('ServiceWorker registration failed:', err);
+          });
+      });
+    }
+  </script>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -20,6 +59,12 @@
       <p>Loading your workspace...</p>
     </div>
   </div>
+
+  <!-- Notification Container -->
+  <div id="notifications-container" class="notifications-container"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <!-- Login Section -->
   <section class="login-section" id="login-section" style="display: none;">
@@ -59,21 +104,21 @@
         <div class="sidebar-logo" aria-label="Mining Royalties Manager Logo">MR</div>
         <h2>Royalties Manager</h2>
       </div>
-      <nav>
+      <nav id="main-nav">
         <ul>
-          <li><a href="#dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="#dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
           <li><a href="#user-management"><i class="fas fa-users"></i> User Management</a></li>
           <li><a href="#royalty-records"><i class="fas fa-file-invoice"></i> Royalty Records</a></li>
           <li><a href="#contract-management"><i class="fas fa-file-contract"></i> Contract Management</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope"></i> Communication</a></li>
-          <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span>3</span></a></li>
+          <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications <span class="notification-badge">0</span></a></li>
           <li><a href="#compliance"><i class="fas fa-check-circle"></i> Compliance & Regulatory</a></li>
           <li><a href="#regulatory-management"><i class="fas fa-gavel"></i> Regulatory Management</a></li>
           <li><a href="#semantic-search"><i class="fas fa-search"></i> AI Search</a></li>
           <li><a href="#profile"><i class="fas fa-user"></i> My Profile</a></li>
-          <li><a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li><a href="#logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </nav>
     </aside>
