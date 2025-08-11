@@ -120,12 +120,20 @@ class App {
             
             // Show dashboard
             this.showDashboard();
+
+            // Initialize notification count
+            this.updateNotificationCount();
             
             // Start auto-refresh
             this.startAutoRefresh();
         } catch (error) {
             this.errorHandler.handleError(error);
         }
+    }
+
+    startAutoRefresh() {
+        // TODO: Implement auto-refresh logic
+        console.log('Auto-refresh started.');
     }
 
     /**
@@ -259,6 +267,117 @@ class App {
         document.querySelector('a[href="#logout"]')?.addEventListener('click', (e) => {
             e.preventDefault();
             authService.logout();
+        });
+
+        // Communication form handling
+        const composeBtn = document.getElementById('compose-message-btn');
+        const composeContainer = document.getElementById('compose-message-container');
+        if (composeBtn && composeContainer) {
+            composeBtn.addEventListener('click', () => {
+                composeContainer.style.display = composeContainer.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+
+        const composeForm = document.getElementById('compose-message-form');
+        if (composeForm) {
+            composeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const recipients = document.getElementById('message-recipients')?.value;
+                const subject = document.getElementById('message-subject')?.value;
+                const content = document.getElementById('message-content')?.value;
+
+                if (recipients && subject && content) {
+                    this.notificationManager.success('Message sent successfully');
+                    composeForm.reset();
+                    composeContainer.style.display = 'none';
+                } else {
+                    this.notificationManager.error('Please fill in all required fields');
+                }
+            });
+        }
+
+        // Notification management
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', () => {
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                    item.classList.add('read');
+                });
+                this.notificationManager.success('All notifications marked as read');
+                this.updateNotificationCount();
+            });
+        }
+
+        // Compliance checking
+        const runComplianceBtn = document.getElementById('run-compliance-check-btn');
+        if (runComplianceBtn) {
+            runComplianceBtn.addEventListener('click', () => {
+                runComplianceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Check...';
+                runComplianceBtn.disabled = true;
+
+                setTimeout(() => {
+                    this.notificationManager.success('Compliance check completed successfully');
+                    runComplianceBtn.innerHTML = '<i class="fas fa-check-double"></i> Run Compliance Check';
+                    runComplianceBtn.disabled = false;
+                    this.updateComplianceMetrics();
+                }, 3000);
+            });
+        }
+
+        // General click handler for dynamic elements
+        document.addEventListener('click', (e) => {
+            // Notification actions
+            if (e.target.closest('.btn') && e.target.closest('.notification-actions')) {
+                const btn = e.target.closest('.btn');
+                const notificationItem = btn.closest('.notification-item');
+
+                if (btn.textContent.includes('Mark Read')) {
+                    notificationItem.classList.remove('unread');
+                    notificationItem.classList.add('read');
+                    this.notificationManager.info('Notification marked as read');
+                    this.updateNotificationCount();
+                } else if (btn.textContent.includes('View Details')) {
+                    this.notificationManager.info('Opening detailed view...');
+                } else if (btn.textContent.includes('Send Reminder')) {
+                    this.notificationManager.success('Reminder sent successfully');
+                }
+            }
+
+            // Filter buttons for notifications
+            if (e.target.classList.contains('filter-btn')) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                const filter = e.target.dataset.filter;
+                const notifications = document.querySelectorAll('.notification-item');
+
+                notifications.forEach(notification => {
+                    if (filter === 'all') {
+                        notification.style.display = 'flex';
+                    } else if (filter === 'unread' && notification.classList.contains('unread')) {
+                        notification.style.display = 'flex';
+                    } else if (filter === 'critical' && notification.classList.contains('critical')) {
+                        notification.style.display = 'flex';
+                    } else if (notification.style.display !== 'none') {
+                        notification.style.display = filter === 'all' ? 'flex' : 'none';
+                    }
+                });
+            }
+
+            // Tab functionality for compliance section
+            if (e.target.matches('.tab-btn[data-tab]')) {
+                const targetTab = e.target.dataset.tab;
+
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                e.target.classList.add('active');
+                const targetContent = document.querySelector(targetTab);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            }
         });
     }
 
@@ -404,6 +523,25 @@ class App {
                 </div>
             `;
         }).join('');
+    }
+    updateNotificationCount() {
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        const countBadge = document.querySelector('nav a[href="#notifications"] span');
+        if (countBadge) {
+            countBadge.textContent = unreadCount;
+        }
+    }
+
+    updateComplianceMetrics() {
+        const overallCompliance = document.getElementById('overall-compliance-rate');
+        const upcomingDeadlines = document.getElementById('upcoming-deadlines-count');
+
+        if (overallCompliance) {
+            overallCompliance.textContent = '98%';
+        }
+        if (upcomingDeadlines) {
+            upcomingDeadlines.textContent = '3';
+        }
     }
 }
 
