@@ -231,10 +231,7 @@ class App {
             });
             
             // Show success notification
-            this.notificationManager.show({
-                message: 'Dashboard initialized successfully',
-                type: 'success'
-            });
+            this.notificationManager.success('Dashboard initialized successfully');
         } catch (error) {
             throw new Error('Failed to initialize dashboard');
         }
@@ -269,14 +266,18 @@ class App {
      * Handle login form submission
      */
     async handleLogin(form) {
+        console.log('handleLogin called');
         try {
             const username = form.username.value;
             const password = form.password.value;
+            console.log(`Attempting login for username: ${username}`);
 
             await authService.login(username, password);
+            console.log('Login successful, showing dashboard.');
             this.showDashboard();
         } catch (error) {
             console.error('Login error:', error);
+            console.log('Login failed, showing error.');
             this.showError('Invalid username or password');
         }
     }
@@ -325,10 +326,7 @@ class App {
     }
 
     showError(message) {
-        this.notificationManager.show({
-            message,
-            type: 'error'
-        });
+        this.notificationManager.error(message);
     }
 
     /**
