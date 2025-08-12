@@ -4,9 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mining Royalties Manager</title>
-  <link rel="icon" type="image/svg+xml" href="/src/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="royalties.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script type="module" src="js/utils/security.js"></script>
+  <script type="module" src="js/utils/error-handler.js"></script>
+  <script type="module" src="js/services/database.service.js"></script>
+  <script type="module" src="js/services/auth.service.js"></script>
+  <script type="module" src="js/modules/NotificationManager.js"></script>
+  <script type="module" src="js/modules/ChartManager.js"></script>
+  <script type="module" src="js/modules/FileManager.js"></script>
+  <script type="module" src="js/modules/IconManager.js"></script>
+  <script type="module" src="js/modules/NavigationManager.js"></script>
+  <script type="module" src="js/semantic-search.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('js/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+            
+            // Request notification permission
+            if ('Notification' in window) {
+              Notification.requestPermission();
+            }
+            
+            // Subscribe to push notifications
+            // Push notifications will be configured later
+            if (false && 'PushManager' in window) {
+              // Disabled for now until we have proper VAPID keys
+              /*registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: 'YOUR_PUBLIC_VAPID_KEY'
+              });*/
+            }
+          })
+          .catch(err => {
+            console.error('ServiceWorker registration failed:', err);
+          });
+      });
+    }
+  </script>
 </head>
 <body>
   <!-- Loading Screen -->
@@ -1518,7 +1561,7 @@
       <section id="communication" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-comments"></i> Communication Hub</h1>
+            <h1>?? Communication Hub</h1>
             <p>Centralized communication management for stakeholders, entities, and regulatory bodies</p>
           </div>
           <div class="page-actions">
@@ -1732,7 +1775,7 @@
       <section id="notifications" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-bell"></i> Notifications Center</h1>
+            <h1>?? Notifications Center</h1>
             <p>System alerts, reminders, and important updates for mining royalty management</p>
           </div>
           <div class="page-actions">
@@ -1905,7 +1948,7 @@
 
           <div class="settings-grid">
             <div class="settings-category">
-              <h6><i class="fas fa-envelope"></i> Email Notifications</h6>
+              <h6>?? Email Notifications</h6>
               <div class="setting-item">
                 <label class="setting-label">
                   <input type="checkbox" checked> Payment reminders
@@ -1924,7 +1967,7 @@
             </div>
 
             <div class="settings-category">
-              <h6><i class="fas fa-bell"></i> System Alerts</h6>
+              <h6>?? System Alerts</h6>
               <div class="setting-item">
                 <label class="setting-label">
                   <input type="checkbox" checked> Security alerts
@@ -1954,7 +1997,7 @@
       <section id="compliance">
         <div class="page-header">
           <div class="page-title">
-            <h1><i class="fas fa-check-circle"></i> Compliance & Regulatory</h1>
+            <h1>?? Compliance & Regulatory</h1>
             <p>Comprehensive compliance monitoring, regulatory adherence, and audit trail management</p>
           </div>
           <div class="page-actions">
@@ -2249,12 +2292,12 @@
 
         <!-- Jurisdictional Requirements Matrix -->
         <div class="user-form-container">
-          <h4><i class="fas fa-sitemap"></i> Multi-Jurisdictional Compliance Matrix</h4>
+          <h4>??? Multi-Jurisdictional Compliance Matrix</h4>
           <div class="jurisdiction-matrix">
             <div class="grid-4">
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h5><i class="fas fa-flag"></i> Kingdom of Eswatini</h5>
+                  <h5>???? Kingdom of Eswatini</h5>
                   <span class="jurisdiction-status active">Primary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
@@ -2269,7 +2312,7 @@
               
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h5><i class="fas fa-globe-africa"></i> SADC Regional</h5>
+                  <h5>?? SADC Regional</h5>
                   <span class="jurisdiction-status secondary">Secondary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
@@ -2286,7 +2329,7 @@
 
         <!-- Tax Structure Management -->
         <div class="user-form-container">
-          <h4><i class="fas fa-funnel-dollar"></i> Tax Structure & Rates Management</h4>
+          <h4>?? Tax Structure & Rates Management</h4>
           <div class="tax-structure-grid">
             <div class="tax-category">
               <h6>Mineral Royalties</h6>
@@ -2334,10 +2377,10 @@
 
         <!-- Regulatory Calendar -->
         <div class="user-form-container">
-          <h4><i class="fas fa-calendar-alt"></i> Regulatory Calendar & Deadlines</h4>
+          <h4>?? Regulatory Calendar & Deadlines</h4>
           <div class="calendar-view">
             <div class="upcoming-deadlines">
-              <h6><i class="fas fa-calendar-alt"></i> Upcoming Regulatory Deadlines</h6>
+              <h6>?? Upcoming Regulatory Deadlines</h6>
               <div class="deadline-list">
                 <div class="deadline-item">
                   <div class="deadline-date">
@@ -2558,6 +2601,643 @@
       </section>
     </main>
   </div>
-  <script type="module" src="/src/main.js"></script>
+
+  <!-- Modern Modular JavaScript -->
+  <script type="module" src="js/app.js"></script>
+  
+  <!-- Enhanced Communication & Notifications Functionality -->
+  <script>
+    // Note: Login functionality is handled by js/app.js module
+    // Valid credentials for demo:
+    // - admin / demo123
+    // - finance / demo123  
+    // - auditor / demo123
+  </script>
+  
+  <script>
+    // Enhanced Communication Hub Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Communication form handling
+      const composeBtn = document.getElementById('compose-message-btn');
+      const composeContainer = document.getElementById('compose-message-container');
+      const composeForm = document.getElementById('compose-message-form');
+      
+      if (composeBtn && composeContainer) {
+        composeBtn.addEventListener('click', () => {
+          composeContainer.style.display = composeContainer.style.display === 'none' ? 'block' : 'none';
+        });
+      }
+      
+      if (composeForm) {
+        composeForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const recipients = document.getElementById('message-recipients')?.value;
+          const subject = document.getElementById('message-subject')?.value;
+          const content = document.getElementById('message-content')?.value;
+          
+          if (recipients && subject && content) {
+            showNotification('Message sent successfully to ' + recipients.length + ' recipients', 'success');
+            composeForm.reset();
+            composeContainer.style.display = 'none';
+          } else {
+            showNotification('Please fill in all required fields', 'error');
+          }
+        });
+      }
+      
+      // Notification management
+      const markAllReadBtn = document.getElementById('mark-all-read-btn');
+      if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', function() {
+          document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            item.classList.add('read');
+          });
+          showNotification('All notifications marked as read', 'success');
+          updateNotificationCount();
+        });
+      }
+      
+      // Compliance checking
+      const runComplianceBtn = document.getElementById('run-compliance-check-btn');
+      if (runComplianceBtn) {
+        runComplianceBtn.addEventListener('click', function() {
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Check...';
+          this.disabled = true;
+          
+          setTimeout(() => {
+            showNotification('Compliance check completed successfully', 'success');
+            this.innerHTML = '<i class="fas fa-check-double"></i> Run Compliance Check';
+            this.disabled = false;
+            updateComplianceMetrics();
+          }, 3000);
+        });
+      }
+      
+      // Update notification count
+      function updateNotificationCount() {
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        const countBadge = document.querySelector('nav a[href="#notifications"] span');
+        if (countBadge) {
+          countBadge.textContent = unreadCount;
+        }
+      }
+      
+      // Update compliance metrics
+      function updateComplianceMetrics() {
+        const overallCompliance = document.getElementById('overall-compliance-rate');
+        const upcomingDeadlines = document.getElementById('upcoming-deadlines-count');
+        
+        if (overallCompliance) {
+          overallCompliance.textContent = '98%';
+        }
+        if (upcomingDeadlines) {
+          upcomingDeadlines.textContent = '3';
+        }
+      }
+      
+      // Enhanced notification actions
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn') && e.target.closest('.notification-actions')) {
+          const btn = e.target.closest('.btn');
+          const notificationItem = btn.closest('.notification-item');
+          
+          if (btn.textContent.includes('Mark Read')) {
+            notificationItem.classList.remove('unread');
+            notificationItem.classList.add('read');
+            showNotification('Notification marked as read', 'info');
+            updateNotificationCount();
+          } else if (btn.textContent.includes('View Details')) {
+            showNotification('Opening detailed view...', 'info');
+          } else if (btn.textContent.includes('Send Reminder')) {
+            showNotification('Reminder sent successfully', 'success');
+          }
+        }
+        
+        // Filter buttons for notifications
+        if (e.target.classList.contains('filter-btn')) {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          
+          const filter = e.target.dataset.filter;
+          const notifications = document.querySelectorAll('.notification-item');
+          
+          notifications.forEach(notification => {
+            if (filter === 'all') {
+              notification.style.display = 'flex';
+            } else if (filter === 'unread' && notification.classList.contains('unread')) {
+              notification.style.display = 'flex';
+            } else if (filter === 'critical' && notification.classList.contains('critical')) {
+              notification.style.display = 'flex';
+            } else if (notification.style.display !== 'none') {
+              notification.style.display = filter === 'all' ? 'flex' : 'none';
+            }
+          });
+        }
+      });
+      
+      // Initialize notification count
+      updateNotificationCount();
+      
+      // Tab functionality for compliance section
+      document.addEventListener('click', function(e) {
+        if (e.target.matches('.tab-btn[data-tab]')) {
+          const targetTab = e.target.dataset.tab;
+          
+          // Remove active class from all tabs and content
+          document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+          
+          // Add active class to clicked tab and corresponding content
+          e.target.classList.add('active');
+          const targetContent = document.querySelector(targetTab);
+          if (targetContent) {
+            targetContent.classList.add('active');
+          }
+        }
+      });
+    });
+    
+    // Global notification function (if not already defined)
+    if (typeof showNotification === 'undefined') {
+      function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+          position: fixed; top: 20px; right: 20px; z-index: 10000;
+          background: ${type === 'success' ? '#dcfce7' : type === 'error' ? '#fef2f2' : type === 'warning' ? '#fef3c7' : '#dbeafe'};
+          color: ${type === 'success' ? '#166534' : type === 'error' ? '#dc2626' : type === 'warning' ? '#92400e' : '#1e40af'};
+          padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px;
+          display: flex; align-items: center; gap: 0.75rem; font-weight: 500;
+        `;
+        
+        notification.innerHTML = `
+          <span>${type === 'success' ? '?' : type === 'error' ? '?' : type === 'warning' ? '??' : '??'}</span>
+          <span>${message}</span>
+          <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">�</button>
+        `;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+      }
+    }
+  </script>
+  
+  <!-- Legacy support for non-module browsers -->
+  <script nomodule>
+    console.warn('This browser does not support ES6 modules. Please upgrade to a modern browser.');
+    
+    // Simple fallback for basic functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Populate dashboard metrics with sample data
+      const updateDashboardMetrics = () => {
+        // Update royalty metrics
+        const totalRoyalties = document.getElementById('total-royalties');
+        const activeEntities = document.getElementById('active-entities');
+        const complianceRate = document.getElementById('compliance-rate');
+        const pendingApprovals = document.getElementById('pending-approvals');
+        
+        if (totalRoyalties) totalRoyalties.textContent = 'E 2,847,650.00';
+        if (activeEntities) activeEntities.textContent = '15';
+        if (complianceRate) complianceRate.textContent = '94%';
+        if (pendingApprovals) pendingApprovals.textContent = '5';
+        
+        // Update progress bars
+        const royaltiesProgress = document.getElementById('royalties-progress');
+        const complianceProgress = document.getElementById('compliance-progress');
+        
+        if (royaltiesProgress) royaltiesProgress.style.width = '75%';
+        if (complianceProgress) complianceProgress.style.width = '94%';
+        
+        // Update trend indicators
+        const royaltiesTrend = document.getElementById('royalties-trend');
+        const entitiesTrend = document.getElementById('entities-trend');
+        
+        if (royaltiesTrend) {
+          royaltiesTrend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +15.8% from last year';
+        }
+        if (entitiesTrend) {
+          entitiesTrend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +2 new entities';
+        }
+        
+        // Update compliance metrics
+        const overallComplianceRate = document.getElementById('overall-compliance-rate');
+        const auditScore = document.getElementById('audit-score');
+        const upcomingDeadlinesCount = document.getElementById('upcoming-deadlines-count');
+        const regulatoryUpdatesCount = document.getElementById('regulatory-updates-count');
+        
+        if (overallComplianceRate) overallComplianceRate.textContent = '94%';
+        if (auditScore) auditScore.textContent = '98%';
+        if (upcomingDeadlinesCount) upcomingDeadlinesCount.textContent = '5';
+        if (regulatoryUpdatesCount) regulatoryUpdatesCount.textContent = '2';
+        
+        // Update notification counts
+        const activeNotificationsCount = document.getElementById('active-notifications-count');
+        const unreadCount = document.getElementById('unread-count');
+        const criticalAlertsCount = document.getElementById('critical-alerts-count');
+        const systemHealthStatus = document.getElementById('system-health-status');
+        
+        if (activeNotificationsCount) activeNotificationsCount.textContent = '7';
+        if (unreadCount) unreadCount.textContent = '3';
+        if (criticalAlertsCount) criticalAlertsCount.textContent = '2';
+        if (systemHealthStatus) systemHealthStatus.textContent = 'Optimal';
+        
+        // Update communication metrics
+        const messagesSentCount = document.getElementById('messages-sent-count');
+        const responseRate = document.getElementById('response-rate');
+        const activeConversations = document.getElementById('active-conversations');
+        const urgentMessages = document.getElementById('urgent-messages');
+        
+        if (messagesSentCount) messagesSentCount.textContent = '127';
+        if (responseRate) responseRate.textContent = '89%';
+        if (activeConversations) activeConversations.textContent = '23';
+        if (urgentMessages) urgentMessages.textContent = '3';
+      };
+      
+      // Call the update function
+      updateDashboardMetrics();
+      
+      // Additional dashboard initialization with sample data
+      const initializeDashboardWithData = () => {
+        // Populate chart summaries
+        const avgMonthly = document.getElementById('avg-monthly');
+        const peakMonth = document.getElementById('peak-month');
+        const totalProduction = document.getElementById('total-production');
+        const topProducer = document.getElementById('top-producer');
+        
+        if (avgMonthly) avgMonthly.textContent = '387,500';
+        if (peakMonth) peakMonth.textContent = 'December';
+        if (totalProduction) totalProduction.textContent = '240,000';
+        if (topProducer) topProducer.textContent = 'Maloma Colliery';
+        
+        // Update mines vs quarries breakdown
+        const minesCount = document.getElementById('mines-count');
+        const quarriesCount = document.getElementById('quarries-count');
+        if (minesCount) minesCount.textContent = '3';
+        if (quarriesCount) quarriesCount.textContent = '3';
+        
+        // Update system status indicators
+        const dbStatus = document.getElementById('db-status');
+        const lastBackup = document.getElementById('last-backup');
+        const activeSessions = document.getElementById('active-sessions');
+        const systemUptime = document.getElementById('system-uptime');
+        
+        if (dbStatus && !dbStatus.textContent.includes('Connected')) {
+          dbStatus.innerHTML = '<i class="fas fa-circle"></i> Connected';
+        }
+        if (lastBackup && !lastBackup.textContent.includes('AM')) {
+          lastBackup.textContent = 'Today, 03:00 AM';
+        }
+        if (activeSessions && !activeSessions.textContent.includes('users')) {
+          activeSessions.textContent = '3 users';
+        }
+        if (systemUptime && !systemUptime.textContent.includes('days')) {
+          systemUptime.textContent = '7 days, 14 hours';
+        }
+        
+        console.log('Dashboard initialized with complete sample data');
+      };
+      
+      // Initialize dashboard with data
+      initializeDashboardWithData();
+      
+      // Update metrics every 30 seconds to simulate real-time data
+      setInterval(() => {
+        updateDashboardMetrics();
+        initializeDashboardWithData();
+      }, 30000);
+      
+      // Add basic form validation for login - handled by main app.js
+      // Login functionality is managed by the modular js/app.js
+      
+      // Enhanced navigation functionality
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('nav a[href^="#"]');
+        if (link) {
+          e.preventDefault();
+          const targetId = link.getAttribute('href').substring(1);
+          
+          // Handle logout separately
+          if (targetId === 'logout') {
+            if (confirm('Are you sure you want to logout?')) {
+              // Reset to login
+              document.getElementById('app-container').style.display = 'none';
+              document.getElementById('login-section').style.display = 'flex';
+            }
+            return;
+          }
+          
+          // Hide all sections
+          document.querySelectorAll('main section').forEach(section => {
+            section.style.display = 'none';
+          });
+          
+          // Show target section
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            targetSection.style.display = 'block';
+            console.log(`Switched to section: ${targetId}`);
+          }
+          
+          // Update navigation active state
+          document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+      
+      // Initialize dashboard as active on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        // Set dashboard nav as active
+        const dashboardNav = document.querySelector('nav a[href="#dashboard"]');
+        if (dashboardNav) {
+          dashboardNav.classList.add('active');
+        }
+        
+        // Ensure dashboard is visible
+        const dashboardSection = document.getElementById('dashboard');
+        if (dashboardSection) {
+          dashboardSection.style.display = 'block';
+        }
+        
+        // Hide all other sections
+        document.querySelectorAll('main section:not(#dashboard)').forEach(section => {
+          section.style.display = 'none';
+        });
+      });
+      
+      // Enhanced chart initialization
+      const initializeCharts = () => {
+        // Initialize charts if Chart.js is available
+        if (typeof Chart !== 'undefined') {
+          try {
+            // Revenue Trends Chart
+            const revenueCtx = document.getElementById('revenue-trends-chart');
+            if (revenueCtx) {
+              new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                  datasets: [{
+                    label: 'Revenue (E)',
+                    data: [500000, 600000, 750000, 700000, 800000, 900000],
+                    borderColor: '#1a365d',
+                    backgroundColor: 'rgba(26, 54, 93, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: { callback: value => `E ${value.toLocaleString()}` }
+                    }
+                  }
+                }
+              });
+            }
+            
+            // Production by Entity Chart
+            const productionCtx = document.getElementById('production-by-entity-chart');
+            if (productionCtx) {
+              new Chart(productionCtx, {
+                type: 'pie',
+                data: {
+                  labels: ['Maloma Colliery', 'Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry', 'Ngwenya Mine', 'Malolotja Mine'],
+                  datasets: [{
+                    data: [55000, 45000, 38000, 42000, 28000, 32000],
+                    backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed']
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20 } }
+                  }
+                }
+              });
+            }
+            
+            console.log('Charts initialized successfully');
+          } catch (error) {
+            console.warn('Chart initialization failed:', error);
+            showChartFallbacks();
+          }
+        } else {
+          console.warn('Chart.js not available, showing fallback content');
+          showChartFallbacks();
+        }
+      };
+      
+      // Chart fallback function
+      const showChartFallbacks = () => {
+        const revenueChart = document.getElementById('revenue-trends-chart');
+        const productionChart = document.getElementById('production-by-entity-chart');
+        
+        if (revenueChart) {
+          revenueChart.parentElement.innerHTML = `
+            <div style="padding: 2rem; text-align: center; background: #f8fafc; border-radius: 8px;">
+              <i class="fas fa-chart-line" style="font-size: 2rem; color: #64748b; margin-bottom: 1rem;"></i>
+              <h4 style="color: #334155; margin: 0.5rem 0;">Revenue Trends</h4>
+              <p style="color: #64748b; margin: 0.5rem 0;">YTD Revenue: <strong>E 4,250,000</strong></p>
+              <p style="color: #64748b; margin: 0;">Growth: <strong>+15.8%</strong></p>
+            </div>
+          `;
+        }
+        
+        if (productionChart) {
+          productionChart.parentElement.innerHTML = `
+            <div style="padding: 2rem; text-align: center; background: #f8fafc; border-radius: 8px;">
+              <i class="fas fa-chart-pie" style="font-size: 2rem; color: #64748b; margin-bottom: 1rem;"></i>
+              <h4 style="color: #334155; margin: 0.5rem 0;">Production Overview</h4>
+              <p style="color: #64748b; margin: 0.5rem 0;">Total Volume: <strong>240,000 m�</strong></p>
+              <p style="color: #64748b; margin: 0;">Top Producer: <strong>Maloma Colliery</strong></p>
+            </div>
+          `;
+        }
+      };
+      
+      // Initialize charts with delay to ensure DOM is ready
+      setTimeout(initializeCharts, 1000);
+      
+      // Chart control buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.chart-btn')) {
+          const btn = e.target.closest('.chart-btn');
+          const chartType = btn.dataset.chartType;
+          const chartId = btn.dataset.chartId;
+          
+          // Update active button
+          btn.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          console.log(`Chart type changed to ${chartType} for ${chartId}`);
+          showNotification(`Chart updated to ${chartType} view`, 'info');
+        }
+      });
+      
+      // Show dashboard by default and initialize
+      setTimeout(() => {
+        const dashboardSection = document.getElementById('dashboard');
+        if (dashboardSection) {
+          dashboardSection.style.display = 'block';
+          // Mark dashboard nav as active
+          const dashboardNav = document.querySelector('nav a[href="#dashboard"]');
+          if (dashboardNav) dashboardNav.classList.add('active');
+        }
+      }, 500);
+    });
+  </script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loadingScreen = document.getElementById('loading-screen');
+      const loginSection = document.getElementById('login-section');
+      
+      setTimeout(() => {
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        if (loginSection) loginSection.style.display = 'flex';
+      }, 2000);
+      
+      // Login functionality is handled by js/app.js module
+      // No duplicate login handlers needed here
+    });
+  </script>
+
+  <script>
+    // Dashboard initialization function
+    function initializeDashboardWithData() {
+      console.log('Initializing dashboard with sample data...');
+      
+      // Update all dashboard metrics
+      const metrics = {
+        'total-royalties': 'E 992,500.00',
+        'active-entities': '6',
+        'compliance-rate': '80%',
+        'pending-approvals': '2',
+        'mines-count': '2',
+        'quarries-count': '4',
+        'paid-count': '3',
+        'pending-count': '1',
+        'overdue-count': '1',
+        'avg-monthly': '82,708',
+        'peak-month': 'January 2024',
+        'total-production': '52,000',
+        'top-producer': 'Kwalini Quarry'
+      };
+      
+      // Update all metric elements
+      Object.entries(metrics).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      });
+      
+      // Update progress bars
+      const progressBars = {
+        'compliance-progress': '80%',
+        'royalties-progress': '75%'
+      };
+      
+      Object.entries(progressBars).forEach(([id, width]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.style.width = width;
+        }
+      });
+      
+      // Show urgent items
+      const urgentItems = document.getElementById('urgent-items');
+      if (urgentItems) {
+        urgentItems.style.display = 'inline-flex';
+      }
+      
+      // Update trends to show positive indicators
+      const trendsElements = document.querySelectorAll('.trend-indicator');
+      trendsElements.forEach(trend => {
+        if (trend.id === 'royalties-trend') {
+          trend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +15.8% from last year';
+        } else if (trend.id === 'entities-trend') {
+          trend.innerHTML = '<i class="fas fa-arrow-up trend-positive"></i> +2 new this month';
+        }
+      });
+      
+      console.log('Dashboard initialized successfully');
+    }
+  </script>
+
+  <script>
+    // Enhanced password toggle functionality with error handling
+    function togglePassword(inputId) {
+      try {
+        const input = document.getElementById(inputId);
+        if (!input) {
+          console.warn(`Password input with ID '${inputId}' not found`);
+          return;
+        }
+        
+        const container = input.parentElement;
+        const button = container?.querySelector('.password-toggle-btn');
+        const icon = button?.querySelector('i');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (icon) {
+            icon.className = 'fas fa-eye-slash';
+            button.setAttribute('aria-label', 'Hide password');
+          }
+        } else {
+          input.type = 'password';
+          if (icon) {
+            icon.className = 'fas fa-eye';
+            button.setAttribute('aria-label', 'Show password');
+          }
+        }
+      } catch (error) {
+        console.error('Error toggling password visibility:', error);
+      }
+    }
+    
+    // Global error handler for better debugging
+    window.addEventListener('error', function(e) {
+      // Filter out extension-related errors
+      if (e.message && (
+        e.message.includes('Extension context invalidated') || 
+        e.message.includes('message channel closed') ||
+        e.message.includes('chrome-extension')
+      )) {
+        e.preventDefault();
+        return false;
+      }
+      
+      console.error('Application error:', {
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        error: e.error
+      });
+    });
+    
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', function(e) {
+      if (e.reason && typeof e.reason === 'object' && e.reason.message) {
+        if (e.reason.message.includes('Extension context') || 
+            e.reason.message.includes('chrome-extension')) {
+          e.preventDefault();
+          return false;
+        }
+      }
+      
+      console.error('Unhandled promise rejection:', e.reason);
+    });
+  </script>
+
 </body>
 </html>

@@ -1151,22 +1151,16 @@ nav ul li a span {
   margin-bottom: 2rem;
 }
 
-.card, .metric-card {
-  background: var(--background-glass);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color-light);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+.card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
   padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
   position: relative;
-  transition: var(--transition);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.card::before, .metric-card::before {
+.card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1174,77 +1168,31 @@ nav ul li a span {
   right: 0;
   height: 4px;
   background: var(--gradient-corporate);
-  transition: var(--transition);
-  opacity: 0.8;
 }
 
-.card:hover, .metric-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--primary-light);
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.card:hover::before, .metric-card:hover::before {
-  height: 6px;
-  opacity: 1;
-}
-
-.card-header, .metric-card .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color-light);
-  margin-bottom: 1rem;
-}
-
-.card-header h3, .metric-card .card-header h3 {
-  font-size: 1rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.card-header h3 i, .metric-card .card-header h3 i {
-  color: var(--primary-color);
-  font-size: 1.2rem;
-}
-
-.card-body, .metric-card .card-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-body p, .metric-card .card-body p {
-  font-size: 2.25rem;
-  font-weight: var(--font-weight-black);
-  color: var(--primary-dark);
-  margin-bottom: 0.5rem;
-  line-height: 1.1;
-}
-
-.card-body small, .metric-card .card-body small {
+.card-header h3 {
   font-size: 0.875rem;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
 }
 
-.trend-indicator i {
-  transition: var(--transition);
+.card-body p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
 }
 
-.trend-positive {
-  color: var(--success-dark);
-}
-
-.trend-negative {
-  color: var(--danger-dark);
+.card-body small {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Form Styles */
