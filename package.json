@@ -1,0 +1,32 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "test": "npx vitest",
+    "test:e2e": "npx playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Poweezy/royalties-database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Poweezy/royalties-database/issues"
+  },
+  "homepage": "https://github.com/Poweezy/royalties-database#readme",
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "@playwright/test": "^1.54.2",
+    "chart.js": "^4.5.0",
+    "vite": "^7.1.1",
+    "vitest": "^3.2.4",
+    "xlsx": "^0.18.5"
+  }
+}

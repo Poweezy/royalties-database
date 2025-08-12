@@ -478,6 +478,10 @@ nav ul li a span {
   margin-left: 280px;
   padding: 2rem;
   transition: var(--transition);
+  max-width: calc(100vw - 280px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {
@@ -877,16 +881,18 @@ nav ul li a span {
 .page-header {
   background: var(--background-white);
   padding: 2rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  margin: 0 auto 2.5rem;
+  max-width: 1400px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
   position: relative;
+  backdrop-filter: var(--backdrop-blur) var(--backdrop-saturate);
 }
 
 .page-header::before {
@@ -915,8 +921,11 @@ nav ul li a span {
 
 .page-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 1rem;
 }
 
 /* Beautiful Enhanced Buttons */
@@ -925,13 +934,16 @@ nav ul li a span {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem;  /* Slightly reduced padding for better proportion */
+  min-height: 2.5rem;  /* Ensure consistent height */
+  min-width: 2.5rem;  /* Minimum width for icon-only buttons */
   border: 2px solid transparent;
   border-radius: var(--border-radius);
   font-weight: var(--font-weight-semibold);
   font-size: 0.875rem;
+  line-height: 1.25;  /* Better line height for text alignment */
   cursor: pointer;
-  transition: var(--transition-all);
+  transition: var(--transition);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
   position: relative;
@@ -1139,16 +1151,22 @@ nav ul li a span {
   margin-bottom: 2rem;
 }
 
-.card {
-  background: var(--gradient-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+.card, .metric-card {
+  background: var(--background-glass);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
   position: relative;
+  transition: var(--transition);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.card::before {
+.card::before, .metric-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1156,31 +1174,77 @@ nav ul li a span {
   right: 0;
   height: 4px;
   background: var(--gradient-corporate);
+  transition: var(--transition);
+  opacity: 0.8;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.card:hover, .metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-light);
 }
 
-.card-header h3 {
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.75px;
+.card:hover::before, .metric-card:hover::before {
+  height: 6px;
+  opacity: 1;
 }
 
-.card-body p {
-  font-size: 2rem;
-  font-weight: bold;
+.card-header, .metric-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color-light);
+  margin-bottom: 1rem;
+}
+
+.card-header h3, .metric-card .card-header h3 {
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.card-body small {
-  color: var(--text-muted);
+.card-header h3 i, .metric-card .card-header h3 i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.card-body, .metric-card .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-body p, .metric-card .card-body p {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-black);
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.card-body small, .metric-card .card-body small {
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trend-indicator i {
+  transition: var(--transition);
+}
+
+.trend-positive {
+  color: var(--success-dark);
+}
+
+.trend-negative {
+  color: var(--danger-dark);
 }
 
 /* Form Styles */
@@ -1240,6 +1304,11 @@ nav ul li a span {
 }
 
 .table-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 1rem 0;
+  flex-wrap: wrap;
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
