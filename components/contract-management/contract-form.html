@@ -1,0 +1,198 @@
+<!-- Contract Form Component -->
+<div class="contract-form" id="contract-form-container" style="display: none;">
+  <div class="section-header">
+    <h4 id="form-title"><i class="fas fa-file-contract"></i> New Contract Agreement</h4>
+    <button class="btn btn-secondary btn-sm" id="close-contract-form">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+
+  <form id="contract-form" class="needs-validation" novalidate>
+    <input type="hidden" id="contract-id" name="contractId">
+    
+    <!-- Entity Information -->
+    <div class="form-section">
+      <h5><i class="fas fa-building"></i> Entity Information</h5>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="entity-name">Entity Name*</label>
+          <select class="form-control" id="entity-name" name="entityName" required>
+            <option value="">Select Entity</option>
+            <option value="kwalini">Kwalini Quarry</option>
+            <option value="mbabane">Mbabane Quarry</option>
+            <option value="sidvokodvo">Sidvokodvo Quarry</option>
+            <option value="maloma">Maloma Colliery</option>
+            <option value="ngwenya">Ngwenya Mine</option>
+            <option value="malolotja">Malolotja Mine</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select an entity.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="entity-type">Entity Type*</label>
+          <select class="form-control" id="entity-type" name="entityType" required>
+            <option value="">Select Type</option>
+            <option value="mine">Mine</option>
+            <option value="quarry">Quarry</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select an entity type.
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="license-number">Mining License Number*</label>
+          <input type="text" class="form-control" id="license-number" name="licenseNumber" required>
+          <div class="invalid-feedback">
+            License number is required.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registration-number">Company Registration Number*</label>
+          <input type="text" class="form-control" id="registration-number" name="registrationNumber" required>
+          <div class="invalid-feedback">
+            Registration number is required.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contract Details -->
+    <div class="form-section">
+      <h5><i class="fas fa-file-signature"></i> Contract Details</h5>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="contract-type">Contract Type*</label>
+          <select class="form-control" id="contract-type" name="contractType" required>
+            <option value="">Select Type</option>
+            <option value="standard">Standard Royalty Agreement</option>
+            <option value="special">Special Rate Agreement</option>
+            <option value="temporary">Temporary Permit</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select a contract type.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mineral-type">Mineral Type*</label>
+          <select class="form-control" id="mineral-type" name="mineralType" required>
+            <option value="">Select Mineral</option>
+            <option value="coal">Coal</option>
+            <option value="iron">Iron Ore</option>
+            <option value="stone">Stone Aggregate</option>
+            <option value="sand">Sand</option>
+            <option value="gravel">Gravel</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select a mineral type.
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-group">
+          <label for="start-date">Start Date*</label>
+          <input type="date" class="form-control" id="start-date" name="startDate" required>
+          <div class="invalid-feedback">
+            Start date is required.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="end-date">End Date*</label>
+          <input type="date" class="form-control" id="end-date" name="endDate" required>
+          <div class="invalid-feedback">
+            End date is required.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="renewal-option">Renewal Option</label>
+          <select class="form-control" id="renewal-option" name="renewalOption">
+            <option value="automatic">Automatic</option>
+            <option value="conditional">Conditional</option>
+            <option value="none">No Renewal</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Royalty Terms -->
+    <div class="form-section">
+      <h5><i class="fas fa-coins"></i> Royalty Terms</h5>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="royalty-rate">Royalty Rate (E/m³)*</label>
+          <input type="number" class="form-control" id="royalty-rate" name="royaltyRate" step="0.01" required>
+          <div class="invalid-feedback">
+            Please enter a valid royalty rate.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="payment-frequency">Payment Frequency*</label>
+          <select class="form-control" id="payment-frequency" name="paymentFrequency" required>
+            <option value="">Select Frequency</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annually">Annually</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select a payment frequency.
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="minimum-payment">Minimum Payment (E)</label>
+          <input type="number" class="form-control" id="minimum-payment" name="minimumPayment" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label for="late-payment-penalty">Late Payment Penalty (%)</label>
+          <input type="number" class="form-control" id="late-payment-penalty" name="latePenalty" step="0.01">
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="form-section">
+      <h5><i class="fas fa-file-upload"></i> Required Documents</h5>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="contract-document">Contract Document*</label>
+          <input type="file" class="form-control" id="contract-document" name="contractDocument" accept=".pdf,.doc,.docx" required>
+          <div class="invalid-feedback">
+            Please upload the contract document.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="supporting-documents">Supporting Documents</label>
+          <input type="file" class="form-control" id="supporting-documents" name="supportingDocuments" accept=".pdf,.doc,.docx" multiple>
+          <small class="form-text text-muted">Upload any additional supporting documents</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" id="cancel-contract">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-warning" id="save-draft">
+        <i class="fas fa-save"></i> Save Draft
+      </button>
+      <button type="submit" class="btn btn-success" id="save-contract">
+        <i class="fas fa-check"></i> Create Contract
+      </button>
+    </div>
+  </form>
+</div>

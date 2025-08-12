@@ -1,0 +1,122 @@
+<!-- User Activity Logs -->
+<div class="audit-logs-container">
+  <div class="section-header">
+    <h4><i class="fas fa-history"></i> User Activity Logs</h4>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" id="refresh-logs">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+      <button class="btn btn-info btn-sm" id="export-logs">
+        <i class="fas fa-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Advanced Filtering -->
+  <div class="logs-filters">
+    <h6><i class="fas fa-filter"></i> Filter Options</h6>
+    <div class="grid-4">
+      <!-- Date Range Filter -->
+      <div class="filter-component">
+        <div class="form-group">
+          <label for="date-range">Date Range</label>
+          <select id="date-range" class="form-control">
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="last7days">Last 7 Days</option>
+            <option value="last30days">Last 30 Days</option>
+            <option value="custom">Custom Range...</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Custom Date Range (initially hidden) -->
+      <div class="filter-component custom-date-range" style="display: none;">
+        <div class="form-group">
+          <label for="date-from">From</label>
+          <input type="date" id="date-from" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="date-to">To</label>
+          <input type="date" id="date-to" class="form-control">
+        </div>
+      </div>
+
+      <!-- Action Type Filter -->
+      <div class="filter-component">
+        <div class="form-group">
+          <label for="action-type">Action Type</label>
+          <select id="action-type" class="form-control">
+            <option value="">All Actions</option>
+            <option value="login">Login</option>
+            <option value="logout">Logout</option>
+            <option value="create">Create</option>
+            <option value="update">Update</option>
+            <option value="delete">Delete</option>
+            <option value="export">Export</option>
+            <option value="import">Import</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- User Filter -->
+      <div class="filter-component">
+        <div class="form-group">
+          <label for="filter-user">User</label>
+          <input type="text" id="filter-user" class="form-control" placeholder="Filter by username...">
+        </div>
+      </div>
+
+      <!-- Filter Actions -->
+      <div class="filter-component">
+        <div class="form-group filter-actions">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" id="apply-log-filters">
+            <i class="fas fa-search"></i> Apply Filters
+          </button>
+          <button class="btn btn-secondary" id="clear-log-filters">
+            <i class="fas fa-times"></i> Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs Table -->
+  <div class="table-container">
+    <table class="data-table" id="audit-logs-table">
+      <thead>
+        <tr>
+          <th sortable data-sort="timestamp">Timestamp <i class="fas fa-sort"></i></th>
+          <th sortable data-sort="user">User <i class="fas fa-sort"></i></th>
+          <th sortable data-sort="action">Action <i class="fas fa-sort"></i></th>
+          <th sortable data-sort="category">Category <i class="fas fa-sort"></i></th>
+          <th>Details</th>
+          <th sortable data-sort="ipAddress">IP Address <i class="fas fa-sort"></i></th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="audit-logs-tbody">
+        <!-- Logs will be populated here by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table Pagination -->
+  <div class="table-pagination" id="logs-pagination">
+    <div class="pagination-info">
+      Showing <span id="logs-start">1</span> to <span id="logs-end">10</span> of <span id="logs-total">100</span> entries
+    </div>
+    <div class="pagination-controls">
+      <button class="btn btn-sm btn-secondary" id="logs-prev" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span class="pagination-pages" id="logs-pages">
+        <button class="page-btn active">1</button>
+      </span>
+      <button class="btn btn-sm btn-secondary" id="logs-next">
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

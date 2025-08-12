@@ -1,0 +1,29 @@
+<!-- Login Section Component -->
+<section class="login-section" id="login-section" style="display: none;">
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+      <h2>Mining Royalties Manager</h2>
+      <p>Secure access to your royalty management system</p>
+    </div>
+    <form class="login-form" id="login-form">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="username" placeholder="Username" aria-describedby="username-error" autocomplete="username" required>
+        <div class="validation-error" id="username-error" style="display: none;">Username is required</div>
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" placeholder="Password" aria-describedby="password-error" autocomplete="current-password" required>
+        <button type="button" class="password-toggle-btn" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+          <i class="fas fa-eye"></i>
+        </button>
+        <div class="validation-error" id="password-error" style="display: none;">Password is required</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-large">Sign In</button>
+    </form>
+    <div class="login-footer">
+      <p>Please contact your administrator for credentials.</p>
+    </div>
+  </div>
+</section>

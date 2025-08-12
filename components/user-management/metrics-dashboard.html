@@ -1,0 +1,52 @@
+<!-- User Management Metrics Dashboard -->
+<div class="charts-grid">
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-users"></i> Active Users</h3>
+      <select class="metric-period">
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="active-users-count">3</p>
+      <small><i class="fas fa-circle text-success"></i> Currently active and logged in</small>
+    </div>
+  </div>
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Failed Logins</h3>
+      <select class="metric-period">
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+    <div class="card-body">
+      <p id="failed-logins-count">0</p>
+      <small><i class="fas fa-shield-alt text-success"></i> Security status: Normal</small>
+    </div>
+  </div>
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-bell"></i> Security Alerts</h3>
+    </div>
+    <div class="card-body">
+      <p id="security-alerts-count">None</p>
+      <small><i class="fas fa-check-circle text-success"></i> All systems secure</small>
+    </div>
+  </div>
+  <div class="metric-card card">
+    <div class="card-header">
+      <h3><i class="fas fa-key"></i> Password Compliance</h3>
+    </div>
+    <div class="card-body">
+      <p id="password-compliance-rate">100%</p>
+      <small><i class="fas fa-certificate text-success"></i> Meeting security standards</small>
+      <div class="mini-progress">
+        <div class="progress-bar" style="width: 100%; background: var(--success-color);"></div>
+      </div>
+    </div>
+  </div>
+</div>
