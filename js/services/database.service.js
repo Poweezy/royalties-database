@@ -20,10 +20,19 @@ class DatabaseService {
      */
     async init() {
         return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('Database initialization timed out.'));
+            }, 5000);
+
             const request = indexedDB.open(this.dbName, this.version);
 
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                clearTimeout(timeout);
+                reject(request.error);
+            };
+
             request.onsuccess = () => {
+                clearTimeout(timeout);
                 this.db = request.result;
                 resolve();
             };
