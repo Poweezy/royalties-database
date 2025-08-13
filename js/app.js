@@ -311,7 +311,7 @@ class App {
     }
 
     showLogin() {
-        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('login-section').style.display = 'flex';
         document.getElementById('app-container').style.display = 'none';
     }
 
