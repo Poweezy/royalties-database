@@ -231,10 +231,7 @@ class App {
             });
             
             // Show success notification
-            this.notificationManager.show({
-                message: 'Dashboard initialized successfully',
-                type: 'success'
-            });
+            this.notificationManager.show('Dashboard initialized successfully', 'success');
         } catch (error) {
             throw new Error('Failed to initialize dashboard');
         }
@@ -325,10 +322,7 @@ class App {
     }
 
     showError(message) {
-        this.notificationManager.show({
-            message,
-            type: 'error'
-        });
+        this.notificationManager.show(message, 'error');
     }
 
     /**
