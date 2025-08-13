@@ -672,6 +672,7 @@ nav ul li a span {
 }
 
 .login-container {
+  margin: auto;
   background: var(--background-glass);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);

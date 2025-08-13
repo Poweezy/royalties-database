@@ -18,6 +18,7 @@ import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
+import { IconManager } from './modules/IconManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 
 class App {
@@ -45,6 +46,7 @@ class App {
         this.errorHandler = new ErrorHandler(this.notificationManager);
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
+        this.iconManager = new IconManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
 
         // Initialize app
