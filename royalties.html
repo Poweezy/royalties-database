@@ -3095,21 +3095,6 @@
   </script>
   
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const loadingScreen = document.getElementById('loading-screen');
-      const loginSection = document.getElementById('login-section');
-      
-      setTimeout(() => {
-        if (loadingScreen) loadingScreen.style.display = 'none';
-        if (loginSection) loginSection.style.display = 'flex';
-      }, 2000);
-      
-      // Login functionality is handled by js/app.js module
-      // No duplicate login handlers needed here
-    });
-  </script>
-
-  <script>
     // Dashboard initialization function
     function initializeDashboardWithData() {
       console.log('Initializing dashboard with sample data...');
