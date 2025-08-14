@@ -399,6 +399,15 @@ class App {
             `;
         }).join('');
     }
+
+    /**
+     * Placeholder for auto-refresh functionality
+     */
+    startAutoRefresh() {
+        // This is a placeholder to prevent errors.
+        // Auto-refresh logic can be implemented here in the future.
+        console.log('Auto-refresh started (placeholder).');
+    }
 }
 
 // Initialize application when DOM is loaded
