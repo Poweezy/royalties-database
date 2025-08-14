@@ -2072,120 +2072,135 @@
           <!-- Financial Compliance -->
           <div class="tab-content active" id="financial-compliance">
             <h5><i class="fas fa-coins" aria-label="Coins icon"></i> Financial Compliance Status</h5>
-            <div class="compliance-grid">
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Royalty Payment Compliance</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>96% of entities up-to-date with payments</p>
-                  <div class="progress-mini">
-                    <div class="progress-bar" style="width: 96%;"></div>
-                  </div>
-                  <small>47/49 entities compliant</small>
-                </div>
-              </div>
-
-              <div class="compliance-item warning">
-                <div class="compliance-header">
-                  <h6>Tax Reporting Compliance</h6>
-                  <span class="compliance-badge warning">Needs Attention</span>
-                </div>
-                <div class="compliance-details">
-                  <p>3 entities have pending tax returns</p>
-                  <small>Deadline: February 28, 2024</small>
-                </div>
-              </div>
-
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Audit Trail Maintenance</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>All transactions properly documented</p>
-                  <small>100% audit trail coverage</small>
-                </div>
-              </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Compliance Item</th>
+                    <th>Status</th>
+                    <th>Last Audit Date</th>
+                    <th>Next Deadline</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Royalty Payment Compliance</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-07-01</td>
+                    <td>2026-07-01</td>
+                    <td>Finance Dept.</td>
+                    <td><button class="btn btn-sm btn-info">View</button></td>
+                  </tr>
+                  <tr>
+                    <td>Tax Reporting Compliance</td>
+                    <td><span class="status-badge warning">Needs Attention</span></td>
+                    <td>2025-06-15</td>
+                    <td>2025-08-30</td>
+                    <td>J. Doe</td>
+                    <td><button class="btn btn-sm btn-info">View</button></td>
+                  </tr>
+                  <tr>
+                    <td>Audit Trail Maintenance</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-08-01</td>
+                    <td>N/A</td>
+                    <td>System</td>
+                    <td><button class="btn btn-sm btn-info">View Logs</button></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
           <!-- Environmental Compliance -->
           <div class="tab-content" id="environmental-compliance">
             <h5><i class="fas fa-leaf" aria-label="Leaf icon"></i> Environmental Compliance Status</h5>
-            <div class="compliance-grid">
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Environmental Impact Assessments</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>All active sites have valid EIAs</p>
-                  <small>12/12 sites compliant</small>
-                </div>
-              </div>
-
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Water Usage Permits</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>All water usage within permitted limits</p>
-                  <small>Monitoring: Real-time</small>
-                </div>
-              </div>
-
-              <div class="compliance-item warning">
-                <div class="compliance-header">
-                  <h6>Rehabilitation Bonds</h6>
-                  <span class="compliance-badge warning">Review Required</span>
-                </div>
-                <div class="compliance-details">
-                  <p>2 bonds require renewal this quarter</p>
-                  <small>Next review: March 15, 2024</small>
-                </div>
-              </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Compliance Item</th>
+                    <th>Status</th>
+                    <th>Last Audit Date</th>
+                    <th>Next Deadline</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Environmental Impact Assessments (EIA)</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-01-10</td>
+                    <td>2030-01-10</td>
+                    <td>Environ. Dept.</td>
+                    <td><button class="btn btn-sm btn-info">View Report</button></td>
+                  </tr>
+                  <tr>
+                    <td>Water Usage Permits</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-07-20</td>
+                    <td>2026-07-20</td>
+                    <td>Operations</td>
+                    <td><button class="btn btn-sm btn-info">View Permit</button></td>
+                  </tr>
+                  <tr>
+                    <td>Rehabilitation Bonds</td>
+                    <td><span class="status-badge warning">Review Required</span></td>
+                    <td>2024-03-15</td>
+                    <td>2025-09-15</td>
+                    <td>Finance Dept.</td>
+                    <td><button class="btn btn-sm btn-info">View Details</button></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
           <!-- Operational Compliance -->
           <div class="tab-content" id="operational-compliance">
             <h5><i class="fas fa-cogs" aria-label="Cogs icon"></i> Operational Compliance Status</h5>
-            <div class="compliance-grid">
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Mining Licenses</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>All licenses valid and up-to-date</p>
-                  <small>Next renewal: June 2024</small>
-                </div>
-              </div>
-
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Safety Compliance</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>All sites meet safety standards</p>
-                  <small>Last inspection: February 10, 2024</small>
-                </div>
-              </div>
-
-              <div class="compliance-item compliant">
-                <div class="compliance-header">
-                  <h6>Production Reporting</h6>
-                  <span class="compliance-badge success">Compliant</span>
-                </div>
-                <div class="compliance-details">
-                  <p>Monthly reports submitted on time</p>
-                  <small>100% reporting compliance</small>
-                </div>
-              </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Compliance Item</th>
+                    <th>Status</th>
+                    <th>Last Audit Date</th>
+                    <th>Next Deadline</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Mining Licenses</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2024-06-01</td>
+                    <td>2029-05-31</td>
+                    <td>Legal Dept.</td>
+                    <td><button class="btn btn-sm btn-info">View License</button></td>
+                  </tr>
+                  <tr>
+                    <td>Safety Compliance (OSHA)</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-08-10</td>
+                    <td>2026-02-10</td>
+                    <td>HSE Dept.</td>
+                    <td><button class="btn btn-sm btn-info">View Report</button></td>
+                  </tr>
+                  <tr>
+                    <td>Production Reporting</td>
+                    <td><span class="status-badge success">Compliant</span></td>
+                    <td>2025-08-01</td>
+                    <td>2025-09-01</td>
+                    <td>Operations</td>
+                    <td><button class="btn btn-sm btn-info">View Submissions</button></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 

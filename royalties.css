@@ -1339,14 +1339,13 @@ nav ul li a span.notification-badge {
   text-align: center;
 }
 
-/* Enhanced Table Styles for User Management */
-#users-table {
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
+/* Enhanced Table Styles for All Data Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-#users-table th {
+.data-table th {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   color: var(--text-inverse);
   font-weight: 600;
@@ -1354,56 +1353,64 @@ nav ul li a span.notification-badge {
   letter-spacing: 0.5px;
   font-size: 0.75rem;
   border-bottom: none;
+  padding: 0.75rem 1rem;
+  text-align: left;
 }
 
-#users-table th[sortable] {
+.data-table th[sortable] {
   cursor: pointer;
   transition: var(--transition);
   position: relative;
 }
 
-#users-table th[sortable]:hover {
+.data-table th[sortable]:hover {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
 }
 
-#users-table th[sortable] i {
+.data-table th[sortable] i {
   margin-left: 0.5rem;
   opacity: 0.5;
   transition: var(--transition);
 }
 
-#users-table th[sortable]:hover i {
+.data-table th[sortable]:hover i {
   opacity: 1;
 }
 
-#users-table th[sortable].sorted-asc i::before {
+.data-table th[sortable].sorted-asc i::before {
   content: '\f0de';
   color: var(--accent-color);
   opacity: 1;
 }
 
-#users-table th[sortable].sorted-desc i::before {
+.data-table th[sortable].sorted-desc i::before {
   content: '\f0dd';
   color: var(--accent-color);
   opacity: 1;
 }
 
-#users-table tbody tr {
+.data-table tbody tr {
   transition: var(--transition);
   border-bottom: 1px solid var(--border-color);
 }
 
-#users-table tbody tr:hover {
+.data-table tbody tr:hover {
   background: linear-gradient(135deg, var(--neutral-100) 0%, var(--background-light) 100%);
   transform: translateX(2px);
+  box-shadow: -5px 0 15px rgba(0,0,0,0.05);
 }
 
-#users-table tbody tr:nth-child(even) {
+.data-table tbody tr:nth-child(even) {
   background: rgba(247, 250, 252, 0.5);
 }
 
-#users-table tbody tr:nth-child(even):hover {
+.data-table tbody tr:nth-child(even):hover {
   background: linear-gradient(135deg, var(--neutral-100) 0%, var(--background-light) 100%);
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
 }
 
 /* Enhanced Status Badges for User Management */
