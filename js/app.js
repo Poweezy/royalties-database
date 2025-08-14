@@ -269,6 +269,29 @@ class App {
             e.preventDefault();
             authService.logout();
         });
+
+        // Dashboard-specific listeners
+        this.#setupDashboardListeners();
+    }
+
+    /**
+     * Sets up event listeners for the dashboard widgets.
+     */
+    #setupDashboardListeners() {
+        const metricSelects = [
+            document.getElementById('royalties-period'),
+            document.getElementById('entities-period')
+        ];
+
+        metricSelects.forEach(select => {
+            if (select) {
+                select.addEventListener('change', (e) => {
+                    const metricId = e.target.id.split('-')[0]; // e.g., 'royalties' from 'royalties-period'
+                    const filterValue = e.target.value;
+                    this.chartManager.updateMetric(metricId, filterValue);
+                });
+            }
+        });
     }
 
     /**
