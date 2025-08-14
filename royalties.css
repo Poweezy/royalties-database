@@ -252,6 +252,28 @@ body {
   color: var(--text-inverse);
 }
 
+.sidebar-close {
+  background: var(--neutral-200);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition);
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-close:hover {
+  background: var(--danger-color);
+  color: var(--text-inverse);
+  border-color: var(--danger-color);
+}
+
 /* Simplified Navigation */
 nav ul {
   list-style: none;

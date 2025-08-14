@@ -81,6 +81,7 @@ class App {
      * Initialize application services
      */
     async initializeServices() {
+        let hasError = false;
         try {
             // Show loading screen
             this.showLoadingScreen();
@@ -99,9 +100,19 @@ class App {
                 this.showLogin();
             }
         } catch (error) {
+            hasError = true;
             this.errorHandler.handleError(error);
+            const loadingContent = document.querySelector('.loading-content');
+            if (loadingContent) {
+                loadingContent.innerHTML = `
+                    <p style="color: white; font-weight: bold;">Application failed to start.</p>
+                    <p style="color: white;">Please try refreshing the page.</p>
+                `;
+            }
         } finally {
-            this.hideLoadingScreen();
+            if (!hasError) {
+                this.hideLoadingScreen();
+            }
         }
     }
 
@@ -264,10 +275,33 @@ class App {
      * Handle login form submission
      */
     async handleLogin(form) {
-        try {
-            const username = form.username.value;
-            const password = form.password.value;
+        const username = form.username.value.trim();
+        const password = form.password.value.trim();
+        const usernameError = document.getElementById('username-error');
+        const passwordError = document.getElementById('password-error');
+        let isValid = true;
 
+        // Reset errors
+        usernameError.style.display = 'none';
+        passwordError.style.display = 'none';
+
+        if (!username) {
+            usernameError.textContent = 'Username is required';
+            usernameError.style.display = 'block';
+            isValid = false;
+        }
+
+        if (!password) {
+            passwordError.textContent = 'Password is required';
+            passwordError.style.display = 'block';
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return;
+        }
+
+        try {
             await authService.login(username, password);
             this.showDashboard();
         } catch (error) {
