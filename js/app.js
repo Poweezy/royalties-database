@@ -286,14 +286,33 @@ class App {
         const addUserForm = document.getElementById('add-user-form');
         const closeFormBtn = document.getElementById('close-add-user-form');
         const cancelFormBtn = document.getElementById('cancel-add-user');
+        const formTitle = addUserFormContainer?.querySelector('h4');
+        const createUserBtn = document.getElementById('create-user-btn');
 
-        const showForm = () => addUserFormContainer.style.display = 'block';
+        const showForm = (isEditMode = false, user = null) => {
+            if (isEditMode && user) {
+                formTitle.innerHTML = '<i class="fas fa-user-edit" aria-label="Edit User icon"></i> Edit User Account';
+                createUserBtn.innerHTML = '<i class="fas fa-save" aria-label="Save icon"></i> Update User';
+                this.#populateUserForm(user);
+                addUserForm.dataset.editingId = user.id;
+            } else {
+                formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
+                createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
+                delete addUserForm.dataset.editingId;
+            }
+            addUserFormContainer.style.display = 'block';
+        };
+
         const hideForm = () => {
             addUserFormContainer.style.display = 'none';
             addUserForm.reset();
+            // Reset form to "Add" mode
+            formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
+            createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
+            delete addUserForm.dataset.editingId;
         };
 
-        addUserBtn?.addEventListener('click', showForm);
+        addUserBtn?.addEventListener('click', () => showForm(false));
         closeFormBtn?.addEventListener('click', hideForm);
         cancelFormBtn?.addEventListener('click', hideForm);
 
@@ -305,7 +324,6 @@ class App {
                 email: formData.get('new-email'),
                 role: formData.get('new-role'),
                 department: formData.get('new-department'),
-                // Note: a real app would handle password securely.
             };
 
             // Basic validation
@@ -314,23 +332,60 @@ class App {
                 return;
             }
 
-            this.userManager.addUser(userData);
-            this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
+            const editingId = e.target.dataset.editingId;
+            if (editingId) {
+                // Update existing user
+                this.userManager.updateUser(parseInt(editingId, 10), userData);
+                this.notificationManager.show(`User '${userData.username}' updated successfully.`, 'success');
+            } else {
+                // Add new user
+                this.userManager.addUser(userData);
+                this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
+            }
+
             hideForm();
         });
 
         const userTableBody = document.getElementById('users-table-tbody');
         userTableBody?.addEventListener('click', (e) => {
-            const deleteButton = e.target.closest('.btn-danger[data-user-id]');
-            if (deleteButton) {
-                const userId = parseInt(deleteButton.dataset.userId, 10);
-                const user = this.userManager.users.find(u => u.id === userId);
+            const targetButton = e.target.closest('button[data-user-id]');
+            if (!targetButton) return;
+
+            const userId = parseInt(targetButton.dataset.userId, 10);
+
+            // Handle Edit
+            if (targetButton.title.includes('Edit')) {
+                const user = this.userManager.getUser(userId);
+                if (user) {
+                    showForm(true, user);
+                } else {
+                    this.notificationManager.show(`User with ID ${userId} not found.`, 'error');
+                }
+            }
+
+            // Handle Delete
+            if (targetButton.title.includes('Delete')) {
+                const user = this.userManager.getUser(userId);
                 if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
                     this.userManager.deleteUser(userId);
                     this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
                 }
             }
         });
+    }
+
+    /**
+     * Populates the user form with data for editing.
+     * @param {object} user - The user object to populate the form with.
+     */
+    #populateUserForm(user) {
+        document.getElementById('new-username').value = user.username;
+        document.getElementById('new-email').value = user.email;
+        document.getElementById('new-role').value = user.role;
+        document.getElementById('new-department').value = user.department;
+        // Password fields are intentionally left blank for security
+        document.getElementById('new-password').placeholder = "Enter new password (optional)";
+        document.getElementById('confirm-password').placeholder = "Confirm new password";
     }
 
     /**

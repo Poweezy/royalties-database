@@ -108,6 +108,32 @@ export class UserManager {
   }
 
   /**
+   * Retrieves a single user by their ID.
+   * @param {number} userId - The ID of the user to retrieve.
+   * @returns {object|undefined} The user object or undefined if not found.
+   */
+  getUser(userId) {
+    return this.users.find(user => user.id === userId);
+  }
+
+  /**
+   * Updates an existing user's data and re-renders the table.
+   * @param {number} userId - The ID of the user to update.
+   * @param {object} updatedData - An object containing the new data for the user.
+   */
+  updateUser(userId, updatedData) {
+    const user = this.getUser(userId);
+    if (!user) {
+      console.error(`Cannot update user: User with ID ${userId} not found.`);
+      return;
+    }
+
+    // Merge the updated data into the existing user object
+    Object.assign(user, updatedData);
+    this.renderUsers();
+  }
+
+  /**
    * Generates the HTML for a single user row.
    * @param {object} user - The user object.
    * @returns {string} The HTML string for the table row.
