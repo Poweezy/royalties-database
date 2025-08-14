@@ -493,7 +493,7 @@
               <!-- Username Field -->
               <div class="form-group">
                 <label for="new-username">Username</label>
-                <input type="text" id="new-username" placeholder="Enter username" aria-describedby="new-username-error" autocomplete="username">
+                <input type="text" id="new-username" name="new-username" placeholder="Enter username" aria-describedby="new-username-error" autocomplete="username">
                 <div class="validation-error" id="new-username-error">Username is required</div>
                 <div class="validation-success" id="new-username-success">Username is available</div>
               </div>
@@ -501,7 +501,7 @@
               <!-- Email Field -->
               <div class="form-group">
                 <label for="new-email">Email Address</label>
-                <input type="email" id="new-email" placeholder="user@example.com" aria-describedby="new-email-error">
+                <input type="email" id="new-email" name="new-email" placeholder="user@example.com" aria-describedby="new-email-error">
                 <div class="validation-error" id="new-email-error">Valid email is required</div>
                 <div class="validation-success" id="new-email-success">Email is valid</div>
               </div>
@@ -509,13 +509,13 @@
               <!-- Role Field -->
               <div class="form-group">
                 <label for="new-role">Role</label>
-                <select id="new-role" aria-describedby="new-role-error">
+                <select id="new-role" name="new-role" aria-describedby="new-role-error">
                   <option value="">Select Role</option>
-                  <option value="administrator">Administrator</option>
-                  <option value="editor">Editor</option>
-                  <option value="auditor">Auditor</option>
-                  <option value="finance">Finance Officer</option>
-                  <option value="viewer">Viewer</option>
+                  <option value="Administrator">Administrator</option>
+                  <option value="Editor">Editor</option>
+                  <option value="Auditor">Auditor</option>
+                  <option value="Finance Officer">Finance Officer</option>
+                  <option value="Viewer">Viewer</option>
                 </select>
                 <div class="validation-error" id="new-role-error">Role selection is required</div>
                 <div class="validation-success" id="new-role-success">Role selected</div>
@@ -524,13 +524,13 @@
               <!-- Department Field -->
               <div class="form-group">
                 <label for="new-department">Department</label>
-                <select id="new-department" aria-describedby="new-department-error">
+                <select id="new-department" name="new-department" aria-describedby="new-department-error">
                   <option value="">Select Department</option>
-                  <option value="administration">Administration</option>
-                  <option value="finance">Finance</option>
-                  <option value="operations">Operations</option>
-                  <option value="audit">Audit & Compliance</option>
-                  <option value="legal">Legal Affairs</option>
+                  <option value="Administration">Administration</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Audit & Compliance">Audit & Compliance</option>
+                  <option value="Legal Affairs">Legal Affairs</option>
                 </select>
                 <div class="validation-error" id="new-department-error">Department selection is required</div>
                 <div class="validation-success" id="new-department-success">Department selected</div>
@@ -705,78 +705,6 @@
               </thead>
               <tbody id="users-table-tbody">
                 <!-- Users will be populated here by JavaScript -->
-                <tr>
-                  <td><input type="checkbox" name="user-select" value="1"></td>
-                  <td>admin</td>
-                  <td>admin@government.sz</td>
-                  <td><span class="role-badge administrator">Administrator</span></td>
-                  <td>Administration</td>
-                  <td><span class="status-badge active">Active</span></td>
-                  <td>2024-02-15 09:15</td>
-                  <td>2024-01-01</td>
-                  <td><i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i></td>
-                  <td>
-                    <div class="btn-group">
-                      <button class="btn btn-info btn-sm" title="Edit user">
-                        <i class="fas fa-edit" aria-label="Edit icon"></i>
-                      </button>
-                      <button class="btn btn-warning btn-sm" title="Reset password">
-                        <i class="fas fa-key" aria-label="Reset password icon"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" title="Delete user">
-                        <i class="fas fa-trash" aria-label="Delete icon"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" name="user-select" value="2"></td>
-                  <td>j.doe</td>
-                  <td>john.doe@government.sz</td>
-                  <td><span class="role-badge editor">Editor</span></td>
-                  <td>Operations</td>
-                  <td><span class="status-badge active">Active</span></td>
-                  <td>2024-02-14 16:30</td>
-                  <td>2024-01-15</td>
-                  <td><i class="fas fa-times-circle text-danger" title="2FA Disabled" aria-label="2FA Disabled"></i></td>
-                  <td>
-                    <div class="btn-group">
-                      <button class="btn btn-info btn-sm" title="Edit user">
-                        <i class="fas fa-edit" aria-label="Edit icon"></i>
-                      </button>
-                      <button class="btn btn-warning btn-sm" title="Reset password">
-                        <i class="fas fa-key" aria-label="Reset password icon"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" title="Delete user">
-                        <i class="fas fa-trash" aria-label="Delete icon"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" name="user-select" value="3"></td>
-                  <td>m.smith</td>
-                  <td>mary.smith@government.sz</td>
-                  <td><span class="role-badge auditor">Auditor</span></td>
-                  <td>Audit & Compliance</td>
-                  <td><span class="status-badge inactive">Inactive</span></td>
-                  <td>2024-02-10 14:22</td>
-                  <td>2024-02-01</td>
-                  <td><i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i></td>
-                  <td>
-                    <div class="btn-group">
-                      <button class="btn btn-info btn-sm" title="Edit user">
-                        <i class="fas fa-edit" aria-label="Edit icon"></i>
-                      </button>
-                      <button class="btn btn-warning btn-sm" title="Reset password">
-                        <i class="fas fa-key" aria-label="Reset password icon"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" title="Delete user">
-                        <i class="fas fa-trash" aria-label="Delete icon"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>

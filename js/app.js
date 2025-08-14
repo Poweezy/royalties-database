@@ -18,6 +18,7 @@ import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
+import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 
 class App {
@@ -46,6 +47,7 @@ class App {
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
+        this.userManager = new UserManager();
 
         // Initialize app
         this.initializeServices();
@@ -126,6 +128,9 @@ class App {
             
             // Initialize dashboard
             await this.initializeDashboard();
+
+            // Render initial state for components
+            this.userManager.renderUsers();
             
             // Show dashboard
             this.showDashboard();
@@ -272,6 +277,50 @@ class App {
 
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
+        this.#setupUserManagementListeners();
+    }
+
+    /**
+     * Sets up event listeners for the User Management section.
+     */
+    #setupUserManagementListeners() {
+        const addUserBtn = document.getElementById('add-user-btn');
+        const addUserFormContainer = document.getElementById('add-user-form-container');
+        const addUserForm = document.getElementById('add-user-form');
+        const closeFormBtn = document.getElementById('close-add-user-form');
+        const cancelFormBtn = document.getElementById('cancel-add-user');
+
+        const showForm = () => addUserFormContainer.style.display = 'block';
+        const hideForm = () => {
+            addUserFormContainer.style.display = 'none';
+            addUserForm.reset();
+        };
+
+        addUserBtn?.addEventListener('click', showForm);
+        closeFormBtn?.addEventListener('click', hideForm);
+        cancelFormBtn?.addEventListener('click', hideForm);
+
+        addUserForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const userData = {
+                username: formData.get('new-username'),
+                email: formData.get('new-email'),
+                role: formData.get('new-role'),
+                department: formData.get('new-department'),
+                // Note: a real app would handle password securely.
+            };
+
+            // Basic validation
+            if (!userData.username || !userData.email || !userData.role || !userData.department) {
+                this.notificationManager.show('Please fill all required fields.', 'error');
+                return;
+            }
+
+            this.userManager.addUser(userData);
+            this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
+            hideForm();
+        });
     }
 
     /**
