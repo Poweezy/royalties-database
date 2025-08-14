@@ -1021,9 +1021,21 @@ nav ul li a span.notification-badge {
   margin: 0;
 }
 
-.card-body, .chart-container {
+.card-body {
   padding: 1rem;
   flex: 1;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px; /* Give the container a fixed height */
+  padding: 1rem;
+  flex: 1;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .card-body p {
