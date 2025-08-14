@@ -129,9 +129,6 @@ class App {
             // Initialize dashboard
             await this.initializeDashboard();
 
-            // Render initial state for components
-            this.userManager.renderUsers();
-            
             // Show dashboard
             this.showDashboard();
             
@@ -321,6 +318,19 @@ class App {
             this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
             hideForm();
         });
+
+        const userTableBody = document.getElementById('users-table-tbody');
+        userTableBody?.addEventListener('click', (e) => {
+            const deleteButton = e.target.closest('.btn-danger[data-user-id]');
+            if (deleteButton) {
+                const userId = parseInt(deleteButton.dataset.userId, 10);
+                const user = this.userManager.users.find(u => u.id === userId);
+                if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
+                    this.userManager.deleteUser(userId);
+                    this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
+                }
+            }
+        });
     }
 
     /**
@@ -395,6 +405,11 @@ class App {
         const section = document.getElementById(route);
         if (section) {
             section.style.display = 'block';
+        }
+
+        // Render components specific to the route
+        if (route === 'user-management') {
+            this.userManager.renderUsers();
         }
 
         // Update active navigation state

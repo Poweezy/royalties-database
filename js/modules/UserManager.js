@@ -92,6 +92,22 @@ export class UserManager {
   }
 
   /**
+   * Deletes a user from the list and re-renders the table.
+   * @param {number} userId - The ID of the user to delete.
+   */
+  deleteUser(userId) {
+    const userIndex = this.users.findIndex(user => user.id === userId);
+
+    if (userIndex === -1) {
+      console.error(`User with ID ${userId} not found.`);
+      return;
+    }
+
+    this.users.splice(userIndex, 1);
+    this.renderUsers();
+  }
+
+  /**
    * Generates the HTML for a single user row.
    * @param {object} user - The user object.
    * @returns {string} The HTML string for the table row.
