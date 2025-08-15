@@ -1310,9 +1310,10 @@
           </div>
           <div class="tab-content" id="custom-reports">
             <div class="custom-report-builder">
+              <p class="form-help" style="margin-bottom: 1rem;">Use the options below to build a custom report. Select your criteria and the metrics you want to include, then preview the report.</p>
               <div class="builder-section">
                 <h5><i class="fas fa-filter" aria-label="Filter icon"></i> Report Criteria</h5>
-                <div class="grid-4">
+                <div class="grid-2">
                   <div class="form-group">
                     <label for="report-type">Report Type</label>
                     <select id="report-type" aria-describedby="report-type-validation">
@@ -1364,6 +1365,7 @@
               </div>
               <div class="builder-section">
                 <h5><i class="fas fa-chart-bar" aria-label="Metrics icon"></i> Metrics Selection</h5>
+                <p class="form-help" style="margin-bottom: 1rem;">Select the data points you want to include in your report.</p>
                 <div class="metrics-selector">
                   <div class="checkbox-group">
                     <label class="checkbox-label">
@@ -1488,7 +1490,7 @@
       <section id="communication" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1>?? Communication Hub</h1>
+            <h1><i class="fas fa-comments" aria-label="Communication Hub icon"></i> Communication Hub</h1>
             <p>Centralized communication management for stakeholders, entities, and regulatory bodies</p>
           </div>
           <div class="page-actions">
@@ -1702,7 +1704,7 @@
       <section id="notifications" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1>?? Notifications Center</h1>
+            <h1><i class="fas fa-bell" aria-label="Notifications Center icon"></i> Notifications Center</h1>
             <p>System alerts, reminders, and important updates for mining royalty management</p>
           </div>
           <div class="page-actions">
@@ -1875,7 +1877,7 @@
 
           <div class="settings-grid">
             <div class="settings-category">
-              <h6>?? Email Notifications</h6>
+              <h6><i class="fas fa-envelope" aria-label="Email Notifications icon"></i> Email Notifications</h6>
               <div class="setting-item">
                 <label class="setting-label">
                   <input type="checkbox" checked> Payment reminders
@@ -1894,7 +1896,7 @@
             </div>
 
             <div class="settings-category">
-              <h6>?? System Alerts</h6>
+              <h6><i class="fas fa-exclamation-triangle" aria-label="System Alerts icon"></i> System Alerts</h6>
               <div class="setting-item">
                 <label class="setting-label">
                   <input type="checkbox" checked> Security alerts
@@ -1924,7 +1926,7 @@
       <section id="compliance">
         <div class="page-header">
           <div class="page-title">
-            <h1>?? Compliance & Regulatory</h1>
+            <h1><i class="fas fa-shield-alt" aria-label="Compliance & Regulatory icon"></i> Compliance & Regulatory</h1>
             <p>Comprehensive compliance monitoring, regulatory adherence, and audit trail management</p>
           </div>
           <div class="page-actions">
@@ -2220,7 +2222,7 @@
       </section>
 
       <!-- New Regulatory Management Section -->
-      <section id="regulatory-management">
+      <section id="regulatory-management" style="display: none;">
         <div class="page-header">
           <div class="page-title">
             <h1>Regulatory Management</h1>
@@ -2234,12 +2236,12 @@
 
         <!-- Jurisdictional Requirements Matrix -->
         <div class="user-form-container">
-          <h4>??? Multi-Jurisdictional Compliance Matrix</h4>
+          <h4><i class="fas fa-sitemap" aria-label="Compliance Matrix icon"></i> Multi-Jurisdictional Compliance Matrix</h4>
           <div class="jurisdiction-matrix">
             <div class="grid-4">
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h5>???? Kingdom of Eswatini</h5>
+                  <h5><i class="fas fa-map-marker-alt" aria-label="Eswatini icon"></i> Kingdom of Eswatini</h5>
                   <span class="jurisdiction-status active">Primary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
@@ -2254,7 +2256,7 @@
               
               <div class="jurisdiction-card">
                 <div class="jurisdiction-header">
-                  <h5>?? SADC Regional</h5>
+                  <h5><i class="fas fa-globe-africa" aria-label="SADC icon"></i> SADC Regional</h5>
                   <span class="jurisdiction-status secondary">Secondary Jurisdiction</span>
                 </div>
                 <div class="jurisdiction-requirements">
@@ -2271,24 +2273,24 @@
 
         <!-- Tax Structure Management -->
         <div class="user-form-container">
-          <h4>?? Tax Structure & Rates Management</h4>
+          <h4><i class="fas fa-calculator" aria-label="Tax Structure icon"></i> Tax Structure & Rates Management</h4>
           <div class="tax-structure-grid">
             <div class="tax-category">
               <h6>Mineral Royalties</h6>
               <div class="tax-rates">
                 <div class="rate-item">
                   <span class="mineral-type">Coal</span>
-                  <span class="rate-value">E 2.50/m�</span>
+                  <span class="rate-value">E 2.50/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
                   <span class="mineral-type">Iron Ore</span>
-                  <span class="rate-value">E 3.75/m�</span>
+                  <span class="rate-value">E 3.75/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
                 <div class="rate-item">
                   <span class="mineral-type">Quarried Stone</span>
-                  <span class="rate-value">E 1.25/m�</span>
+                  <span class="rate-value">E 1.25/m³</span>
                   <span class="rate-status current">Current</span>
                 </div>
               </div>
@@ -2319,10 +2321,10 @@
 
         <!-- Regulatory Calendar -->
         <div class="user-form-container">
-          <h4>?? Regulatory Calendar & Deadlines</h4>
+          <h4><i class="fas fa-calendar-alt" aria-label="Regulatory Calendar icon"></i> Regulatory Calendar & Deadlines</h4>
           <div class="calendar-view">
             <div class="upcoming-deadlines">
-              <h6>?? Upcoming Regulatory Deadlines</h6>
+              <h6><i class="fas fa-calendar-check" aria-label="Upcoming Deadlines icon"></i> Upcoming Regulatory Deadlines</h6>
               <div class="deadline-list">
                 <div class="deadline-item">
                   <div class="deadline-date">
@@ -2715,9 +2717,9 @@
         `;
         
         notification.innerHTML = `
-          <span>${type === 'success' ? '?' : type === 'error' ? '?' : type === 'warning' ? '??' : '??'}</span>
+          <span>${type === 'success' ? '<i class="fas fa-check-circle"></i>' : type === 'error' ? '<i class="fas fa-times-circle"></i>' : type === 'warning' ? '<i class="fas fa-exclamation-triangle"></i>' : '<i class="fas fa-info-circle"></i>'}</span>
           <span>${message}</span>
-          <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">�</button>
+          <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;"><i class="fas fa-times"></i></button>
         `;
         
         document.body.appendChild(notification);
