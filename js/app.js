@@ -276,8 +276,7 @@ class App {
         });
 
         // Logout
-        document.querySelector('a[href="#logout"]')?.addEventListener('click', (e) => {
-            e.preventDefault();
+        document.querySelector('#confirm-logout-btn')?.addEventListener('click', () => {
             authService.logout();
         });
 

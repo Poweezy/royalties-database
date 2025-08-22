@@ -130,19 +130,25 @@ def test_user_add_and_delete_flow(page: Page):
 
 def test_logout_functionality(page: Page):
     """
-    Tests that the logout link works correctly, reloads the page,
-    and displays the login screen.
+    Tests that the two-step logout process works correctly.
     """
+    # 1. Click the sidebar link
     logout_link_selector = 'nav#main-nav a[href="#logout"]'
     logout_link = page.locator(logout_link_selector)
-
     expect(logout_link).to_be_visible()
+    logout_link.click()
 
-    # Click the logout link and wait for the page to reload
+    # 2. Assert that the logout confirmation page is visible
+    logout_section = page.locator("#logout")
+    expect(logout_section).to_be_visible()
+    confirm_button = page.locator("#confirm-logout-btn")
+    expect(confirm_button).to_be_visible()
+
+    # 3. Click the confirmation button and wait for the reload
     with page.expect_navigation():
-        logout_link.click()
+        confirm_button.click()
 
-    # After reload, the login section should be visible
+    # 4. Assert that the login screen is now visible
     login_section = page.locator("#login-section")
     expect(login_section).to_be_visible(timeout=10000)
 
