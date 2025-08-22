@@ -284,6 +284,7 @@ class App {
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
+        this.#setupRoyaltyRecordsListeners();
     }
 
     /**
@@ -305,6 +306,40 @@ class App {
             currentPage,
             totalPages,
             totalUsers: filteredUsers.length
+        });
+    }
+
+    /**
+     * Renders the royalty records table.
+     */
+    renderRoyaltyRecords() {
+        const tableBody = document.getElementById('royalty-records-tbody');
+        if (!tableBody) return;
+
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        this.state.royaltyRecords.forEach(record => {
+            const row = document.createElement('tr');
+            const royaltiesValue = record.volume * record.tariff;
+            const royalties = royaltiesValue.toLocaleString('en-SZ', { style: 'currency', currency: 'SZL' });
+
+            row.innerHTML = `
+                <td>${record.entity}</td>
+                <td>${record.mineral}</td>
+                <td>${record.volume.toLocaleString()}</td>
+                <td>${record.tariff.toLocaleString('en-SZ', { style: 'currency', currency: 'SZL' })}</td>
+                <td>${royalties}</td>
+                <td>${record.paymentDate}</td>
+                <td><span class="status-badge paid">${record.status}</span></td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
         });
     }
 
@@ -527,6 +562,49 @@ class App {
     }
 
     /**
+     * Sets up event listeners for the Royalty Records section.
+     */
+    #setupRoyaltyRecordsListeners() {
+        const saveBtn = document.getElementById('save-royalty-btn');
+        if (!saveBtn) return;
+
+        saveBtn.addEventListener('click', () => {
+            const entityEl = document.getElementById('entity');
+            const mineralEl = document.getElementById('mineral');
+            const volumeEl = document.getElementById('volume');
+            const tariffEl = document.getElementById('tariff');
+            const dateEl = document.getElementById('payment-date');
+
+            const newRecord = {
+                id: this.state.royaltyRecords.length + 1,
+                entity: entityEl.value,
+                mineral: mineralEl.value,
+                volume: parseFloat(volumeEl.value),
+                tariff: parseFloat(tariffEl.value),
+                paymentDate: dateEl.value,
+                status: 'Paid' // Default status
+            };
+
+            // Basic validation
+            if (!newRecord.entity || !newRecord.mineral || !newRecord.volume || !newRecord.tariff || !newRecord.paymentDate) {
+                this.notificationManager.show('Please fill all fields for the royalty record.', 'error');
+                return;
+            }
+
+            this.state.royaltyRecords.push(newRecord);
+            this.renderRoyaltyRecords();
+            this.notificationManager.show('Royalty record saved successfully.', 'success');
+
+            // Clear form
+            entityEl.value = 'Select Entity';
+            mineralEl.value = 'Select Mineral';
+            volumeEl.value = '';
+            tariffEl.value = '';
+            dateEl.value = '';
+        });
+    }
+
+    /**
      * Handle login form submission
      */
     async handleLogin(form) {
@@ -583,6 +661,8 @@ class App {
         // Render components specific to the route
         if (route === 'user-management') {
             this.renderUserManagementPage();
+        } else if (route === 'royalty-records') {
+            this.renderRoyaltyRecords();
         }
 
         // Update active navigation state

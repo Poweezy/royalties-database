@@ -126,6 +126,7 @@ export class UserManager {
     };
 
     this.users.push(newUser);
+    this.renderUserTable(this.users);
   }
 
   /**
@@ -141,6 +142,7 @@ export class UserManager {
     }
 
     this.users.splice(userIndex, 1);
+    this.renderUserTable(this.users);
   }
 
   /**
