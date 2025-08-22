@@ -97,12 +97,10 @@ class App {
             // Show loading screen
             this.showLoadingScreen();
 
-            // Initialize all services in parallel
-            await Promise.all([
-                authService.init(),
-                dbService.init(),
-                this.chartManager.initializeCharts()
-            ]);
+            // Initialize services in order
+            await authService.init();
+            await dbService.init();
+            await this.chartManager.initializeCharts();
 
             // Check authentication state
             if (authService.isAuthenticated) {
@@ -597,6 +595,33 @@ class App {
                 });
             }
         });
+
+        // Add event listeners for chart type buttons
+        document.querySelectorAll('.chart-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const clickedButton = e.currentTarget;
+                const chartId = clickedButton.dataset.chartId;
+                const newType = clickedButton.dataset.chartType;
+
+                // Update active button state
+                const parentControls = clickedButton.closest('.chart-controls');
+                parentControls.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+                clickedButton.classList.add('active');
+
+                // Change the chart type
+                this.chartManager.changeChartType(chartId, newType);
+            });
+        });
+
+        // Add event listener for the main refresh button
+        const refreshBtn = document.getElementById('refresh-dashboard');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                this.notificationManager.show('Refreshing dashboard data...', 'info');
+                await this.chartManager.refreshCharts();
+                this.notificationManager.show('Dashboard refreshed successfully.', 'success');
+            });
+        }
     }
 
     /**

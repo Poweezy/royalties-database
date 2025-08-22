@@ -210,6 +210,42 @@ def test_logout_functionality(page: Page):
     login_section = page.locator("#login-section")
     expect(login_section).to_be_visible(timeout=10000)
 
+def test_chart_functionality(page: Page):
+    """Test that the chart type switching and refreshing works."""
+    # The user is already on the dashboard from the fixture
+
+    # 1. Test Revenue Chart Switching
+    revenue_chart_canvas = page.locator('#revenue-trends-chart')
+    expect(revenue_chart_canvas).to_be_visible()
+
+    # Initial state is 'line', switch to 'bar'
+    page.click('button[data-chart-id="revenue-trends-chart"][data-chart-type="bar"]')
+    # Give it a moment to re-render
+    page.wait_for_timeout(500)
+    revenue_chart_canvas.screenshot(path="jules-scratch/verification/revenue_bar_chart.png")
+
+    # Switch to 'area'
+    page.click('button[data-chart-id="revenue-trends-chart"][data-chart-type="area"]')
+    page.wait_for_timeout(500)
+    revenue_chart_canvas.screenshot(path="jules-scratch/verification/revenue_area_chart.png")
+
+    # 2. Test Production Chart Switching
+    production_chart_canvas = page.locator('#production-by-entity-chart')
+    expect(production_chart_canvas).to_be_visible()
+
+    # Initial state is 'pie', switch to 'doughnut'
+    page.click('button[data-chart-id="production-by-entity-chart"][data-chart-type="doughnut"]')
+    page.wait_for_timeout(500)
+    production_chart_canvas.screenshot(path="jules-scratch/verification/production_doughnut_chart.png")
+
+    # 3. Test Refresh Button
+    refresh_button = page.locator('#refresh-dashboard')
+    expect(refresh_button).to_be_enabled()
+    refresh_button.click()
+    # Check for the notification that indicates refresh has started and completed
+    expect(page.locator('.notification-toast.notification-info')).to_contain_text('Refreshing dashboard data...', timeout=5000)
+    expect(page.locator('.notification-toast.notification-success')).to_contain_text('Dashboard refreshed successfully.', timeout=5000)
+
 # To run this test:
 # 1. Make sure you have a web server running in the root directory (e.g., python -m http.server 8001 &)
 # 2. Run pytest: `pytest jules-scratch/verification/test_e2e.py`
