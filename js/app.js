@@ -284,6 +284,7 @@ class App {
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
         this.#setupRoyaltyRecordsListeners();
+        this.#setupContractManagementListeners();
     }
 
     /**
@@ -336,6 +337,44 @@ class App {
                         <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                     </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    /**
+     * Renders the contracts table.
+     */
+    renderContracts() {
+        const tableBody = document.querySelector('#contract-management table tbody');
+        if (!tableBody) return;
+
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        this.state.contracts.forEach(contract => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${contract.entity}</td>
+                <td>E${parseFloat(contract.royaltyRate).toFixed(2)}</td>
+                <td>${contract.startDate}</td>
+                <td>
+                  <button class="btn btn-sm btn-info" title="View contract document">
+                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
+                  </button>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-primary" title="Edit contract">
+                      <i class="fas fa-edit" aria-label="Edit icon"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" title="Download contract">
+                      <i class="fas fa-download" aria-label="Download icon"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" title="Terminate contract">
+                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
+                    </button>
+                  </div>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -604,6 +643,45 @@ class App {
     }
 
     /**
+     * Sets up event listeners for the Contract Management section.
+     */
+    #setupContractManagementListeners() {
+        const addBtn = document.getElementById('add-contract-btn');
+        const formContainer = document.getElementById('add-contract-form-container');
+        const saveBtn = formContainer.querySelector('.btn-success');
+
+        addBtn.addEventListener('click', () => {
+            formContainer.style.display = 'block';
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const entityEl = document.getElementById('contract-entity');
+            const rateEl = document.getElementById('royalty-rate');
+            const dateEl = document.getElementById('start-date');
+
+            const newContract = {
+                entity: entityEl.value,
+                royaltyRate: rateEl.value,
+                startDate: dateEl.value,
+            };
+
+            if (!newContract.entity || !newContract.royaltyRate || !newContract.startDate) {
+                this.notificationManager.show('Please fill all fields for the contract.', 'error');
+                return;
+            }
+
+            this.state.contracts.push(newContract);
+            this.renderContracts();
+            this.notificationManager.show('Contract saved successfully.', 'success');
+
+            entityEl.value = 'Select Entity';
+            rateEl.value = '';
+            dateEl.value = '';
+            formContainer.style.display = 'none';
+        });
+    }
+
+    /**
      * Handle login form submission
      */
     async handleLogin(form) {
@@ -662,6 +740,8 @@ class App {
             this.renderUserManagementPage();
         } else if (route === 'royalty-records') {
             this.renderRoyaltyRecords();
+        } else if (route === 'contract-management') {
+            this.renderContracts();
         }
 
         // Update active navigation state
