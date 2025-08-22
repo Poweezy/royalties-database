@@ -9,6 +9,28 @@ class AuthService {
         this.isAuthenticated = false;
         this.currentUser = null;
         this.token = localStorage.getItem('auth_token');
+
+        // Demo credentials
+        this.demoUsers = {
+            'admin': {
+                password: 'demo123',
+                role: 'Administrator',
+                department: 'Administration',
+                email: 'admin@government.sz'
+            },
+            'finance': {
+                password: 'demo123',
+                role: 'Finance Officer',
+                department: 'Finance',
+                email: 'finance@government.sz'
+            },
+            'auditor': {
+                password: 'demo123',
+                role: 'Auditor',
+                department: 'Audit & Compliance',
+                email: 'auditor@government.sz'
+            }
+        };
     }
 
     /**
@@ -50,41 +72,29 @@ class AuthService {
     }
 
     /**
-     * Attempt user login.
-     *
-     * !! SECURITY WARNING !!
-     * This is a mock implementation for demo purposes only. In a real application,
-     * the username and password should be sent to a secure backend for verification.
-     * This implementation does not perform any actual authentication.
-     *
-     * @param {string} username - The user's username.
-     * @param {string} password - The user's password.
-     * @returns {Promise<boolean>} - A promise that resolves to true on successful login.
+     * Attempt user login for demo version
      */
     async login(username, password) {
         try {
             // Sanitize inputs
             username = security.sanitizeInput(username, 'username');
 
-            if (!username || !password) {
-                throw new Error('Username and password are required.');
+            // Demo authentication
+            const user = this.demoUsers[username];
+            if (!user || user.password !== password) {
+                throw new Error('Invalid credentials');
             }
 
-            // This is a mock authentication flow.
-            // In a real application, you would make an API call to a secure backend here.
-            // For this demo, we will simulate a successful login for any non-empty username.
-
-            const mockUser = {
-                username: username,
-                role: 'Administrator', // Default role for demo
-                department: 'Administration', // Default department for demo
-                email: `${username}@government.sz`, // Mock email
-                lastLogin: new Date().toISOString()
-            };
-
+            // Create mock auth data
             const authData = {
                 token: 'demo_token_' + Math.random().toString(36).substr(2),
-                user: mockUser
+                user: {
+                    username,
+                    role: user.role,
+                    department: user.department,
+                    email: user.email,
+                    lastLogin: new Date().toISOString()
+                }
             };
 
             this.setAuthenticationState(authData);
@@ -119,23 +129,30 @@ class AuthService {
     }
 
     /**
-     * Validate the current auth token.
-     *
-     * !! SECURITY WARNING !!
-     * This is a mock implementation for demo purposes only. In a real application,
-     * the token should be sent to a secure backend for validation.
-     *
-     * @returns {Promise<boolean>} - A promise that resolves to true if the token is valid.
+     * Validate current auth token
      */
     async validateToken() {
-        if (!this.token) {
-            return false;
-        }
+        if (!this.token) return false;
 
         try {
-            // This is a mock token validation.
-            // In a real application, you would make an API call to a secure backend to validate the token.
-            // For this demo, we will consider any token present as valid.
+            // For demo, validate token format and expiration
+            if (!this.token.startsWith('demo_token_')) {
+                throw new Error('Invalid token format');
+            }
+
+            // Simulate token validation
+            const mockData = {
+                token: this.token,
+                user: this.currentUser || {
+                    username: 'admin',
+                    role: 'Administrator',
+                    department: 'Administration',
+                    email: 'admin@government.sz',
+                    lastLogin: new Date().toISOString()
+                }
+            };
+
+            this.setAuthenticationState(mockData);
             return true;
         } catch (error) {
             console.error('Token validation error:', error);

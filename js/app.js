@@ -38,6 +38,15 @@ class App {
                 recordsPerPage: 10,
                 autoSave: true,
                 theme: 'light'
+            },
+            // Add state for user management view
+            userManagement: {
+                currentPage: 1,
+                filters: {
+                    search: '',
+                    role: '',
+                    status: ''
+                }
             }
         };
 
@@ -278,47 +287,127 @@ class App {
     }
 
     /**
+     * Renders the complete User Management page, including table and pagination.
+     */
+    renderUserManagementPage() {
+        const { currentPage, filters } = this.state.userManagement;
+        const itemsPerPage = this.state.settings.recordsPerPage;
+
+        const filteredUsers = this.userManager.getFilteredUsers(filters);
+
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+        this.userManager.renderUserTable(paginatedUsers);
+        this.userManager.updatePaginationControls({
+            currentPage,
+            totalPages,
+            totalUsers: filteredUsers.length
+        });
+    }
+
+    /**
      * Sets up event listeners for the User Management section.
      */
     #setupUserManagementListeners() {
-        const addUserBtn = document.getElementById('add-user-btn');
-        const addUserFormContainer = document.getElementById('add-user-form-container');
         const addUserForm = document.getElementById('add-user-form');
-        const closeFormBtn = document.getElementById('close-add-user-form');
-        const cancelFormBtn = document.getElementById('cancel-add-user');
-        const formTitle = addUserFormContainer?.querySelector('h4');
-        const createUserBtn = document.getElementById('create-user-btn');
+        if (!addUserForm) return;
+
+        const elements = {
+            container: document.getElementById('add-user-form-container'),
+            form: addUserForm,
+            title: document.getElementById('add-user-form-container')?.querySelector('h4'),
+            username: document.getElementById('new-username'),
+            email: document.getElementById('new-email'),
+            role: document.getElementById('new-role'),
+            department: document.getElementById('new-department'),
+            password: document.getElementById('new-password'),
+            confirmPassword: document.getElementById('confirm-password'),
+            createUserBtn: document.getElementById('create-user-btn'),
+            addUserBtn: document.getElementById('add-user-btn'),
+            closeFormBtn: document.getElementById('close-add-user-form'),
+            cancelFormBtn: document.getElementById('cancel-add-user'),
+            userTableBody: document.getElementById('users-table-tbody'),
+            searchInput: document.getElementById('filter-search'),
+            roleFilter: document.getElementById('filter-role'),
+            statusFilter: document.getElementById('filter-status'),
+            clearFiltersBtn: document.getElementById('clear-filters'),
+            paginationContainer: document.getElementById('users-pagination'),
+        };
+
+        const validateField = (input, validationFn) => {
+            const errorDiv = document.getElementById(`${input.id}-error`);
+            const successDiv = document.getElementById(`${input.id}-success`);
+            const isValid = validationFn(input.value);
+
+            if (errorDiv) errorDiv.style.display = isValid ? 'none' : 'block';
+            if (successDiv) successDiv.style.display = isValid ? 'block' : 'none';
+
+            return isValid;
+        };
+
+        const validateUserForm = () => {
+            const isUsernameValid = validateField(elements.username, (val) => val.length >= 3);
+            const isEmailValid = validateField(elements.email, (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val));
+            const isRoleValid = validateField(elements.role, (val) => val !== '');
+            const isDepartmentValid = validateField(elements.department, (val) => val !== '');
+
+            // Password validation is optional for editing, required for new users
+            const isNewUser = !elements.form.dataset.editingId;
+            const passVal = elements.password.value;
+            const confirmPassVal = elements.confirmPassword.value;
+            let isPasswordValid = true;
+            if (isNewUser || passVal) {
+                isPasswordValid = validateField(elements.password, val => val.length >= 8) &&
+                                  validateField(elements.confirmPassword, val => val === passVal);
+            }
+
+            const allValid = isUsernameValid && isEmailValid && isRoleValid && isDepartmentValid && isPasswordValid;
+            elements.createUserBtn.disabled = !allValid;
+        };
+
+        ['input', 'change'].forEach(evt => {
+            elements.username.addEventListener(evt, validateUserForm);
+            elements.email.addEventListener(evt, validateUserForm);
+            elements.role.addEventListener(evt, validateUserForm);
+            elements.department.addEventListener(evt, validateUserForm);
+            elements.password.addEventListener(evt, validateUserForm);
+            elements.confirmPassword.addEventListener(evt, validateUserForm);
+        });
 
         const showForm = (isEditMode = false, user = null) => {
+            elements.form.reset();
+            validateUserForm(); // Reset validation state
             if (isEditMode && user) {
-                formTitle.innerHTML = '<i class="fas fa-user-edit" aria-label="Edit User icon"></i> Edit User Account';
-                createUserBtn.innerHTML = '<i class="fas fa-save" aria-label="Save icon"></i> Update User';
+                elements.title.innerHTML = '<i class="fas fa-user-edit" aria-label="Edit User icon"></i> Edit User Account';
+                elements.createUserBtn.innerHTML = '<i class="fas fa-save" aria-label="Save icon"></i> Update User';
                 this.#populateUserForm(user);
-                addUserForm.dataset.editingId = user.id;
+                elements.form.dataset.editingId = user.id;
             } else {
-                formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
-                createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
-                delete addUserForm.dataset.editingId;
+                elements.title.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
+                elements.createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
+                delete elements.form.dataset.editingId;
             }
-            addUserFormContainer.style.display = 'block';
+            elements.container.style.display = 'block';
+            validateUserForm();
         };
 
         const hideForm = () => {
-            addUserFormContainer.style.display = 'none';
-            addUserForm.reset();
-            // Reset form to "Add" mode
-            formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
-            createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
-            delete addUserForm.dataset.editingId;
+            elements.container.style.display = 'none';
+            elements.form.reset();
         };
 
-        addUserBtn?.addEventListener('click', () => showForm(false));
-        closeFormBtn?.addEventListener('click', hideForm);
-        cancelFormBtn?.addEventListener('click', hideForm);
+        elements.addUserBtn?.addEventListener('click', () => showForm(false));
+        elements.closeFormBtn?.addEventListener('click', hideForm);
+        elements.cancelFormBtn?.addEventListener('click', hideForm);
 
-        addUserForm?.addEventListener('submit', (e) => {
+        elements.form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+            if (elements.createUserBtn.disabled) return;
+
+            const formData = new FormData(elements.form);
             const userData = {
                 username: formData.get('new-username'),
                 email: formData.get('new-email'),
@@ -326,49 +415,78 @@ class App {
                 department: formData.get('new-department'),
             };
 
-            // Basic validation
-            if (!userData.username || !userData.email || !userData.role || !userData.department) {
-                this.notificationManager.show('Please fill all required fields.', 'error');
-                return;
-            }
+            const editingId = elements.form.dataset.editingId ? parseInt(elements.form.dataset.editingId, 10) : null;
 
-            const editingId = e.target.dataset.editingId;
             if (editingId) {
-                // Update existing user
-                this.userManager.updateUser(parseInt(editingId, 10), userData);
+                this.userManager.updateUser(editingId, userData);
                 this.notificationManager.show(`User '${userData.username}' updated successfully.`, 'success');
             } else {
-                // Add new user
                 this.userManager.addUser(userData);
                 this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
             }
 
             hideForm();
+            this.renderUserManagementPage();
         });
 
-        const userTableBody = document.getElementById('users-table-tbody');
-        userTableBody?.addEventListener('click', (e) => {
-            const targetButton = e.target.closest('button[data-user-id]');
-            if (!targetButton) return;
+        elements.userTableBody?.addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-user-id]');
+            if (!button) return;
+            const userId = parseInt(button.dataset.userId, 10);
+            const user = this.userManager.getUser(userId);
+            if (!user) return;
 
-            const userId = parseInt(targetButton.dataset.userId, 10);
-
-            // Handle Edit
-            if (targetButton.title.includes('Edit')) {
-                const user = this.userManager.getUser(userId);
-                if (user) {
-                    showForm(true, user);
-                } else {
-                    this.notificationManager.show(`User with ID ${userId} not found.`, 'error');
-                }
-            }
-
-            // Handle Delete
-            if (targetButton.title.includes('Delete')) {
-                const user = this.userManager.getUser(userId);
-                if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
+            if (button.title.includes('Edit')) {
+                showForm(true, user);
+            } else if (button.title.includes('Delete')) {
+                if (confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
                     this.userManager.deleteUser(userId);
                     this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
+                    this.renderUserManagementPage();
+                }
+            }
+        });
+
+        const applyFilters = () => {
+            this.state.userManagement.filters = {
+                search: elements.searchInput.value,
+                role: elements.roleFilter.value,
+                status: elements.statusFilter.value,
+            };
+            this.state.userManagement.currentPage = 1;
+            this.renderUserManagementPage();
+        };
+
+        elements.searchInput?.addEventListener('input', applyFilters);
+        elements.roleFilter?.addEventListener('change', applyFilters);
+        elements.statusFilter?.addEventListener('change', applyFilters);
+
+        elements.clearFiltersBtn?.addEventListener('click', () => {
+            elements.searchInput.value = '';
+            elements.roleFilter.value = '';
+            elements.statusFilter.value = '';
+            applyFilters();
+        });
+
+        elements.paginationContainer?.addEventListener('click', (e) => {
+            const target = e.target;
+            const state = this.state.userManagement;
+
+            if (target.id === 'users-prev' && state.currentPage > 1) {
+                state.currentPage--;
+                this.renderUserManagementPage();
+            } else if (target.id === 'users-next') {
+                const totalUsers = this.userManager.getFilteredUsers(state.filters).length;
+                const totalPages = Math.ceil(totalUsers / this.state.settings.recordsPerPage);
+                if(state.currentPage < totalPages) {
+                    state.currentPage++;
+                    this.renderUserManagementPage();
+                }
+            } else if (target.classList.contains('page-btn') && target.dataset.page) {
+                const page = parseInt(target.dataset.page, 10);
+                if (page !== state.currentPage) {
+                    state.currentPage = page;
+                    this.renderUserManagementPage();
                 }
             }
         });
@@ -464,7 +582,7 @@ class App {
 
         // Render components specific to the route
         if (route === 'user-management') {
-            this.userManager.renderUsers();
+            this.renderUserManagementPage();
         }
 
         // Update active navigation state

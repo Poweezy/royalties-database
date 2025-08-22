@@ -44,12 +44,19 @@ export class UserManager {
       },
     ];
     this.tableBody = document.getElementById('users-table-tbody');
+    this.paginationControls = {
+        info: document.querySelector('#users-pagination .pagination-info'),
+        prevBtn: document.getElementById('users-prev'),
+        nextBtn: document.getElementById('users-next'),
+        pagesContainer: document.getElementById('users-pages'),
+    };
   }
 
   /**
-   * Renders the list of users into the user management table.
+   * Renders the user data into the table body.
+   * @param {Array<object>} usersToRender - The array of user objects to render.
    */
-  renderUsers() {
+  renderUserTable(usersToRender) {
     if (!this.tableBody) {
       console.error('User table body not found!');
       return;
@@ -58,21 +65,52 @@ export class UserManager {
     // Clear existing rows
     this.tableBody.innerHTML = '';
 
-    if (this.users.length === 0) {
-      this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users found.</td></tr>`;
+    if (!usersToRender || usersToRender.length === 0) {
+      this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users match the current filters.</td></tr>`;
       return;
     }
 
-    const rowsHtml = this.users.map(user => this.createUserRowHtml(user)).join('');
+    const rowsHtml = usersToRender.map(user => this.createUserRowHtml(user)).join('');
     this.tableBody.innerHTML = rowsHtml;
   }
 
   /**
-   * Adds a new user to the list and re-renders the table.
+   * Updates the pagination controls based on the current state.
+   * @param {object} paginationState - The state of the pagination.
+   * @param {number} paginationState.currentPage - The current active page.
+   * @param {number} paginationState.totalPages - The total number of pages.
+   * @param {number} paginationState.totalUsers - The total number of users in the filtered list.
+   */
+  updatePaginationControls({ currentPage, totalPages, totalUsers }) {
+      if (!this.paginationControls.info) return;
+
+      if (totalUsers === 0) {
+          this.paginationControls.info.textContent = 'No users found';
+      } else {
+          const startUser = (currentPage - 1) * 10 + 1;
+          const endUser = Math.min(currentPage * 10, totalUsers);
+          this.paginationControls.info.textContent = `Showing ${startUser} to ${endUser} of ${totalUsers} users`;
+      }
+
+      this.paginationControls.prevBtn.disabled = currentPage === 1;
+      this.paginationControls.nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+      // Render page number buttons (simple version)
+      this.paginationControls.pagesContainer.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement('button');
+          pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+          pageBtn.textContent = i;
+          pageBtn.dataset.page = i;
+          this.paginationControls.pagesContainer.appendChild(pageBtn);
+      }
+  }
+
+  /**
+   * Adds a new user to the list.
    * @param {object} userData - The new user's data from the form.
    */
   addUser(userData) {
-    // Generate a new ID (in a real app, this would come from the backend)
     const newId = this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1;
     
     const newUser = {
@@ -88,11 +126,10 @@ export class UserManager {
     };
 
     this.users.push(newUser);
-    this.renderUsers();
   }
 
   /**
-   * Deletes a user from the list and re-renders the table.
+   * Deletes a user from the list.
    * @param {number} userId - The ID of the user to delete.
    */
   deleteUser(userId) {
@@ -104,7 +141,6 @@ export class UserManager {
     }
 
     this.users.splice(userIndex, 1);
-    this.renderUsers();
   }
 
   /**
@@ -117,7 +153,16 @@ export class UserManager {
   }
 
   /**
-   * Updates an existing user's data and re-renders the table.
+   * Retrieves a single user by their username.
+   * @param {string} username - The username to search for.
+   * @returns {object|undefined} The user object or undefined if not found.
+   */
+  getUserByUsername(username) {
+    return this.users.find(user => user.username.toLowerCase() === username.toLowerCase());
+  }
+
+  /**
+   * Updates an existing user's data.
    * @param {number} userId - The ID of the user to update.
    * @param {object} updatedData - An object containing the new data for the user.
    */
@@ -128,9 +173,31 @@ export class UserManager {
       return;
     }
 
-    // Merge the updated data into the existing user object
     Object.assign(user, updatedData);
-    this.renderUsers();
+  }
+
+  /**
+   * Returns a filtered list of users based on the provided criteria.
+   * @param {object} filters - An object containing filter criteria.
+   * @param {string} filters.search - The search term for username or email.
+   * @param {string} filters.role - The role to filter by.
+   * @param {string} filters.status - The status to filter by.
+   * @returns {Array<object>} A new array of users that match the filters.
+   */
+  getFilteredUsers({ search = '', role = '', status = '' }) {
+    const searchTerm = search.toLowerCase();
+
+    return this.users.filter(user => {
+      const matchesSearch = searchTerm === '' ||
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm);
+
+      const matchesRole = role === '' || user.role.toLowerCase() === role;
+
+      const matchesStatus = status === '' || user.status.toLowerCase() === status;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
   }
 
   /**
