@@ -148,6 +148,9 @@ export class UserManager {
       ? '<i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i>'
       : '<i class="fas fa-times-circle text-danger" title="2FA Disabled" aria-label="2FA Disabled"></i>';
 
+    const lastLoginDate = user.lastLogin === 'Never' ? 'Never' : user.lastLogin.split(' ')[0];
+    const createdDate = user.created.split('T')[0];
+
     return `
       <tr>
         <td><input type="checkbox" name="user-select" value="${user.id}"></td>
@@ -156,19 +159,19 @@ export class UserManager {
         <td><span class="role-badge ${roleClass}">${user.role}</span></td>
         <td>${user.department}</td>
         <td><span class="status-badge ${statusClass}">${user.status}</span></td>
-        <td>${user.lastLogin}</td>
-        <td>${user.created}</td>
+        <td>${lastLoginDate}</td>
+        <td>${createdDate}</td>
         <td>${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
-            <button class="btn btn-info btn-sm" title="Edit user" data-user-id="${user.id}">
-              <i class="fas fa-edit" aria-label="Edit icon"></i>
+            <button class="btn btn-info btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
+              <i class="fas fa-edit" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}">
-              <i class="fas fa-key" aria-label="Reset password icon"></i>
+            <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
+              <i class="fas fa-key" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}">
-              <i class="fas fa-trash" aria-label="Delete icon"></i>
+            <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
+              <i class="fas fa-trash" aria-hidden="true"></i>
             </button>
           </div>
         </td>
