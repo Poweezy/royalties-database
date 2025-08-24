@@ -50,7 +50,6 @@ export class UserManager {
    * Renders the list of users into the user management table.
    */
   renderUsers() {
-    console.log("Rendering users:", this.users);
     if (!this.tableBody) {
       console.error('User table body not found!');
       return;
@@ -64,9 +63,10 @@ export class UserManager {
       return;
     }
 
-    const rowsHtml = this.users.map(user => this.createUserRowHtml(user)).join('');
-    console.log("Generated HTML:", rowsHtml);
-    this.tableBody.innerHTML = rowsHtml;
+    this.users.forEach(user => {
+      const row = this.tableBody.insertRow();
+      row.innerHTML = this.createUserRowHtml(user);
+    });
   }
 
   /**
@@ -74,7 +74,6 @@ export class UserManager {
    * @param {object} userData - The new user's data from the form.
    */
   addUser(userData) {
-    console.log("Adding user:", userData);
     // Generate a new ID (in a real app, this would come from the backend)
     const newId = this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1;
     
@@ -152,7 +151,6 @@ export class UserManager {
     const createdDate = user.created.split('T')[0];
 
     return `
-      <tr>
         <td><input type="checkbox" name="user-select" value="${user.id}"></td>
         <td>${user.username}</td>
         <td>${user.email}</td>
@@ -175,7 +173,6 @@ export class UserManager {
             </button>
           </div>
         </td>
-      </tr>
     `;
   }
 }

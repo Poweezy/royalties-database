@@ -7,8 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const requiredFields = ['new-username', 'new-email', 'new-role', 'new-department', 'new-password', 'confirm-password'];
 
     const validateForm = () => {
+      const isEditMode = createUserBtn.innerHTML.includes('Update');
+
       let allValid = true;
-      for (const fieldId of requiredFields) {
+      const fieldsToValidate = isEditMode
+        ? ['new-username', 'new-email', 'new-role', 'new-department']
+        : requiredFields;
+
+      for (const fieldId of fieldsToValidate) {
         const field = document.getElementById(fieldId);
         if (!field || !field.value) {
           allValid = false;
@@ -16,13 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      const password = document.getElementById('new-password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
+      if (!isEditMode) {
+        const password = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
 
-      const passwordValidation = security.validatePassword(password);
+        const passwordValidation = security.validatePassword(password);
 
-      if (password !== confirmPassword || !passwordValidation.isValid) {
-        allValid = false;
+        if (password !== confirmPassword || !passwordValidation.isValid) {
+          allValid = false;
+        }
       }
 
       createUserBtn.disabled = !allValid;
