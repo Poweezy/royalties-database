@@ -51,6 +51,9 @@ class App {
 
         // Initialize app
         this.initializeServices();
+        this.idleWarningTimeout = null;
+        this.idleLogoutTimeout = null;
+        this.setupIdleTimeout();
         this.setupEventListeners();
         this.setupErrorHandling();
     }
@@ -588,6 +591,26 @@ class App {
         // This is a placeholder to prevent errors.
         // Auto-refresh logic can be implemented here in the future.
         console.log('Auto-refresh started (placeholder).');
+    }
+
+    setupIdleTimeout() {
+        const events = ['mousemove', 'keydown', 'scroll', 'click'];
+        events.forEach(event => {
+            window.addEventListener(event, () => this.resetIdleTimeout());
+        });
+        this.resetIdleTimeout();
+    }
+
+    resetIdleTimeout() {
+        clearTimeout(this.idleWarningTimeout);
+        clearTimeout(this.idleLogoutTimeout);
+
+        this.idleWarningTimeout = setTimeout(() => {
+            this.notificationManager.warning('You have been idle for a while. You will be logged out in 10 seconds.', 10000);
+            this.idleLogoutTimeout = setTimeout(() => {
+                authService.logout();
+            }, 10000);
+        }, 40000);
     }
 }
 
