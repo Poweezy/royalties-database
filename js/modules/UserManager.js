@@ -6,44 +6,39 @@
  */
 export class UserManager {
   constructor() {
-    // In a real application, this would be fetched from a server.
-    // For now, we use a static array based on the original HTML.
     this.users = [
-      {
-        id: 1,
-        username: 'admin',
-        email: 'admin@government.sz',
-        role: 'Administrator',
-        department: 'Administration',
-        status: 'Active',
-        lastLogin: '2024-02-15 09:15',
-        created: '2024-01-01',
-        twoFactorEnabled: true,
-      },
-      {
-        id: 2,
-        username: 'j.doe',
-        email: 'john.doe@government.sz',
-        role: 'Editor',
-        department: 'Operations',
-        status: 'Active',
-        lastLogin: '2024-02-14 16:30',
-        created: '2024-01-15',
-        twoFactorEnabled: false,
-      },
-      {
-        id: 3,
-        username: 'm.smith',
-        email: 'mary.smith@government.sz',
-        role: 'Auditor',
-        department: 'Audit & Compliance',
-        status: 'Inactive',
-        lastLogin: '2024-02-10 14:22',
-        created: '2024-02-01',
-        twoFactorEnabled: true,
-      },
+      { id: 1, username: 'admin', email: 'admin@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:15', created: '2024-01-01', twoFactorEnabled: true },
+      { id: 2, username: 'j.doe', email: 'john.doe@government.sz', role: 'Editor', department: 'Operations', status: 'Active', lastLogin: '2024-02-14 16:30', created: '2024-01-15', twoFactorEnabled: false },
+      { id: 3, username: 'm.smith', email: 'mary.smith@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Inactive', lastLogin: '2024-02-10 14:22', created: '2024-02-01', twoFactorEnabled: true },
     ];
     this.tableBody = document.getElementById('users-table-tbody');
+    this.addUserFormContainer = document.getElementById('add-user-form-container');
+    this.addUserForm = document.getElementById('add-user-form');
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    document.getElementById('add-user-btn')?.addEventListener('click', () => this.showAddUserForm());
+    document.getElementById('create-user-btn')?.addEventListener('click', (e) => this.handleSaveUser(e));
+    document.getElementById('cancel-add-user')?.addEventListener('click', () => this.hideAddUserForm());
+  }
+
+  showAddUserForm() {
+    this.addUserFormContainer.classList.add('form-visible');
+  }
+
+  hideAddUserForm() {
+    this.addUserFormContainer.classList.remove('form-visible');
+    this.addUserForm.reset();
+  }
+
+  handleSaveUser(event) {
+    event.preventDefault();
+    const username = document.getElementById('new-username').value;
+    const role = document.getElementById('new-user-role').value;
+    // In a real app, you'd have more fields and validation
+    this.addUser({ username, role, email: `${username}@example.com`, department: 'N/A' });
+    this.hideAddUserForm();
   }
 
   /**

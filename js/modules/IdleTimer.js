@@ -31,6 +31,9 @@ export class IdleTimer {
   }
 
   reset() {
+    const debugEl = document.getElementById('debug-timer');
+    if(debugEl) debugEl.textContent = `Timer reset at ${new Date().toLocaleTimeString()}`;
+
     if (this.isIdle) {
       this.isIdle = false;
       if (this.onActive) {

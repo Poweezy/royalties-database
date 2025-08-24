@@ -61,7 +61,11 @@ class App {
     }
 
     setupEventListeners() {
+        // Login/Logout
         document.getElementById('login-form')?.addEventListener('submit', (e) => this.handleLogin(e));
+        document.getElementById('confirm-logout-btn')?.addEventListener('click', () => this.handleLogout());
+
+        // Main Navigation
         document.querySelectorAll('nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -73,7 +77,34 @@ class App {
                 }
             });
         });
-        document.getElementById('confirm-logout-btn')?.addEventListener('click', () => this.handleLogout());
+
+        // Royalty Records Form
+        const royaltyFormContainer = document.getElementById('add-royalty-form-container');
+        document.getElementById('add-royalty-btn')?.addEventListener('click', () => {
+            royaltyFormContainer.classList.add('form-visible');
+        });
+        document.getElementById('cancel-add-royalty')?.addEventListener('click', () => {
+            royaltyFormContainer.classList.remove('form-visible');
+        });
+        document.getElementById('save-royalty-btn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('New royalty record saved.');
+            royaltyFormContainer.classList.remove('form-visible');
+        });
+
+        // Contract Management Form
+        const contractFormContainer = document.getElementById('add-contract-form-container');
+        document.getElementById('add-contract-btn')?.addEventListener('click', () => {
+            contractFormContainer.classList.add('form-visible');
+        });
+        document.getElementById('cancel-add-contract')?.addEventListener('click', () => {
+            contractFormContainer.classList.remove('form-visible');
+        });
+        document.querySelector('#add-contract-form button[name="Save Contract"]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('New contract saved.');
+            contractFormContainer.classList.remove('form-visible');
+        });
     }
 
     async handleLogin(event) {

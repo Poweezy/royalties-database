@@ -1339,6 +1339,10 @@ nav ul li a span.notification-badge {
   text-align: center;
 }
 
+.form-visible {
+  display: block !important;
+}
+
 /* Enhanced Table Styles for All Data Tables */
 .data-table {
   width: 100%;
