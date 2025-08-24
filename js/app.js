@@ -29,7 +29,47 @@ class App {
             currentSection: 'dashboard',
             users: [],
             royaltyRecords: [],
-            contracts: [],
+            contracts: [
+                {
+                    id: 1,
+                    entity: 'Kwalini Quarry',
+                    mineral: 'Quarried Stone',
+                    startDate: '2024-01-01',
+                    calculationType: 'tiered',
+                    calculationParams: {
+                        tiers: [
+                            { from: 0, to: 1000, rate: 15 },
+                            { from: 1001, to: 5000, rate: 12 },
+                            { from: 5001, to: null, rate: 10 }
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    entity: 'Maloma Colliery',
+                    mineral: 'Coal',
+                    startDate: '2023-12-01',
+                    calculationType: 'sliding_scale',
+                    calculationParams: {
+                        scales: [
+                            { from: 0, to: 50, rate: 20 },
+                            { from: 51, to: 100, rate: 25 },
+                            { from: 101, to: null, rate: 30 }
+                        ],
+                        priceSource: 'some_api_endpoint'
+                    }
+                },
+                {
+                    id: 3,
+                    entity: 'Mbabane Quarry',
+                    mineral: 'Gravel',
+                    startDate: '2023-06-15',
+                    calculationType: 'fixed',
+                    calculationParams: {
+                        rate: 18.50
+                    }
+                }
+            ],
             auditLog: [],
             notifications: [],
             charts: {},
@@ -498,8 +538,10 @@ class App {
     }
 
     showDashboard() {
+        console.log("Showing dashboard");
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
+        console.log("app-container display style:", document.getElementById('app-container').style.display);
         this.navigate('dashboard');
     }
 
