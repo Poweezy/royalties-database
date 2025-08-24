@@ -11,16 +11,10 @@ export class UserManager {
       { id: 2, username: 'j.doe', email: 'john.doe@government.sz', role: 'Editor', department: 'Operations', status: 'Active', lastLogin: '2024-02-14 16:30', created: '2024-01-15', twoFactorEnabled: false },
       { id: 3, username: 'm.smith', email: 'mary.smith@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Inactive', lastLogin: '2024-02-10 14:22', created: '2024-02-01', twoFactorEnabled: true },
     ];
-    this.tableBody = document.getElementById('users-table-tbody');
     this.addUserFormContainer = document.getElementById('add-user-form-container');
+    this.tableBody = document.getElementById('user-table')?.querySelector('tbody');
     this.addUserForm = document.getElementById('add-user-form');
-    this.setupEventListeners();
-  }
-
-  setupEventListeners() {
-    document.getElementById('add-user-btn')?.addEventListener('click', () => this.showAddUserForm());
-    document.getElementById('create-user-btn')?.addEventListener('click', (e) => this.handleSaveUser(e));
-    document.getElementById('cancel-add-user')?.addEventListener('click', () => this.hideAddUserForm());
+    this.editingUserId = null;
   }
 
   showAddUserForm() {
@@ -35,10 +29,20 @@ export class UserManager {
   handleSaveUser(event) {
     event.preventDefault();
     const username = document.getElementById('new-username').value;
+    const email = document.getElementById('new-email').value;
     const role = document.getElementById('new-user-role').value;
-    // In a real app, you'd have more fields and validation
-    this.addUser({ username, role, email: `${username}@example.com`, department: 'N/A' });
-    this.hideAddUserForm();
+    const department = document.getElementById('new-department').value;
+
+    if (username && email && role && department) {
+        const userData = { username, email, role, department };
+        if (this.editingUserId) {
+            this.updateUser(this.editingUserId, userData);
+            this.editingUserId = null;
+        } else {
+            this.addUser(userData);
+        }
+        this.hideAddUserForm();
+    }
   }
 
   /**

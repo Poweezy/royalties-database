@@ -1,0 +1,354 @@
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:26] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:27] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:28] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:28] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:28] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:30] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:30] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:32] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:32] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:34] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:34] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:36] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:39] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:39] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:41] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:41] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:44] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:44] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:46] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:48] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:49] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:49] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:51] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:53] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:53] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:55] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:53:56] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:53:56] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:03] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:54:04] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:11] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:12] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:12] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:54:12] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:54:12] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:12] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:54:12] "GET /js/modules/IconManager.js HTTP/1.1" 404 -
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51152)
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 731, in send_head
+    f = open(path, 'rb')
+        ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/app/js/modules/IconManager.js'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 1311, in finish_request
+    self.RequestHandlerClass(request, client_address, self,
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 672, in __init__
+    super().__init__(*args, **kwargs)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/socketserver.py", line 766, in __init__
+    self.handle()
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 676, in do_GET
+    f = self.send_head()
+        ^^^^^^^^^^^^^^^^
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 733, in send_head
+    self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/http/server.py", line 491, in send_error
+    self.wfile.write(body)
+  File "/home/jules/.pyenv/versions/3.12.11/lib/python3.12/socketserver.py", line 845, in write
+    self._sock.sendall(b)
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /royalties.html HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/modules/NotificationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /royalties.css HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/services/database.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/services/auth.service.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/modules/ChartManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/utils/security.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/utils/error-handler.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/modules/FileManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/modules/NavigationManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/semantic-search.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:18] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET /js/modules/UserManager.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET /js/modules/IdleTimer.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET /js/service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] code 404, message File not found
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET /js/core/app.js HTTP/1.1" 404 -
+127.0.0.1 - - [24/Aug/2025 12:54:19] "GET /favicon.svg HTTP/1.1" 200 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /royalties.html HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /royalties.css HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/utils/security.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/services/auth.service.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/utils/error-handler.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/services/database.service.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/NotificationManager.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/ChartManager.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/FileManager.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/NavigationManager.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/semantic-search.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/app.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/UserManager.js HTTP/1.1" 304 -
+127.0.0.1 - - [24/Aug/2025 12:55:00] "GET /js/modules/IdleTimer.js HTTP/1.1" 304 -

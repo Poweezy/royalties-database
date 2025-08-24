@@ -10,6 +10,7 @@ class DatabaseService {
         this.stores = {
             royalties: 'royalties',
             users: 'users',
+            contracts: 'contracts',
             offline: 'offline',
             settings: 'settings'
         };
@@ -38,6 +39,10 @@ class DatabaseService {
 
                 if (!db.objectStoreNames.contains(this.stores.users)) {
                     db.createObjectStore(this.stores.users, { keyPath: 'id' });
+                }
+
+                if (!db.objectStoreNames.contains(this.stores.contracts)) {
+                    db.createObjectStore(this.stores.contracts, { keyPath: 'id', autoIncrement: true });
                 }
 
                 if (!db.objectStoreNames.contains(this.stores.offline)) {

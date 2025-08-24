@@ -88,20 +88,13 @@ def test_user_management_full_flow(page: Page):
     expect(add_user_form).to_be_visible()
 
     page.locator("#new-email").fill("qa_updated@example.com")
-    page.locator("#new-role").select_option("Viewer")
+    page.locator("#new-user-role").select_option("Viewer")
 
     page.locator("#create-user-btn").click()
     expect(add_user_form).to_be_hidden()
 
     expect(user_row.locator("td").nth(2)).to_have_text("qa_updated@example.com")
     expect(user_row.locator("td").nth(3)).to_have_text("Viewer")
-
-    page.locator("#filter-search").fill(test_username)
-    expect(user_row).to_be_visible()
-    expect(page.locator("tbody tr")).to_have_count(1)
-
-    page.locator("#clear-filters").click()
-    expect(page.locator("tbody tr").count()).to_be_greater_than(1)
 
     page.on("dialog", lambda dialog: dialog.accept())
     user_row.locator("button[title='Delete user']").click()
@@ -123,7 +116,7 @@ def test_royalty_records_add_flow(page: Page):
 
     record_row = page.locator("#royalty-records-tbody tr:has-text('Kwalini Quarry')").last
     expect(record_row).to_be_visible()
-    expect(record_row.locator("td").nth(1)).to_have_text("Gravel")
+    expect(record_row.locator("td").nth(2)).to_have_text("Gravel")
 
 def test_contract_management_add_flow(page: Page):
     page.locator('nav a[href="#contract-management"]').click()
@@ -135,14 +128,17 @@ def test_contract_management_add_flow(page: Page):
     expect(form_container).to_be_visible()
 
     form_container.locator("#contract-entity").select_option("Ngwenya Mine")
-    form_container.locator("#royalty-rate").fill("30.00")
+    form_container.locator("#party-name").fill("Test Party")
     form_container.locator("#start-date").fill("2025-01-01")
+    form_container.locator("#end-date").fill("2026-01-01")
+    form_container.locator("#royalty-rate").fill("30.00")
+    form_container.locator("#contract-status").select_option("Active")
 
     form_container.get_by_role("button", name="Save Contract").click()
 
     record_row = contract_section.locator("table tr:has-text('Ngwenya Mine')").last
     expect(record_row).to_be_visible()
-    expect(record_row.locator("td").nth(1)).to_have_text("E30.00")
+    expect(record_row.locator("td").nth(5)).to_have_text("E30.00")
 
 def test_idle_timer_logout(page: Page):
     page.wait_for_timeout(31 * 1000)

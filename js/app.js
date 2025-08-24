@@ -49,6 +49,9 @@ class App {
         this.state.currentUser = authService.getCurrentUser();
         this.updateUserInfo();
         await this.chartManager.initializeCharts();
+        this.userManager.renderUsers();
+        await this.renderRoyaltyRecords();
+        await this.renderContracts();
         this.#setupIdleTimer();
         this.showDashboard();
     }
@@ -86,10 +89,22 @@ class App {
         document.getElementById('cancel-add-royalty')?.addEventListener('click', () => {
             royaltyFormContainer.classList.remove('form-visible');
         });
-        document.getElementById('save-royalty-btn')?.addEventListener('click', (e) => {
+        document.getElementById('save-royalty-btn')?.addEventListener('click', async (e) => {
             e.preventDefault();
-            console.log('New royalty record saved.');
-            royaltyFormContainer.classList.remove('form-visible');
+            const entity = document.getElementById('entity').value;
+            const mineral = document.getElementById('mineral').value;
+            const volume = document.getElementById('volume').value;
+            const tariff = document.getElementById('tariff').value;
+            const paymentDate = document.getElementById('payment-date').value;
+
+            if (entity && mineral && volume && tariff && paymentDate) {
+                await dbService.add('royalties', { entity, mineral, volume, tariff, paymentDate });
+                await this.renderRoyaltyRecords();
+                royaltyFormContainer.classList.remove('form-visible');
+                document.getElementById('add-royalty-form').reset();
+            } else {
+                this.notificationManager.show('Please fill in all fields.', 'error');
+            }
         });
 
         // Contract Management Form
@@ -100,10 +115,50 @@ class App {
         document.getElementById('cancel-add-contract')?.addEventListener('click', () => {
             contractFormContainer.classList.remove('form-visible');
         });
-        document.querySelector('#add-contract-form button[name="Save Contract"]')?.addEventListener('click', (e) => {
+        document.querySelector('#add-contract-form button[name="Save Contract"]')?.addEventListener('click', async (e) => {
             e.preventDefault();
-            console.log('New contract saved.');
-            contractFormContainer.classList.remove('form-visible');
+            const entity = document.getElementById('contract-entity').value;
+            const partyName = document.getElementById('party-name').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const royaltyRate = document.getElementById('royalty-rate').value;
+            const status = document.getElementById('contract-status').value;
+
+            if (entity && partyName && startDate && endDate && royaltyRate && status) {
+                await dbService.add('contracts', { entity, partyName, startDate, endDate, royaltyRate, status });
+                await this.renderContracts();
+                contractFormContainer.classList.remove('form-visible');
+                document.getElementById('add-contract-form').reset();
+            } else {
+                this.notificationManager.show('Please fill in all fields.', 'error');
+            }
+        });
+
+        // User Management Form
+        document.getElementById('add-user-btn')?.addEventListener('click', () => this.userManager.showAddUserForm());
+        document.getElementById('create-user-btn')?.addEventListener('click', (e) => this.userManager.handleSaveUser(e));
+        document.getElementById('cancel-add-user')?.addEventListener('click', () => this.userManager.hideAddUserForm());
+
+        // User Management table actions
+        const userTableBody = document.getElementById('user-table')?.querySelector('tbody');
+        userTableBody?.addEventListener('click', (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const userId = parseInt(target.dataset.userId, 10);
+            if (target.title === 'Edit user') {
+                const user = this.userManager.getUser(userId);
+                if (user) {
+                    document.getElementById('new-username').value = user.username;
+                    document.getElementById('new-email').value = user.email;
+                    document.getElementById('new-user-role').value = user.role;
+                    document.getElementById('new-department').value = user.department;
+                    this.userManager.editingUserId = userId; // Set the editing user id
+                    this.userManager.showAddUserForm();
+                }
+            } else if (target.title === 'Delete user') {
+                this.userManager.deleteUser(userId);
+            }
         });
     }
 
@@ -173,6 +228,73 @@ class App {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
         this.navigationManager.showSection('dashboard');
+    }
+
+    async renderRoyaltyRecords() {
+        const royaltyTableBody = document.getElementById('royalty-table').querySelector('tbody');
+        if (!royaltyTableBody) {
+            console.error('Royalty table body not found!');
+            return;
+        }
+
+        const records = await dbService.getAll('royalties');
+
+        royaltyTableBody.innerHTML = '';
+
+        if (records.length === 0) {
+            royaltyTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No royalty records found.</td></tr>';
+            return;
+        }
+
+        const rowsHtml = records.map(record => `
+            <tr>
+                <td>${record.id}</td>
+                <td>${record.entity}</td>
+                <td>${record.mineral}</td>
+                <td>${record.paymentDate}</td>
+                <td>${record.volume * record.tariff}</td>
+                <td>Paid</td>
+                <td>
+                    <button class="btn btn-info btn-sm">View</button>
+                </td>
+            </tr>
+        `).join('');
+
+        royaltyTableBody.innerHTML = rowsHtml;
+    }
+
+    async renderContracts() {
+        const contractTableBody = document.getElementById('contract-table').querySelector('tbody');
+        if (!contractTableBody) {
+            console.error('Contract table body not found!');
+            return;
+        }
+
+        const contracts = await dbService.getAll('contracts');
+
+        contractTableBody.innerHTML = '';
+
+        if (contracts.length === 0) {
+            contractTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No contracts found.</td></tr>';
+            return;
+        }
+
+        const rowsHtml = contracts.map(contract => `
+            <tr>
+                <td>${contract.id}</td>
+                <td>${contract.entity}</td>
+                <td>${contract.partyName}</td>
+                <td>${contract.startDate}</td>
+                <td>${contract.endDate}</td>
+                <td>E${parseFloat(contract.royaltyRate).toFixed(2)}</td>
+                <td>${contract.status}</td>
+                <td>
+                    <button class="btn btn-info btn-sm">View</button>
+                </td>
+            </tr>
+        `).join('');
+
+        contractTableBody.innerHTML = rowsHtml;
     }
 }
 
