@@ -10,6 +10,8 @@ export class NotificationManager {
   }
 
   show(message, type = 'info', duration = 5000) {
+    this.clearExisting();
+
     const notification = this.createElement(message, type);
     document.body.appendChild(notification);
     this.notifications.add(notification);
@@ -26,7 +28,7 @@ export class NotificationManager {
   createElement(message, type) {
     const config = this.types[type] || this.types.info;
     const notification = document.createElement('div');
-    notification.className = `notification-toast notification-${type}`;
+    notification.className = 'notification-toast';
     
     notification.style.cssText = `
       position: fixed; top: 20px; right: 20px; z-index: 10000;

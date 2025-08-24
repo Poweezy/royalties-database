@@ -1524,6 +1524,62 @@ nav ul li a span.notification-badge {
   box-shadow: var(--shadow-md);
 }
 
+/* Idle Timeout Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: var(--background-white);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.modal-header {
+  margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+  color: var(--warning-color);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-header i {
+  margin-right: 0.5rem;
+}
+
+.modal-body p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+#idle-countdown {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.modal-footer {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 /* Responsive Table Improvements */
 @media (max-width: 1200px) {
   .data-table {

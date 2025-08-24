@@ -1,26 +1,3 @@
-import { dbService } from '../services/database.service.js';
-
-const noDataPlugin = {
-  id: 'noData',
-  afterDraw: (chart) => {
-    if (chart.data.datasets.every(dataset => dataset.data.length === 0)) {
-      const { ctx, chartArea: { left, top, right, bottom } } = chart;
-      const width = right - left;
-      const height = bottom - top;
-
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = "16px 'Inter', sans-serif";
-      ctx.fillStyle = '#64748b';
-      ctx.fillText('No data available to display chart.', left + width / 2, top + height / 2);
-      ctx.restore();
-    }
-  }
-};
-
-Chart.register(noDataPlugin);
-
 export class ChartManager {
   // Mock data for metric cards to simulate filtering
   #metricData = {
@@ -38,15 +15,13 @@ export class ChartManager {
 
   constructor() {
     this.charts = new Map();
-    this.chartData = null;
   }
 
   async initializeCharts() {
     try {
-      this.chartData = await this._prepareChartData();
       await Promise.all([
-        this.createRevenueChart('line'),
-        this.createProductionChart('pie')
+        this.createRevenueChart(),
+        this.createProductionChart()
       ]);
     } catch (error) {
       console.warn('Chart initialization failed:', error);
@@ -54,54 +29,23 @@ export class ChartManager {
     }
   }
 
-  async _prepareChartData() {
-    const records = await dbService.getAll('royalties');
-
-    // Prepare revenue data (aggregated by month)
-    const revenueByMonth = records.reduce((acc, record) => {
-      const month = new Date(record.date).toLocaleString('default', { month: 'short' });
-      const revenue = record.volume * record.tariff;
-      acc[month] = (acc[month] || 0) + revenue;
-      return acc;
-    }, {});
-
-    const revenueLabels = Object.keys(revenueByMonth);
-    const revenueValues = Object.values(revenueByMonth);
-
-    // Prepare production data (aggregated by entity)
-    const productionByEntity = records.reduce((acc, record) => {
-      const entity = record.entity;
-      acc[entity] = (acc[entity] || 0) + record.volume;
-      return acc;
-    }, {});
-
-    const productionLabels = Object.keys(productionByEntity);
-    const productionValues = Object.values(productionByEntity);
-
-    return {
-      revenueData: { labels: revenueLabels, data: revenueValues },
-      productionData: { labels: productionLabels, data: productionValues }
-    };
-  }
-
-  async createRevenueChart(type = 'line') {
+  async createRevenueChart() {
     const canvas = document.getElementById('revenue-trends-chart');
-    if (!canvas || typeof Chart === 'undefined' || !this.chartData) return;
+    if (!canvas || typeof Chart === 'undefined') return;
 
-    const { labels, data } = this.chartData.revenueData;
     const ctx = canvas.getContext('2d');
     this.charts.get('revenue')?.destroy();
     
     const chart = new Chart(ctx, {
-      type: (type === 'area') ? 'line' : type,
+      type: 'line',
       data: {
-        labels: labels,
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
           label: 'Revenue (E)',
-          data: data,
+          data: [500000, 600000, 750000, 700000, 800000, 900000],
           borderColor: '#1a365d',
-          backgroundColor: type === 'area' ? 'rgba(26, 54, 93, 0.2)' : '#2563eb',
-          fill: type === 'area',
+          backgroundColor: 'rgba(26, 54, 93, 0.2)',
+          fill: true,
           tension: 0.4
         }]
       },
@@ -123,21 +67,20 @@ export class ChartManager {
     this.charts.set('revenue', chart);
   }
 
-  async createProductionChart(type = 'pie') {
+  async createProductionChart() {
     const canvas = document.getElementById('production-by-entity-chart');
-    if (!canvas || typeof Chart === 'undefined' || !this.chartData) return;
+    if (!canvas || typeof Chart === 'undefined') return;
 
-    const { labels, data } = this.chartData.productionData;
     const ctx = canvas.getContext('2d');
     this.charts.get('production')?.destroy();
     
     const chart = new Chart(ctx, {
-      type: type,
+      type: 'pie',
       data: {
-        labels: labels,
+        labels: ['Kwalini Quarry', 'Mbabane Quarry', 'Sidvokodvo Quarry', 'Maloma Colliery', 'Ngwenya Mine', 'Malolotja Mine'],
         datasets: [{
           label: 'Production Volume (m³)',
-          data: data,
+          data: [45000, 38000, 42000, 55000, 28000, 32000],
           backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
           borderColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
           borderWidth: 2
@@ -153,7 +96,7 @@ export class ChartManager {
               label: (context) => {
                 const { label, parsed } = context;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = total > 0 ? ((parsed / total) * 100).toFixed(1) : 0;
+                const percentage = ((parsed / total) * 100).toFixed(1);
                 return `${label}: ${parsed.toLocaleString()} m³ (${percentage}%)`;
               }
             }
@@ -175,6 +118,11 @@ export class ChartManager {
     });
   }
 
+  /**
+   * Updates a dashboard metric card with new data based on a filter.
+   * @param {string} metricId - The root ID of the metric to update (e.g., 'royalties').
+   * @param {string} filter - The selected filter value (e.g., '2024').
+   */
   updateMetric(metricId, filter) {
     const data = this.#metricData[metricId]?.[filter];
     if (!data) {
@@ -182,6 +130,7 @@ export class ChartManager {
       return;
     }
 
+    // Find the metric card using the dropdown's ID
     const metricSelect = document.getElementById(`${metricId}-period`);
     const metricCard = metricSelect?.closest('.metric-card');
 
@@ -207,34 +156,5 @@ export class ChartManager {
   destroyAll() {
     this.charts.forEach(chart => chart.destroy());
     this.charts.clear();
-  }
-
-  async changeChartType(chartId, newType) {
-    if (chartId.includes('revenue')) {
-      await this.createRevenueChart(newType);
-    } else if (chartId.includes('production')) {
-      await this.createProductionChart(newType);
-    }
-  }
-
-  async refreshCharts() {
-    try {
-      this.chartData = await this._prepareChartData();
-
-      // Re-create charts with their current types
-      const revenueChart = this.charts.get('revenue');
-      const productionChart = this.charts.get('production');
-
-      const revenueType = revenueChart ? revenueChart.config.type : 'line';
-      const productionType = productionChart ? productionChart.config.type : 'pie';
-
-      await Promise.all([
-        this.createRevenueChart(revenueType),
-        this.createProductionChart(productionType)
-      ]);
-    } catch (error) {
-      console.warn('Chart refresh failed:', error);
-      this.showFallbackCharts();
-    }
   }
 }
