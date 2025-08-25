@@ -1,4 +1,18 @@
 export class ChartManager {
+  // Mock data for metric cards to simulate filtering
+  #metricData = {
+    'royalties': {
+      '2024': { value: 'E 992,500.00', trend: '<i class="fas fa-arrow-up trend-positive"></i> +15.8% from last year' },
+      '2023': { value: 'E 857,100.00', trend: '<i class="fas fa-arrow-down trend-negative"></i> -5.2% from 2022' },
+      'all': { value: 'E 1,849,600.00', trend: 'Covering all available time' }
+    },
+    'entities': {
+      'current': { value: '6', trend: '<i class="fas fa-arrow-up trend-positive"></i> +2 new this month' },
+      'last': { value: '4', trend: '<i class="fas fa-minus"></i> No change from previous quarter' },
+      'ytd': { value: '8', trend: '<i class="fas fa-arrow-up trend-positive"></i> +4 new this year' }
+    }
+  };
+
   constructor() {
     this.charts = new Map();
   }
@@ -102,6 +116,50 @@ export class ChartManager {
         container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">Chart data will be loaded shortly...</p>';
       }
     });
+  }
+
+  /**
+   * Updates a dashboard metric card with new data based on a filter.
+   * @param {string} metricId - The root ID of the metric to update (e.g., 'royalties').
+   * @param {string} filter - The selected filter value (e.g., '2024').
+   */
+  updateMetric(metricId, filter) {
+    const data = this.#metricData[metricId]?.[filter];
+    if (!data) {
+      console.warn(`No data found for metric '${metricId}' with filter '${filter}'`);
+      return;
+    }
+
+    // Find the metric card using the dropdown's ID
+    const metricSelect = document.getElementById(`${metricId}-period`);
+    const metricCard = metricSelect?.closest('.metric-card');
+
+    if (!metricCard) {
+        console.error(`Could not find metric card for ID: ${metricId}`);
+        return;
+    }
+
+    const valueElement = metricCard.querySelector('.card-body p');
+    const trendElement = metricCard.querySelector('.card-body .trend-indicator');
+
+    if (valueElement) {
+      valueElement.textContent = data.value;
+    } else {
+      console.error(`Value element not found in metric card for '${metricId}'`);
+    }
+
+    if (trendElement) {
+      trendElement.innerHTML = data.trend;
+    }
+  }
+
+  getChart(chartId) {
+    if (chartId === 'revenue-trends-chart') {
+        return this.charts.get('revenue');
+    } else if (chartId === 'production-by-entity-chart') {
+        return this.charts.get('production');
+    }
+    return null;
   }
 
   destroyAll() {

@@ -18,7 +18,7 @@ import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
-import { IconManager } from './modules/IconManager.js';
+import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 
 class App {
@@ -29,7 +29,47 @@ class App {
             currentSection: 'dashboard',
             users: [],
             royaltyRecords: [],
-            contracts: [],
+            contracts: [
+                {
+                    id: 1,
+                    entity: 'Kwalini Quarry',
+                    mineral: 'Quarried Stone',
+                    startDate: '2024-01-01',
+                    calculationType: 'tiered',
+                    calculationParams: {
+                        tiers: [
+                            { from: 0, to: 1000, rate: 15 },
+                            { from: 1001, to: 5000, rate: 12 },
+                            { from: 5001, to: null, rate: 10 }
+                        ]
+                    }
+                },
+                {
+                    id: 2,
+                    entity: 'Maloma Colliery',
+                    mineral: 'Coal',
+                    startDate: '2023-12-01',
+                    calculationType: 'sliding_scale',
+                    calculationParams: {
+                        scales: [
+                            { from: 0, to: 50, rate: 20 },
+                            { from: 51, to: 100, rate: 25 },
+                            { from: 101, to: null, rate: 30 }
+                        ],
+                        priceSource: 'some_api_endpoint'
+                    }
+                },
+                {
+                    id: 3,
+                    entity: 'Mbabane Quarry',
+                    mineral: 'Gravel',
+                    startDate: '2023-06-15',
+                    calculationType: 'fixed',
+                    calculationParams: {
+                        rate: 18.50
+                    }
+                }
+            ],
             auditLog: [],
             notifications: [],
             charts: {},
@@ -46,11 +86,14 @@ class App {
         this.errorHandler = new ErrorHandler(this.notificationManager);
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
-        this.iconManager = new IconManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
+        this.userManager = new UserManager();
 
         // Initialize app
         this.initializeServices();
+        this.idleWarningTimeout = null;
+        this.idleLogoutTimeout = null;
+        this.setupIdleTimeout();
         this.setupEventListeners();
         this.setupErrorHandling();
     }
@@ -83,6 +126,7 @@ class App {
      * Initialize application services
      */
     async initializeServices() {
+        let hasError = false;
         try {
             // Show loading screen
             this.showLoadingScreen();
@@ -101,9 +145,19 @@ class App {
                 this.showLogin();
             }
         } catch (error) {
+            hasError = true;
             this.errorHandler.handleError(error);
+            const loadingContent = document.querySelector('.loading-content');
+            if (loadingContent) {
+                loadingContent.innerHTML = `
+                    <p style="color: white; font-weight: bold;">Application failed to start.</p>
+                    <p style="color: white;">Please try refreshing the page.</p>
+                `;
+            }
         } finally {
-            this.hideLoadingScreen();
+            if (!hasError) {
+                this.hideLoadingScreen();
+            }
         }
     }
 
@@ -117,7 +171,7 @@ class App {
             
             // Initialize dashboard
             await this.initializeDashboard();
-            
+
             // Show dashboard
             this.showDashboard();
             
@@ -222,6 +276,7 @@ class App {
             // Update UI with demo data
             this.updateDashboardMetrics(royaltyData, entityData, complianceData);
             this.updateRecentActivity(recentActivity);
+            this.updateLeaderboards();
             
             // Initialize charts with demo data
             await this.chartManager.initializeCharts({
@@ -258,18 +313,225 @@ class App {
         // Logout
         document.querySelector('a[href="#logout"]')?.addEventListener('click', (e) => {
             e.preventDefault();
+            this.navigate('logout');
+        });
+
+        // Dashboard-specific listeners
+        this.#setupDashboardListeners();
+        this.#setupUserManagementListeners();
+
+        // Confirm Logout
+        document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
             authService.logout();
         });
+    }
+
+    /**
+     * Sets up event listeners for the User Management section.
+     */
+    #setupUserManagementListeners() {
+        const addUserBtn = document.getElementById('add-user-btn');
+        const addUserFormContainer = document.getElementById('add-user-form-container');
+        const addUserForm = document.getElementById('add-user-form');
+        const closeFormBtn = document.getElementById('close-add-user-form');
+        const cancelFormBtn = document.getElementById('cancel-add-user');
+        const formTitle = addUserFormContainer?.querySelector('h4');
+        const createUserBtn = document.getElementById('create-user-btn');
+
+        const showForm = (isEditMode = false, user = null) => {
+            if (isEditMode && user) {
+                formTitle.innerHTML = '<i class="fas fa-user-edit" aria-label="Edit User icon"></i> Edit User Account';
+                createUserBtn.innerHTML = '<i class="fas fa-save" aria-label="Save icon"></i> Update User';
+                this.#populateUserForm(user);
+                addUserForm.dataset.editingId = user.id;
+            } else {
+                formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
+                createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
+                delete addUserForm.dataset.editingId;
+            }
+            addUserFormContainer.style.display = 'block';
+        };
+
+        const hideForm = () => {
+            addUserFormContainer.style.display = 'none';
+            addUserForm.reset();
+            // Reset form to "Add" mode
+            formTitle.innerHTML = '<i class="fas fa-user-plus" aria-label="Add New User icon"></i> Add New User Account';
+            createUserBtn.innerHTML = '<i class="fas fa-user-plus" aria-label="Create User icon"></i> Create User';
+            delete addUserForm.dataset.editingId;
+        };
+
+        addUserBtn?.addEventListener('click', () => showForm(false));
+        closeFormBtn?.addEventListener('click', hideForm);
+        cancelFormBtn?.addEventListener('click', hideForm);
+
+        addUserForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const userData = {
+                username: formData.get('new-username'),
+                email: formData.get('new-email'),
+                role: formData.get('new-role'),
+                department: formData.get('new-department'),
+            };
+
+            // Basic validation
+            if (!userData.username || !userData.email || !userData.role || !userData.department) {
+                this.notificationManager.show('Please fill all required fields.', 'error');
+                return;
+            }
+
+            const editingId = e.target.dataset.editingId;
+            if (editingId) {
+                // Update existing user
+                this.userManager.updateUser(parseInt(editingId, 10), userData);
+                this.notificationManager.show(`User '${userData.username}' updated successfully.`, 'success');
+            } else {
+                // Add new user
+                this.userManager.addUser(userData);
+                this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
+            }
+
+            hideForm();
+        });
+
+        const userTableBody = document.getElementById('users-table-tbody');
+        userTableBody?.addEventListener('click', (e) => {
+            const targetButton = e.target.closest('button[data-user-id]');
+            if (!targetButton) return;
+
+            const userId = parseInt(targetButton.dataset.userId, 10);
+
+            // Handle Edit
+            if (targetButton.title.includes('Edit')) {
+                const user = this.userManager.getUser(userId);
+                if (user) {
+                    showForm(true, user);
+                } else {
+                    this.notificationManager.show(`User with ID ${userId} not found.`, 'error');
+                }
+            }
+
+            // Handle Delete
+            if (targetButton.title.includes('Delete')) {
+                const user = this.userManager.getUser(userId);
+                if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
+                    this.userManager.deleteUser(userId);
+                    this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
+                }
+            }
+        });
+    }
+
+    /**
+     * Populates the user form with data for editing.
+     * @param {object} user - The user object to populate the form with.
+     */
+    #populateUserForm(user) {
+        document.getElementById('new-username').value = user.username;
+        document.getElementById('new-email').value = user.email;
+        document.getElementById('new-role').value = user.role;
+        document.getElementById('new-department').value = user.department;
+        // Password fields are intentionally left blank for security
+        document.getElementById('new-password').placeholder = "Enter new password (optional)";
+        document.getElementById('confirm-password').placeholder = "Confirm new password";
+    }
+
+    /**
+     * Sets up event listeners for the dashboard widgets.
+     */
+    #setupDashboardListeners() {
+        const metricSelects = [
+            document.getElementById('royalties-period'),
+            document.getElementById('entities-period')
+        ];
+
+        metricSelects.forEach(select => {
+            if (select) {
+                select.addEventListener('change', (e) => {
+                    const metricId = e.target.id.split('-')[0]; // e.g., 'royalties' from 'royalties-period'
+                    const filterValue = e.target.value;
+                    this.chartManager.updateMetric(metricId, filterValue);
+                });
+            }
+        });
+
+        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
+        if (activeEntitiesCard) {
+            activeEntitiesCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'active';
+                    this.userManager.filterUsers({ status: 'active' });
+                }
+            });
+        }
+
+        const exportChartBtns = document.querySelectorAll('.export-chart-btn');
+        exportChartBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chartId;
+                const chart = this.chartManager.getChart(chartId);
+                if (chart) {
+                    const data = chart.data.datasets[0].data;
+                    const labels = chart.data.labels;
+                    const ws_data = [
+                        labels,
+                        data
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                    XLSX.writeFile(wb, `${chartId}.xlsx`);
+                }
+            });
+        });
+
+        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
+        if (pendingApprovalsCard) {
+            pendingApprovalsCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'inactive';
+                    this.userManager.filterUsers({ status: 'inactive' });
+                }
+            });
+        }
     }
 
     /**
      * Handle login form submission
      */
     async handleLogin(form) {
-        try {
-            const username = form.username.value;
-            const password = form.password.value;
+        const username = form.username.value.trim();
+        const password = form.password.value.trim();
+        const usernameError = document.getElementById('username-error');
+        const passwordError = document.getElementById('password-error');
+        let isValid = true;
 
+        // Reset errors
+        usernameError.style.display = 'none';
+        passwordError.style.display = 'none';
+
+        if (!username) {
+            usernameError.textContent = 'Username is required';
+            usernameError.style.display = 'block';
+            isValid = false;
+        }
+
+        if (!password) {
+            passwordError.textContent = 'Password is required';
+            passwordError.style.display = 'block';
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return;
+        }
+
+        try {
             await authService.login(username, password);
             this.showDashboard();
         } catch (error) {
@@ -291,6 +553,11 @@ class App {
         const section = document.getElementById(route);
         if (section) {
             section.style.display = 'block';
+        }
+
+        // Render components specific to the route
+        if (route === 'user-management') {
+            this.userManager.renderUsers();
         }
 
         // Update active navigation state
@@ -316,8 +583,10 @@ class App {
     }
 
     showDashboard() {
+        console.log("Showing dashboard");
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
+        console.log("app-container display style:", document.getElementById('app-container').style.display);
         this.navigate('dashboard');
     }
 
@@ -366,6 +635,30 @@ class App {
     /**
      * Update recent activity
      */
+    updateLeaderboards() {
+        const topEntitiesList = document.getElementById('top-entities-list');
+        const overdueEntitiesList = document.getElementById('overdue-entities-list');
+
+        if (topEntitiesList) {
+            const topEntities = [
+                { name: 'Kwalini Quarry', amount: 'E 500,000' },
+                { name: 'Maloma Colliery', amount: 'E 450,000' },
+                { name: 'Mbabane Quarry', amount: 'E 300,000' },
+                { name: 'Ngwenya Mine', amount: 'E 250,000' },
+                { name: 'Sidvokodvo Quarry', amount: 'E 200,000' },
+            ];
+            topEntitiesList.innerHTML = topEntities.map(e => `<li>${e.name}<span>${e.amount}</span></li>`).join('');
+        }
+
+        if (overdueEntitiesList) {
+            const overdueEntities = [
+                { name: 'Malolotja Mine', days: 15 },
+                { name: 'Ngwenya Mine', days: 5 },
+            ];
+            overdueEntitiesList.innerHTML = overdueEntities.map(e => `<li>${e.name}<span>${e.days} days overdue</span></li>`).join('');
+        }
+    }
+
     updateRecentActivity(activities) {
         const container = document.getElementById('recent-activity');
         if (!container) return;
@@ -400,6 +693,35 @@ class App {
                 </div>
             `;
         }).join('');
+    }
+
+    /**
+     * Placeholder for auto-refresh functionality
+     */
+    startAutoRefresh() {
+        // This is a placeholder to prevent errors.
+        // Auto-refresh logic can be implemented here in the future.
+        console.log('Auto-refresh started (placeholder).');
+    }
+
+    setupIdleTimeout() {
+        const events = ['mousemove', 'keydown', 'scroll', 'click'];
+        events.forEach(event => {
+            window.addEventListener(event, () => this.resetIdleTimeout());
+        });
+        this.resetIdleTimeout();
+    }
+
+    resetIdleTimeout() {
+        clearTimeout(this.idleWarningTimeout);
+        clearTimeout(this.idleLogoutTimeout);
+
+        this.idleWarningTimeout = setTimeout(() => {
+            this.notificationManager.warning('You have been idle for a while. You will be logged out in 10 seconds.', 10000);
+            this.idleLogoutTimeout = setTimeout(() => {
+                authService.logout();
+            }, 10000);
+        }, 40000);
     }
 }
 
