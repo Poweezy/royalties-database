@@ -1,121 +1,187 @@
+/**
+ * UserManager Module
+ *
+ * This module encapsulates all logic for managing users, including
+ * fetching, rendering, adding, updating, and deleting users.
+ */
 export class UserManager {
-  constructor(notificationManager) {
-    this.notificationManager = notificationManager;
-    this.setupEventListeners();
+  constructor() {
+    // In a real application, this would be fetched from a server.
+    // For now, we use a static array based on the original HTML.
+    this.users = [
+      {
+        id: 1,
+        username: 'admin',
+        email: 'admin@government.sz',
+        role: 'Administrator',
+        department: 'Administration',
+        status: 'Active',
+        lastLogin: '2024-02-15 09:15',
+        created: '2024-01-01',
+        twoFactorEnabled: true,
+      },
+      {
+        id: 2,
+        username: 'j.doe',
+        email: 'john.doe@government.sz',
+        role: 'Editor',
+        department: 'Operations',
+        status: 'Active',
+        lastLogin: '2024-02-14 16:30',
+        created: '2024-01-15',
+        twoFactorEnabled: false,
+      },
+      {
+        id: 3,
+        username: 'm.smith',
+        email: 'mary.smith@government.sz',
+        role: 'Auditor',
+        department: 'Audit & Compliance',
+        status: 'Inactive',
+        lastLogin: '2024-02-10 14:22',
+        created: '2024-02-01',
+        twoFactorEnabled: true,
+      },
+    ];
+    this.tableBody = document.getElementById('users-table-tbody');
   }
 
-  setupEventListeners() {
-    this.setupButtons();
-    this.setupTabSwitching();
+  /**
+   * Renders the list of users into the user management table.
+   */
+  filterUsers(filters) {
+    let filteredUsers = this.users;
+    if (filters.status) {
+        filteredUsers = filteredUsers.filter(user => user.status.toLowerCase() === filters.status.toLowerCase());
+    }
+    this.renderUsers(filteredUsers);
   }
 
-  setupButtons() {
-    const buttons = {
-      'View Audit Log': this.handleViewAuditLog.bind(this),
-      'Export Report': this.handleExportReport.bind(this),
-      'Add User': this.handleAddUser.bind(this)
-    };
-
-    Object.entries(buttons).forEach(([text, handler]) => {
-      const button = Array.from(document.querySelectorAll('#user-management .page-actions .btn'))
-        .find(btn => btn.textContent.includes(text));
-      
-      if (button) {
-        button.addEventListener('click', handler);
-      }
-    });
-  }
-
-  async handleViewAuditLog(event) {
-    event.preventDefault();
-    
-    const auditLogSection = document.querySelector('#user-management .user-form-container:last-child');
-    if (!auditLogSection) {
-      this.notificationManager.error('Security Audit Log section not found');
+  renderUsers(usersToRender) {
+    const users = usersToRender || this.users;
+    if (!this.tableBody) {
+      console.error('User table body not found!');
       return;
     }
 
-    await this.sleep(300);
-    this.scrollToElement(auditLogSection);
-    this.highlightElement(auditLogSection);
-    this.notificationManager.info('Scrolled to Security Audit Log section');
-  }
+    // Clear existing rows
+    this.tableBody.innerHTML = '';
 
-  async handleExportReport(event) {
-    event.preventDefault();
-    
-    this.notificationManager.info('Generating user management report...');
-    await this.sleep(1500);
-    
-    this.notificationManager.success('User management report exported successfully!');
-    this.downloadFile('user_management_report.csv', 'User Management Report\nGenerated on: ' + new Date().toLocaleString());
-  }
+    if (users.length === 0) {
+      this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users found.</td></tr>`;
+      return;
+    }
 
-  handleAddUser(event) {
-    event.preventDefault();
-    
-    const addUserForm = document.querySelector('#user-management .user-form-container:first-child');
-    if (!addUserForm) return;
-
-    this.scrollToElement(addUserForm);
-    this.highlightElement(addUserForm, 'success');
-    
-    setTimeout(() => {
-      addUserForm.querySelector('input')?.focus();
-    }, 500);
-  }
-
-  setupTabSwitching() {
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.tab-btn, .regulatory-tabs .tab-btn')) {
-        this.handleTabSwitch(event);
-      }
+    users.forEach(user => {
+      const row = this.tableBody.insertRow();
+      row.innerHTML = this.createUserRowHtml(user);
     });
   }
 
-  handleTabSwitch(event) {
-    const button = event.target;
-    const tabId = button.getAttribute('data-tab');
-    const parentContainer = button.closest('.user-form-container, .regulatory-section');
+  /**
+   * Adds a new user to the list and re-renders the table.
+   * @param {object} userData - The new user's data from the form.
+   */
+  addUser(userData) {
+    // Generate a new ID (in a real app, this would come from the backend)
+    const newId = this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1;
     
-    if (!parentContainer || !tabId) return;
-
-    parentContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    parentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    button.classList.add('active');
-    parentContainer.querySelector(tabId)?.classList.add('active');
-  }
-
-  scrollToElement(element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  highlightElement(element, type = 'primary') {
-    const colors = {
-      primary: { bg: 'rgba(26, 54, 93, 0.05)', border: '#1a365d' },
-      success: { bg: 'rgba(56, 161, 105, 0.05)', border: 'var(--success-color)' }
+    const newUser = {
+      id: newId,
+      username: userData.username,
+      email: userData.email,
+      role: userData.role,
+      department: userData.department,
+      status: 'Active', // Default status
+      lastLogin: 'Never',
+      created: new Date().toISOString().split('T')[0], // Today's date
+      twoFactorEnabled: userData.forcePasswordChange || false, // Example logic
     };
-    
-    const color = colors[type];
-    element.style.transition = 'background-color 0.3s ease, border-color 0.3s ease';
-    element.style.backgroundColor = color.bg;
-    element.style.borderColor = color.border;
-    
-    setTimeout(() => {
-      element.style.backgroundColor = '';
-      element.style.borderColor = '';
-    }, 3000);
+
+    this.users.push(newUser);
+    this.renderUsers();
   }
 
-  downloadFile(filename, content) {
-    const link = document.createElement('a');
-    link.href = `data:text/csv;charset=utf-8,${encodeURIComponent(content)}`;
-    link.download = `${filename.split('.')[0]}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+  /**
+   * Deletes a user from the list and re-renders the table.
+   * @param {number} userId - The ID of the user to delete.
+   */
+  deleteUser(userId) {
+    const userIndex = this.users.findIndex(user => user.id === userId);
+
+    if (userIndex === -1) {
+      console.error(`User with ID ${userId} not found.`);
+      return;
+    }
+
+    this.users.splice(userIndex, 1);
+    this.renderUsers();
   }
 
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  /**
+   * Retrieves a single user by their ID.
+   * @param {number} userId - The ID of the user to retrieve.
+   * @returns {object|undefined} The user object or undefined if not found.
+   */
+  getUser(userId) {
+    return this.users.find(user => user.id === userId);
+  }
+
+  /**
+   * Updates an existing user's data and re-renders the table.
+   * @param {number} userId - The ID of the user to update.
+   * @param {object} updatedData - An object containing the new data for the user.
+   */
+  updateUser(userId, updatedData) {
+    const user = this.getUser(userId);
+    if (!user) {
+      console.error(`Cannot update user: User with ID ${userId} not found.`);
+      return;
+    }
+
+    // Merge the updated data into the existing user object
+    Object.assign(user, updatedData);
+    this.renderUsers();
+  }
+
+  /**
+   * Generates the HTML for a single user row.
+   * @param {object} user - The user object.
+   * @returns {string} The HTML string for the table row.
+   */
+  createUserRowHtml(user) {
+    const roleClass = user.role.toLowerCase().replace(' ', '-');
+    const statusClass = user.status.toLowerCase();
+    const twoFactorIcon = user.twoFactorEnabled
+      ? '<i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i>'
+      : '<i class="fas fa-times-circle text-danger" title="2FA Disabled" aria-label="2FA Disabled"></i>';
+
+    const lastLoginDate = user.lastLogin === 'Never' ? 'Never' : user.lastLogin.split(' ')[0];
+    const createdDate = user.created.split('T')[0];
+
+    return `
+        <td><input type="checkbox" name="user-select" value="${user.id}"></td>
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td><span class="role-badge ${roleClass}">${user.role}</span></td>
+        <td>${user.department}</td>
+        <td><span class="status-badge ${statusClass}">${user.status}</span></td>
+        <td>${lastLoginDate}</td>
+        <td>${createdDate}</td>
+        <td>${twoFactorIcon}</td>
+        <td>
+          <div class="btn-group">
+            <button class="btn btn-info btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
+              <i class="fas fa-edit" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
+              <i class="fas fa-key" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </td>
+    `;
   }
 }

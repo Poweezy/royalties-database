@@ -13,19 +13,19 @@ class AuthService {
         // Demo credentials
         this.demoUsers = {
             'admin': {
-                password: 'demo123',
+                password: '$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci',
                 role: 'Administrator',
                 department: 'Administration',
                 email: 'admin@government.sz'
             },
             'finance': {
-                password: 'demo123',
+                password: '$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci',
                 role: 'Finance Officer',
                 department: 'Finance',
                 email: 'finance@government.sz'
             },
             'auditor': {
-                password: 'demo123',
+                password: '$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci',
                 role: 'Auditor',
                 department: 'Audit & Compliance',
                 email: 'auditor@government.sz'
@@ -81,7 +81,7 @@ class AuthService {
             
             // Demo authentication
             const user = this.demoUsers[username];
-            if (!user || user.password !== password) {
+            if (!user || !bcrypt.compareSync(password, user.password)) {
                 throw new Error('Invalid credentials');
             }
 
