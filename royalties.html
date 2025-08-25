@@ -243,6 +243,9 @@
                 <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">
                   <i class="fas fa-chart-area" aria-label="Area chart icon"></i> Area
                 </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="revenue-trends-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
               </div>
             </div>
             <div class="chart-container">
@@ -266,6 +269,9 @@
                 </button>
                 <button class="chart-btn" data-chart-type="doughnut" data-chart-id="production-by-entity-chart">
                   <i class="fas fa-circle-notch" aria-label="Doughnut chart icon"></i> Doughnut
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="production-by-entity-chart">
+                    <i class="fas fa-download"></i> Export
                 </button>
               </div>
             </div>
@@ -349,6 +355,26 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Leaderboards -->
+        <div class="charts-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-trophy" aria-label="Trophy icon"></i> Top 5 Performing Entities</h3>
+                </div>
+                <div class="card-body">
+                    <ol id="top-entities-list" class="leaderboard-list"></ol>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-triangle" aria-label="Warning icon"></i> Entities with Overdue Payments</h3>
+                </div>
+                <div class="card-body">
+                    <ul id="overdue-entities-list" class="leaderboard-list"></ul>
+                </div>
+            </div>
         </div>
 
         <!-- System Status & Alerts -->

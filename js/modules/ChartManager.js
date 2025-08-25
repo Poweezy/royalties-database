@@ -153,6 +153,15 @@ export class ChartManager {
     }
   }
 
+  getChart(chartId) {
+    if (chartId === 'revenue-trends-chart') {
+        return this.charts.get('revenue');
+    } else if (chartId === 'production-by-entity-chart') {
+        return this.charts.get('production');
+    }
+    return null;
+  }
+
   destroyAll() {
     this.charts.forEach(chart => chart.destroy());
     this.charts.clear();

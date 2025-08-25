@@ -49,7 +49,16 @@ export class UserManager {
   /**
    * Renders the list of users into the user management table.
    */
-  renderUsers() {
+  filterUsers(filters) {
+    let filteredUsers = this.users;
+    if (filters.status) {
+        filteredUsers = filteredUsers.filter(user => user.status.toLowerCase() === filters.status.toLowerCase());
+    }
+    this.renderUsers(filteredUsers);
+  }
+
+  renderUsers(usersToRender) {
+    const users = usersToRender || this.users;
     if (!this.tableBody) {
       console.error('User table body not found!');
       return;
@@ -58,12 +67,12 @@ export class UserManager {
     // Clear existing rows
     this.tableBody.innerHTML = '';
 
-    if (this.users.length === 0) {
+    if (users.length === 0) {
       this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users found.</td></tr>`;
       return;
     }
 
-    this.users.forEach(user => {
+    users.forEach(user => {
       const row = this.tableBody.insertRow();
       row.innerHTML = this.createUserRowHtml(user);
     });

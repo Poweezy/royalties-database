@@ -276,6 +276,7 @@ class App {
             // Update UI with demo data
             this.updateDashboardMetrics(royaltyData, entityData, complianceData);
             this.updateRecentActivity(recentActivity);
+            this.updateLeaderboards();
             
             // Initialize charts with demo data
             await this.chartManager.initializeCharts({
@@ -454,6 +455,50 @@ class App {
                 });
             }
         });
+
+        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
+        if (activeEntitiesCard) {
+            activeEntitiesCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'active';
+                    this.userManager.filterUsers({ status: 'active' });
+                }
+            });
+        }
+
+        const exportChartBtns = document.querySelectorAll('.export-chart-btn');
+        exportChartBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chartId;
+                const chart = this.chartManager.getChart(chartId);
+                if (chart) {
+                    const data = chart.data.datasets[0].data;
+                    const labels = chart.data.labels;
+                    const ws_data = [
+                        labels,
+                        data
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                    XLSX.writeFile(wb, `${chartId}.xlsx`);
+                }
+            });
+        });
+
+        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
+        if (pendingApprovalsCard) {
+            pendingApprovalsCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'inactive';
+                    this.userManager.filterUsers({ status: 'inactive' });
+                }
+            });
+        }
     }
 
     /**
@@ -590,6 +635,30 @@ class App {
     /**
      * Update recent activity
      */
+    updateLeaderboards() {
+        const topEntitiesList = document.getElementById('top-entities-list');
+        const overdueEntitiesList = document.getElementById('overdue-entities-list');
+
+        if (topEntitiesList) {
+            const topEntities = [
+                { name: 'Kwalini Quarry', amount: 'E 500,000' },
+                { name: 'Maloma Colliery', amount: 'E 450,000' },
+                { name: 'Mbabane Quarry', amount: 'E 300,000' },
+                { name: 'Ngwenya Mine', amount: 'E 250,000' },
+                { name: 'Sidvokodvo Quarry', amount: 'E 200,000' },
+            ];
+            topEntitiesList.innerHTML = topEntities.map(e => `<li>${e.name}<span>${e.amount}</span></li>`).join('');
+        }
+
+        if (overdueEntitiesList) {
+            const overdueEntities = [
+                { name: 'Malolotja Mine', days: 15 },
+                { name: 'Ngwenya Mine', days: 5 },
+            ];
+            overdueEntitiesList.innerHTML = overdueEntities.map(e => `<li>${e.name}<span>${e.days} days overdue</span></li>`).join('');
+        }
+    }
+
     updateRecentActivity(activities) {
         const container = document.getElementById('recent-activity');
         if (!container) return;
