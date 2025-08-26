@@ -348,6 +348,31 @@ class App {
                 this.notificationManager.show('Please enter your email address.', 'error');
             }
         });
+
+        // Communication Hub listeners
+        document.getElementById('compose-message-btn')?.addEventListener('click', () => {
+            document.getElementById('compose-message-container').style.display = 'block';
+        });
+
+        document.getElementById('close-compose-form')?.addEventListener('click', () => {
+            document.getElementById('compose-message-container').style.display = 'none';
+        });
+
+        document.getElementById('compose-message-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const recipients = e.target.elements['message-recipients'].value;
+            const subject = e.target.elements['message-subject'].value;
+            const content = e.target.elements['message-content'].value;
+
+            if (recipients && subject && content) {
+                this.notificationManager.show('Message sent successfully!', 'success');
+                e.target.reset();
+                document.getElementById('compose-message-container').style.display = 'none';
+                // For this mock-up, we'll just show a notification.
+            } else {
+                this.notificationManager.show('Please fill out all fields.', 'error');
+            }
+        });
     }
 
     /**
@@ -584,6 +609,10 @@ class App {
             this.userManager.renderUsers();
         }
 
+        if (route === 'communication') {
+            this.renderMessageHistory();
+        }
+
         // Update active navigation state
         document.querySelectorAll('nav a').forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${route}`);
@@ -724,6 +753,46 @@ class App {
                 </div>
             `;
         }).join('');
+    }
+
+    renderMessageHistory() {
+        const messageHistory = [
+            {
+                date: '2025-08-26 10:30',
+                recipients: 'All Mining Entities',
+                subject: 'Monthly Royalty Payment Reminder',
+                status: 'Sent',
+            },
+            {
+                date: '2025-08-25 15:45',
+                recipients: 'Overdue Entities (3)',
+                subject: 'Urgent: Payment Overdue Notice',
+                status: 'Delivered',
+            },
+            {
+                date: '2025-08-24 11:00',
+                recipients: 'Regulatory Bodies',
+                subject: 'Q2 2025 Compliance Report',
+                status: 'Read',
+            },
+        ];
+
+        const tableBody = document.getElementById('messages-table-tbody');
+        if (tableBody) {
+            tableBody.innerHTML = messageHistory.map(msg => `
+                <tr>
+                    <td>${msg.date}</td>
+                    <td>${msg.recipients}</td>
+                    <td>${msg.subject}</td>
+                    <td><span class="status-badge active">${msg.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info" title="View Details">
+                            <i class="fas fa-eye" aria-label="View Details icon"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     /**
