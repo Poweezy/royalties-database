@@ -73,6 +73,24 @@ class App {
             auditLog: [],
             notifications: [],
             charts: {},
+            leases: [
+                {
+                    id: 1,
+                    lessor: 'Green Valley Trust',
+                    lessee: 'Kwalini Quarry',
+                    leaseDate: '2023-01-15',
+                    term: 60,
+                    royaltyRate: 15.0,
+                },
+                {
+                    id: 2,
+                    lessor: 'Royal Eswatini Sugar Corporation',
+                    lessee: 'Maloma Colliery',
+                    leaseDate: '2022-06-01',
+                    term: 120,
+                    royaltyRate: 18.5,
+                },
+            ],
             isLoading: false,
             settings: {
                 recordsPerPage: 10,
@@ -158,6 +176,37 @@ class App {
             if (!hasError) {
                 this.hideLoadingScreen();
             }
+        }
+    }
+
+    renderLeases() {
+        const tableBody = document.getElementById('leases-table-tbody');
+        if (tableBody) {
+            tableBody.innerHTML = this.state.leases.map(lease => {
+                const expiryDate = new Date(lease.leaseDate);
+                expiryDate.setMonth(expiryDate.getMonth() + lease.term);
+
+                return `
+                    <tr>
+                        <td>${lease.lessor}</td>
+                        <td>${lease.lessee}</td>
+                        <td>${lease.leaseDate}</td>
+                        <td>${lease.term}</td>
+                        <td>${lease.royaltyRate}%</td>
+                        <td>${expiryDate.toISOString().split('T')[0]}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-primary" title="Edit lease">
+                                    <i class="fas fa-edit" aria-label="Edit icon"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" title="Delete lease">
+                                    <i class="fas fa-trash" aria-label="Delete icon"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
     }
 
@@ -611,6 +660,10 @@ class App {
 
         if (route === 'communication') {
             this.renderMessageHistory();
+        }
+
+        if (route === 'lease-management') {
+            this.renderLeases();
         }
 
         // Update active navigation state

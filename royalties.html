@@ -136,7 +136,8 @@
           <li><a href="#dashboard" class="active"><i class="fas fa-home" aria-label="Dashboard icon"></i> Dashboard</a></li>
           <li><a href="#user-management"><i class="fas fa-users" aria-label="User Management icon"></i> User Management</a></li>
           <li><a href="#royalty-records"><i class="fas fa-file-invoice" aria-label="Royalty Records icon"></i> Royalty Records</a></li>
-          <li><a href="#contract-management"><i class="fas fa-file-contract" aria-label="Contract Management icon"></i> Contract Management</a></li>
+          <li><a href="#contract-management"><i class="fas fa-file-contract" aria-label="Contract Management icon"></i> Document Management</a></li>
+          <li><a href="#lease-management"><i class="fas fa-file-signature" aria-label="Lease Management icon"></i> Lease Management</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt" aria-label="Audit Dashboard icon"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar" aria-label="Reporting & Analytics icon"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope" aria-label="Communication icon"></i> Communication</a></li>
@@ -1037,19 +1038,19 @@
         </div>
       </section>
 
-      <!-- Contract Management -->
+      <!-- Document Management -->
       <section id="contract-management" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1>Contract Management</h1>
-            <p>Manage royalty agreements for mines and quarries</p>
+            <h1>Document Management</h1>
+            <p>Manage royalty agreements, leases, and other documents for mines and quarries</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success">Add Contract</button>
+            <button class="btn btn-success">Add Document</button>
           </div>
         </div>
         <div class="user-form-container">
-          <h4>Add Contract</h4>
+          <h4>Add Document</h4>
           <div class="grid-4">
             <div class="form-group">
               <label for="contract-entity">Entity</label>
@@ -1065,18 +1066,33 @@
               <div class="validation-error" id="contract-entity-validation">Entity is required</div>
             </div>
             <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
-              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
+              <label for="document-type">Document Type</label>
+              <select id="document-type" aria-describedby="document-type-validation">
+                <option>Select Type</option>
+                <option>Lease Agreement</option>
+                <option>Royalty Deed</option>
+                <option>Compliance Report</option>
+                <option>Other</option>
+              </select>
+              <div class="validation-error" id="document-type-validation">Document type is required</div>
             </div>
             <div class="form-group">
-              <label for="start-date">Start Date</label>
+              <label for="document-url">Document URL</label>
+              <input type="url" id="document-url" placeholder="https://example.com/document.pdf" aria-describedby="document-url-validation">
+              <div class="validation-error" id="document-url-validation">Valid URL is required</div>
+            </div>
+            <div class="form-group">
+              <label for="start-date">Execution Date</label>
               <input type="date" id="start-date" aria-describedby="start-date-validation">
-              <div class="validation-error" id="start-date-validation">Start date is required</div>
+              <div class="validation-error" id="start-date-validation">Date is required</div>
+            </div>
+            <div class="form-group" style="grid-column: span 4;">
+              <label for="document-description">Description</label>
+              <textarea id="document-description" placeholder="A brief description of the document..." rows="3"></textarea>
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn btn-success">Save Contract</button>
+            <button class="btn btn-success">Save Document</button>
           </div>
         </div>
         <div class="table-container">
@@ -1084,8 +1100,8 @@
             <thead>
               <tr>
                 <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
-                <th>Start Date</th>
+                <th>Document Type</th>
+                <th>Execution Date</th>
                 <th>Document</th>
                 <th>Actions</th>
               </tr>
@@ -1093,74 +1109,133 @@
             <tbody>
               <tr>
                 <td>Kwalini Quarry</td>
-                <td>E15.00</td>
+                <td>Lease Agreement</td>
                 <td>2024-01-01</td>
                 <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
+                  <a href="#" class="btn btn-sm btn-info" title="View document" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> View
+                  </a>
                 </td>
                 <td>
                   <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
+                    <button class="btn btn-sm btn-primary" title="Edit document">
                       <i class="fas fa-edit" aria-label="Edit icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
+                    <button class="btn btn-sm btn-secondary" title="Download document">
                       <i class="fas fa-download" aria-label="Download icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
+                    <button class="btn btn-sm btn-danger" title="Delete document">
+                      <i class="fas fa-trash" aria-label="Delete icon"></i>
                     </button>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td>Mbabane Quarry</td>
-                <td>E18.50</td>
+                <td>Royalty Deed</td>
                 <td>2023-06-15</td>
                 <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
+                  <a href="#" class="btn btn-sm btn-info" title="View document" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> View
+                  </a>
                 </td>
                 <td>
                   <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
+                    <button class="btn btn-sm btn-primary" title="Edit document">
                       <i class="fas fa-edit" aria-label="Edit icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
+                    <button class="btn btn-sm btn-secondary" title="Download document">
                       <i class="fas fa-download" aria-label="Download icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
+                    <button class="btn btn-sm btn-danger" title="Delete document">
+                      <i class="fas fa-trash" aria-label="Delete icon"></i>
                     </button>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td>Maloma Colliery</td>
-                <td>E25.00</td>
+                <td>Compliance Report</td>
                 <td>2023-12-01</td>
                 <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
+                  <a href="#" class="btn btn-sm btn-info" title="View document" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> View
+                  </a>
                 </td>
                 <td>
                   <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
+                    <button class="btn btn-sm btn-primary" title="Edit document">
                       <i class="fas fa-edit" aria-label="Edit icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
+                    <button class="btn btn-sm btn-secondary" title="Download document">
                       <i class="fas fa-download" aria-label="Download icon"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
+                    <button class="btn btn-sm btn-danger" title="Delete document">
+                      <i class="fas fa-trash" aria-label="Delete icon"></i>
                     </button>
                   </div>
                 </td>
               </tr>
             </tbody></table>
+        </div>
+      </section>
+
+      <!-- Lease Management -->
+      <section id="lease-management" style="display: none;">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Lease Management</h1>
+            <p>Track and manage all lease agreements</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success">Add Lease</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <h4>Add Lease Agreement</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="lease-lessor">Lessor</label>
+              <input type="text" id="lease-lessor" placeholder="Enter Lessor Name">
+            </div>
+            <div class="form-group">
+              <label for="lease-lessee">Lessee</label>
+              <input type="text" id="lease-lessee" placeholder="Enter Lessee Name">
+            </div>
+            <div class="form-group">
+              <label for="lease-date">Lease Date</label>
+              <input type="date" id="lease-date">
+            </div>
+            <div class="form-group">
+              <label for="lease-term">Term (months)</label>
+              <input type="number" id="lease-term" placeholder="e.g., 36">
+            </div>
+            <div class="form-group">
+              <label for="lease-royalty-rate">Royalty Rate (%)</label>
+              <input type="number" id="lease-royalty-rate" placeholder="e.g., 12.5">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-success">Save Lease</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="leases-table">
+            <thead>
+              <tr>
+                <th>Lessor</th>
+                <th>Lessee</th>
+                <th>Lease Date</th>
+                <th>Term (months)</th>
+                <th>Royalty Rate (%)</th>
+                <th>Expires On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leases-table-tbody">
+              <!-- Leases will be populated here by JavaScript -->
+            </tbody>
+          </table>
         </div>
       </section>
 
