@@ -507,7 +507,7 @@ class App {
     async handleLogin(form) {
         const username = form.username.value.trim();
         const password = form.password.value.trim();
-        const rememberMe = form['remember-me'].checked;
+        const rememberMe = form.elements['remember-me'].checked;
         const usernameError = document.getElementById('username-error');
         const passwordError = document.getElementById('password-error');
         let isValid = true;
