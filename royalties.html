@@ -1517,6 +1517,8 @@
                       <option>Production Analysis</option>
                       <option>Compliance Tracking</option>
                       <option>Entity Performance</option>
+                      <option>Lease Analysis</option>
+                      <option>Expense Analysis</option>
                       <option>Audit & Verification</option>
                       <option>Comparative Analysis</option>
                     </select>
@@ -1532,6 +1534,14 @@
                       <option>Custom Range</option>
                     </select>
                     <div class="validation-error" id="period-validation">Period is required</div>
+                  </div>
+                  <div class="form-group">
+                    <label for="report-start-date">Start Date</label>
+                    <input type="date" id="report-start-date" disabled>
+                  </div>
+                  <div class="form-group">
+                    <label for="report-end-date">End Date</label>
+                    <input type="date" id="report-end-date" disabled>
                   </div>
                   <div class="form-group">
                     <label for="report-entity">Entity</label>
@@ -1580,6 +1590,12 @@
                     <label class="checkbox-label">
                       <input type="checkbox"> Entity Performance
                     </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox"> Lease Details
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox"> Expense Details
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1590,34 +1606,53 @@
             </div>
           </div>
           <div class="tab-content" id="scheduled-reports">
-            <div class="scheduled-reports-header">
-              <button class="btn btn-success">Add Scheduled Report</button>
+            <div class="user-form-container">
+              <h4>Add Scheduled Report</h4>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label for="scheduled-report-type">Report Type</label>
+                  <select id="scheduled-report-type">
+                    <option>Select Report Type</option>
+                    <option>Financial Analysis</option>
+                    <option>Production Analysis</option>
+                    <option>Compliance Tracking</option>
+                    <option>Entity Performance</option>
+                    <option>Lease Analysis</option>
+                    <option>Expense Analysis</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="scheduled-report-frequency">Frequency</label>
+                  <select id="scheduled-report-frequency">
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="scheduled-report-recipients">Recipients</label>
+                  <input type="email" id="scheduled-report-recipients" placeholder="e.g., manager@example.com">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-success">Schedule Report</button>
+              </div>
             </div>
-            <div class="scheduled-reports-list">
-              <div class="schedule-item">
-                <div class="schedule-info">
-                  <h6>Weekly Revenue Report</h6>
-                  <p>Every Monday at 9:00 AM</p>
-                  <span class="status-badge active">Active</span>
-                </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">Edit</button>
-                  <button class="btn btn-sm btn-warning">Pause</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
-                </div>
-              </div>
-              <div class="schedule-item active">
-                <div class="schedule-info">
-                  <h6>Monthly Compliance Report</h6>
-                  <p>First day of each month at 8:00 AM</p>
-                  <span class="status-badge active">Active</span>
-                </div>
-                <div class="schedule-actions">
-                  <button class="btn btn-sm btn-secondary">Edit</button>
-                  <button class="btn btn-sm btn-warning">Pause</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
-                </div>
-              </div>
+            <div class="table-container">
+              <table class="data-table" id="scheduled-reports-table">
+                <thead>
+                  <tr>
+                    <th>Report Type</th>
+                    <th>Frequency</th>
+                    <th>Recipients</th>
+                    <th>Next Run Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="scheduled-reports-tbody">
+                  <!-- Scheduled reports will be populated here by JavaScript -->
+                </tbody>
+              </table>
             </div>
           </div>
           <div class="tab-content" id="audit-trail-reports">

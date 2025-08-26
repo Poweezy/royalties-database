@@ -114,7 +114,23 @@ class App {
                 recordsPerPage: 10,
                 autoSave: true,
                 theme: 'light'
-            }
+            },
+            scheduledReports: [
+                {
+                    id: 1,
+                    reportType: 'Financial Analysis',
+                    frequency: 'Monthly',
+                    recipients: 'finance-team@example.com',
+                    nextRunDate: '2025-09-01',
+                },
+                {
+                    id: 2,
+                    reportType: 'Compliance Tracking',
+                    frequency: 'Weekly',
+                    recipients: 'compliance-officer@example.com',
+                    nextRunDate: '2025-08-28',
+                },
+            ]
         };
 
         // Initialize modules
@@ -150,6 +166,30 @@ class App {
                                 <i class="fas fa-edit" aria-label="Edit icon"></i>
                             </button>
                             <button class="btn btn-sm btn-danger" title="Delete expense">
+                                <i class="fas fa-trash" aria-label="Delete icon"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    renderScheduledReports() {
+        const tableBody = document.getElementById('scheduled-reports-tbody');
+        if (tableBody) {
+            tableBody.innerHTML = this.state.scheduledReports.map(report => `
+                <tr>
+                    <td>${report.reportType}</td>
+                    <td>${report.frequency}</td>
+                    <td>${report.recipients}</td>
+                    <td>${report.nextRunDate}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" title="Edit schedule">
+                                <i class="fas fa-edit" aria-label="Edit icon"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" title="Delete schedule">
                                 <i class="fas fa-trash" aria-label="Delete icon"></i>
                             </button>
                         </div>
@@ -446,6 +486,22 @@ class App {
             document.getElementById('compose-message-container').style.display = 'block';
         });
 
+        // Reporting & Analytics listeners
+        const reportPeriodSelect = document.getElementById('report-period');
+        if (reportPeriodSelect) {
+            reportPeriodSelect.addEventListener('change', (e) => {
+                const startDateInput = document.getElementById('report-start-date');
+                const endDateInput = document.getElementById('report-end-date');
+                if (e.target.value === 'Custom Range') {
+                    startDateInput.disabled = false;
+                    endDateInput.disabled = false;
+                } else {
+                    startDateInput.disabled = true;
+                    endDateInput.disabled = true;
+                }
+            });
+        }
+
         document.getElementById('close-compose-form')?.addEventListener('click', () => {
             document.getElementById('compose-message-container').style.display = 'none';
         });
@@ -711,6 +767,10 @@ class App {
 
         if (route === 'jib-management') {
             this.renderExpenses();
+        }
+
+        if (route === 'reporting-analytics') {
+            this.renderScheduledReports();
         }
 
         // Update active navigation state
