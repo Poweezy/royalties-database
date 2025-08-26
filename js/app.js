@@ -20,6 +20,7 @@ import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
 import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
+import { initializeDocumentManagement } from './modules/document-management.js';
 
 class App {
     constructor() {
@@ -88,6 +89,9 @@ class App {
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
         this.userManager = new UserManager();
+
+        // Initialize page-specific modules that attach listeners to the DOM
+        initializeDocumentManagement();
 
         // Initialize app
         this.initializeServices();
@@ -338,17 +342,11 @@ class App {
         });
 
         // Forgot Password form submission
-        document.getElementById('forgot-password-form')?.addEventListener('submit', async (e) => {
+        document.getElementById('forgot-password-form')?.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = e.target.elements['reset-email'].value;
             if (email) {
-                const success = await authService.forgotPassword(email);
-                if (success) {
-                    this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
-                } else {
-                    // Still show a generic success message to prevent email enumeration
-                    this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
-                }
+                this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
                 this.showLogin();
             } else {
                 this.notificationManager.show('Please enter your email address.', 'error');
