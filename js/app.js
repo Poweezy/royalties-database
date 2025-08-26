@@ -21,6 +21,7 @@ import { notificationManager } from './modules/NotificationManager.js';
 import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
+import ExpenseTracking from './modules/expense-tracking.js';
 
 class App {
     constructor() {
@@ -90,6 +91,7 @@ class App {
         this.navigationManager = new NavigationManager(this.notificationManager);
         this.userManager = new UserManager();
         this.leaseManagement = LeaseManagement;
+        this.expenseTracking = ExpenseTracking;
 
         // Initialize app
         this.initializeServices();
@@ -176,6 +178,9 @@ class App {
 
             // Initialize Lease Management
             await this.leaseManagement.init();
+
+            // Initialize Expense Tracking
+            await this.expenseTracking.init();
 
             // Show dashboard
             this.showDashboard();
