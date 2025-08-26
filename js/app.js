@@ -22,6 +22,7 @@ import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
 import ExpenseTracking from './modules/expense-tracking.js';
+import ContractManagement from './modules/contract-management.js';
 
 class App {
     constructor() {
@@ -92,6 +93,7 @@ class App {
         this.userManager = new UserManager();
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
+        this.contractManagement = ContractManagement;
 
         // Initialize app
         this.initializeServices();
@@ -181,6 +183,9 @@ class App {
 
             // Initialize Expense Tracking
             await this.expenseTracking.init();
+
+            // Initialize Contract Management
+            await this.contractManagement.init();
 
             // Show dashboard
             this.showDashboard();
