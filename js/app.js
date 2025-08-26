@@ -584,7 +584,7 @@ class App {
             await authService.login(username, password);
             this.showDashboard();
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('[App] Login error caught in handleLogin:', error);
             this.showError('Invalid username or password');
         }
     }
@@ -643,10 +643,9 @@ class App {
     }
 
     showDashboard() {
-        console.log("Showing dashboard");
         document.getElementById('login-section').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex';
-        console.log("app-container display style:", document.getElementById('app-container').style.display);
+        const appContainer = document.getElementById('app-container');
+        appContainer.style.display = 'flex';
         this.navigate('dashboard');
     }
 

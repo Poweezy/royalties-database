@@ -81,7 +81,7 @@ class AuthService {
             
             // Demo authentication
             const user = this.demoUsers[username];
-            if (!user || !bcrypt.compareSync(password, user.password)) {
+            if (!user || !window.bcrypt.compareSync(password, user.password)) {
                 throw new Error('Invalid credentials');
             }
 
@@ -160,15 +160,6 @@ class AuthService {
         }
     }
 
-    /**
-     * Set authentication state after successful login/validation
-     */
-    setAuthenticationState(data) {
-        this.isAuthenticated = true;
-        this.currentUser = data.user;
-        this.token = data.token;
-        localStorage.setItem('auth_token', data.token);
-    }
 
     /**
      * Check if user has required role
