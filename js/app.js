@@ -23,6 +23,7 @@ import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
 import ExpenseTracking from './modules/expense-tracking.js';
 import ContractManagement from './modules/contract-management.js';
+import Reporting from './modules/reporting.js';
 
 class App {
     constructor() {
@@ -94,6 +95,7 @@ class App {
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
         this.contractManagement = ContractManagement;
+        this.reporting = Reporting;
 
         // Initialize app
         this.initializeServices();
@@ -186,6 +188,9 @@ class App {
 
             // Initialize Contract Management
             await this.contractManagement.init();
+
+            // Initialize Reporting
+            await this.reporting.init();
 
             // Show dashboard
             this.showDashboard();
