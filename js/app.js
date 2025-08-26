@@ -531,7 +531,6 @@ class App {
     async handleLogin(form) {
         const username = form.username.value.trim();
         const password = form.password.value.trim();
-        const rememberMe = form.elements['remember-me'].checked;
         const usernameError = document.getElementById('username-error');
         const passwordError = document.getElementById('password-error');
         let isValid = true;
@@ -557,7 +556,7 @@ class App {
         }
 
         try {
-            await authService.login(username, password, rememberMe);
+            await authService.login(username, password);
             this.showDashboard();
         } catch (error) {
             console.error('Login error:', error);

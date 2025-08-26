@@ -714,7 +714,6 @@ nav ul li a span.notification-badge {
 .login-form .remember-me-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .login-form .forgot-password-link,
