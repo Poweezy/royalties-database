@@ -388,8 +388,7 @@ class App {
             // Initialize all services in parallel
             await Promise.all([
                 authService.init(),
-                dbService.init(),
-                this.chartManager.initializeCharts()
+                dbService.init()
             ]);
 
             // Check authentication state
@@ -516,59 +515,59 @@ class App {
         if (departmentEl) departmentEl.value = this.state.currentUser.department;
 
         // Update user display in header if exists
-        const userDisplayEl = document.querySelector('.user-display');
+        const userDisplayEl = document.querySelector('#user-name');
         if (userDisplayEl) {
             userDisplayEl.textContent = this.state.currentUser.username;
         }
     }
 
     /**
-     * Initialize dashboard
+     * Initialize dashboard and render its components.
      */
     async initializeDashboard() {
         try {
             // Load demo dashboard data
             const royaltyData = {
-                totalRoyalties: 2847650.00,
-                paidRoyalties: 2135737.50,
-                pendingRoyalties: 711912.50,
-                yearlyTarget: 3500000.00
+                totalRoyalties: 992500.00,
+                paidRoyalties: 850000.00,
+                pendingRoyalties: 142500.00,
+                yearlyTarget: 1200000.00,
+                trend: '+15.8% from last year'
             };
 
             const entityData = {
-                totalEntities: 15,
-                activeEntities: 12,
-                inactiveEntities: 3,
+                totalEntities: 8,
+                activeEntities: 6,
+                inactiveEntities: 2,
                 entityTypes: {
-                    mines: 8,
-                    quarries: 7
-                }
+                    mines: 2,
+                    quarries: 4
+                },
+                trend: '+2 new this month'
             };
 
             const complianceData = {
-                overallRate: 94,
-                compliantEntities: 14,
+                overallRate: 80,
+                compliantEntities: 5,
                 nonCompliantEntities: 1,
+                pending: 1,
+                overdue: 1,
                 upcomingDeadlines: 5
             };
 
             const recentActivity = [
-                { type: 'payment', entity: 'Maloma Colliery', amount: 156000.00, date: '2025-07-30' },
-                { type: 'audit', entity: 'Kwalini Quarry', status: 'completed', date: '2025-07-29' },
-                { type: 'report', name: 'Q2 Summary', generated: '2025-07-28' }
+                { type: 'payment', entity: 'Kwalini Quarry', amount: 45200.00, date: '2024-02-14', icon: 'fa-plus-circle text-success' },
+                { type: 'user', entity: 'finance.manager', status: 'created', date: '2024-02-14', icon: 'fa-user-plus text-info' },
+                { type: 'report', name: 'Compliance report', status: 'submitted to ERA', date: '2024-02-13', icon: 'fa-file-alt text-warning' }
             ];
 
             // Update UI with demo data
-            this.updateDashboardMetrics(royaltyData, entityData, complianceData);
+            this.updateNewDashboardUI(royaltyData, entityData, complianceData);
             this.updateRecentActivity(recentActivity);
             this.updateLeaderboards();
             
             // Initialize charts with demo data
-            await this.chartManager.initializeCharts({
-                royalties: royaltyData,
-                entities: entityData,
-                compliance: complianceData
-            });
+            await this.chartManager.initializeCharts();
             
             // Show success notification
             this.notificationManager.show('Dashboard initialized successfully', 'success');
@@ -576,7 +575,57 @@ class App {
             // Check for overdue payments
             this.checkForOverduePayments();
         } catch (error) {
-            throw new Error('Failed to initialize dashboard');
+            this.errorHandler.handleError(new Error('Failed to initialize dashboard'));
+        }
+    }
+
+    /**
+     * Updates the new dashboard UI with the provided data.
+     * @param {object} royaltyData - Data for royalty metrics.
+     * @param {object} entityData - Data for entity metrics.
+     * @param {object} complianceData - Data for compliance metrics.
+     */
+    updateNewDashboardUI(royaltyData, entityData, complianceData) {
+        // Helper to update elements safely
+        const updateElement = (id, value, isHtml = false) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (isHtml) el.innerHTML = value;
+                else el.textContent = value;
+            }
+        };
+
+        // Update royalty metrics
+        updateElement('total-royalties', `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ')}`);
+        updateElement('royalties-trend', royaltyData.trend, true);
+        const royaltiesProgress = document.getElementById('royalties-progress');
+        if (royaltiesProgress) {
+            const progressPercent = (royaltyData.totalRoyalties / royaltyData.yearlyTarget * 100).toFixed(1);
+            royaltiesProgress.style.width = `${progressPercent}%`;
+        }
+
+        // Update entity metrics
+        updateElement('active-entities', entityData.activeEntities.toString());
+        updateElement('entities-trend', entityData.trend, true);
+        updateElement('mines-count', entityData.entityTypes.mines);
+        updateElement('quarries-count', entityData.entityTypes.quarries);
+
+        // Update compliance metrics
+        updateElement('compliance-rate', `${complianceData.overallRate}%`);
+        updateElement('paid-count', complianceData.compliantEntities);
+        updateElement('pending-count', complianceData.pending);
+        updateElement('overdue-count', complianceData.overdue);
+        const complianceProgress = document.getElementById('compliance-progress');
+        if (complianceProgress) {
+            complianceProgress.style.width = `${complianceData.overallRate}%`;
+        }
+
+        // Update pending approvals
+        updateElement('pending-approvals', entityData.inactiveEntities.toString());
+        if (entityData.inactiveEntities > 0) {
+            updateElement('pending-urgency', `${entityData.inactiveEntities} item(s) require attention`);
+        } else {
+            updateElement('pending-urgency', 'No pending items');
         }
     }
 
@@ -824,77 +873,67 @@ class App {
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
-        const auditFilterUser = document.getElementById('audit-filter-user');
-        if (auditFilterUser) {
-            auditFilterUser.addEventListener('change', () => this.filterAuditLog());
-        }
-
-        const auditFilterAction = document.getElementById('audit-filter-action');
-        if (auditFilterAction) {
-            auditFilterAction.addEventListener('change', () => this.filterAuditLog());
-        }
-
-        const auditFilterDate = document.getElementById('audit-filter-date');
-        if (auditFilterDate) {
-            auditFilterDate.addEventListener('change', () => this.filterAuditLog());
-        }
-
-        const metricSelects = [
-            document.getElementById('royalties-period'),
-            document.getElementById('entities-period')
-        ];
-
-        metricSelects.forEach(select => {
+        // Period filters for metric cards
+        const metricSelects = ['royalties-period', 'entities-period'];
+        metricSelects.forEach(id => {
+            const select = document.getElementById(id);
             if (select) {
                 select.addEventListener('change', (e) => {
-                    const metricId = e.target.id.split('-')[0]; // e.g., 'royalties' from 'royalties-period'
-                    const filterValue = e.target.value;
-                    this.chartManager.updateMetric(metricId, filterValue);
+                    const metricId = id.split('-')[0];
+                    this.chartManager.updateMetric(metricId, e.target.value);
                 });
             }
         });
 
-        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
-        if (activeEntitiesCard) {
-            activeEntitiesCard.addEventListener('click', () => {
-                this.navigate('user-management');
-                const statusFilter = document.getElementById('filter-status');
-                if (statusFilter) {
-                    statusFilter.value = 'active';
-                    this.userManager.filterUsers({ status: 'active' });
-                }
-            });
-        }
-
-        const exportChartBtns = document.querySelectorAll('.export-chart-btn');
-        exportChartBtns.forEach(btn => {
+        // Chart controls (line, bar, pie, etc.)
+        document.querySelectorAll('.chart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const chartId = e.target.dataset.chartId;
+                const { chartType, chartId } = e.currentTarget.dataset;
                 const chart = this.chartManager.getChart(chartId);
                 if (chart) {
-                    const data = chart.data.datasets[0].data;
-                    const labels = chart.data.labels;
-                    const ws_data = [
-                        labels,
-                        data
-                    ];
-                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-                    XLSX.writeFile(wb, `${chartId}.xlsx`);
+                    chart.config.type = chartType;
+                    chart.update();
+                    // Update active button state
+                    e.currentTarget.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
                 }
             });
         });
 
-        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
-        if (pendingApprovalsCard) {
-            pendingApprovalsCard.addEventListener('click', () => {
-                this.navigate('user-management');
-                const statusFilter = document.getElementById('filter-status');
-                if (statusFilter) {
-                    statusFilter.value = 'inactive';
-                    this.userManager.filterUsers({ status: 'inactive' });
+        // Export chart buttons
+        document.querySelectorAll('.export-chart-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.currentTarget.dataset.chartId;
+                const chart = this.chartManager.getChart(chartId);
+                if (chart) {
+                    this.fileManager.exportChartData(chart, `${chartId}.xlsx`);
                 }
+            });
+        });
+
+        // Quick action buttons
+        const quickActionMapping = {
+            'add-royalty-record': 'royalty-records',
+            'generate-report': 'reporting-analytics',
+            'view-overdue': 'audit-dashboard',
+            'manage-users': 'user-management'
+        };
+        Object.entries(quickActionMapping).forEach(([btnId, section]) => {
+            const button = document.getElementById(btnId);
+            if (button) {
+                button.addEventListener('click', () => this.navigate(section));
+            }
+        });
+
+        // Refresh dashboard button
+        const refreshBtn = document.getElementById('refresh-dashboard');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+                refreshBtn.disabled = true;
+                await this.initializeDashboard();
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshBtn.disabled = false;
             });
         }
     }
@@ -956,6 +995,7 @@ class App {
         // Render components specific to the route
         if (route === 'user-management') {
             this.userManager.renderUsers();
+            this.renderAuditLog();
         }
 
         if (route === 'communication') {
@@ -972,10 +1012,6 @@ class App {
 
         if (route === 'reporting-analytics') {
             this.renderScheduledReports();
-        }
-
-        if (route === 'user-management') {
-            this.renderAuditLog();
         }
 
         if (route === 'compliance') {
@@ -1016,10 +1052,8 @@ class App {
     }
 
     showDashboard() {
-        console.log("Showing dashboard");
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('app-container').style.display = 'flex';
-        console.log("app-container display style:", document.getElementById('app-container').style.display);
         this.navigate('dashboard');
     }
 
@@ -1028,45 +1062,7 @@ class App {
     }
 
     /**
-     * Update dashboard metrics
-     */
-    updateDashboardMetrics(royaltyData, entityData, complianceData) {
-        // Update royalty metrics
-        const totalRoyaltiesEl = document.getElementById('total-royalties');
-        if (totalRoyaltiesEl) {
-            totalRoyaltiesEl.textContent = `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ')}`;
-        }
-
-        const activeEntitiesEl = document.getElementById('active-entities');
-        if (activeEntitiesEl) {
-            activeEntitiesEl.textContent = entityData.activeEntities.toString();
-        }
-
-        const complianceRateEl = document.getElementById('compliance-rate');
-        if (complianceRateEl) {
-            complianceRateEl.textContent = `${complianceData.overallRate}%`;
-        }
-
-        const pendingApprovalsEl = document.getElementById('pending-approvals');
-        if (pendingApprovalsEl) {
-            pendingApprovalsEl.textContent = (entityData.totalEntities - entityData.activeEntities).toString();
-        }
-
-        // Update progress bars
-        const royaltiesProgress = document.getElementById('royalties-progress');
-        if (royaltiesProgress) {
-            const progressPercent = (royaltyData.totalRoyalties / royaltyData.yearlyTarget * 100).toFixed(1);
-            royaltiesProgress.style.width = `${progressPercent}%`;
-        }
-
-        const complianceProgress = document.getElementById('compliance-progress');
-        if (complianceProgress) {
-            complianceProgress.style.width = `${complianceData.overallRate}%`;
-        }
-    }
-
-    /**
-     * Update recent activity
+     * Update leaderboards for top and overdue entities.
      */
     updateLeaderboards() {
         const topEntitiesList = document.getElementById('top-entities-list');
@@ -1092,40 +1088,25 @@ class App {
         }
     }
 
+    /**
+     * Updates the recent activity list on the dashboard.
+     * @param {Array<object>} activities - A list of recent activity objects.
+     */
     updateRecentActivity(activities) {
         const container = document.getElementById('recent-activity');
         if (!container) return;
 
-        container.innerHTML = activities.map(activity => {
-            let icon, title;
-            switch (activity.type) {
-                case 'payment':
-                    icon = 'fa-money-bill';
-                    title = `Payment received from ${activity.entity}`;
-                    break;
-                case 'audit':
-                    icon = 'fa-clipboard-check';
-                    title = `Audit ${activity.status} for ${activity.entity}`;
-                    break;
-                case 'report':
-                    icon = 'fa-file-alt';
-                    title = `Report generated: ${activity.name}`;
-                    break;
-                default:
-                    icon = 'fa-info-circle';
-                    title = 'Activity recorded';
-            }
-
-            return `
-                <div class="activity-item">
-                    <i class="fas ${icon}"></i>
-                    <div class="activity-details">
-                        <p>${title}</p>
-                        <small>${new Date(activity.date).toLocaleDateString()}</small>
-                    </div>
+        container.innerHTML = activities.map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas ${activity.icon}" aria-label="${activity.type} icon"></i>
                 </div>
-            `;
-        }).join('');
+                <div class="activity-content">
+                    <p><strong>New ${activity.type} record</strong> ${activity.status ? activity.status : ''} for ${activity.entity}</p>
+                    <small>${new Date(activity.date).toLocaleDateString()}</small>
+                </div>
+            </div>
+        `).join('');
     }
 
     renderMessageHistory() {
