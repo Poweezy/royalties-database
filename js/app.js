@@ -92,6 +92,24 @@ class App {
                 },
             ],
             isLoading: false,
+            expenses: [
+                {
+                    id: 1,
+                    entity: 'Kwalini Quarry',
+                    date: '2024-02-01',
+                    expenseType: 'Operating Costs',
+                    amount: 5000.00,
+                    description: 'Monthly operating costs for Kwalini Quarry.',
+                },
+                {
+                    id: 2,
+                    entity: 'Maloma Colliery',
+                    date: '2024-02-05',
+                    expenseType: 'Maintenance',
+                    amount: 15000.00,
+                    description: 'Scheduled maintenance for heavy machinery.',
+                },
+            ],
             settings: {
                 recordsPerPage: 10,
                 autoSave: true,
@@ -114,6 +132,31 @@ class App {
         this.setupIdleTimeout();
         this.setupEventListeners();
         this.setupErrorHandling();
+    }
+
+    renderExpenses() {
+        const tableBody = document.getElementById('jib-table-tbody');
+        if (tableBody) {
+            tableBody.innerHTML = this.state.expenses.map(expense => `
+                <tr>
+                    <td>${expense.entity}</td>
+                    <td>${expense.date}</td>
+                    <td>${expense.expenseType}</td>
+                    <td>E ${expense.amount.toFixed(2)}</td>
+                    <td>${expense.description}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" title="Edit expense">
+                                <i class="fas fa-edit" aria-label="Edit icon"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" title="Delete expense">
+                                <i class="fas fa-trash" aria-label="Delete icon"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     /**
@@ -664,6 +707,10 @@ class App {
 
         if (route === 'lease-management') {
             this.renderLeases();
+        }
+
+        if (route === 'jib-management') {
+            this.renderExpenses();
         }
 
         // Update active navigation state

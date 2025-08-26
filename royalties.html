@@ -138,6 +138,7 @@
           <li><a href="#royalty-records"><i class="fas fa-file-invoice" aria-label="Royalty Records icon"></i> Royalty Records</a></li>
           <li><a href="#contract-management"><i class="fas fa-file-contract" aria-label="Contract Management icon"></i> Document Management</a></li>
           <li><a href="#lease-management"><i class="fas fa-file-signature" aria-label="Lease Management icon"></i> Lease Management</a></li>
+          <li><a href="#jib-management"><i class="fas fa-calculator" aria-label="JIB Management icon"></i> JIB / Expense Tracking</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt" aria-label="Audit Dashboard icon"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar" aria-label="Reporting & Analytics icon"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope" aria-label="Communication icon"></i> Communication</a></li>
@@ -1234,6 +1235,72 @@
             </thead>
             <tbody id="leases-table-tbody">
               <!-- Leases will be populated here by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- JIB / Expense Tracking -->
+      <section id="jib-management" style="display: none;">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>JIB / Expense Tracking</h1>
+            <p>Track and manage Joint Interest Billing and other expenses</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success">Add Expense</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <h4>Add Expense</h4>
+          <div class="grid-4">
+            <div class="form-group">
+              <label for="jib-entity">Entity</label>
+              <select id="jib-entity">
+                <option>Select Entity</option>
+                <option>Kwalini Quarry</option>
+                <option>Mbabane Quarry</option>
+                <option>Sidvokodvo Quarry</option>
+                <option>Maloma Colliery</option>
+                <option>Ngwenya Mine</option>
+                <option>Malolotja Mine</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="jib-date">Expense Date</label>
+              <input type="date" id="jib-date">
+            </div>
+            <div class="form-group">
+              <label for="jib-expense-type">Expense Type</label>
+              <input type="text" id="jib-expense-type" placeholder="e.g., Operating Costs">
+            </div>
+            <div class="form-group">
+              <label for="jib-amount">Amount (E)</label>
+              <input type="number" id="jib-amount" placeholder="e.g., 5000.00">
+            </div>
+            <div class="form-group" style="grid-column: span 4;">
+              <label for="jib-description">Description</label>
+              <textarea id="jib-description" placeholder="A brief description of the expense..." rows="3"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-success">Save Expense</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="jib-table">
+            <thead>
+              <tr>
+                <th>Entity</th>
+                <th>Date</th>
+                <th>Expense Type</th>
+                <th>Amount (E)</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="jib-table-tbody">
+              <!-- Expenses will be populated here by JavaScript -->
             </tbody>
           </table>
         </div>
