@@ -479,7 +479,8 @@ nav ul li a span.notification-badge {
 }
 
 /* Enhanced Beautiful Login Section */
-.login-section {
+.login-section,
+.forgot-password-section {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -492,7 +493,8 @@ nav ul li a span.notification-badge {
   overflow: hidden;
 }
 
-.login-section::before {
+.login-section::before,
+.forgot-password-section::before {
   content: '';
   position: absolute;
   top: 0;
@@ -700,6 +702,34 @@ nav ul li a span.notification-badge {
   color: var(--primary-color);
   background: rgba(26, 54, 93, 0.1);
   transform: translateY(-50%) scale(1.1);
+}
+
+.login-form .login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.login-form .remember-me-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.login-form .forgot-password-link,
+.forgot-password-section .login-footer a {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: var(--transition);
+  font-weight: 600;
+}
+
+.login-form .forgot-password-link:hover,
+.forgot-password-section .login-footer a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
 }
 
 .validation-error {
