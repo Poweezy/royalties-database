@@ -12,6 +12,8 @@ const LeaseManagement = {
     tableBody: null,
     addLeaseBtn: null,
     addLeaseModal: null,
+    modalTitle: null,
+    saveLeaseBtn: null,
     closeModalBtn: null,
     cancelBtn: null,
     addLeaseForm: null,
@@ -40,6 +42,8 @@ const LeaseManagement = {
       tableBody: document.getElementById('lease-management-table-body'),
       addLeaseBtn: document.getElementById('add-lease-btn'),
       addLeaseModal: document.getElementById('add-lease-modal'),
+      modalTitle: document.querySelector('#add-lease-modal .modal-header h4'),
+      saveLeaseBtn: document.getElementById('save-lease-btn'),
       closeModalBtn: document.getElementById('close-add-lease-modal-btn'),
       cancelBtn: document.getElementById('cancel-add-lease-btn'),
       addLeaseForm: document.getElementById('add-lease-form'),
@@ -69,7 +73,22 @@ const LeaseManagement = {
   /**
    * Opens the "Add Lease" modal.
    */
-  openModal() {
+  openModal(lease = null) {
+    this.elements.addLeaseForm.reset();
+    if (lease) {
+      // Edit mode
+      this.elements.modalTitle.textContent = 'Edit Lease';
+      this.elements.saveLeaseBtn.textContent = 'Update Lease';
+      this.elements.addLeaseForm.dataset.editingId = lease.id;
+      this.elements.leaseEntityInput.value = lease.entity;
+      this.elements.leaseStartDateInput.value = lease.startDate;
+      this.elements.leaseEndDateInput.value = lease.endDate;
+    } else {
+      // Add mode
+      this.elements.modalTitle.textContent = 'Add New Lease';
+      this.elements.saveLeaseBtn.textContent = 'Save Lease';
+      delete this.elements.addLeaseForm.dataset.editingId;
+    }
     this.elements.addLeaseModal.style.display = 'block';
   },
 
@@ -79,6 +98,7 @@ const LeaseManagement = {
   closeModal() {
     this.elements.addLeaseModal.style.display = 'none';
     this.elements.addLeaseForm.reset();
+    delete this.elements.addLeaseForm.dataset.editingId;
   },
 
   /**
@@ -87,6 +107,7 @@ const LeaseManagement = {
    */
   async handleFormSubmit(event) {
     event.preventDefault();
+    const editingId = this.elements.addLeaseForm.dataset.editingId;
     const entity = this.elements.leaseEntityInput.value.trim();
     const startDate = this.elements.leaseStartDateInput.value;
     const endDate = this.elements.leaseEndDateInput.value;
@@ -101,22 +122,28 @@ const LeaseManagement = {
       return;
     }
 
-    const newLease = {
-      id: `lease_${Date.now()}`,
+    const leaseData = {
       entity,
       startDate,
       endDate,
-      status: this.getLeaseStatus(endDate)
+      status: this.getLeaseStatus(endDate),
     };
 
     try {
-      await dbService.add('leases', newLease);
+      if (editingId) {
+        leaseData.id = editingId;
+        await dbService.put('leases', leaseData);
+        showToast('Lease updated successfully!', 'success');
+      } else {
+        leaseData.id = `lease_${Date.now()}`;
+        await dbService.add('leases', leaseData);
+        showToast('Lease added successfully!', 'success');
+      }
       await this.renderLeases();
       this.closeModal();
-      showToast('Lease added successfully!', 'success');
     } catch (error) {
-      console.error('Error adding lease:', error);
-      showToast('Failed to add lease. See console for details.', 'error');
+      console.error('Error saving lease:', error);
+      showToast('Failed to save lease. See console for details.', 'error');
     }
   },
 
@@ -169,20 +196,39 @@ const LeaseManagement = {
       <td><span class="status-badge ${statusClass}">${status}</span></td>
       <td>
         <div class="btn-group">
-          <button class="btn btn-sm btn-primary" title="Edit Lease">
+          <button class="btn btn-sm btn-primary edit-btn" title="Edit Lease">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="btn btn-sm btn-danger" title="Delete Lease">
+          <button class="btn btn-sm btn-danger delete-btn" title="Delete Lease">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </td>
     `;
 
-    // Add event listener for the delete button
-    row.querySelector('.btn-danger').addEventListener('click', () => this.handleDeleteLease(lease.id));
+    // Add event listeners
+    row.querySelector('.edit-btn').addEventListener('click', () => this.handleEditLease(lease.id));
+    row.querySelector('.delete-btn').addEventListener('click', () => this.handleDeleteLease(lease.id));
 
     return row;
+  },
+
+  /**
+   * Handles the editing of a lease.
+   * @param {string} leaseId - The ID of the lease to edit.
+   */
+  async handleEditLease(leaseId) {
+    try {
+      const lease = await dbService.getById('leases', leaseId);
+      if (lease) {
+        this.openModal(lease);
+      } else {
+        showToast('Lease not found.', 'error');
+      }
+    } catch (error) {
+      console.error('Error fetching lease for editing:', error);
+      showToast('Failed to fetch lease details.', 'error');
+    }
   },
 
   /**
