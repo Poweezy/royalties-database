@@ -4,7 +4,7 @@
 
 import { security } from '../utils/security.js';
 
-class AuthService {
+export class AuthService {
     constructor() {
         this.isAuthenticated = false;
         this.currentUser = null;
@@ -183,6 +183,66 @@ class AuthService {
 
         const userPermissions = rolePermissions[this.currentUser.role] || [];
         return userPermissions.includes(permission);
+    }
+
+    /**
+     * Handle forgot password request
+     * @param {string} email The user's email address
+     * @returns {boolean} True if the user exists, false otherwise
+     */
+    async forgotPassword(email) {
+        // Sanitize email
+        email = security.sanitizeInput(email, 'email');
+
+        // Find user by email
+        const username = Object.keys(this.demoUsers).find(
+            (key) => this.demoUsers[key].email === email
+        );
+
+        if (username) {
+            // Generate a mock reset token
+            const token = `reset_token_${new Date().getTime()}`;
+            const expiry = new Date().getTime() + 3600 * 1000; // 1 hour expiry
+
+            // Store token in localStorage (mocking a database)
+            localStorage.setItem('password_reset_token', token);
+            localStorage.setItem('password_reset_expiry', expiry);
+            localStorage.setItem('password_reset_username', username);
+
+            // In a real app, you would send an email. Here, we log to console.
+            const resetLink = `${window.location.origin}/reset-password.html?token=${token}`;
+            console.log(`Password reset link (for demo): ${resetLink}`);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Reset password for a user
+     * @param {string} token The password reset token
+     * @param {string} newPassword The new password
+     * @returns {boolean} True if the password was reset successfully, false otherwise
+     */
+    async resetPassword(token, newPassword) {
+        const storedToken = localStorage.getItem('password_reset_token');
+        const expiry = localStorage.getItem('password_reset_expiry');
+        const username = localStorage.getItem('password_reset_username');
+
+        if (token === storedToken && new Date().getTime() < expiry) {
+            const hashedPassword = window.bcrypt.hashSync(newPassword, 10);
+            this.demoUsers[username].password = hashedPassword;
+
+            // Clean up the reset token
+            localStorage.removeItem('password_reset_token');
+            localStorage.removeItem('password_reset_expiry');
+            localStorage.removeItem('password_reset_username');
+
+            return true;
+        }
+
+        return false;
     }
 }
 
