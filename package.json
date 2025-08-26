@@ -1,0 +1,35 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test:e2e": "npx playwright test tests/e2e",
+    "test:unit": "jest",
+    "test": "npm run test:unit && npm run test:e2e",
+    "start": "http-server -p 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Poweezy/royalties-database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Poweezy/royalties-database/issues"
+  },
+  "homepage": "https://github.com/Poweezy/royalties-database#readme",
+  "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@playwright/test": "^1.55.0",
+    "http-server": "^14.1.1",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5"
+  }
+}
