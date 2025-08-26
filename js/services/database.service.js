@@ -12,6 +12,7 @@ class DatabaseService {
             users: 'users',
             leases: 'leases',
             expenses: 'expenses',
+            contracts: 'contracts',
             offline: 'offline',
             settings: 'settings'
         };
@@ -48,6 +49,10 @@ class DatabaseService {
 
                 if (!db.objectStoreNames.contains(this.stores.expenses)) {
                     db.createObjectStore(this.stores.expenses, { keyPath: 'id' });
+                }
+
+                if (!db.objectStoreNames.contains(this.stores.contracts)) {
+                    db.createObjectStore(this.stores.contracts, { keyPath: 'id' });
                 }
 
                 if (!db.objectStoreNames.contains(this.stores.offline)) {

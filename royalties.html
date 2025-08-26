@@ -1047,128 +1047,86 @@
             <p>Manage royalty agreements for mines and quarries</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-success">Add Contract</button>
+            <button class="btn btn-success" id="add-contract-btn">Add Contract</button>
           </div>
         </div>
         <div class="user-form-container">
-          <h4>Add Contract</h4>
-          <div class="grid-4">
-            <div class="form-group">
-              <label for="contract-entity">Entity</label>
-              <select id="contract-entity" aria-describedby="contract-entity-validation">
-                <option>Select Entity</option>
-                <option>Kwalini Quarry</option>
-                <option>Mbabane Quarry</option>
-                <option>Sidvokodvo Quarry</option>
-                <option>Maloma Colliery</option>
-                <option>Ngwenya Mine</option>
-                <option>Malolotja Mine</option>
-              </select>
-              <div class="validation-error" id="contract-entity-validation">Entity is required</div>
-            </div>
-            <div class="form-group">
-              <label for="royalty-rate">Royalty Rate (E/m³)</label>
-              <input type="number" id="royalty-rate" placeholder="Royalty Rate (E/m³)" aria-describedby="royalty-rate-validation">
-              <div class="validation-error" id="royalty-rate-validation">Rate is required</div>
-            </div>
-            <div class="form-group">
-              <label for="start-date">Start Date</label>
-              <input type="date" id="start-date" aria-describedby="start-date-validation">
-              <div class="validation-error" id="start-date-validation">Start date is required</div>
-            </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Royalty Rate (E/m³)</th>
+                  <th>Start Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contract-management-table-body">
+                <!-- Contract rows will be dynamically inserted here -->
+              </tbody>
+            </table>
           </div>
-          <div class="form-actions">
-            <button class="btn btn-success">Save Contract</button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Entity</th>
-                <th>Royalty Rate (E/m³)</th>
-                <th>Start Date</th>
-                <th>Document</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Kwalini Quarry</td>
-                <td>E15.00</td>
-                <td>2024-01-01</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit" aria-label="Edit icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download" aria-label="Download icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Mbabane Quarry</td>
-                <td>E18.50</td>
-                <td>2023-06-15</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit" aria-label="Edit icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download" aria-label="Download icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>Maloma Colliery</td>
-                <td>E25.00</td>
-                <td>2023-12-01</td>
-                <td>
-                  <button class="btn btn-sm btn-info" title="View contract document">
-                    <i class="fas fa-file-pdf" aria-label="PDF icon"></i> PDF
-                  </button>
-                </td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-primary" title="Edit contract">
-                      <i class="fas fa-edit" aria-label="Edit icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Download contract">
-                      <i class="fas fa-download" aria-label="Download icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" title="Terminate contract">
-                      <i class="fas fa-ban" aria-label="Terminate icon"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody></table>
         </div>
       </section>
+
+      <!-- Modal for Adding/Editing Contracts -->
+      <div id="add-contract-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Add New Contract</h4>
+            <button id="close-add-contract-modal-btn" class="close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="add-contract-form" novalidate>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label for="contract-entity">Entity</label>
+                  <select id="contract-entity" required>
+                    <option value="">Select Entity</option>
+                    <option>Kwalini Quarry</option>
+                    <option>Mbabane Quarry</option>
+                    <option>Sidvokodvo Quarry</option>
+                    <option>Maloma Colliery</option>
+                    <option>Ngwenya Mine</option>
+                    <option>Malolotja Mine</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="royalty-rate">Royalty Rate (E/m³)</label>
+                  <input type="number" id="royalty-rate" placeholder="e.g., 15.50" step="0.01" required>
+                </div>
+                <div class="form-group">
+                  <label for="start-date">Start Date</label>
+                  <input type="date" id="start-date" required>
+                </div>
+                 <div class="form-group">
+                  <label for="end-date">End Date (Optional)</label>
+                  <input type="date" id="end-date">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="cancel-add-contract-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" id="save-contract-btn" class="btn btn-success" form="add-contract-form">Save Contract</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Lease Management -->
       <section id="lease-management" style="display: none;">
         <div class="page-header">
+          <div class="page-title">
+            <h1>Lease Management</h1>
+            <p>Manage your lease agreements</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="add-lease-btn">Add Lease</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <div class="table-container">
           <div class="page-title">
             <h1>Lease Management</h1>
             <p>Manage your lease agreements</p>
