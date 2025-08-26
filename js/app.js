@@ -324,6 +324,30 @@ class App {
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
             authService.logout();
         });
+
+        // Forgot Password link
+        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showForgotPassword();
+        });
+
+        // Back to Login link
+        document.getElementById('back-to-login-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showLogin();
+        });
+
+        // Forgot Password form submission
+        document.getElementById('forgot-password-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.elements['reset-email'].value;
+            if (email) {
+                this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
+                this.showLogin();
+            } else {
+                this.notificationManager.show('Please enter your email address.', 'error');
+            }
+        });
     }
 
     /**
@@ -580,6 +604,13 @@ class App {
 
     showLogin() {
         document.getElementById('login-section').style.display = 'flex';
+        document.getElementById('forgot-password-section').style.display = 'none';
+        document.getElementById('app-container').style.display = 'none';
+    }
+
+    showForgotPassword() {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('forgot-password-section').style.display = 'flex';
         document.getElementById('app-container').style.display = 'none';
     }
 
