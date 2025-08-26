@@ -3,13 +3,10 @@
  * @description Handles all logic for the Lease Management section, including
  *              displaying leases, and adding new lease agreements via a modal.
  */
-import { AppDB } from '../services/database.service.js';
+import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
 
 const LeaseManagement = {
-  // Store a reference to the database
-  db: null,
-
   // DOM element references
   elements: {
     tableBody: null,
@@ -29,7 +26,6 @@ const LeaseManagement = {
    */
   async init() {
     console.log('Initializing Lease Management...');
-    this.db = await AppDB.getDB();
     this.cacheDOMElements();
     this.bindEvents();
     await this.renderLeases();
@@ -114,7 +110,7 @@ const LeaseManagement = {
     };
 
     try {
-      await this.db.add('leases', newLease);
+      await dbService.add('leases', newLease);
       await this.renderLeases();
       this.closeModal();
       showToast('Lease added successfully!', 'success');
@@ -129,7 +125,7 @@ const LeaseManagement = {
    */
   async renderLeases() {
     try {
-      const leases = await this.db.getAll('leases');
+      const leases = await dbService.getAll('leases');
       this.elements.tableBody.innerHTML = ''; // Clear existing rows
 
       if (leases.length === 0) {
@@ -196,7 +192,7 @@ const LeaseManagement = {
   async handleDeleteLease(leaseId) {
       if (confirm('Are you sure you want to delete this lease? This action cannot be undone.')) {
           try {
-              await this.db.delete('leases', leaseId);
+              await dbService.delete('leases', leaseId);
               await this.renderLeases();
               showToast('Lease deleted successfully.', 'success');
           } catch (error) {
