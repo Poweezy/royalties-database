@@ -94,7 +94,12 @@ class App {
                 }
             ],
             filteredAuditLog: [],
-            notifications: [],
+            notifications: [
+                { id: 1, message: 'Critical: Payment Overdue - Maloma Colliery', type: 'critical', unread: true },
+                { id: 2, message: 'Security Alert: Multiple Failed Login Attempts', type: 'critical', unread: true },
+                { id: 3, message: 'Reminder: Monthly Report Due Tomorrow', type: 'info', unread: true },
+                { id: 4, message: 'Payment Received - Kwalini Quarry', type: 'success', unread: false },
+            ],
             charts: {},
             leases: [
                 {
@@ -185,10 +190,11 @@ class App {
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
-        this.userManager = new UserManager();
+        this.userManager = new UserManager(this.notificationManager);
 
         // Initialize app
         this.initializeServices();
+        this.updateNotificationCount();
         this.idleWarningTimeout = null;
         this.idleLogoutTimeout = null;
         this.setupIdleTimeout();
@@ -293,6 +299,55 @@ class App {
                     <td>${item.assignedTo}</td>
                     <td><button class="btn btn-sm btn-info">View</button></td>
                 </tr>
+            `).join('');
+        }
+    }
+
+    checkForOverduePayments() {
+        // This is a simulation. In a real app, this would involve checking dates and payment statuses.
+        const overduePayment = {
+            entity: 'Maloma Colliery',
+            amount: 145750.00,
+            daysOverdue: 15,
+        };
+
+        if (overduePayment) {
+            const newNotification = {
+                id: this.state.notifications.length + 1,
+                message: `Critical: Payment for ${overduePayment.entity} is ${overduePayment.daysOverdue} days overdue.`,
+                type: 'critical',
+                unread: true,
+            };
+            this.state.notifications.unshift(newNotification);
+            this.updateNotificationCount();
+        }
+    }
+
+    updateNotificationCount() {
+        const unreadCount = this.state.notifications.filter(n => n.unread).length;
+        const badge = document.querySelector('nav a[href="#notifications"] .notification-badge');
+        if (badge) {
+            badge.textContent = unreadCount;
+        }
+    }
+
+    renderNotifications() {
+        const container = document.getElementById('notifications-list');
+        if (container) {
+            container.innerHTML = this.state.notifications.map(n => `
+                <div class="notification-item ${n.unread ? 'unread' : ''} ${n.type}">
+                    <div class="notification-icon ${n.type}">
+                        <i class="fas fa-exclamation-circle" aria-label="Notification icon"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <h5>${n.message}</h5>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="btn btn-sm btn-secondary" data-notification-id="${n.id}">Mark Read</button>
+                        </div>
+                    </div>
+                </div>
             `).join('');
         }
     }
@@ -517,6 +572,9 @@ class App {
             
             // Show success notification
             this.notificationManager.show('Dashboard initialized successfully', 'success');
+
+            // Check for overdue payments
+            this.checkForOverduePayments();
         } catch (error) {
             throw new Error('Failed to initialize dashboard');
         }
@@ -611,6 +669,22 @@ class App {
                     runComplianceCheckBtn.innerHTML = '<i class="fas fa-check-double"></i> Run Compliance Check';
                     runComplianceCheckBtn.disabled = false;
                 }, 2000);
+            });
+        }
+
+        const notificationsList = document.getElementById('notifications-list');
+        if (notificationsList) {
+            notificationsList.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.tagName === 'BUTTON' && target.dataset.notificationId) {
+                    const notificationId = parseInt(target.dataset.notificationId, 10);
+                    const notification = this.state.notifications.find(n => n.id === notificationId);
+                    if (notification) {
+                        notification.unread = false;
+                        this.renderNotifications();
+                        this.updateNotificationCount();
+                    }
+                }
             });
         }
 
@@ -906,6 +980,10 @@ class App {
 
         if (route === 'compliance') {
             this.renderFinancialCompliance();
+        }
+
+        if (route === 'notifications') {
+            this.renderNotifications();
         }
 
         // Update active navigation state
