@@ -1,31 +1,138 @@
 /**
  * @module DocumentManagement
- * @description Handles logic for the Document Management section.
- * This is a recreated basic version to fix a bug.
+ * @description Handles all logic for the Document Management section.
  */
-import { showNotification } from './NotificationManager.js';
+import { dbService } from '../services/database.service.js';
+import { showToast } from './NotificationManager.js';
+import { authService } from '../services/auth.service.js';
 
 const DocumentManagement = {
-  init() {
-    console.log('Document Management Initialized (Recreated).');
-    // In a full implementation, we would cache elements and bind events here.
-    // For now, we just ensure the module loads and can call the notification function.
-    this.testNotification();
+  elements: {},
+
+  async init() {
+    console.log('Initializing Document Management...');
+    this.cacheDOMElements();
+    this.bindEvents();
+    await this.renderDocuments();
+    console.log('Document Management Initialized.');
   },
 
-  testNotification() {
-    // This is a test to ensure the notification system is working.
-    // In a real scenario, this would be tied to user actions.
-    console.log('Testing notification from DocumentManagement...');
-    // showNotification('Document Management module loaded.', 'info');
+  cacheDOMElements() {
+    this.elements = {
+      tableBody: document.getElementById('document-management-table-body'),
+      uploadBtn: document.getElementById('upload-document-btn'),
+      uploadModal: document.getElementById('upload-document-modal'),
+      closeModalBtn: document.getElementById('close-upload-document-modal-btn'),
+      cancelBtn: document.getElementById('cancel-upload-document-btn'),
+      uploadForm: document.getElementById('upload-document-form'),
+      fileInput: document.getElementById('document-file'),
+      categoryInput: document.getElementById('document-category'),
+    };
+  },
+
+  bindEvents() {
+    this.elements.uploadBtn.addEventListener('click', () => this.openModal());
+    this.elements.closeModalBtn.addEventListener('click', () => this.closeModal());
+    this.elements.cancelBtn.addEventListener('click', () => this.closeModal());
+    this.elements.uploadForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+  },
+
+  openModal() {
+    this.elements.uploadForm.reset();
+    this.elements.uploadModal.style.display = 'block';
+  },
+
+  closeModal() {
+    this.elements.uploadModal.style.display = 'none';
+    this.elements.uploadForm.reset();
+  },
+
+  async handleFormSubmit(event) {
+    event.preventDefault();
+    const file = this.elements.fileInput.files[0];
+    const category = this.elements.categoryInput.value;
+
+    if (!file || !category) {
+      showToast('Please select a file and a category.', 'error');
+      return;
+    }
+
+    // Simulate file upload and storage
+    const documentData = {
+      id: `doc_${Date.now()}`,
+      filename: file.name,
+      category: category,
+      uploadedBy: authService.getCurrentUser()?.username || 'admin',
+      uploadDate: new Date().toISOString(),
+      size: file.size,
+      type: file.type,
+    };
+
+    try {
+      await dbService.add('documents', documentData);
+      await this.renderDocuments();
+      this.closeModal();
+      showToast('Document uploaded successfully!', 'success');
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      showToast('Failed to upload document.', 'error');
+    }
+  },
+
+  async renderDocuments() {
+    try {
+      const documents = await dbService.getAll('documents');
+      this.elements.tableBody.innerHTML = '';
+      if (documents.length === 0) {
+        this.elements.tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">No documents found.</td></tr>`;
+        return;
+      }
+      documents.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+      documents.forEach(doc => {
+        const row = this.createDocumentRow(doc);
+        this.elements.tableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('Error rendering documents:', error);
+      showToast('Failed to load documents.', 'error');
+    }
+  },
+
+  createDocumentRow(doc) {
+    const row = document.createElement('tr');
+    row.setAttribute('data-id', doc.id);
+    const fileSize = (doc.size / 1024).toFixed(2); // in KB
+
+    row.innerHTML = `
+      <td><i class="fas fa-file-alt"></i> ${doc.filename}</td>
+      <td>${doc.category}</td>
+      <td>${doc.uploadedBy}</td>
+      <td>${new Date(doc.uploadDate).toLocaleDateString()}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-info" title="Download Document"><i class="fas fa-download"></i></button>
+          <button class="btn btn-sm btn-danger delete-btn" title="Delete Document"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    `;
+
+    row.querySelector('.delete-btn').addEventListener('click', () => this.handleDeleteDocument(doc.id));
+    // In a real app, the download button would have its own handler
+    return row;
+  },
+
+  async handleDeleteDocument(docId) {
+    if (confirm('Are you sure you want to delete this document?')) {
+      try {
+        await dbService.delete('documents', docId);
+        await this.renderDocuments();
+        showToast('Document deleted successfully.', 'success');
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        showToast('Failed to delete document.', 'error');
+      }
+    }
   }
 };
-
-// Since this is a recreated file, we'll initialize it directly
-// if its corresponding section is visible. A more robust app
-// would handle this initialization within the main app controller.
-if (document.getElementById('document-management')?.style.display !== 'none') {
-    DocumentManagement.init();
-}
 
 export default DocumentManagement;

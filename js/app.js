@@ -23,6 +23,7 @@ import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
 import ExpenseTracking from './modules/expense-tracking.js';
 import ContractManagement from './modules/contract-management.js';
+import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
 
 class App {
@@ -87,7 +88,7 @@ class App {
 
         // Initialize modules
         this.notificationManager = notificationManager;
-        this.errorHandler = new ErrorHandler(this.notificationManager);
+        this.errorHandler = new ErrorHandler(notificationManager);
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
@@ -95,6 +96,7 @@ class App {
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
         this.contractManagement = ContractManagement;
+        this.documentManagement = DocumentManagement;
         this.reporting = Reporting;
 
         // Initialize app
@@ -191,6 +193,9 @@ class App {
 
             // Initialize Reporting
             await this.reporting.init();
+
+            // Initialize Document Management
+            await this.documentManagement.init();
 
             // Show dashboard
             this.showDashboard();
@@ -518,9 +523,9 @@ class App {
         metricSelects.forEach(select => {
             if (select) {
                 select.addEventListener('change', (e) => {
-                    const metricId = e.target.id.split('-')[0]; // e.g., 'royalties' from 'royalties-period'
+                    const metricId = e.target.id.split('-')[0];
                     const filterValue = e.target.value;
-                    this.chartManager.updateMetric(metricId, filterValue);
+                    this.handleDashboardFilterChange(metricId, filterValue);
                 });
             }
         });
@@ -569,6 +574,67 @@ class App {
             });
         }
     }
+
+    handleDashboardFilterChange(metric, period) {
+        console.log(`Dashboard filter changed for ${metric} to ${period}`);
+        const mockData = {
+            '2023': {
+                totalRoyalties: 850000.00,
+                royaltiesTrend: '-5.2% from last year',
+                trendClass: 'trend-negative',
+                trendIcon: 'fa-arrow-down',
+                progress: 65,
+                revenueLabels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                revenueData: [450000, 500000, 650000, 600000, 700000, 800000],
+            },
+            'all': {
+                totalRoyalties: 1842500.00,
+                royaltiesTrend: '+8.1% overall',
+                trendClass: 'trend-positive',
+                trendIcon: 'fa-arrow-up',
+                progress: 85,
+                 revenueLabels: ['2022', '2023', '2024'],
+                revenueData: [800000, 850000, 992500],
+            },
+            'last': { // for entities
+                activeEntities: 5,
+                entitiesTrend: '-1 new this month',
+                trendClass: 'trend-negative',
+                trendIcon: 'fa-arrow-down',
+            }
+        };
+
+        const defaultData = {
+            totalRoyalties: 992500.00,
+            royaltiesTrend: '+15.8% from last year',
+            trendClass: 'trend-positive',
+            trendIcon: 'fa-arrow-up',
+            progress: 75,
+            activeEntities: 6,
+            entitiesTrend: '+2 new this month',
+            revenueLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            revenueData: [500000, 600000, 750000, 700000, 800000, 900000],
+        };
+
+        const data = mockData[period] || defaultData;
+
+        if (metric === 'royalties') {
+            document.getElementById('total-royalties').textContent = `E ${data.totalRoyalties.toLocaleString()}`;
+            const trendEl = document.getElementById('royalties-trend');
+            trendEl.innerHTML = `<i class="fas ${data.trendIcon} ${data.trendClass}"></i> ${data.royaltiesTrend}`;
+            document.getElementById('royalties-progress').style.width = `${data.progress}%`;
+            this.chartManager.updateChart('revenue', data.revenueLabels, data.revenueData);
+        }
+
+        if (metric === 'entities') {
+            document.getElementById('active-entities').textContent = data.activeEntities;
+             const trendEl = document.getElementById('entities-trend');
+            trendEl.innerHTML = `<i class="fas ${data.trendIcon} ${data.trendClass}"></i> ${data.entitiesTrend}`;
+        }
+
+        showToast(`Dashboard updated for ${period}`, 'info');
+    }
+
 
     /**
      * Handle login form submission

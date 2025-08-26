@@ -139,6 +139,7 @@
           <li><a href="#contract-management"><i class="fas fa-file-contract" aria-label="Contract Management icon"></i> Contract Management</a></li>
           <li><a href="#lease-management"><i class="fas fa-file-signature" aria-label="Lease Management icon"></i> Lease Management</a></li>
           <li><a href="#expense-tracking"><i class="fas fa-coins" aria-label="Expense Tracking icon"></i> JIB / Expense Tracking</a></li>
+          <li><a href="#document-management"><i class="fas fa-folder-open" aria-label="Document Management icon"></i> Document Management</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt" aria-label="Audit Dashboard icon"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar" aria-label="Reporting & Analytics icon"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope" aria-label="Communication icon"></i> Communication</a></li>
@@ -1266,6 +1267,70 @@
           <div class="modal-footer">
             <button type="button" id="cancel-add-expense-btn" class="btn btn-secondary">Cancel</button>
             <button type="submit" id="save-expense-btn" class="btn btn-success" form="add-expense-form">Save Expense</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Management -->
+      <section id="document-management" style="display: none;">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Document Management</h1>
+            <p>Upload, store, and manage all relevant documents.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="upload-document-btn">Upload Document</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>Category</th>
+                  <th>Uploaded By</th>
+                  <th>Upload Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="document-management-table-body">
+                <!-- Document rows will be dynamically inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modal for Uploading Documents -->
+      <div id="upload-document-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Upload New Document</h4>
+            <button id="close-upload-document-modal-btn" class="close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="upload-document-form" novalidate>
+              <div class="form-group">
+                <label for="document-file">Select File</label>
+                <input type="file" id="document-file" required>
+              </div>
+              <div class="form-group">
+                <label for="document-category">Category</label>
+                <select id="document-category" required>
+                  <option value="">Select Category</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Lease Agreement">Lease Agreement</option>
+                  <option value="Compliance Report">Compliance Report</option>
+                  <option value="Financial Statement">Financial Statement</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="cancel-upload-document-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" id="save-document-btn" class="btn btn-success" form="upload-document-form">Upload</button>
           </div>
         </div>
       </div>
