@@ -8,7 +8,7 @@ class AuthService {
     constructor() {
         this.isAuthenticated = false;
         this.currentUser = null;
-        this.token = localStorage.getItem('auth_token');
+        this.token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
         
         // Demo credentials
         this.demoUsers = {
@@ -56,8 +56,9 @@ class AuthService {
                     return false;
                 }
                 
-                // Restore user data from localStorage
-                const userData = localStorage.getItem('user_data');
+                // Restore user data from localStorage or sessionStorage
+                const storage = localStorage.getItem('remember_me') === 'true' ? localStorage : sessionStorage;
+                const userData = storage.getItem('user_data');
                 if (userData) {
                     this.currentUser = JSON.parse(userData);
                     this.isAuthenticated = true;
@@ -74,7 +75,7 @@ class AuthService {
     /**
      * Attempt user login for demo version
      */
-    async login(username, password) {
+    async login(username, password, rememberMe = false) {
         try {
             // Sanitize inputs
             username = security.sanitizeInput(username, 'username');
@@ -97,7 +98,7 @@ class AuthService {
                 }
             };
 
-            this.setAuthenticationState(authData);
+            this.setAuthenticationState(authData, rememberMe);
             return true;
         } catch (error) {
             console.error('Login error:', error);
@@ -108,13 +109,22 @@ class AuthService {
     /**
      * Set the authentication state after successful login
      * @param {Object} authData - The authentication data containing token and user info
+     * @param {boolean} rememberMe - Whether to persist the session across browser restarts
      */
-    setAuthenticationState(authData) {
+    setAuthenticationState(authData, rememberMe = false) {
+        const storage = rememberMe ? localStorage : sessionStorage;
+
         this.token = authData.token;
         this.currentUser = authData.user;
         this.isAuthenticated = true;
-        localStorage.setItem('auth_token', this.token);
-        localStorage.setItem('user_data', JSON.stringify(this.currentUser));
+
+        storage.setItem('auth_token', this.token);
+        storage.setItem('user_data', JSON.stringify(this.currentUser));
+        if (rememberMe) {
+            localStorage.setItem('remember_me', 'true');
+        } else {
+            localStorage.removeItem('remember_me');
+        }
     }
 
     /**
@@ -125,6 +135,10 @@ class AuthService {
         this.currentUser = null;
         this.token = null;
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('remember_me');
+        sessionStorage.removeItem('auth_token');
+        sessionStorage.removeItem('user_data');
         window.location.reload();
     }
 
@@ -152,22 +166,13 @@ class AuthService {
                 }
             };
 
-            this.setAuthenticationState(mockData);
+            const rememberMe = localStorage.getItem('remember_me') === 'true';
+            this.setAuthenticationState(mockData, rememberMe);
             return true;
         } catch (error) {
             console.error('Token validation error:', error);
             return false;
         }
-    }
-
-    /**
-     * Set authentication state after successful login/validation
-     */
-    setAuthenticationState(data) {
-        this.isAuthenticated = true;
-        this.currentUser = data.user;
-        this.token = data.token;
-        localStorage.setItem('auth_token', data.token);
     }
 
     /**
