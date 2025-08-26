@@ -2,16 +2,14 @@
  * @module ExpenseTracking
  * @description Handles all logic for the JIB / Expense Tracking section.
  */
-import { AppDB } from '../services/database.service.js';
+import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
 
 const ExpenseTracking = {
-  db: null,
   elements: {},
 
   async init() {
     console.log('Initializing Expense Tracking...');
-    this.db = await AppDB.getDB();
     this.cacheDOMElements();
     this.bindEvents();
     await this.renderExpenses();
@@ -74,7 +72,7 @@ const ExpenseTracking = {
     }
 
     try {
-      await this.db.add('expenses', newExpense);
+      await dbService.add('expenses', newExpense);
       await this.renderExpenses();
       this.closeModal();
       showToast('Expense added successfully!', 'success');
@@ -86,7 +84,7 @@ const ExpenseTracking = {
 
   async renderExpenses() {
     try {
-      const expenses = await this.db.getAll('expenses');
+      const expenses = await dbService.getAll('expenses');
       this.elements.tableBody.innerHTML = '';
 
       if (expenses.length === 0) {
@@ -133,7 +131,7 @@ const ExpenseTracking = {
   async handleDeleteExpense(expenseId) {
     if (confirm('Are you sure you want to delete this expense?')) {
       try {
-        await this.db.delete('expenses', expenseId);
+        await dbService.delete('expenses', expenseId);
         await this.renderExpenses();
         showToast('Expense deleted successfully.', 'success');
       } catch (error) {
