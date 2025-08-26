@@ -18,7 +18,6 @@ import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
-import { NotificationCenter } from './modules/NotificationCenter.js';
 import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 
@@ -84,7 +83,6 @@ class App {
 
         // Initialize modules
         this.notificationManager = new NotificationManager();
-        this.notificationCenter = new NotificationCenter();
         this.errorHandler = new ErrorHandler(this.notificationManager);
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
@@ -120,35 +118,6 @@ class App {
                  e.reason.message.includes('message channel'))) {
                 e.preventDefault();
                 return false;
-            }
-        });
-    }
-
-    #setupNotificationsCenterListeners() {
-        const notificationSection = document.getElementById('notifications');
-
-        // Filter buttons
-        notificationSection.addEventListener('click', (e) => {
-            if (e.target.classList.contains('filter-btn')) {
-                const filter = e.target.dataset.filter;
-                this.notificationCenter.filter(filter);
-
-                // Update active state
-                notificationSection.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
-            }
-        });
-
-        // Mark all as read
-        document.getElementById('mark-all-read-btn')?.addEventListener('click', () => {
-            this.notificationCenter.markAllAsRead();
-        });
-
-        // Mark single item as read
-        notificationSection.addEventListener('click', (e) => {
-            if (e.target.classList.contains('mark-read-btn')) {
-                const notificationId = parseInt(e.target.closest('.notification-item').dataset.id, 10);
-                this.notificationCenter.markAsRead(notificationId);
             }
         });
     }
@@ -336,14 +305,9 @@ class App {
         // Navigation events
         document.querySelectorAll('nav a')?.forEach(link => {
             link.addEventListener('click', (e) => {
-                const route = e.target.closest('a').getAttribute('href');
-                window.location.hash = route;
+                e.preventDefault();
+                this.navigate(e.target.getAttribute('href').substring(1));
             });
-        });
-
-        window.addEventListener('hashchange', () => {
-            const route = window.location.hash.substring(1);
-            this.navigate(route || 'dashboard');
         });
 
         // Logout
@@ -355,7 +319,6 @@ class App {
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
-        this.#setupNotificationsCenterListeners();
 
         // Confirm Logout
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
@@ -544,6 +507,7 @@ class App {
     async handleLogin(form) {
         const username = form.username.value.trim();
         const password = form.password.value.trim();
+        const rememberMe = form['remember-me'].checked;
         const usernameError = document.getElementById('username-error');
         const passwordError = document.getElementById('password-error');
         let isValid = true;
@@ -569,7 +533,7 @@ class App {
         }
 
         try {
-            await authService.login(username, password);
+            await authService.login(username, password, rememberMe);
             this.showDashboard();
         } catch (error) {
             console.error('Login error:', error);
