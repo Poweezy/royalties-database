@@ -90,3 +90,15 @@ export class NotificationManager {
     this.notifications.clear();
   }
 }
+
+// Create and export a singleton instance
+export const notificationManager = new NotificationManager();
+
+// Export standalone functions for convenience, which use the singleton
+export const showToast = (message, type = 'info', duration = 5000) => {
+  return notificationManager.show(message, type, duration);
+};
+
+export const showNotification = (message, type = 'info', duration = 5000) => {
+  return notificationManager.show(message, type, duration);
+};
