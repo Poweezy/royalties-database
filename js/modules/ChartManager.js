@@ -159,6 +159,23 @@ export class ChartManager {
     }
   }
 
+  /**
+   * Updates a specific chart with new data.
+   * @param {string} chartName - The name of the chart to update ('revenue' or 'production').
+   * @param {Array<string>} labels - The new labels for the chart.
+   * @param {Array<number>} data - The new data points for the chart.
+   */
+  updateChart(chartName, labels, data) {
+    const chart = this.charts.get(chartName);
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update();
+    } else {
+      console.warn(`Chart '${chartName}' not found for update.`);
+    }
+  }
+
   getChart(chartId) {
     if (chartId === 'revenue-trends-chart') {
         return this.charts.get('revenue');
