@@ -23,6 +23,12 @@ export class ChartManager {
         this.createRevenueChart(),
         this.createProductionChart()
       ]);
+      // Add a small delay to allow the DOM to update, then resize the charts
+      setTimeout(() => {
+        this.charts.forEach(chart => {
+          chart.resize();
+        });
+      }, 150);
     } catch (error) {
       console.warn('Chart initialization failed:', error);
       this.showFallbackCharts();
