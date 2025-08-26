@@ -70,7 +70,30 @@ class App {
                     }
                 }
             ],
-            auditLog: [],
+            auditLog: [
+                {
+                    timestamp: '2024-02-15 09:15:23',
+                    user: 'admin',
+                    action: 'Login',
+                    ip: '192.168.1.100',
+                    details: 'Standard login',
+                },
+                {
+                    timestamp: '2024-02-15 08:45:12',
+                    user: 'j.doe',
+                    action: 'Data Access',
+                    ip: '192.168.1.105',
+                    details: 'Accessed royalty records',
+                },
+                {
+                    timestamp: '2024-02-14 23:30:45',
+                    user: 'unknown',
+                    action: 'Failed Login',
+                    ip: '203.0.113.15',
+                    details: 'Invalid credentials - blocked',
+                }
+            ],
+            filteredAuditLog: [],
             notifications: [],
             charts: {},
             leases: [
@@ -129,6 +152,29 @@ class App {
                     frequency: 'Weekly',
                     recipients: 'compliance-officer@example.com',
                     nextRunDate: '2025-08-28',
+                },
+            ],
+            financialComplianceData: [
+                {
+                    item: 'Royalty Payment Compliance',
+                    status: 'Compliant',
+                    lastAudit: '2025-07-01',
+                    nextDeadline: '2026-07-01',
+                    assignedTo: 'Finance Dept.',
+                },
+                {
+                    item: 'Tax Reporting Compliance',
+                    status: 'Needs Attention',
+                    lastAudit: '2025-06-15',
+                    nextDeadline: '2025-08-30',
+                    assignedTo: 'J. Doe',
+                },
+                {
+                    item: 'Audit Trail Maintenance',
+                    status: 'Compliant',
+                    lastAudit: '2025-08-01',
+                    nextDeadline: 'N/A',
+                    assignedTo: 'System',
                 },
             ]
         };
@@ -194,6 +240,58 @@ class App {
                             </button>
                         </div>
                     </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    filterAuditLog() {
+        const user = document.getElementById('audit-filter-user').value;
+        const action = document.getElementById('audit-filter-action').value;
+        const date = document.getElementById('audit-filter-date').value;
+
+        this.state.filteredAuditLog = this.state.auditLog.filter(log => {
+            const userMatch = user ? log.user === user : true;
+            const actionMatch = action ? log.action.toLowerCase().replace(' ', '-') === action : true;
+
+            // Date filtering logic would be more complex in a real app
+            const dateMatch = date ? log.timestamp.startsWith('2024-02-15') : true;
+
+            return userMatch && actionMatch && dateMatch;
+        });
+
+        this.renderAuditLog();
+    }
+
+    renderAuditLog() {
+        const tableBody = document.getElementById('audit-log-tbody');
+        const logs = this.state.filteredAuditLog.length > 0 ? this.state.filteredAuditLog : this.state.auditLog;
+        if (tableBody) {
+            tableBody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${log.timestamp}</td>
+                    <td>${log.user}</td>
+                    <td><span class="action-badge ${log.action.toLowerCase().replace(' ', '-')}">${log.action}</span></td>
+                    <td>${log.ip}</td>
+                    <td>Chrome 121.0.0.0</td>
+                    <td><span class="status-badge ${log.action.includes('Failed') ? 'warning' : 'active'}">${log.action.includes('Failed') ? 'Failed' : 'Success'}</span></td>
+                    <td>${log.details}</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    renderFinancialCompliance() {
+        const tableBody = document.querySelector('#financial-compliance tbody');
+        if (tableBody) {
+            tableBody.innerHTML = this.state.financialComplianceData.map(item => `
+                <tr>
+                    <td>${item.item}</td>
+                    <td><span class="status-badge ${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span></td>
+                    <td>${item.lastAudit}</td>
+                    <td>${item.nextDeadline}</td>
+                    <td>${item.assignedTo}</td>
+                    <td><button class="btn btn-sm btn-info">View</button></td>
                 </tr>
             `).join('');
         }
@@ -502,6 +600,20 @@ class App {
             });
         }
 
+        const runComplianceCheckBtn = document.getElementById('run-compliance-check-btn');
+        if (runComplianceCheckBtn) {
+            runComplianceCheckBtn.addEventListener('click', () => {
+                runComplianceCheckBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Check...';
+                runComplianceCheckBtn.disabled = true;
+                setTimeout(() => {
+                    document.getElementById('overall-compliance-rate').textContent = '98%';
+                    this.notificationManager.show('Compliance check completed. All systems are compliant.', 'success');
+                    runComplianceCheckBtn.innerHTML = '<i class="fas fa-check-double"></i> Run Compliance Check';
+                    runComplianceCheckBtn.disabled = false;
+                }, 2000);
+            });
+        }
+
         document.getElementById('close-compose-form')?.addEventListener('click', () => {
             document.getElementById('compose-message-container').style.display = 'none';
         });
@@ -638,6 +750,21 @@ class App {
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
+        const auditFilterUser = document.getElementById('audit-filter-user');
+        if (auditFilterUser) {
+            auditFilterUser.addEventListener('change', () => this.filterAuditLog());
+        }
+
+        const auditFilterAction = document.getElementById('audit-filter-action');
+        if (auditFilterAction) {
+            auditFilterAction.addEventListener('change', () => this.filterAuditLog());
+        }
+
+        const auditFilterDate = document.getElementById('audit-filter-date');
+        if (auditFilterDate) {
+            auditFilterDate.addEventListener('change', () => this.filterAuditLog());
+        }
+
         const metricSelects = [
             document.getElementById('royalties-period'),
             document.getElementById('entities-period')
@@ -771,6 +898,14 @@ class App {
 
         if (route === 'reporting-analytics') {
             this.renderScheduledReports();
+        }
+
+        if (route === 'user-management') {
+            this.renderAuditLog();
+        }
+
+        if (route === 'compliance') {
+            this.renderFinancialCompliance();
         }
 
         // Update active navigation state
