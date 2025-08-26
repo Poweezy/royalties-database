@@ -5,7 +5,8 @@
  * fetching, rendering, adding, updating, and deleting users.
  */
 export class UserManager {
-  constructor() {
+  constructor(notificationManager) {
+    this.notificationManager = notificationManager;
     // In a real application, this would be fetched from a server.
     // For now, we use a static array based on the original HTML.
     this.users = [
@@ -100,6 +101,9 @@ export class UserManager {
 
     this.users.push(newUser);
     this.renderUsers();
+    if (this.notificationManager) {
+      this.notificationManager.show(`New user created: ${newUser.username}`, 'success');
+    }
   }
 
   /**
