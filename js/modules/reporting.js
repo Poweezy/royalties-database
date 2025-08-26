@@ -13,9 +13,24 @@ const Reporting = {
   },
 
   bindEvents() {
-    const royaltySummaryBtn = document.querySelector('#quick-reports .report-card:first-child button');
+    const royaltySummaryBtn = document.querySelector('#quick-reports .report-card:nth-child(1) button');
     if (royaltySummaryBtn) {
       royaltySummaryBtn.addEventListener('click', () => this.generateRoyaltySummary());
+    }
+
+    const entityPerformanceBtn = document.querySelector('#quick-reports .report-card:nth-child(2) button');
+    if (entityPerformanceBtn) {
+        entityPerformanceBtn.addEventListener('click', () => this.generateEntityPerformanceReport());
+    }
+
+    const complianceStatusBtn = document.querySelector('#quick-reports .report-card:nth-child(3) button');
+    if (complianceStatusBtn) {
+        complianceStatusBtn.addEventListener('click', () => this.generateComplianceStatusReport());
+    }
+
+    const outstandingPaymentsBtn = document.querySelector('#quick-reports .report-card:nth-child(4) button');
+    if (outstandingPaymentsBtn) {
+        outstandingPaymentsBtn.addEventListener('click', () => this.generateOutstandingPaymentsReport());
     }
   },
 
@@ -65,6 +80,162 @@ const Reporting = {
   }
 
   // Other report generation methods will be added here
+  async generateEntityPerformanceReport() {
+    showToast('Generating Entity Performance Report...', 'info');
+    try {
+        const [royalties, contracts] = await Promise.all([
+            dbService.getAll('royalties'),
+            dbService.getAll('contracts')
+        ]);
+
+        if (royalties.length === 0) {
+            showToast('No royalty data available for performance analysis.', 'warning');
+            return;
+        }
+
+        const performanceData = {};
+
+        // Aggregate royalty data
+        royalties.forEach(r => {
+            if (!performanceData[r.entity]) {
+                performanceData[r.entity] = { totalVolume: 0, totalRoyalties: 0, contractRate: 'N/A' };
+            }
+            performanceData[r.entity].totalVolume += r.volume;
+            performanceData[r.entity].totalRoyalties += r.royalties;
+        });
+
+        // Add contract data
+        contracts.forEach(c => {
+            if (performanceData[c.entity]) {
+                performanceData[c.entity].contractRate = `E ${c.royaltyRate.toFixed(2)}`;
+            }
+        });
+
+        const headers = ['Entity', 'Total Volume (m³)', 'Total Royalties Paid (E)', 'Contracted Rate (E/m³)'];
+        const data = [headers];
+
+        for (const entity in performanceData) {
+            const d = performanceData[entity];
+            data.push([
+                entity,
+                d.totalVolume,
+                d.totalRoyalties.toFixed(2),
+                d.contractRate
+            ]);
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Entity Performance');
+
+        XLSX.writeFile(wb, 'Entity_Performance_Report.xlsx');
+        showToast('Entity Performance Report generated successfully.', 'success');
+
+    } catch (error) {
+        console.error('Error generating entity performance report:', error);
+        showToast('Failed to generate report. See console for details.', 'error');
+    }
+  },
+
+  async generateComplianceStatusReport() {
+    showToast('Generating Compliance Status Report...', 'info');
+    try {
+        const [leases, contracts] = await Promise.all([
+            dbService.getAll('leases'),
+            dbService.getAll('contracts')
+        ]);
+
+        const headers = ['Entity', 'Item', 'Status', 'Expiry/End Date'];
+        const data = [headers];
+
+        leases.forEach(l => {
+            data.push([
+                l.entity,
+                'Lease Agreement',
+                this.getLeaseStatus(l.endDate),
+                new Date(l.endDate).toLocaleDateString()
+            ]);
+        });
+
+        contracts.forEach(c => {
+            data.push([
+                c.entity,
+                'Royalty Contract',
+                this.getContractStatus(c),
+                c.endDate ? new Date(c.endDate).toLocaleDateString() : 'N/A'
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Compliance Status');
+
+        XLSX.writeFile(wb, 'Compliance_Status_Report.xlsx');
+        showToast('Compliance Status Report generated successfully.', 'success');
+
+    } catch (error) {
+        console.error('Error generating compliance status report:', error);
+        showToast('Failed to generate report. See console for details.', 'error');
+    }
+  },
+
+  getLeaseStatus(endDate) {
+    const now = new Date();
+    const end = new Date(endDate);
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+    if (end < now) return 'Expired';
+    if (end <= thirtyDaysFromNow) return 'Expires Soon';
+    return 'Active';
+  },
+
+  getContractStatus(contract) {
+    const now = new Date();
+    const start = new Date(contract.startDate);
+    if (contract.endDate) {
+      const end = new Date(contract.endDate);
+      return now >= start && now <= end ? 'Active' : 'Expired';
+    }
+    return now >= start ? 'Active' : 'Pending';
+  },
+
+  async generateOutstandingPaymentsReport() {
+    showToast('Generating Outstanding Payments Report...', 'info');
+    try {
+        const royalties = await dbService.getAll('royalties');
+        const outstanding = royalties.filter(r => r.status === 'Pending' || r.status === 'Overdue');
+
+        if (outstanding.length === 0) {
+            showToast('No outstanding payments to report.', 'success');
+            return;
+        }
+
+        const headers = ['Entity', 'Mineral', 'Amount (E)', 'Due Date', 'Status'];
+        const data = [headers];
+
+        outstanding.forEach(o => {
+            data.push([
+                o.entity,
+                o.mineral,
+                o.royalties.toFixed(2),
+                new Date(o.date).toLocaleDateString(), // Assuming 'date' is the due date
+                o.status
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Outstanding Payments');
+
+        XLSX.writeFile(wb, 'Outstanding_Payments_Report.xlsx');
+        showToast('Outstanding Payments Report generated successfully.', 'success');
+
+    } catch (error) {
+        console.error('Error generating outstanding payments report:', error);
+        showToast('Failed to generate report. See console for details.', 'error');
+    }
+  }
 };
 
 export default Reporting;
