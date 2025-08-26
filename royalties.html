@@ -163,26 +163,296 @@
             <button class="btn btn-info" id="refresh-dashboard" title="Refresh dashboard data">
               <i class="fas fa-sync-alt" aria-label="Refresh icon"></i> Refresh
             </button>
+            <button class="btn btn-primary" id="admin-panel-btn" title="Access Admin Panel">
+              <i class="fas fa-cog" aria-label="Admin Panel icon"></i> Admin Panel
+            </button>
+            <button class="btn btn-secondary" id="notifications-btn" title="View Notifications">
+              <i class="fas fa-bell" aria-label="Notifications icon"></i> <span id="notifications-count">3</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Performance Indicators -->
+        <div class="charts-grid">
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-coins" aria-label="Total Royalties icon"></i> Total Royalties (YTD)</h3>
+              <select class="metric-period" id="royalties-period">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="all">All Time</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <p id="total-royalties">E 992,500.00</p>
+              <small class="trend-indicator" id="royalties-trend">
+                <i class="fas fa-arrow-up trend-positive" aria-label="Upward trend icon"></i> +15.8% from last year
+              </small>
+              <div class="mini-progress">
+                <div class="progress-bar" id="royalties-progress" style="width: 75%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-industry" aria-label="Active Entities icon"></i> Active Entities</h3>
+              <select class="metric-period" id="entities-period">
+                <option value="current">This Quarter</option>
+                <option value="last">Last Quarter</option>
+                <option value="ytd">YTD</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <p id="active-entities">6</p>
+              <small class="trend-indicator" id="entities-trend">
+                <i class="fas fa-arrow-up trend-positive" aria-label="Upward trend icon"></i> +2 new this month
+              </small>
+              <div class="entities-breakdown">
+                <small>
+                  <span class="entity-type">Mines: <span id="mines-count">2</span></span> |
+                  <span class="entity-type">Quarries: <span id="quarries-count">4</span></span>
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-check-circle" aria-label="Compliance Rate icon"></i> Compliance Rate</h3>
+              <button class="btn btn-sm btn-secondary" id="compliance-details" title="View compliance details">
+                <i class="fas fa-info-circle" aria-label="Details icon"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <p id="compliance-rate">80%</p>
+              <div class="collection-progress">
+                <div class="progress-bar" id="compliance-progress" style="width: 80%;"></div>
+              </div>
+              <small class="compliance-breakdown">
+                <span>Paid: <span id="paid-count">3</span></span> |
+                <span>Pending: <span id="pending-count">1</span></span> |
+                <span>Overdue: <span id="overdue-count">1</span></span>
+              </small>
+            </div>
+          </div>
+
+          <div class="metric-card card">
+            <div class="card-header">
+              <h3><i class="fas fa-clock" aria-label="Pending Approvals icon"></i> Pending Approvals</h3>
+              <button class="btn btn-sm btn-warning" id="view-pending" title="View pending items">
+                <i class="fas fa-eye" aria-label="View icon"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <p id="pending-approvals">2</p>
+              <small id="pending-urgency">1 urgent item requires attention</small>
+              <div class="urgency-indicator">
+                <span class="urgent-badge" id="urgent-items" style="display: inline-flex;">
+                  <i class="fas fa-exclamation-triangle" aria-label="Urgent items icon"></i> <span id="urgent-count">1</span> Urgent
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Analytics Charts Section -->
         <div class="charts-grid">
-          <div class="card">
+          <div class="analytics-chart card">
             <div class="chart-header">
               <h3><i class="fas fa-chart-line" aria-label="Revenue Trends icon"></i> Revenue Trends</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">
+                  <i class="fas fa-chart-line" aria-label="Line chart icon"></i> Line
+                </button>
+                <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">
+                  <i class="fas fa-chart-bar" aria-label="Bar chart icon"></i> Bar
+                </button>
+                <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">
+                  <i class="fas fa-chart-area" aria-label="Area chart icon"></i> Area
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="revenue-trends-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
+              </div>
             </div>
             <div class="chart-container">
               <canvas id="revenue-trends-chart" aria-label="Revenue trends chart showing monthly royalty collections"></canvas>
             </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                Average monthly collection: <strong>E <span id="avg-monthly">82,708</span></strong> |
+                Peak month: <strong><span id="peak-month">January 2024</span></strong>
+              </small>
+            </div>
           </div>
 
-          <div class="card">
+          <div class="analytics-chart card">
             <div class="chart-header">
               <h3><i class="fas fa-chart-pie" aria-label="Production by Entity icon"></i> Production by Entity</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="pie" data-chart-id="production-by-entity-chart">
+                  <i class="fas fa-chart-pie" aria-label="Pie chart icon"></i> Pie
+                </button>
+                <button class="chart-btn" data-chart-type="doughnut" data-chart-id="production-by-entity-chart">
+                  <i class="fas fa-circle-notch" aria-label="Doughnut chart icon"></i> Doughnut
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="production-by-entity-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
+              </div>
             </div>
             <div class="chart-container">
               <canvas id="production-by-entity-chart" aria-label="Production volume breakdown by mining entity"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                Total production: <strong><span id="total-production">52,000</span> m³</strong> |
+                Top producer: <strong><span id="top-producer">Kwalini Quarry</span></strong>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity & Quick Actions -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-history" aria-label="Recent Activity icon"></i> Recent Activity</h3>
+              <button class="btn btn-sm btn-secondary" id="view-all-activity">
+                <i class="fas fa-external-link-alt" aria-label="View All icon"></i> View All
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="activity-list" id="recent-activity">
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-plus-circle text-success" aria-label="New item icon"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p><strong>New royalty record</strong> added for Kwalini Quarry</p>
+                    <small>2 hours ago</small>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-user-plus text-info" aria-label="New user icon"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p><strong>New user</strong> finance.manager created</p>
+                    <small>5 hours ago</small>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <i class="fas fa-file-alt text-warning" aria-label="Report icon"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p><strong>Compliance report</strong> submitted to ERA</p>
+                    <small>1 day ago</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-bolt" aria-label="Quick Actions icon"></i> Quick Actions</h3>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions-grid">
+                <button class="btn btn-success quick-action-btn" id="add-royalty-record">
+                  <i class="fas fa-plus" aria-label="Add icon"></i>
+                  <span>Add Royalty Record</span>
+                </button>
+                <button class="btn btn-info quick-action-btn" id="generate-report">
+                  <i class="fas fa-file-pdf" aria-label="PDF icon"></i>
+                  <span>Generate Report</span>
+                </button>
+                <button class="btn btn-warning quick-action-btn" id="view-overdue">
+                  <i class="fas fa-exclamation-triangle" aria-label="Overdue icon"></i>
+                  <span>View Overdue</span>
+                </button>
+                <button class="btn btn-primary quick-action-btn" id="manage-users">
+                  <i class="fas fa-users-cog" aria-label="Manage Users icon"></i>
+                  <span>Manage Users</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboards -->
+        <div class="charts-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-trophy" aria-label="Trophy icon"></i> Top 5 Performing Entities</h3>
+                </div>
+                <div class="card-body">
+                    <ol id="top-entities-list" class="leaderboard-list"></ol>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-triangle" aria-label="Warning icon"></i> Entities with Overdue Payments</h3>
+                </div>
+                <div class="card-body">
+                    <ul id="overdue-entities-list" class="leaderboard-list"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status & Alerts -->
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-bell" aria-label="System Alerts icon"></i> System Alerts</h3>
+              <span class="alert-count" id="alert-count-badge">0</span>
+            </div>
+            <div class="card-body">
+              <div class="alerts-container" id="system-alerts">
+                <div class="alert-item info">
+                  <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                  <div class="alert-content">
+                    <p>System running normally</p>
+                    <small>All services operational</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-server" aria-label="System Status icon"></i> System Status</h3>
+              <span class="status-indicator online" id="system-status">
+                <i class="fas fa-circle" aria-label="Online status icon"></i> Online
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="system-metrics">
+                <div class="metric-row">
+                  <span class="metric-label">Database:</span>
+                  <span class="metric-value status-good" id="db-status">
+                    <i class="fas fa-circle" aria-label="Connected status icon"></i> Connected
+                  </span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-label">Last Backup:</span>
+                  <span class="metric-value" id="last-backup">Today, 03:00 AM</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-label">Active Sessions:</span>
+                  <span class="metric-value" id="active-sessions">3 users</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-label">Uptime:</span>
+                  <span class="metric-value" id="system-uptime">7 days, 14 hours</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

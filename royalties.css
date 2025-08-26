@@ -1008,55 +1008,116 @@ nav ul li a span.notification-badge {
 /* Charts Grid */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .card {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  box-shadow: none;
   padding: 0;
   position: relative;
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: none;
+  box-shadow: none;
 }
 
-.chart-header {
-  background: var(--neutral-50);
-  color: var(--text-primary);
-  padding: 1rem 1.5rem;
-  font-weight: 600;
-  font-size: 1.1rem;
+.card-header, .chart-header {
+  background: linear-gradient(to bottom, #5c97d1 0%, #3a7db8 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  font-size: 0.9rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #3a7db8;
 }
 
-.chart-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
+.card-header h3, .card-header h5, .chart-header h5, .card-header h3 i, .chart-header h5 i {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: none;
+  letter-spacing: normal;
+  margin: 0;
+}
+
+.card-body {
+  padding: 1rem;
+  flex: 1;
 }
 
 .chart-container {
   position: relative;
-  height: 350px;
-  padding: 1.5rem;
+  height: 300px; /* Give the container a fixed height */
+  padding: 1rem;
   flex: 1;
 }
 
 .chart-container canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+.card-body p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.card-body small {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.card-header select, .chart-header select {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  color: #333;
+  margin-left: auto; /* Push to the right */
+}
+
+.card-header .btn, .chart-header .btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  text-transform: none;
+  letter-spacing: normal;
+  box-shadow: none;
+}
+
+.card-header .btn.active, .chart-header .btn.active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Progress Bar Styles */
+.mini-progress {
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  background-color: #3a7db8; /* Same blue as the header */
+  height: 100%;
+  border-radius: 5px;
 }
 
 /* Form Styles */

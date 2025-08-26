@@ -242,8 +242,48 @@ class App {
      */
     async initializeDashboard() {
         try {
+            // Load demo dashboard data
+            const royaltyData = {
+                totalRoyalties: 2847650.00,
+                paidRoyalties: 2135737.50,
+                pendingRoyalties: 711912.50,
+                yearlyTarget: 3500000.00
+            };
+
+            const entityData = {
+                totalEntities: 15,
+                activeEntities: 12,
+                inactiveEntities: 3,
+                entityTypes: {
+                    mines: 8,
+                    quarries: 7
+                }
+            };
+
+            const complianceData = {
+                overallRate: 94,
+                compliantEntities: 14,
+                nonCompliantEntities: 1,
+                upcomingDeadlines: 5
+            };
+
+            const recentActivity = [
+                { type: 'payment', entity: 'Maloma Colliery', amount: 156000.00, date: '2025-07-30' },
+                { type: 'audit', entity: 'Kwalini Quarry', status: 'completed', date: '2025-07-29' },
+                { type: 'report', name: 'Q2 Summary', generated: '2025-07-28' }
+            ];
+
+            // Update UI with demo data
+            this.updateDashboardMetrics(royaltyData, entityData, complianceData);
+            this.updateRecentActivity(recentActivity);
+            this.updateLeaderboards();
+
             // Initialize charts with demo data
-            await this.chartManager.initializeCharts();
+            await this.chartManager.initializeCharts({
+                royalties: royaltyData,
+                entities: entityData,
+                compliance: complianceData
+            });
             
             // Show success notification
             this.notificationManager.show('Dashboard initialized successfully', 'success');
@@ -450,15 +490,62 @@ class App {
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
-        // Refresh dashboard button
-        const refreshBtn = document.getElementById('refresh-dashboard');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', async () => {
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
-                refreshBtn.disabled = true;
-                await this.initializeDashboard();
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-                refreshBtn.disabled = false;
+        const metricSelects = [
+            document.getElementById('royalties-period'),
+            document.getElementById('entities-period')
+        ];
+
+        metricSelects.forEach(select => {
+            if (select) {
+                select.addEventListener('change', (e) => {
+                    const metricId = e.target.id.split('-')[0]; // e.g., 'royalties' from 'royalties-period'
+                    const filterValue = e.target.value;
+                    this.chartManager.updateMetric(metricId, filterValue);
+                });
+            }
+        });
+
+        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
+        if (activeEntitiesCard) {
+            activeEntitiesCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'active';
+                    this.userManager.filterUsers({ status: 'active' });
+                }
+            });
+        }
+
+        const exportChartBtns = document.querySelectorAll('.export-chart-btn');
+        exportChartBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chartId;
+                const chart = this.chartManager.getChart(chartId);
+                if (chart) {
+                    const data = chart.data.datasets[0].data;
+                    const labels = chart.data.labels;
+                    const ws_data = [
+                        labels,
+                        data
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                    XLSX.writeFile(wb, `${chartId}.xlsx`);
+                }
+            });
+        });
+
+        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
+        if (pendingApprovalsCard) {
+            pendingApprovalsCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'inactive';
+                    this.userManager.filterUsers({ status: 'inactive' });
+                }
             });
         }
     }
@@ -567,6 +654,106 @@ class App {
         this.notificationManager.show(message, 'error');
     }
 
+    /**
+     * Update dashboard metrics
+     */
+    updateDashboardMetrics(royaltyData, entityData, complianceData) {
+        // Update royalty metrics
+        const totalRoyaltiesEl = document.getElementById('total-royalties');
+        if (totalRoyaltiesEl) {
+            totalRoyaltiesEl.textContent = `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ')}`;
+        }
+
+        const activeEntitiesEl = document.getElementById('active-entities');
+        if (activeEntitiesEl) {
+            activeEntitiesEl.textContent = entityData.activeEntities.toString();
+        }
+
+        const complianceRateEl = document.getElementById('compliance-rate');
+        if (complianceRateEl) {
+            complianceRateEl.textContent = `${complianceData.overallRate}%`;
+        }
+
+        const pendingApprovalsEl = document.getElementById('pending-approvals');
+        if (pendingApprovalsEl) {
+            pendingApprovalsEl.textContent = (entityData.totalEntities - entityData.activeEntities).toString();
+        }
+
+        // Update progress bars
+        const royaltiesProgress = document.getElementById('royalties-progress');
+        if (royaltiesProgress) {
+            const progressPercent = (royaltyData.totalRoyalties / royaltyData.yearlyTarget * 100).toFixed(1);
+            royaltiesProgress.style.width = `${progressPercent}%`;
+        }
+
+        const complianceProgress = document.getElementById('compliance-progress');
+        if (complianceProgress) {
+            complianceProgress.style.width = `${complianceData.overallRate}%`;
+        }
+    }
+
+    /**
+     * Update recent activity
+     */
+    updateLeaderboards() {
+        const topEntitiesList = document.getElementById('top-entities-list');
+        const overdueEntitiesList = document.getElementById('overdue-entities-list');
+
+        if (topEntitiesList) {
+            const topEntities = [
+                { name: 'Kwalini Quarry', amount: 'E 500,000' },
+                { name: 'Maloma Colliery', amount: 'E 450,000' },
+                { name: 'Mbabane Quarry', amount: 'E 300,000' },
+                { name: 'Ngwenya Mine', amount: 'E 250,000' },
+                { name: 'Sidvokodvo Quarry', amount: 'E 200,000' },
+            ];
+            topEntitiesList.innerHTML = topEntities.map(e => `<li>${e.name}<span>${e.amount}</span></li>`).join('');
+        }
+
+        if (overdueEntitiesList) {
+            const overdueEntities = [
+                { name: 'Malolotja Mine', days: 15 },
+                { name: 'Ngwenya Mine', days: 5 },
+            ];
+            overdueEntitiesList.innerHTML = overdueEntities.map(e => `<li>${e.name}<span>${e.days} days overdue</span></li>`).join('');
+        }
+    }
+
+    updateRecentActivity(activities) {
+        const container = document.getElementById('recent-activity');
+        if (!container) return;
+
+        container.innerHTML = activities.map(activity => {
+            let icon, title;
+            switch (activity.type) {
+                case 'payment':
+                    icon = 'fa-money-bill';
+                    title = `Payment received from ${activity.entity}`;
+                    break;
+                case 'audit':
+                    icon = 'fa-clipboard-check';
+                    title = `Audit ${activity.status} for ${activity.entity}`;
+                    break;
+                case 'report':
+                    icon = 'fa-file-alt';
+                    title = `Report generated: ${activity.name}`;
+                    break;
+                default:
+                    icon = 'fa-info-circle';
+                    title = 'Activity recorded';
+            }
+
+            return `
+                <div class="activity-item">
+                    <i class="fas ${icon}"></i>
+                    <div class="activity-details">
+                        <p>${title}</p>
+                        <small>${new Date(activity.date).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 
     renderMessageHistory() {
         const messageHistory = [
