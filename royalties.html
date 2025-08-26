@@ -18,7 +18,6 @@
   <script type="module" src="js/modules/ChartManager.js"></script>
   <script type="module" src="js/modules/FileManager.js"></script>
   <script type="module" src="js/modules/NavigationManager.js"></script>
-  <script type="module" src="js/modules/document-management.js"></script>
   <script type="module" src="js/semantic-search.js"></script>
   <script type="module" src="js/app.js"></script>
   <script>
@@ -138,7 +137,7 @@
           <li><a href="#user-management"><i class="fas fa-users" aria-label="User Management icon"></i> User Management</a></li>
           <li><a href="#royalty-records"><i class="fas fa-file-invoice" aria-label="Royalty Records icon"></i> Royalty Records</a></li>
           <li><a href="#contract-management"><i class="fas fa-file-contract" aria-label="Contract Management icon"></i> Contract Management</a></li>
-          <li><a href="#document-management"><i class="fas fa-folder-open" aria-label="Document Management icon"></i> Document Management</a></li>
+          <li><a href="#lease-management"><i class="fas fa-file-signature" aria-label="Lease Management icon"></i> Lease Management</a></li>
           <li><a href="#audit-dashboard"><i class="fas fa-shield-alt" aria-label="Audit Dashboard icon"></i> Audit Dashboard</a></li>
           <li><a href="#reporting-analytics"><i class="fas fa-chart-bar" aria-label="Reporting & Analytics icon"></i> Reporting & Analytics</a></li>
           <li><a href="#communication"><i class="fas fa-envelope" aria-label="Communication icon"></i> Communication</a></li>
@@ -1165,6 +1164,67 @@
             </tbody></table>
         </div>
       </section>
+
+      <!-- Lease Management -->
+      <section id="lease-management" style="display: none;">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Lease Management</h1>
+            <p>Manage your lease agreements</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-success" id="add-lease-btn">Add Lease</button>
+          </div>
+        </div>
+        <div class="user-form-container">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Lease Start Date</th>
+                  <th>Lease End Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="lease-management-table-body">
+                <!-- Lease rows will be dynamically inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modal for Adding Leases -->
+      <div id="add-lease-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Add New Lease</h4>
+            <button id="close-add-lease-modal-btn" class="close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="add-lease-form" novalidate>
+              <div class="form-group">
+                <label for="lease-entity">Entity</label>
+                <input type="text" id="lease-entity" placeholder="e.g., Kwalini Quarry" required>
+              </div>
+              <div class="form-group">
+                <label for="lease-start-date">Lease Start Date</label>
+                <input type="date" id="lease-start-date" required>
+              </div>
+              <div class="form-group">
+                <label for="lease-end-date">Lease End Date</label>
+                <input type="date" id="lease-end-date" required>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="cancel-add-lease-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" id="save-lease-btn" class="btn btn-success" form="add-lease-form">Save Lease</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Audit Dashboard -->
       <section id="audit-dashboard" style="display: none;">
@@ -2502,62 +2562,6 @@
           </div>
         </div>
       </section>
-
-      <!-- Document Management -->
-      <section id="document-management" style="display: none;">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Document Management</h1>
-            <p>Manage and archive your documents</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-success" id="upload-document-btn">Upload Document</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Document Name</th>
-                  <th>Type</th>
-                  <th>Upload Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="document-management-table-body">
-                <!-- Document rows will be dynamically inserted here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Modal for Uploading Documents -->
-      <div id="upload-document-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4>Upload New Document</h4>
-            <button id="close-upload-modal-btn" class="close-btn">&times;</button>
-          </div>
-          <div class="modal-body">
-            <form id="upload-document-form" novalidate>
-              <div class="form-group">
-                <label for="document-name">Document Name</label>
-                <input type="text" id="document-name" placeholder="e.g., Q1_Report.pdf" required>
-              </div>
-              <div class="form-group">
-                <label for="document-type">Document Type</label>
-                <input type="text" id="document-type" placeholder="e.g., Financial Report" required>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" id="cancel-upload-btn" class="btn btn-secondary">Cancel</button>
-            <button type="submit" id="save-document-btn" class="btn btn-success" form="upload-document-form">Save Document</button>
-          </div>
-        </div>
-      </div>
     </main>
   </div>
 

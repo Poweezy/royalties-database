@@ -20,7 +20,7 @@ import { NavigationManager } from './modules/NavigationManager.js';
 import { NotificationManager } from './modules/NotificationManager.js';
 import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
-import { initializeDocumentManagement } from './modules/document-management.js';
+import LeaseManagement from './modules/lease-management.js';
 
 class App {
     constructor() {
@@ -89,9 +89,7 @@ class App {
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
         this.userManager = new UserManager();
-
-        // Initialize page-specific modules that attach listeners to the DOM
-        initializeDocumentManagement();
+        this.leaseManagement = LeaseManagement;
 
         // Initialize app
         this.initializeServices();
@@ -175,6 +173,9 @@ class App {
             
             // Initialize dashboard
             await this.initializeDashboard();
+
+            // Initialize Lease Management
+            await this.leaseManagement.init();
 
             // Show dashboard
             this.showDashboard();
