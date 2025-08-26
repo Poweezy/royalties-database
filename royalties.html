@@ -1542,18 +1542,12 @@
       <section id="communication" style="display: none;">
         <div class="page-header">
           <div class="page-title">
-            <h1>?? Communication Hub</h1>
-            <p>Centralized communication management for stakeholders, entities, and regulatory bodies</p>
+            <h1>Communication Hub</h1>
+            <p>Centralized communication with stakeholders</p>
           </div>
           <div class="page-actions">
             <button class="btn btn-success" id="compose-message-btn">
               <i class="fas fa-plus" aria-label="Compose Message icon"></i> Compose Message
-            </button>
-            <button class="btn btn-primary" id="message-templates-btn">
-              <i class="fas fa-file-alt" aria-label="Templates icon"></i> Templates
-            </button>
-            <button class="btn btn-info" id="communication-settings-btn">
-              <i class="fas fa-cog" aria-label="Settings icon"></i> Settings
             </button>
           </div>
         </div>
@@ -1562,12 +1556,7 @@
         <div class="charts-grid">
           <div class="metric-card card">
             <div class="card-header">
-              <h3><i class="fas fa-envelope" aria-label="Messages Sent icon"></i> Messages Sent</h3>
-              <select class="metric-period">
-                <option>This Month</option>
-                <option>Last Month</option>
-                <option>This Year</option>
-              </select>
+              <h3><i class="fas fa-envelope" aria-label="Messages Sent icon"></i> Messages Sent (Month)</h3>
             </div>
             <div class="card-body">
               <p id="messages-sent-count">127</p>
@@ -1581,9 +1570,6 @@
             <div class="card-body">
               <p id="response-rate">89%</p>
               <small>Average response time: 2.3 hours</small>
-              <div class="mini-progress">
-                <div class="progress-bar" style="width: 89%;"></div>
-              </div>
             </div>
           </div>
           <div class="metric-card card">
@@ -1592,7 +1578,7 @@
             </div>
             <div class="card-body">
               <p id="active-conversations">23</p>
-              <small><i class="fas fa-circle text-success" aria-label="Online status icon"></i> All conversations monitored</small>
+              <small>3 requiring attention</small>
             </div>
           </div>
           <div class="metric-card card">
@@ -1601,7 +1587,7 @@
             </div>
             <div class="card-body">
               <p id="urgent-messages">3</p>
-              <small><i class="fas fa-clock text-warning" aria-label="Clock icon"></i> Requires immediate attention</small>
+              <small>Requires immediate attention</small>
             </div>
           </div>
         </div>
@@ -1617,68 +1603,28 @@
             </div>
           </div>
           
-          <form id="compose-message-form" novalidate>
-            <div class="grid-4">
+          <form id="compose-message-form" novalidate="">
               <div class="form-group">
                 <label for="message-recipients">Recipients</label>
-                <select id="message-recipients" multiple aria-describedby="recipients-validation">
+                <select id="message-recipients" aria-describedby="recipients-validation">
                   <option value="all-entities">All Mining Entities</option>
                   <option value="overdue-entities">Entities with Overdue Payments</option>
                   <option value="regulatory-bodies">Regulatory Bodies</option>
                   <option value="internal-staff">Internal Staff</option>
-                  <option value="custom">Custom Recipients...</option>
-                </select>
-                <div class="validation-error" id="recipients-validation">Recipients are required</div>
-              </div>
-              
-              <div class="form-group">
-                <label for="message-priority">Priority Level</label>
-                <select id="message-priority" aria-describedby="priority-validation">
-                  <option value="low">Low</option>
-                  <option value="normal" selected>Normal</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-                <div class="validation-error" id="priority-validation">Priority is required</div>
-              </div>
-              
-              <div class="form-group">
-                <label for="message-template">Use Template</label>
-                <select id="message-template">
-                  <option value="">Start from scratch</option>
-                  <option value="payment-reminder">Payment Reminder</option>
-                  <option value="compliance-notice">Compliance Notice</option>
-                  <option value="regulatory-update">Regulatory Update</option>
-                  <option value="audit-notification">Audit Notification</option>
                 </select>
               </div>
-              
-              <div class="form-group">
-                <label for="message-schedule">Schedule Delivery</label>
-                <input type="datetime-local" id="message-schedule">
-                <small class="form-help">Leave empty to send immediately</small>
-              </div>
-            </div>
             
             <div class="form-group">
               <label for="message-subject">Subject</label>
               <input type="text" id="message-subject" placeholder="Enter message subject" aria-describedby="subject-validation">
-              <div class="validation-error" id="subject-validation">Subject is required</div>
             </div>
             
             <div class="form-group">
               <label for="message-content">Message Content</label>
               <textarea id="message-content" rows="8" placeholder="Enter your message here..." aria-describedby="content-validation"></textarea>
-              <div class="validation-error" id="content-validation">Message content is required</div>
             </div>
             
             <div class="form-actions">
-              <button type="button" class="btn btn-secondary" id="save-draft-btn">
-                <i class="fas fa-save" aria-label="Save icon"></i> Save Draft
-              </button>
-              <button type="button" class="btn btn-info" id="preview-message-btn">
-                <i class="fas fa-eye" aria-label="Preview icon"></i> Preview
-              </button>
               <button type="submit" class="btn btn-success" id="send-message-btn">
                 <i class="fas fa-paper-plane" aria-label="Send icon"></i> Send Message
               </button>
@@ -1689,15 +1635,7 @@
         <!-- Message History and Tracking -->
         <div class="user-form-container">
           <div class="section-header">
-            <h4><i class="fas fa-history" aria-label="History icon"></i> Message History & Tracking</h4>
-            <div class="table-actions">
-              <button class="btn btn-secondary btn-sm" id="refresh-messages">
-                <i class="fas fa-sync" aria-label="Refresh icon"></i> Refresh
-              </button>
-              <button class="btn btn-info btn-sm" id="export-messages">
-                <i class="fas fa-download" aria-label="Export icon"></i> Export
-              </button>
-            </div>
+            <h4><i class="fas fa-history" aria-label="History icon"></i> Message History</h4>
           </div>
           
           <div class="table-container">
@@ -1707,45 +1645,12 @@
                   <th>Date/Time</th>
                   <th>Recipients</th>
                   <th>Subject</th>
-                  <th>Priority</th>
                   <th>Status</th>
-                  <th>Response Rate</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="messages-table-tbody">
-                <tr>
-                  <td>2024-02-15 10:30</td>
-                  <td>All Mining Entities (12)</td>
-                  <td>Monthly Royalty Payment Reminder</td>
-                  <td><span class="priority-badge normal">Normal</span></td>
-                  <td><span class="status-badge sent">Sent</span></td>
-                  <td>75% (9/12)</td>
-                  <td>
-                    <button class="btn btn-sm btn-info" title="View Details">
-                      <i class="fas fa-eye" aria-label="View Details icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-secondary" title="Resend">
-                      <i class="fas fa-redo" aria-label="Resend icon"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2024-02-14 15:45</td>
-                  <td>Overdue Entities (3)</td>
-                  <td>Urgent: Payment Overdue Notice</td>
-                  <td><span class="priority-badge urgent">Urgent</span></td>
-                  <td><span class="status-badge delivered">Delivered</span></td>
-                  <td>100% (3/3)</td>
-                  <td>
-                    <button class="btn btn-sm btn-info" title="View Details">
-                      <i class="fas fa-eye" aria-label="View Details icon"></i>
-                    </button>
-                    <button class="btn btn-sm btn-success" title="Follow Up">
-                      <i class="fas fa-reply" aria-label="Follow Up icon"></i>
-                    </button>
-                  </td>
-                </tr>
+                <!-- Messages will be populated here by JavaScript -->
               </tbody>
             </table>
           </div>
