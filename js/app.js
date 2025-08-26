@@ -17,7 +17,7 @@ import { security } from './utils/security.js';
 import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
-import { NotificationManager } from './modules/NotificationManager.js';
+import { notificationManager } from './modules/NotificationManager.js';
 import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
@@ -83,7 +83,7 @@ class App {
         };
 
         // Initialize modules
-        this.notificationManager = new NotificationManager();
+        this.notificationManager = notificationManager;
         this.errorHandler = new ErrorHandler(this.notificationManager);
         this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
