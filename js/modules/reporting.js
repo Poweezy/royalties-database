@@ -77,7 +77,7 @@ const Reporting = {
       console.error('Error generating royalty summary report:', error);
       showToast('Failed to generate report. See console for details.', 'error');
     }
-  }
+  },
 
   // Other report generation methods will be added here
   async generateEntityPerformanceReport() {
