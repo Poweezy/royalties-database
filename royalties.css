@@ -3748,6 +3748,16 @@ nav ul li a span.notification-badge {
   border-top: 1px solid var(--border-color);
 }
 
+.admin-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.admin-panel-grid > .card {
+  max-width: 500px; /* Prevent cards from stretching too wide */
+}
+
 .admin-actions {
   display: flex;
   flex-direction: column;
@@ -3757,6 +3767,51 @@ nav ul li a span.notification-badge {
 
 .admin-actions .btn {
   justify-content: flex-start;
+}
+
+.announcement-banner {
+  padding: 1rem 1.5rem;
+  color: var(--text-inverse);
+  text-align: center;
+  position: relative;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.announcement-banner.info {
+  background-color: var(--info-color);
+}
+
+.announcement-banner.warning {
+  background-color: var(--warning-color);
+  color: var(--text-primary); /* Yellow needs dark text */
+}
+
+.announcement-banner.critical {
+  background-color: var(--danger-color);
+}
+
+.announcement-banner p {
+  margin: 0;
+}
+
+.announcement-banner .close-btn {
+  position: absolute;
+  top: 50%;
+  right: 1.5rem;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.announcement-banner .close-btn:hover {
+  opacity: 1;
 }
 
 .legend {

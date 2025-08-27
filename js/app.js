@@ -218,6 +218,48 @@ class App {
                 this.navigate('admin-panel');
             });
         }
+
+        const bulkUpdateForm = document.getElementById('bulk-rate-update-form');
+        if (bulkUpdateForm) {
+            bulkUpdateForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const mineral = document.getElementById('bulk-update-mineral').value;
+                const newRate = document.getElementById('bulk-update-rate').value;
+
+                if (!newRate) {
+                    this.notificationManager.show('Please enter a new rate.', 'error');
+                    return;
+                }
+
+                console.log(`Bulk updating rate for ${mineral} to ${newRate}`);
+                // In a real app, this would trigger a service call to update the backend data.
+                this.notificationManager.show(`Royalty rates for ${mineral} updated successfully.`, 'success');
+            });
+        }
+
+        const announcementForm = document.getElementById('announcement-form');
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = document.getElementById('banner-message').value;
+                const type = document.getElementById('banner-type').value;
+                const expiry = document.getElementById('banner-expiry').value;
+
+                const bannerData = { message, type, expiry };
+                localStorage.setItem('announcement_banner', JSON.stringify(bannerData));
+                this.displayAnnouncementBanner();
+                this.notificationManager.show('Announcement banner updated!', 'success');
+            });
+        }
+
+        const disableBannerBtn = document.getElementById('disable-banner-btn');
+        if (disableBannerBtn) {
+            disableBannerBtn.addEventListener('click', () => {
+                localStorage.removeItem('announcement_banner');
+                this.displayAnnouncementBanner();
+                this.notificationManager.show('Announcement banner disabled.', 'info');
+            });
+        }
     }
 
     /**
@@ -251,6 +293,9 @@ class App {
 
             // Show dashboard
             this.showDashboard();
+
+            // Display announcement banner if one is set
+            this.displayAnnouncementBanner();
             
             // Start auto-refresh
             this.startAutoRefresh();
@@ -1067,6 +1112,40 @@ class App {
         `).join('');
 
         tableBody.innerHTML = logHtml;
+    }
+
+    displayAnnouncementBanner() {
+        const banner = document.getElementById('announcement-banner');
+        const messageEl = document.getElementById('announcement-message');
+        const closeBtn = document.getElementById('close-announcement-btn');
+        if (!banner || !messageEl || !closeBtn) return;
+
+        const bannerData = JSON.parse(localStorage.getItem('announcement_banner'));
+
+        if (bannerData && bannerData.message) {
+            // Check for expiry
+            if (bannerData.expiry) {
+                const expiryDate = new Date(bannerData.expiry);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Compare dates only
+                if (expiryDate < today) {
+                    localStorage.removeItem('announcement_banner');
+                    banner.style.display = 'none';
+                    return;
+                }
+            }
+
+            messageEl.textContent = bannerData.message;
+            banner.className = 'announcement-banner'; // Reset classes
+            banner.classList.add(bannerData.type || 'info');
+            banner.style.display = 'flex';
+
+            closeBtn.onclick = () => {
+                banner.style.display = 'none';
+            };
+        } else {
+            banner.style.display = 'none';
+        }
     }
 
     /**
