@@ -656,6 +656,7 @@ class App {
      * Handle login form submission
      */
     async handleLogin(form) {
+        console.log('handleLogin called');
         const username = form.username.value.trim();
         const password = form.password.value.trim();
         const usernameError = document.getElementById('username-error');
@@ -688,6 +689,7 @@ class App {
 
         try {
             await authService.login(username, password);
+            console.log('Login successful');
             this.showDashboard();
         } catch (error) {
             console.error('[App] Login error caught in handleLogin:', error);
@@ -789,6 +791,7 @@ class App {
     }
 
     showDashboard() {
+        console.log('showDashboard called');
         document.getElementById('login-section').style.display = 'none';
         const appContainer = document.getElementById('app-container');
         appContainer.style.display = 'flex';
