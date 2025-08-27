@@ -185,6 +185,15 @@ class App {
                 const theme = document.getElementById('config-theme').value;
                 const audit = document.getElementById('config-enable-audit').checked;
 
+                // Apply the theme
+                document.body.classList.toggle('dark-theme', theme === 'dark');
+
+                // Save settings to localStorage
+                localStorage.setItem('app_theme', theme);
+                localStorage.setItem('royalty_rate', rate);
+                localStorage.setItem('session_timeout', timeout);
+                localStorage.setItem('audit_enabled', audit);
+
                 console.log('Saving system configuration:', { rate, timeout, theme, audit });
                 this.notificationManager.show('System settings saved successfully!', 'success');
             });
@@ -241,9 +250,22 @@ class App {
                 throw new Error('No authenticated user found');
             }
 
-            // Get demo preferences
+            // Load saved theme and apply it
+            const savedTheme = localStorage.getItem('app_theme') || 'light';
+            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+
+            // Load other settings and populate the admin form
+            const savedRate = localStorage.getItem('royalty_rate') || '15';
+            const savedTimeout = localStorage.getItem('session_timeout') || '30';
+            const savedAudit = localStorage.getItem('audit_enabled') !== 'false';
+
+            document.getElementById('config-royalty-rate').value = savedRate;
+            document.getElementById('config-session-timeout').value = savedTimeout;
+            document.getElementById('config-theme').value = savedTheme;
+            document.getElementById('config-enable-audit').checked = savedAudit;
+
+            // Get other demo preferences
             const preferences = {
-                theme: localStorage.getItem('app_theme') || 'light',
                 recordsPerPage: parseInt(localStorage.getItem('records_per_page')) || 10,
                 autoSave: localStorage.getItem('auto_save') !== 'false',
                 notifications: {
@@ -255,6 +277,7 @@ class App {
             };
 
             this.state.currentUser = currentUser;
+            // Note: theme is now managed directly on the body, not in state settings
             this.state.settings = { ...this.state.settings, ...preferences };
 
             // Update UI with user info
