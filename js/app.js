@@ -77,13 +77,7 @@ class App {
                     }
                 }
             ],
-            auditLog: [
-                { timestamp: '2025-08-27 05:30:15', user: 'admin', action: 'User Login', details: 'Successful login from IP 192.168.1.100' },
-                { timestamp: '2025-08-27 05:25:45', user: 'finance_user', action: 'Report Generated', details: 'Generated Q2 Royalty Summary Report' },
-                { timestamp: '2025-08-27 05:20:10', user: 'admin', action: 'Settings Changed', details: 'Updated application theme to dark' },
-                { timestamp: '2025-08-26 18:05:00', user: 'system', action: 'Database Backup', details: 'Automated backup completed successfully' },
-                { timestamp: '2025-08-26 15:12:30', user: 'auditor', action: 'Data Export', details: 'Exported royalty records for Kwalini Quarry' },
-            ],
+            auditLog: [],
             notifications: [],
             charts: {},
             isLoading: false,
@@ -181,110 +175,6 @@ class App {
         }
     }
 
-    #setupAdminPanelListeners() {
-        const configForm = document.getElementById('system-config-form');
-        if (configForm) {
-            configForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const rate = document.getElementById('config-royalty-rate').value;
-                const timeout = document.getElementById('config-session-timeout').value;
-                const theme = document.getElementById('config-theme').value;
-                const audit = document.getElementById('config-enable-audit').checked;
-
-                // Apply the theme
-                document.body.classList.toggle('dark-theme', theme === 'dark');
-
-                // Save settings to localStorage
-                localStorage.setItem('app_theme', theme);
-                localStorage.setItem('royalty_rate', rate);
-                localStorage.setItem('session_timeout', timeout);
-                localStorage.setItem('audit_enabled', audit);
-
-                console.log('Saving system configuration:', { rate, timeout, theme, audit });
-                this.notificationManager.show('System settings saved successfully!', 'success');
-            });
-        }
-
-        const viewLogBtn = document.getElementById('view-audit-log-btn');
-        if (viewLogBtn) {
-            viewLogBtn.addEventListener('click', () => {
-                this.navigate('audit-log-viewer');
-            });
-        }
-
-        const backToAdminBtn = document.getElementById('back-to-admin-panel-btn');
-        if (backToAdminBtn) {
-            backToAdminBtn.addEventListener('click', () => {
-                this.navigate('admin-panel');
-            });
-        }
-
-        const bulkUpdateForm = document.getElementById('bulk-rate-update-form');
-        if (bulkUpdateForm) {
-            bulkUpdateForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const mineral = document.getElementById('bulk-update-mineral').value;
-                const newRate = parseFloat(document.getElementById('bulk-update-rate').value);
-
-                if (isNaN(newRate) || newRate <= 0) {
-                    this.notificationManager.show('Please enter a valid positive rate.', 'error');
-                    return;
-                }
-
-                let updatedCount = 0;
-                this.state.contracts.forEach(contract => {
-                    if (contract.mineral === mineral && contract.calculationType === 'fixed') {
-                        contract.calculationParams.rate = newRate;
-                        // Also update the mock DB
-                        dbService.put('contracts', contract);
-                        updatedCount++;
-                    }
-                });
-
-                const currentUser = authService.getCurrentUser();
-                if (!currentUser) {
-                    this.notificationManager.show('Could not identify current user. Please log in again.', 'error');
-                    return;
-                }
-                // Add to audit log
-                this.state.auditLog.unshift({
-                    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-                    user: currentUser.username,
-                    action: 'Bulk Rate Update',
-                    details: `Updated ${updatedCount} contracts for ${mineral} to new rate of ${newRate.toFixed(2)}`
-                });
-
-                // The navigate function will now handle re-rendering, so this is not needed here.
-
-                this.notificationManager.show(`${updatedCount} contract(s) for ${mineral} updated successfully.`, 'success');
-            });
-        }
-
-        const announcementForm = document.getElementById('announcement-form');
-        if (announcementForm) {
-            announcementForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const message = document.getElementById('banner-message').value;
-                const type = document.getElementById('banner-type').value;
-                const expiry = document.getElementById('banner-expiry').value;
-
-                const bannerData = { message, type, expiry };
-                localStorage.setItem('announcement_banner', JSON.stringify(bannerData));
-                this.displayAnnouncementBanner();
-                this.notificationManager.show('Announcement banner updated!', 'success');
-            });
-        }
-
-        const disableBannerBtn = document.getElementById('disable-banner-btn');
-        if (disableBannerBtn) {
-            disableBannerBtn.addEventListener('click', () => {
-                localStorage.removeItem('announcement_banner');
-                this.displayAnnouncementBanner();
-                this.notificationManager.show('Announcement banner disabled.', 'info');
-            });
-        }
-    }
-
     /**
      * Initialize authenticated state
      */
@@ -316,9 +206,6 @@ class App {
 
             // Show dashboard
             this.showDashboard();
-
-            // Display announcement banner if one is set
-            this.displayAnnouncementBanner();
             
             // Start auto-refresh
             this.startAutoRefresh();
@@ -338,22 +225,9 @@ class App {
                 throw new Error('No authenticated user found');
             }
 
-            // Load saved theme and apply it
-            const savedTheme = localStorage.getItem('app_theme') || 'light';
-            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
-
-            // Load other settings and populate the admin form
-            const savedRate = localStorage.getItem('royalty_rate') || '15';
-            const savedTimeout = localStorage.getItem('session_timeout') || '30';
-            const savedAudit = localStorage.getItem('audit_enabled') !== 'false';
-
-            document.getElementById('config-royalty-rate').value = savedRate;
-            document.getElementById('config-session-timeout').value = savedTimeout;
-            document.getElementById('config-theme').value = savedTheme;
-            document.getElementById('config-enable-audit').checked = savedAudit;
-
-            // Get other demo preferences
+            // Get demo preferences
             const preferences = {
+                theme: localStorage.getItem('app_theme') || 'light',
                 recordsPerPage: parseInt(localStorage.getItem('records_per_page')) || 10,
                 autoSave: localStorage.getItem('auto_save') !== 'false',
                 notifications: {
@@ -365,7 +239,6 @@ class App {
             };
 
             this.state.currentUser = currentUser;
-            // Note: theme is now managed directly on the body, not in state settings
             this.state.settings = { ...this.state.settings, ...preferences };
 
             // Update UI with user info
@@ -481,8 +354,6 @@ class App {
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
-        this.#setupChartControlListeners();
-        this.#setupAdminPanelListeners();
 
         // Confirm Logout
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
@@ -657,35 +528,6 @@ class App {
     }
 
     /**
-     * Sets up event listeners for the chart control buttons.
-     */
-    #setupChartControlListeners() {
-        const chartControlButtons = document.querySelectorAll('.chart-btn');
-        chartControlButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const chartId = e.currentTarget.dataset.chartId;
-                const chartType = e.currentTarget.dataset.chartType;
-
-                let chartName;
-                if (chartId === 'revenue-trends-chart') {
-                    chartName = 'revenue';
-                } else if (chartId === 'production-by-entity-chart') {
-                    chartName = 'production';
-                }
-
-                if (chartName) {
-                    this.chartManager.changeChartType(chartName, chartType);
-
-                    // Update active button state
-                    const parent = e.currentTarget.parentElement;
-                    parent.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                }
-            });
-        });
-    }
-
-    /**
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
@@ -703,6 +545,21 @@ class App {
                 });
             }
         });
+
+        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
+        if (activeEntitiesCard) {
+            activeEntitiesCard.addEventListener('click', () => this.#showActiveEntitiesModal());
+        }
+
+        const closeActiveEntitiesModalBtn = document.getElementById('close-active-entities-modal-btn');
+        if (closeActiveEntitiesModalBtn) {
+            closeActiveEntitiesModalBtn.addEventListener('click', () => {
+                const modal = document.getElementById('active-entities-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
 
         const exportChartBtns = document.querySelectorAll('.export-chart-btn');
         exportChartBtns.forEach(btn => {
@@ -724,46 +581,66 @@ class App {
             });
         });
 
-        // Active Entities Modal Logic
-        const activeEntitiesCard = document.querySelector('#dashboard .metric-card:nth-child(2)');
-        const activeEntitiesModal = document.getElementById('active-entities-modal');
-        const closeEntitiesModalBtn = document.getElementById('close-active-entities-modal-btn');
-        const okEntitiesModalBtn = document.getElementById('ok-active-entities-btn');
-
-        if (activeEntitiesCard && activeEntitiesModal) {
-            activeEntitiesCard.addEventListener('click', () => {
-                activeEntitiesModal.style.display = 'block';
+        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
+        if (pendingApprovalsCard) {
+            pendingApprovalsCard.addEventListener('click', () => {
+                this.navigate('user-management');
+                const statusFilter = document.getElementById('filter-status');
+                if (statusFilter) {
+                    statusFilter.value = 'inactive';
+                    this.userManager.filterUsers({ status: 'inactive' });
+                }
             });
         }
 
-        const closeFunc = () => {
-            if (activeEntitiesModal) {
-                activeEntitiesModal.style.display = 'none';
-            }
-        };
-        closeEntitiesModalBtn?.addEventListener('click', closeFunc);
-        okEntitiesModalBtn?.addEventListener('click', closeFunc);
+        // Add event listeners for chart type buttons
+        const chartControlButtons = document.querySelectorAll('.chart-btn[data-chart-id]');
+        chartControlButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.currentTarget.dataset.chartId;
+                const newType = e.currentTarget.dataset.chartType;
 
-        const refreshBtn = document.getElementById('refresh-dashboard');
-        if(refreshBtn) {
-            refreshBtn.addEventListener('click', async () => {
-                this.notificationManager.show('Refreshing dashboard data...', 'info');
-                await this.initializeDashboard();
-                this.notificationManager.show('Dashboard refreshed successfully.', 'success');
+                let chartName;
+                if (chartId === 'revenue-trends-chart') {
+                    chartName = 'revenue';
+                } else if (chartId === 'production-by-entity-chart') {
+                    chartName = 'production';
+                }
+
+                if (chartName) {
+                    this.chartManager.changeChartType(chartName, newType);
+                }
+
+                // Update active button state
+                e.currentTarget.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
             });
-        }
+        });
 
+        // Admin Panel button
         const adminPanelBtn = document.getElementById('admin-panel-btn');
-        if(adminPanelBtn) {
-            adminPanelBtn.addEventListener('click', () => {
-                this.navigate('admin-panel');
+        if (adminPanelBtn) {
+            adminPanelBtn.addEventListener('click', () => this.navigate('admin-panel'));
+        }
+
+        // Announcement form
+        const announcementForm = document.getElementById('announcement-form');
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = document.getElementById('announcement-message').value;
+                this.notificationManager.show(`Announcement updated: ${message}`, 'success');
             });
         }
 
-        const viewAllActivityBtn = document.getElementById('view-all-activity');
-        if(viewAllActivityBtn) {
-            viewAllActivityBtn.addEventListener('click', () => {
-                this.notificationManager.show('Viewing all activity is not yet implemented.', 'info');
+        // Bulk royalty update form
+        const bulkRoyaltyUpdateForm = document.getElementById('bulk-royalty-update-form');
+        if (bulkRoyaltyUpdateForm) {
+            bulkRoyaltyUpdateForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const mineral = document.getElementById('bulk-mineral-select').value;
+                const newRate = document.getElementById('bulk-new-rate').value;
+                this.notificationManager.show(`Royalty rate for ${mineral} updated to E${newRate}`, 'success');
             });
         }
     }
@@ -930,22 +807,58 @@ class App {
             this.gisDashboard.init();
         }
 
-        if (route === 'contract-management') {
-            this.contractManagement.renderContracts(this.state.contracts);
-        }
-
         if (route === 'communication') {
             this.renderMessageHistory();
-        }
-
-        if (route === 'audit-log-viewer') {
-            this.renderAuditLog();
         }
 
         // Update active navigation state
         document.querySelectorAll('nav a').forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${route}`);
         });
+
+        if (route === 'admin-panel') {
+            this.#renderAdminAuditLog();
+        }
+    }
+
+    #renderAdminAuditLog() {
+        const auditLogBody = document.getElementById('admin-audit-log-tbody');
+        if (!auditLogBody) return;
+
+        // In a real app, this would fetch from this.state.auditLog
+        const mockLog = [
+            { timestamp: '2025-08-27 10:00', user: 'admin', action: 'LOGIN', details: 'Successful login from IP 192.168.1.1' },
+            { timestamp: '2025-08-27 10:05', user: 'admin', action: 'UPDATE_RATE', details: 'Bulk update for Coal to E15.50' },
+            { timestamp: '2025-08-27 10:10', user: 'finance_user', action: 'VIEW_REPORT', details: 'Generated Q2 summary report' }
+        ];
+
+        auditLogBody.innerHTML = mockLog.map(entry => `
+            <tr>
+                <td>${entry.timestamp}</td>
+                <td>${entry.user}</td>
+                <td>${entry.action}</td>
+                <td>${entry.details}</td>
+            </tr>
+        `).join('');
+    }
+
+    #showActiveEntitiesModal() {
+        const modal = document.getElementById('active-entities-modal');
+        const list = document.getElementById('active-entities-list');
+        if (!modal || !list) return;
+
+        // In a real application, this data would come from this.state or an API call
+        const activeEntities = [
+            'Kwalini Quarry',
+            'Maloma Colliery',
+            'Mbabane Quarry',
+            'Ngwenya Mine',
+            'Sidvokodvo Quarry',
+            'Malolotja Mine'
+        ];
+
+        list.innerHTML = activeEntities.map(entity => `<li>${entity}</li>`).join('');
+        modal.style.display = 'block';
     }
 
     /**
@@ -1122,56 +1035,6 @@ class App {
                     </td>
                 </tr>
             `).join('');
-        }
-    }
-
-    renderAuditLog() {
-        const tableBody = document.getElementById('full-audit-log-tbody');
-        if (!tableBody) return;
-
-        const logHtml = this.state.auditLog.map(log => `
-            <tr>
-                <td>${log.timestamp}</td>
-                <td>${log.user}</td>
-                <td><span class="action-badge ${log.action.toLowerCase().replace(' ', '-')}">${log.action}</span></td>
-                <td>${log.details}</td>
-            </tr>
-        `).join('');
-
-        tableBody.innerHTML = logHtml;
-    }
-
-    displayAnnouncementBanner() {
-        const banner = document.getElementById('announcement-banner');
-        const messageEl = document.getElementById('announcement-message');
-        const closeBtn = document.getElementById('close-announcement-btn');
-        if (!banner || !messageEl || !closeBtn) return;
-
-        const bannerData = JSON.parse(localStorage.getItem('announcement_banner'));
-
-        if (bannerData && bannerData.message) {
-            // Check for expiry
-            if (bannerData.expiry) {
-                const expiryDate = new Date(bannerData.expiry);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // Compare dates only
-                if (expiryDate < today) {
-                    localStorage.removeItem('announcement_banner');
-                    banner.style.display = 'none';
-                    return;
-                }
-            }
-
-            messageEl.textContent = bannerData.message;
-            banner.className = 'announcement-banner'; // Reset classes
-            banner.classList.add(bannerData.type || 'info');
-            banner.style.display = 'flex';
-
-            closeBtn.onclick = () => {
-                banner.style.display = 'none';
-            };
-        } else {
-            banner.style.display = 'none';
         }
     }
 

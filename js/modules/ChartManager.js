@@ -192,21 +192,21 @@ export class ChartManager {
       return;
     }
 
+    // Handle 'area' chart type as a filled line chart
     if (newType === 'area') {
       chart.config.type = 'line';
-      if (chart.data.datasets[0]) {
-        chart.data.datasets[0].fill = true;
-      }
+      chart.data.datasets.forEach(d => { d.fill = true; });
     } else if (newType === 'line') {
       chart.config.type = 'line';
-      if (chart.data.datasets[0]) {
-        chart.data.datasets[0].fill = false;
-      }
+      chart.data.datasets.forEach(d => { d.fill = false; });
     } else {
+      // For other types like 'bar', 'pie', etc.
       chart.config.type = newType;
-      // Ensure fill is disabled for other chart types like 'bar'
-      if (chart.data.datasets[0]) {
-        chart.data.datasets[0].fill = false;
+      // Ensure fill is false for non-area line charts
+      if (newType !== 'line') {
+        chart.data.datasets.forEach(d => {
+          if (d.type === 'line') d.fill = false;
+        });
       }
     }
 
