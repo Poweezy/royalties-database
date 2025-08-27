@@ -18,6 +18,7 @@ const ContractManagement = {
 
   cacheDOMElements() {
     this.elements = {
+      tableBody: document.getElementById('contract-management-table-body'),
       addContractBtn: document.getElementById('add-contract-btn'),
       addContractModal: document.getElementById('add-contract-modal'),
       modalTitle: document.querySelector('#add-contract-modal .modal-header h4'),
@@ -96,26 +97,18 @@ const ContractManagement = {
     }
   },
 
-  async renderContracts(contracts = null) {
-    const tableBody = document.getElementById('contract-management-table-body');
-    if (!tableBody) {
-      console.error('Contract management table body not found in the DOM.');
-      return;
-    }
-
+  async renderContracts() {
     try {
-      if (!contracts) {
-        contracts = await dbService.getAll('contracts');
-      }
-      tableBody.innerHTML = '';
+      const contracts = await dbService.getAll('contracts');
+      this.elements.tableBody.innerHTML = '';
       if (contracts.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">No contracts found.</td></tr>`;
+        this.elements.tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">No contracts found.</td></tr>`;
         return;
       }
       contracts.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
       contracts.forEach(contract => {
         const row = this.createContractRow(contract);
-        tableBody.appendChild(row);
+        this.elements.tableBody.appendChild(row);
       });
     } catch (error) {
       console.error('Error rendering contracts:', error);
@@ -129,16 +122,9 @@ const ContractManagement = {
     const status = this.getContractStatus(contract);
     const statusClass = status.toLowerCase();
 
-    let rateDisplay = "N/A";
-    if (contract.calculationType === 'fixed' && contract.calculationParams && typeof contract.calculationParams.rate === 'number') {
-        rateDisplay = `E ${contract.calculationParams.rate.toFixed(2)}`;
-    } else if (['tiered', 'sliding_scale'].includes(contract.calculationType)) {
-        rateDisplay = "Varies";
-    }
-
     row.innerHTML = `
       <td>${contract.entity}</td>
-      <td>${rateDisplay}</td>
+      <td>E ${contract.royaltyRate.toFixed(2)}</td>
       <td>${new Date(contract.startDate).toLocaleDateString()}</td>
       <td><span class="status-badge ${statusClass}">${status}</span></td>
       <td>
