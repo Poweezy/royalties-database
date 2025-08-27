@@ -58,8 +58,8 @@ const Reporting = {
           rec.mineral,
           rec.volume,
           rec.tariff,
-          rec.royalties,
-          new Date(rec.date).toLocaleDateString(),
+          rec.royaltyPayment,
+          new Date(rec.paymentDate).toLocaleDateString(),
           rec.status
         ]);
       });
@@ -79,7 +79,6 @@ const Reporting = {
     }
   },
 
-  // Other report generation methods will be added here
   async generateEntityPerformanceReport() {
     showToast('Generating Entity Performance Report...', 'info');
     try {
@@ -101,7 +100,7 @@ const Reporting = {
                 performanceData[r.entity] = { totalVolume: 0, totalRoyalties: 0, contractRate: 'N/A' };
             }
             performanceData[r.entity].totalVolume += r.volume;
-            performanceData[r.entity].totalRoyalties += r.royalties;
+            performanceData[r.entity].totalRoyalties += r.royaltyPayment;
         });
 
         // Add contract data
@@ -218,8 +217,8 @@ const Reporting = {
             data.push([
                 o.entity,
                 o.mineral,
-                o.royalties.toFixed(2),
-                new Date(o.date).toLocaleDateString(), // Assuming 'date' is the due date
+                o.royaltyPayment.toFixed(2),
+                new Date(o.paymentDate).toLocaleDateString(),
                 o.status
             ]);
         });
