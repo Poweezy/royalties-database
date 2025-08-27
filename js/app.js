@@ -77,7 +77,13 @@ class App {
                     }
                 }
             ],
-            auditLog: [],
+            auditLog: [
+                { timestamp: '2025-08-27 05:30:15', user: 'admin', action: 'User Login', details: 'Successful login from IP 192.168.1.100' },
+                { timestamp: '2025-08-27 05:25:45', user: 'finance_user', action: 'Report Generated', details: 'Generated Q2 Royalty Summary Report' },
+                { timestamp: '2025-08-27 05:20:10', user: 'admin', action: 'Settings Changed', details: 'Updated application theme to dark' },
+                { timestamp: '2025-08-26 18:05:00', user: 'system', action: 'Database Backup', details: 'Automated backup completed successfully' },
+                { timestamp: '2025-08-26 15:12:30', user: 'auditor', action: 'Data Export', details: 'Exported royalty records for Kwalini Quarry' },
+            ],
             notifications: [],
             charts: {},
             isLoading: false,
@@ -196,6 +202,20 @@ class App {
 
                 console.log('Saving system configuration:', { rate, timeout, theme, audit });
                 this.notificationManager.show('System settings saved successfully!', 'success');
+            });
+        }
+
+        const viewLogBtn = document.getElementById('view-audit-log-btn');
+        if (viewLogBtn) {
+            viewLogBtn.addEventListener('click', () => {
+                this.navigate('audit-log-viewer');
+            });
+        }
+
+        const backToAdminBtn = document.getElementById('back-to-admin-panel-btn');
+        if (backToAdminBtn) {
+            backToAdminBtn.addEventListener('click', () => {
+                this.navigate('admin-panel');
             });
         }
     }
@@ -846,6 +866,10 @@ class App {
             this.renderMessageHistory();
         }
 
+        if (route === 'audit-log-viewer') {
+            this.renderAuditLog();
+        }
+
         // Update active navigation state
         document.querySelectorAll('nav a').forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === `#${route}`);
@@ -1027,6 +1051,22 @@ class App {
                 </tr>
             `).join('');
         }
+    }
+
+    renderAuditLog() {
+        const tableBody = document.getElementById('full-audit-log-tbody');
+        if (!tableBody) return;
+
+        const logHtml = this.state.auditLog.map(log => `
+            <tr>
+                <td>${log.timestamp}</td>
+                <td>${log.user}</td>
+                <td><span class="action-badge ${log.action.toLowerCase().replace(' ', '-')}">${log.action}</span></td>
+                <td>${log.details}</td>
+            </tr>
+        `).join('');
+
+        tableBody.innerHTML = logHtml;
     }
 
     /**
