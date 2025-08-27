@@ -377,17 +377,13 @@ class App {
             e.preventDefault();
             const email = e.target.elements['reset-email'].value;
             if (email) {
-                document.getElementById('forgot-password-section').style.display = 'none';
-                document.getElementById('forgot-password-confirmation').style.display = 'flex';
+                // In a real app, an API call would be made here.
+                // For the demo, we just show a notification and return to login.
+                this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
+                this.showLogin();
             } else {
                 this.notificationManager.show('Please enter your email address.', 'error');
             }
-        });
-
-        document.getElementById('back-to-login-from-confirmation')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showLogin();
-            document.getElementById('forgot-password-confirmation').style.display = 'none';
         });
 
         // Communication Hub listeners
