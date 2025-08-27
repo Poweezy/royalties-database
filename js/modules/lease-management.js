@@ -5,22 +5,12 @@
  */
 import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
+import { Pagination } from './Pagination.js';
 
 const LeaseManagement = {
   // DOM element references
-  elements: {
-    tableBody: null,
-    addLeaseBtn: null,
-    addLeaseModal: null,
-    modalTitle: null,
-    saveLeaseBtn: null,
-    closeModalBtn: null,
-    cancelBtn: null,
-    addLeaseForm: null,
-    leaseEntityInput: null,
-    leaseStartDateInput: null,
-    leaseEndDateInput: null
-  },
+  elements: {},
+  pagination: null,
 
   /**
    * Initializes the Lease Management module.
@@ -29,7 +19,15 @@ const LeaseManagement = {
   async init() {
     console.log('Initializing Lease Management...');
     this.cacheDOMElements();
+    this.pagination = new Pagination({
+        containerSelector: '#lease-management-pagination',
+        itemsPerPage: 5,
+        onPageChange: (page) => {
+            this.renderLeases(page);
+        }
+    });
     this.bindEvents();
+    await this.seedInitialData();
     await this.renderLeases();
     console.log('Lease Management Initialized.');
   },
@@ -40,6 +38,7 @@ const LeaseManagement = {
   cacheDOMElements() {
     this.elements = {
       tableBody: document.getElementById('lease-management-table-body'),
+      paginationContainer: document.getElementById('lease-management-pagination'),
       addLeaseBtn: document.getElementById('add-lease-btn'),
       addLeaseModal: document.getElementById('add-lease-modal'),
       modalTitle: document.querySelector('#add-lease-modal .modal-header h4'),
@@ -51,6 +50,13 @@ const LeaseManagement = {
       leaseStartDateInput: document.getElementById('lease-start-date'),
       leaseEndDateInput: document.getElementById('lease-end-date'),
     };
+
+    // Create pagination container if it doesn't exist
+    if (!this.elements.paginationContainer) {
+        this.elements.paginationContainer = document.createElement('div');
+        this.elements.paginationContainer.id = 'lease-management-pagination';
+        this.elements.tableBody.parentElement.after(this.elements.paginationContainer);
+    }
   },
 
   /**
@@ -139,7 +145,7 @@ const LeaseManagement = {
         await dbService.add('leases', leaseData);
         showToast('Lease added successfully!', 'success');
       }
-      await this.renderLeases();
+      await this.renderLeases(1);
       this.closeModal();
     } catch (error) {
       console.error('Error saving lease:', error);
@@ -150,9 +156,15 @@ const LeaseManagement = {
   /**
    * Renders all leases from the database into the table.
    */
-  async renderLeases() {
+  async renderLeases(page = 1) {
     try {
       const leases = await dbService.getAll('leases');
+      leases.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+      const startIndex = (page - 1) * this.pagination.itemsPerPage;
+      const endIndex = startIndex + this.pagination.itemsPerPage;
+      const paginatedLeases = leases.slice(startIndex, endIndex);
+
       this.elements.tableBody.innerHTML = ''; // Clear existing rows
 
       if (leases.length === 0) {
@@ -163,15 +175,13 @@ const LeaseManagement = {
             </td>
           </tr>
         `;
-        return;
+      } else {
+        paginatedLeases.forEach(lease => {
+            const row = this.createLeaseRow(lease);
+            this.elements.tableBody.appendChild(row);
+        });
       }
-
-      leases.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-
-      leases.forEach(lease => {
-        const row = this.createLeaseRow(lease);
-        this.elements.tableBody.appendChild(row);
-      });
+      this.pagination.render(leases.length, page);
     } catch (error) {
       console.error('Error rendering leases:', error);
       showToast('Failed to load leases. See console for details.', 'error');
@@ -239,13 +249,31 @@ const LeaseManagement = {
       if (confirm('Are you sure you want to delete this lease? This action cannot be undone.')) {
           try {
               await dbService.delete('leases', leaseId);
-              await this.renderLeases();
+              await this.renderLeases(1);
               showToast('Lease deleted successfully.', 'success');
           } catch (error) {
               console.error('Error deleting lease:', error);
               showToast('Failed to delete lease. See console for details.', 'error');
           }
       }
+  },
+
+  async seedInitialData() {
+    const leases = await dbService.getAll('leases');
+    if (leases.length === 0) {
+        const seedData = [
+            { id: 'lease_1', entity: 'Kwalini Quarry', startDate: '2023-01-01', endDate: '2033-01-01' },
+            { id: 'lease_2', entity: 'Mbabane Quarry', startDate: '2022-06-15', endDate: '2032-06-15' },
+            { id: 'lease_3', entity: 'Sidvokodvo Quarry', startDate: '2023-03-01', endDate: '2028-03-01' },
+            { id: 'lease_4', entity: 'Maloma Colliery', startDate: '2021-11-20', endDate: '2041-11-20' },
+            { id: 'lease_5', entity: 'Ngwenya Mine', startDate: '2023-08-01', endDate: '2028-08-01' },
+            { id: 'lease_6', entity: 'Malolotja Mine', startDate: '2024-01-01', endDate: '2034-01-01' },
+            { id: 'lease_7', entity: 'Eswatini Minerals', startDate: '2022-09-10', endDate: '2027-09-10' },
+        ];
+        for (const lease of seedData) {
+            await dbService.add('leases', lease);
+        }
+    }
   },
 
   /**

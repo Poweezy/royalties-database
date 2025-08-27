@@ -5,14 +5,24 @@
 import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
 import { authService } from '../services/auth.service.js';
+import { Pagination } from './Pagination.js';
 
 const DocumentManagement = {
   elements: {},
+  pagination: null,
 
   async init() {
     console.log('Initializing Document Management...');
     this.cacheDOMElements();
+    this.pagination = new Pagination({
+        containerSelector: '#document-management-pagination',
+        itemsPerPage: 5,
+        onPageChange: (page) => {
+            this.renderDocuments(page);
+        }
+    });
     this.bindEvents();
+    await this.seedInitialData();
     await this.renderDocuments();
     console.log('Document Management Initialized.');
   },
@@ -20,6 +30,7 @@ const DocumentManagement = {
   cacheDOMElements() {
     this.elements = {
       tableBody: document.getElementById('document-management-table-body'),
+      paginationContainer: document.getElementById('document-management-pagination'),
       uploadBtn: document.getElementById('upload-document-btn'),
       uploadModal: document.getElementById('upload-document-modal'),
       closeModalBtn: document.getElementById('close-upload-document-modal-btn'),
@@ -28,6 +39,12 @@ const DocumentManagement = {
       fileInput: document.getElementById('document-file'),
       categoryInput: document.getElementById('document-category'),
     };
+
+    if (!this.elements.paginationContainer) {
+        this.elements.paginationContainer = document.createElement('div');
+        this.elements.paginationContainer.id = 'document-management-pagination';
+        this.elements.tableBody.parentElement.after(this.elements.paginationContainer);
+    }
   },
 
   bindEvents() {
@@ -70,7 +87,7 @@ const DocumentManagement = {
 
     try {
       await dbService.add('documents', documentData);
-      await this.renderDocuments();
+      await this.renderDocuments(1);
       this.closeModal();
       showToast('Document uploaded successfully!', 'success');
     } catch (error) {
@@ -79,19 +96,25 @@ const DocumentManagement = {
     }
   },
 
-  async renderDocuments() {
+  async renderDocuments(page = 1) {
     try {
       const documents = await dbService.getAll('documents');
+      documents.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+      const startIndex = (page - 1) * this.pagination.itemsPerPage;
+      const endIndex = startIndex + this.pagination.itemsPerPage;
+      const paginatedDocs = documents.slice(startIndex, endIndex);
+
       this.elements.tableBody.innerHTML = '';
       if (documents.length === 0) {
         this.elements.tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">No documents found.</td></tr>`;
-        return;
+      } else {
+        paginatedDocs.forEach(doc => {
+            const row = this.createDocumentRow(doc);
+            this.elements.tableBody.appendChild(row);
+        });
       }
-      documents.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
-      documents.forEach(doc => {
-        const row = this.createDocumentRow(doc);
-        this.elements.tableBody.appendChild(row);
-      });
+      this.pagination.render(documents.length, page);
     } catch (error) {
       console.error('Error rendering documents:', error);
       showToast('Failed to load documents.', 'error');
@@ -161,12 +184,30 @@ const DocumentManagement = {
     if (confirm('Are you sure you want to delete this document?')) {
       try {
         await dbService.delete('documents', docId);
-        await this.renderDocuments();
+        await this.renderDocuments(1);
         showToast('Document deleted successfully.', 'success');
       } catch (error) {
         console.error('Error deleting document:', error);
         showToast('Failed to delete document.', 'error');
       }
+    }
+  },
+
+  async seedInitialData() {
+    const documents = await dbService.getAll('documents');
+    if (documents.length === 0) {
+        const seedData = [
+            { id: 'doc_1', filename: 'Q2_Report.pdf', category: 'Compliance Report', uploadedBy: 'admin', uploadDate: new Date('2024-07-28').toISOString(), size: 123456, type: 'application/pdf' },
+            { id: 'doc_2', filename: 'Kwalini_Contract.docx', category: 'Contract', uploadedBy: 'j.doe', uploadDate: new Date('2024-07-25').toISOString(), size: 45678, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+            { id: 'doc_3', filename: 'Maloma_Lease.pdf', category: 'Lease Agreement', uploadedBy: 'm.smith', uploadDate: new Date('2024-07-22').toISOString(), size: 98765, type: 'application/pdf' },
+            { id: 'doc_4', filename: 'Financials_2023.xlsx', category: 'Financial Statement', uploadedBy: 'admin', uploadDate: new Date('2024-07-20').toISOString(), size: 234567, type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+            { id: 'doc_5', filename: 'Site_Inspection_Photos.zip', category: 'Other', uploadedBy: 'j.doe', uploadDate: new Date('2024-07-18').toISOString(), size: 567890, type: 'application/zip' },
+            { id: 'doc_6', filename: 'EIA_Report_Ngwenya.pdf', category: 'Compliance Report', uploadedBy: 'm.smith', uploadDate: new Date('2024-07-15').toISOString(), size: 345678, type: 'application/pdf' },
+            { id: 'doc_7', filename: 'Employee_Handbook.pdf', category: 'Other', uploadedBy: 'admin', uploadDate: new Date('2024-07-10').toISOString(), size: 150000, type: 'application/pdf' },
+        ];
+        for (const doc of seedData) {
+            await dbService.add('documents', doc);
+        }
     }
   }
 };

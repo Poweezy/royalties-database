@@ -4,14 +4,24 @@
  */
 import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
+import { Pagination } from './Pagination.js';
 
 const ExpenseTracking = {
   elements: {},
+  pagination: null,
 
   async init() {
     console.log('Initializing Expense Tracking...');
     this.cacheDOMElements();
+    this.pagination = new Pagination({
+        containerSelector: '#expense-tracking-pagination',
+        itemsPerPage: 5,
+        onPageChange: (page) => {
+            this.renderExpenses(page);
+        }
+    });
     this.bindEvents();
+    await this.seedInitialData();
     await this.renderExpenses();
     console.log('Expense Tracking Initialized.');
   },
@@ -19,6 +29,7 @@ const ExpenseTracking = {
   cacheDOMElements() {
     this.elements = {
       tableBody: document.getElementById('expense-tracking-table-body'),
+      paginationContainer: document.getElementById('expense-tracking-pagination'),
       addExpenseBtn: document.getElementById('add-expense-btn'),
       addExpenseModal: document.getElementById('add-expense-modal'),
       modalTitle: document.querySelector('#add-expense-modal .modal-header h4'),
@@ -32,6 +43,12 @@ const ExpenseTracking = {
       expenseAmountInput: document.getElementById('expense-amount'),
       expenseEntityInput: document.getElementById('expense-entity'),
     };
+
+    if (!this.elements.paginationContainer) {
+        this.elements.paginationContainer = document.createElement('div');
+        this.elements.paginationContainer.id = 'expense-tracking-pagination';
+        this.elements.tableBody.parentElement.after(this.elements.paginationContainer);
+    }
   },
 
   bindEvents() {
@@ -101,7 +118,7 @@ const ExpenseTracking = {
         await dbService.add('expenses', expenseData);
         showToast('Expense added successfully!', 'success');
       }
-      await this.renderExpenses();
+      await this.renderExpenses(1);
       this.closeModal();
     } catch (error) {
       console.error('Error saving expense:', error);
@@ -109,22 +126,26 @@ const ExpenseTracking = {
     }
   },
 
-  async renderExpenses() {
+  async renderExpenses(page = 1) {
     try {
       const expenses = await dbService.getAll('expenses');
+      expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const startIndex = (page - 1) * this.pagination.itemsPerPage;
+      const endIndex = startIndex + this.pagination.itemsPerPage;
+      const paginatedExpenses = expenses.slice(startIndex, endIndex);
+
       this.elements.tableBody.innerHTML = '';
 
       if (expenses.length === 0) {
         this.elements.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">No expenses recorded.</td></tr>`;
-        return;
+      } else {
+        paginatedExpenses.forEach(expense => {
+            const row = this.createExpenseRow(expense);
+            this.elements.tableBody.appendChild(row);
+        });
       }
-
-      expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      expenses.forEach(expense => {
-        const row = this.createExpenseRow(expense);
-        this.elements.tableBody.appendChild(row);
-      });
+      this.pagination.render(expenses.length, page);
     } catch (error) {
       console.error('Error rendering expenses:', error);
       showToast('Failed to load expenses.', 'error');
@@ -174,12 +195,30 @@ const ExpenseTracking = {
     if (confirm('Are you sure you want to delete this expense?')) {
       try {
         await dbService.delete('expenses', expenseId);
-        await this.renderExpenses();
+        await this.renderExpenses(1);
         showToast('Expense deleted successfully.', 'success');
       } catch (error) {
         console.error('Error deleting expense:', error);
         showToast('Failed to delete expense.', 'error');
       }
+    }
+  },
+
+  async seedInitialData() {
+    const expenses = await dbService.getAll('expenses');
+    if (expenses.length === 0) {
+        const seedData = [
+            { id: 'exp_1', date: '2024-07-20', category: 'Operational', description: 'Fuel for machinery', amount: 5000.00, entity: 'Kwalini Quarry', status: 'Approved' },
+            { id: 'exp_2', date: '2024-07-18', category: 'JIB', description: 'Joint Interest Billing Q2', amount: 12500.00, entity: 'Maloma Colliery', status: 'Pending' },
+            { id: 'exp_3', date: '2024-07-15', category: 'Administrative', description: 'Office supplies', amount: 1500.00, entity: 'Mbabane Quarry', status: 'Approved' },
+            { id: 'exp_4', date: '2024-07-12', category: 'Capital', description: 'New drill bit', amount: 25000.00, entity: 'Ngwenya Mine', status: 'Pending' },
+            { id: 'exp_5', date: '2024-07-10', category: 'Operational', description: 'Vehicle maintenance', amount: 3500.00, entity: 'Sidvokodvo Quarry', status: 'Approved' },
+            { id: 'exp_6', date: '2024-07-05', category: 'JIB', description: 'Shared road maintenance', amount: 7500.00, entity: 'Malolotja Mine', status: 'Rejected' },
+            { id: 'exp_7', date: '2024-07-01', category: 'Administrative', description: 'Legal consultation', amount: 10000.00, entity: 'Eswatini Minerals', status: 'Approved' },
+        ];
+        for (const expense of seedData) {
+            await dbService.add('expenses', expense);
+        }
     }
   }
 };
