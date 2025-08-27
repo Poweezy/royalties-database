@@ -410,6 +410,38 @@ class App {
                 this.notificationManager.show('Please fill out all fields.', 'error');
             }
         });
+
+        // --- Profile Page Listeners ---
+        const updateProfileBtn = document.querySelector('#profile .btn-success');
+        updateProfileBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            // In a real app, you'd get the form data and save it.
+            // For this demo, we just show a success message.
+            this.notificationManager.show('Profile updated successfully!', 'success');
+        });
+
+        const changePasswordForm = document.getElementById('change-password-form');
+        changePasswordForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-profile-password').value;
+            const confirmPassword = document.getElementById('confirm-profile-password').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                this.notificationManager.show('Please fill all password fields.', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                this.notificationManager.show('New passwords do not match.', 'error');
+                return;
+            }
+
+            // In a real app, you would verify the current password and then save the new one.
+            // For this demo, we just show a success message.
+            this.notificationManager.show('Password changed successfully!', 'success');
+            changePasswordForm.reset();
+        });
     }
 
     /**
