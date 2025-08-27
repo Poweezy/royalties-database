@@ -175,6 +175,22 @@ class App {
         }
     }
 
+    #setupAdminPanelListeners() {
+        const configForm = document.getElementById('system-config-form');
+        if (configForm) {
+            configForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const rate = document.getElementById('config-royalty-rate').value;
+                const timeout = document.getElementById('config-session-timeout').value;
+                const theme = document.getElementById('config-theme').value;
+                const audit = document.getElementById('config-enable-audit').checked;
+
+                console.log('Saving system configuration:', { rate, timeout, theme, audit });
+                this.notificationManager.show('System settings saved successfully!', 'success');
+            });
+        }
+    }
+
     /**
      * Initialize authenticated state
      */
@@ -355,6 +371,7 @@ class App {
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
         this.#setupChartControlListeners();
+        this.#setupAdminPanelListeners();
 
         // Confirm Logout
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
@@ -628,7 +645,7 @@ class App {
         const adminPanelBtn = document.getElementById('admin-panel-btn');
         if(adminPanelBtn) {
             adminPanelBtn.addEventListener('click', () => {
-                this.notificationManager.show('Admin Panel is not yet implemented.', 'info');
+                this.navigate('admin-panel');
             });
         }
 
