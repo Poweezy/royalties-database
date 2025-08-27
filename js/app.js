@@ -101,7 +101,7 @@ class App {
         this.documentManagement = DocumentManagement;
         this.reporting = Reporting;
         this.royaltyRecords = RoyaltyRecords;
-        this.gisDashboard = new GisDashboard();
+        this.gisDashboard = new GisDashboard(this.state.contracts);
 
         // Initialize app
         this.initializeServices();
