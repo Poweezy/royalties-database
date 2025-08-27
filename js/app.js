@@ -25,6 +25,7 @@ import ExpenseTracking from './modules/expense-tracking.js';
 import ContractManagement from './modules/contract-management.js';
 import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
+import RoyaltyRecords from './modules/royalty-records.js';
 
 class App {
     constructor() {
@@ -98,6 +99,7 @@ class App {
         this.contractManagement = ContractManagement;
         this.documentManagement = DocumentManagement;
         this.reporting = Reporting;
+        this.royaltyRecords = RoyaltyRecords;
 
         // Initialize app
         this.initializeServices();
@@ -193,6 +195,9 @@ class App {
 
             // Initialize Reporting
             await this.reporting.init();
+
+            // Initialize Royalty Records
+            await this.royaltyRecords.init();
 
             // Initialize Document Management
             await this.documentManagement.init();
