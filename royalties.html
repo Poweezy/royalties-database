@@ -497,22 +497,22 @@
             <div class="card-body">
               <form id="system-config-form">
                 <div class="form-group">
-                  <label for="config-royalty-rate">Default Royalty Rate (%)</label>
+                  <label for="config-royalty-rate" title="The default royalty percentage applied to new records.">Default Royalty Rate (%)</label>
                   <input type="number" id="config-royalty-rate" class="form-control" value="15" step="0.1">
                 </div>
                 <div class="form-group">
-                  <label for="config-session-timeout">Session Timeout (minutes)</label>
+                  <label for="config-session-timeout" title="The number of minutes of inactivity before a user is automatically logged out.">Session Timeout (minutes)</label>
                   <input type="number" id="config-session-timeout" class="form-control" value="30">
                 </div>
                 <div class="form-group">
-                    <label for="config-theme">Application Theme</label>
+                    <label for="config-theme" title="Switch between a light or dark visual theme for the application.">Application Theme</label>
                     <select id="config-theme" class="form-control">
                         <option value="light" selected>Light</option>
                         <option value="dark">Dark</option>
                     </select>
                 </div>
                 <div class="form-group">
-                  <label class="checkbox-label">
+                  <label class="checkbox-label" title="When enabled, all significant user actions are logged for auditing purposes.">
                     <input type="checkbox" id="config-enable-audit" checked>
                     Enable Audit Trail
                   </label>
@@ -528,8 +528,11 @@
               <h3><i class="fas fa-database"></i> Data Management</h3>
             </div>
             <div class="card-body">
-              <p>Perform bulk data operations, including importing records, exporting backups, and archiving old data.</p>
-              <button class="btn btn-primary" disabled>Manage Data</button>
+              <p>Perform bulk data operations and manage application data.</p>
+              <div class="admin-actions">
+                <button class="btn btn-secondary" disabled><i class="fas fa-file-import"></i> Import Records</button>
+                <button class="btn btn-secondary" disabled><i class="fas fa-file-export"></i> Export Backups</button>
+              </div>
             </div>
           </div>
 
@@ -539,8 +542,10 @@
               <h3><i class="fas fa-heartbeat"></i> System Health</h3>
             </div>
             <div class="card-body">
-              <p>Monitor the status of critical services, view error logs, and check database connectivity and performance.</p>
-              <button class="btn btn-primary" disabled>View Health Status</button>
+              <p>Monitor the status of critical services and system performance.</p>
+              <div class="admin-actions">
+                <button class="btn btn-secondary" disabled><i class="fas fa-stethoscope"></i> Run Diagnostics</button>
+              </div>
             </div>
           </div>
         </div>
