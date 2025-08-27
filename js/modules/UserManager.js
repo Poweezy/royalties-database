@@ -1,3 +1,5 @@
+import { Pagination } from './Pagination.js';
+
 /**
  * UserManager Module
  *
@@ -9,41 +11,28 @@ export class UserManager {
     // In a real application, this would be fetched from a server.
     // For now, we use a static array based on the original HTML.
     this.users = [
-      {
-        id: 1,
-        username: 'admin',
-        email: 'admin@government.sz',
-        role: 'Administrator',
-        department: 'Administration',
-        status: 'Active',
-        lastLogin: '2024-02-15 09:15',
-        created: '2024-01-01',
-        twoFactorEnabled: true,
-      },
-      {
-        id: 2,
-        username: 'j.doe',
-        email: 'john.doe@government.sz',
-        role: 'Editor',
-        department: 'Operations',
-        status: 'Active',
-        lastLogin: '2024-02-14 16:30',
-        created: '2024-01-15',
-        twoFactorEnabled: false,
-      },
-      {
-        id: 3,
-        username: 'm.smith',
-        email: 'mary.smith@government.sz',
-        role: 'Auditor',
-        department: 'Audit & Compliance',
-        status: 'Inactive',
-        lastLogin: '2024-02-10 14:22',
-        created: '2024-02-01',
-        twoFactorEnabled: true,
-      },
+      { id: 1, username: 'admin', email: 'admin@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:15', created: '2024-01-01', twoFactorEnabled: true },
+      { id: 2, username: 'j.doe', email: 'john.doe@government.sz', role: 'Editor', department: 'Operations', status: 'Active', lastLogin: '2024-02-14 16:30', created: '2024-01-15', twoFactorEnabled: false },
+      { id: 3, username: 'm.smith', email: 'mary.smith@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Inactive', lastLogin: '2024-02-10 14:22', created: '2024-02-01', twoFactorEnabled: true },
+      { id: 4, username: 's.jones', email: 'sue.jones@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Active', lastLogin: '2024-02-15 11:05', created: '2024-01-20', twoFactorEnabled: true },
+      { id: 5, username: 'p.dlamini', email: 'pete.dlamini@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-13 10:00', created: '2024-01-25', twoFactorEnabled: false },
+      { id: 6, username: 'l.gomez', email: 'lisa.gomez@government.sz', role: 'Editor', department: 'Legal Affairs', status: 'Inactive', lastLogin: '2024-02-01 18:30', created: '2024-02-01', twoFactorEnabled: true },
+      { id: 7, username: 't.brown', email: 'tom.brown@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:00', created: '2023-12-15', twoFactorEnabled: true },
+      { id: 8, username: 'a.white', email: 'anna.white@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Active', lastLogin: '2024-02-14 13:00', created: '2024-01-18', twoFactorEnabled: false },
+      { id: 9, username: 'c.green', email: 'chris.green@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Locked', lastLogin: '2024-02-12 09:00', created: '2024-01-22', twoFactorEnabled: false },
+      { id: 10, username: 'b.king', email: 'brian.king@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-15 14:00', created: '2024-01-30', twoFactorEnabled: true },
+      { id: 11, username: 'e.clark', email: 'emily.clark@government.sz', role: 'Editor', department: 'Operations', status: 'Expired', lastLogin: '2023-11-15 10:00', created: '2023-10-01', twoFactorEnabled: true },
     ];
     this.tableBody = document.getElementById('users-table-tbody');
+    this.filteredUsers = [...this.users]; // Keep a separate list of users after filtering
+
+    this.pagination = new Pagination({
+        containerSelector: '#users-pagination',
+        itemsPerPage: 5, // Let's use a smaller number for demonstration
+        onPageChange: (page) => {
+            this.renderUsers(this.filteredUsers, page);
+        }
+    });
   }
 
   /**
@@ -54,13 +43,13 @@ export class UserManager {
    * @param {string} filters.status - The status to filter by.
    */
   filterUsers(filters) {
-    let filteredUsers = this.users;
+    let users = this.users;
     const { searchTerm, role, status } = filters;
 
     // Filter by search term (username, email, role)
     if (searchTerm) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      filteredUsers = filteredUsers.filter(user =>
+      users = users.filter(user =>
         user.username.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.email.toLowerCase().includes(lowerCaseSearchTerm) ||
         user.role.toLowerCase().includes(lowerCaseSearchTerm)
@@ -69,19 +58,22 @@ export class UserManager {
 
     // Filter by role
     if (role) {
-      filteredUsers = filteredUsers.filter(user => user.role.toLowerCase() === role.toLowerCase());
+      users = users.filter(user => user.role.toLowerCase() === role.toLowerCase());
     }
 
     // Filter by status
     if (status) {
-      filteredUsers = filteredUsers.filter(user => user.status.toLowerCase() === status.toLowerCase());
+      users = users.filter(user => user.status.toLowerCase() === status.toLowerCase());
     }
 
-    this.renderUsers(filteredUsers);
+    this.filteredUsers = users;
+    this.renderUsers(this.filteredUsers, 1); // Go back to the first page after filtering
   }
 
-  renderUsers(usersToRender) {
-    const users = usersToRender || this.users;
+  renderUsers(usersToRender, page = 1) {
+    const userList = usersToRender || this.users;
+    this.filteredUsers = userList; // Update the filtered list
+
     if (!this.tableBody) {
       console.error('User table body not found!');
       return;
@@ -90,15 +82,22 @@ export class UserManager {
     // Clear existing rows
     this.tableBody.innerHTML = '';
 
-    if (users.length === 0) {
+    // Paginate the data
+    const startIndex = (page - 1) * this.pagination.itemsPerPage;
+    const endIndex = startIndex + this.pagination.itemsPerPage;
+    const paginatedUsers = userList.slice(startIndex, endIndex);
+
+    if (userList.length === 0) {
       this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users found.</td></tr>`;
-      return;
+    } else {
+        paginatedUsers.forEach(user => {
+            const row = this.tableBody.insertRow();
+            row.innerHTML = this.createUserRowHtml(user);
+        });
     }
 
-    users.forEach(user => {
-      const row = this.tableBody.insertRow();
-      row.innerHTML = this.createUserRowHtml(user);
-    });
+    // Render the pagination controls
+    this.pagination.render(userList.length, page);
   }
 
   /**
@@ -122,7 +121,7 @@ export class UserManager {
     };
 
     this.users.push(newUser);
-    this.renderUsers();
+    this.renderUsers(this.users, 1);
   }
 
   /**
@@ -138,7 +137,7 @@ export class UserManager {
     }
 
     this.users.splice(userIndex, 1);
-    this.renderUsers();
+    this.renderUsers(this.users, 1);
   }
 
   /**
