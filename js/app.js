@@ -877,7 +877,6 @@ class App {
     showForgotPassword() {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('forgot-password-section').style.display = 'flex';
-        document.getElementById('forgot-password-confirmation').style.display = 'none';
         document.getElementById('app-container').style.display = 'none';
     }
 
