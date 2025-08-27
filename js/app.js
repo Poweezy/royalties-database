@@ -224,16 +224,39 @@ class App {
             bulkUpdateForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const mineral = document.getElementById('bulk-update-mineral').value;
-                const newRate = document.getElementById('bulk-update-rate').value;
+                const newRate = parseFloat(document.getElementById('bulk-update-rate').value);
 
-                if (!newRate) {
-                    this.notificationManager.show('Please enter a new rate.', 'error');
+                if (isNaN(newRate) || newRate <= 0) {
+                    this.notificationManager.show('Please enter a valid positive rate.', 'error');
                     return;
                 }
 
-                console.log(`Bulk updating rate for ${mineral} to ${newRate}`);
-                // In a real app, this would trigger a service call to update the backend data.
-                this.notificationManager.show(`Royalty rates for ${mineral} updated successfully.`, 'success');
+                let updatedCount = 0;
+                this.state.contracts.forEach(contract => {
+                    if (contract.mineral === mineral && contract.calculationType === 'fixed') {
+                        contract.calculationParams.rate = newRate;
+                        // Also update the mock DB
+                        dbService.put('contracts', contract);
+                        updatedCount++;
+                    }
+                });
+
+                const currentUser = authService.getCurrentUser();
+                if (!currentUser) {
+                    this.notificationManager.show('Could not identify current user. Please log in again.', 'error');
+                    return;
+                }
+                // Add to audit log
+                this.state.auditLog.unshift({
+                    timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                    user: currentUser.username,
+                    action: 'Bulk Rate Update',
+                    details: `Updated ${updatedCount} contracts for ${mineral} to new rate of ${newRate.toFixed(2)}`
+                });
+
+                // The navigate function will now handle re-rendering, so this is not needed here.
+
+                this.notificationManager.show(`${updatedCount} contract(s) for ${mineral} updated successfully.`, 'success');
             });
         }
 
@@ -905,6 +928,10 @@ class App {
 
         if (route === 'gis-dashboard') {
             this.gisDashboard.init();
+        }
+
+        if (route === 'contract-management') {
+            this.contractManagement.renderContracts(this.state.contracts);
         }
 
         if (route === 'communication') {
