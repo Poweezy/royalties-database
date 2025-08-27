@@ -576,18 +576,6 @@ class App {
             }
         });
 
-        const activeEntitiesCard = document.querySelector('.metric-card:nth-child(2)');
-        if (activeEntitiesCard) {
-            activeEntitiesCard.addEventListener('click', () => {
-                this.navigate('user-management');
-                const statusFilter = document.getElementById('filter-status');
-                if (statusFilter) {
-                    statusFilter.value = 'active';
-                    this.userManager.filterUsers({ status: 'active' });
-                }
-            });
-        }
-
         const exportChartBtns = document.querySelectorAll('.export-chart-btn');
         exportChartBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -607,18 +595,6 @@ class App {
                 }
             });
         });
-
-        const pendingApprovalsCard = document.querySelector('.metric-card:nth-child(4)');
-        if (pendingApprovalsCard) {
-            pendingApprovalsCard.addEventListener('click', () => {
-                this.navigate('user-management');
-                const statusFilter = document.getElementById('filter-status');
-                if (statusFilter) {
-                    statusFilter.value = 'inactive';
-                    this.userManager.filterUsers({ status: 'inactive' });
-                }
-            });
-        }
 
         const refreshBtn = document.getElementById('refresh-dashboard');
         if(refreshBtn) {
