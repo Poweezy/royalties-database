@@ -4,14 +4,24 @@
  */
 import { dbService } from '../services/database.service.js';
 import { showToast } from './NotificationManager.js';
+import { Pagination } from './Pagination.js';
 
 const ContractManagement = {
   elements: {},
+  pagination: null,
 
   async init() {
     console.log('Initializing Contract Management...');
     this.cacheDOMElements();
+    this.pagination = new Pagination({
+        containerSelector: '#contract-management-pagination', // Assuming a container with this ID exists
+        itemsPerPage: 5,
+        onPageChange: (page) => {
+            this.renderContracts(page);
+        }
+    });
     this.bindEvents();
+    await this.seedInitialData();
     await this.renderContracts();
     console.log('Contract Management Initialized.');
   },
@@ -19,6 +29,7 @@ const ContractManagement = {
   cacheDOMElements() {
     this.elements = {
       tableBody: document.getElementById('contract-management-table-body'),
+      paginationContainer: document.getElementById('contract-management-pagination'),
       addContractBtn: document.getElementById('add-contract-btn'),
       addContractModal: document.getElementById('add-contract-modal'),
       modalTitle: document.querySelector('#add-contract-modal .modal-header h4'),
@@ -31,6 +42,13 @@ const ContractManagement = {
       startDateInput: document.getElementById('start-date'),
       endDateInput: document.getElementById('end-date'),
     };
+
+    // Create pagination container if it doesn't exist
+    if (!this.elements.paginationContainer) {
+        this.elements.paginationContainer = document.createElement('div');
+        this.elements.paginationContainer.id = 'contract-management-pagination';
+        this.elements.tableBody.parentElement.after(this.elements.paginationContainer);
+    }
   },
 
   bindEvents() {
@@ -89,7 +107,7 @@ const ContractManagement = {
         await dbService.add('contracts', contractData);
         showToast('Contract added successfully!', 'success');
       }
-      await this.renderContracts();
+      await this.renderContracts(1);
       this.closeModal();
     } catch (error) {
       console.error('Error saving contract:', error);
@@ -97,19 +115,25 @@ const ContractManagement = {
     }
   },
 
-  async renderContracts() {
+  async renderContracts(page = 1) {
     try {
       const contracts = await dbService.getAll('contracts');
+      contracts.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+      const startIndex = (page - 1) * this.pagination.itemsPerPage;
+      const endIndex = startIndex + this.pagination.itemsPerPage;
+      const paginatedContracts = contracts.slice(startIndex, endIndex);
+
       this.elements.tableBody.innerHTML = '';
       if (contracts.length === 0) {
         this.elements.tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">No contracts found.</td></tr>`;
-        return;
+      } else {
+        paginatedContracts.forEach(contract => {
+            const row = this.createContractRow(contract);
+            this.elements.tableBody.appendChild(row);
+        });
       }
-      contracts.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-      contracts.forEach(contract => {
-        const row = this.createContractRow(contract);
-        this.elements.tableBody.appendChild(row);
-      });
+      this.pagination.render(contracts.length, page);
     } catch (error) {
       console.error('Error rendering contracts:', error);
       showToast('Failed to load contracts.', 'error');
@@ -158,12 +182,30 @@ const ContractManagement = {
     if (confirm('Are you sure you want to delete this contract?')) {
       try {
         await dbService.delete('contracts', contractId);
-        await this.renderContracts();
+        await this.renderContracts(1);
         showToast('Contract deleted successfully.', 'success');
       } catch (error) {
         console.error('Error deleting contract:', error);
         showToast('Failed to delete contract.', 'error');
       }
+    }
+  },
+
+  async seedInitialData() {
+    const contracts = await dbService.getAll('contracts');
+    if (contracts.length === 0) {
+        const seedData = [
+            { id: 'contract_1', entity: 'Kwalini Quarry', royaltyRate: 15.50, startDate: '2023-01-01', endDate: '2028-01-01' },
+            { id: 'contract_2', entity: 'Mbabane Quarry', royaltyRate: 18.00, startDate: '2022-06-15', endDate: '2027-06-15' },
+            { id: 'contract_3', entity: 'Sidvokodvo Quarry', royaltyRate: 16.25, startDate: '2023-03-01', endDate: null },
+            { id: 'contract_4', entity: 'Maloma Colliery', royaltyRate: 25.00, startDate: '2021-11-20', endDate: '2026-11-20' },
+            { id: 'contract_5', entity: 'Ngwenya Mine', royaltyRate: 22.50, startDate: '2023-08-01', endDate: '2025-08-01' },
+            { id: 'contract_6', entity: 'Malolotja Mine', royaltyRate: 20.00, startDate: '2024-01-01', endDate: null },
+            { id: 'contract_7', entity: 'Eswatini Minerals', royaltyRate: 19.75, startDate: '2022-09-10', endDate: '2024-09-10' },
+        ];
+        for (const contract of seedData) {
+            await dbService.add('contracts', contract);
+        }
     }
   },
 
