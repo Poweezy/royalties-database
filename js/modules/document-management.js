@@ -110,15 +110,51 @@ const DocumentManagement = {
       <td>${new Date(doc.uploadDate).toLocaleDateString()}</td>
       <td>
         <div class="btn-group">
-          <button class="btn btn-sm btn-info" title="Download Document"><i class="fas fa-download"></i></button>
+          <button class="btn btn-sm btn-info download-btn" title="Download Document"><i class="fas fa-download"></i></button>
           <button class="btn btn-sm btn-danger delete-btn" title="Delete Document"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     `;
 
+    row.querySelector('.download-btn').addEventListener('click', () => this.handleDownloadDocument(doc.id));
     row.querySelector('.delete-btn').addEventListener('click', () => this.handleDeleteDocument(doc.id));
-    // In a real app, the download button would have its own handler
     return row;
+  },
+
+  async handleDownloadDocument(docId) {
+    try {
+      const doc = await dbService.getById('documents', docId);
+      if (!doc) {
+        showToast('Document not found.', 'error');
+        return;
+      }
+
+      // Simulate file download by creating a text file with the document's metadata
+      const fileContent = `
+        Document Details
+        ----------------
+        Filename: ${doc.filename}
+        Category: ${doc.category}
+        Uploaded By: ${doc.uploadedBy}
+        Upload Date: ${new Date(doc.uploadDate).toLocaleString()}
+        File Size: ${(doc.size / 1024).toFixed(2)} KB
+        File Type: ${doc.type}
+      `;
+
+      const blob = new Blob([fileContent.trim()], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${doc.filename.split('.')[0]}_details.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      showToast('Failed to download document.', 'error');
+    }
   },
 
   async handleDeleteDocument(docId) {
