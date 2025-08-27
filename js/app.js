@@ -507,6 +507,85 @@ class App {
                 }
             }
         });
+
+        // --- Filter Listeners ---
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const searchInput = document.getElementById('filter-search');
+        const roleFilter = document.getElementById('filter-role');
+        const statusFilter = document.getElementById('filter-status');
+
+        const applyFilters = () => {
+            const filters = {
+                searchTerm: searchInput.value,
+                role: roleFilter.value,
+                status: statusFilter.value,
+            };
+            this.userManager.filterUsers(filters);
+        };
+
+        applyFiltersBtn?.addEventListener('click', applyFilters);
+        searchInput?.addEventListener('keyup', applyFilters);
+        roleFilter?.addEventListener('change', applyFilters);
+        statusFilter?.addEventListener('change', applyFilters);
+
+        clearFiltersBtn?.addEventListener('click', () => {
+            searchInput.value = '';
+            roleFilter.value = '';
+            statusFilter.value = '';
+            this.userManager.renderUsers(); // Render all users
+        });
+
+        // --- Export Listener ---
+        const exportUsersBtn = document.getElementById('export-users');
+        exportUsersBtn?.addEventListener('click', () => {
+            this.userManager.exportUsers();
+        });
+
+        // --- Table Action Listeners ---
+        const refreshBtn = document.getElementById('refresh-users');
+        refreshBtn?.addEventListener('click', () => this.userManager.renderUsers());
+
+        const bulkDeleteBtn = document.getElementById('bulk-delete-users');
+        const selectAllCheckbox = document.getElementById('select-all-users');
+        const userTable = document.getElementById('users-table');
+
+        const toggleBulkDeleteButton = () => {
+            const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
+            if (selectedCheckboxes.length > 0) {
+                bulkDeleteBtn.style.display = 'inline-block';
+                bulkDeleteBtn.disabled = false;
+            } else {
+                bulkDeleteBtn.style.display = 'none';
+                bulkDeleteBtn.disabled = true;
+            }
+        };
+
+        selectAllCheckbox?.addEventListener('change', (e) => {
+            const checkboxes = userTable.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = e.target.checked;
+            });
+            toggleBulkDeleteButton();
+        });
+
+        userTable?.addEventListener('change', (e) => {
+            if (e.target.matches('tbody input[type="checkbox"]')) {
+                toggleBulkDeleteButton();
+            }
+        });
+
+        bulkDeleteBtn?.addEventListener('click', () => {
+            const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
+            const userIdsToDelete = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value, 10));
+
+            if (userIdsToDelete.length > 0 && confirm(`Are you sure you want to delete ${userIdsToDelete.length} selected user(s)?`)) {
+                this.userManager.bulkDeleteUsers(userIdsToDelete);
+                this.notificationManager.show(`${userIdsToDelete.length} user(s) deleted successfully.`, 'success');
+                toggleBulkDeleteButton();
+                selectAllCheckbox.checked = false;
+            }
+        });
     }
 
     /**
