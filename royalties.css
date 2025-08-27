@@ -3623,6 +3623,35 @@ nav ul li a span.notification-badge {
   animation: slideIn 0.4s ease-out;
 }
 
+.modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.modal-list li {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal-list li::before {
+  content: '⛏️'; /* Or use a Font Awesome icon */
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.modal-list li:last-child {
+  border-bottom: none;
+}
+
 @keyframes slideIn {
   from {
     transform: translateY(-50px);

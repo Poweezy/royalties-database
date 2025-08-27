@@ -187,10 +187,22 @@ export class ChartManager {
 
   changeChartType(chartName, newType) {
     const chart = this.charts.get(chartName);
-    if (chart) {
-      chart.config.type = newType;
-      chart.update();
+    if (!chart) {
+      console.warn(`Chart '${chartName}' not found for type change.`);
+      return;
     }
+
+    // Special handling for line/area charts which are both type 'line'
+    if (newType === 'area' || newType === 'line') {
+      chart.config.type = 'line';
+      chart.data.datasets.forEach(dataset => {
+        dataset.fill = newType === 'area';
+      });
+    } else {
+      chart.config.type = newType;
+    }
+
+    chart.update();
   }
 
   destroyAll() {
