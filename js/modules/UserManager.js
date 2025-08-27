@@ -47,13 +47,36 @@ export class UserManager {
   }
 
   /**
-   * Renders the list of users into the user management table.
+   * Filters and renders the list of users based on the provided criteria.
+   * @param {object} filters - The filter criteria.
+   * @param {string} filters.searchTerm - The text to search for.
+   * @param {string} filters.role - The role to filter by.
+   * @param {string} filters.status - The status to filter by.
    */
   filterUsers(filters) {
     let filteredUsers = this.users;
-    if (filters.status) {
-        filteredUsers = filteredUsers.filter(user => user.status.toLowerCase() === filters.status.toLowerCase());
+    const { searchTerm, role, status } = filters;
+
+    // Filter by search term (username, email, role)
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      filteredUsers = filteredUsers.filter(user =>
+        user.username.toLowerCase().includes(lowerCaseSearchTerm) ||
+        user.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+        user.role.toLowerCase().includes(lowerCaseSearchTerm)
+      );
     }
+
+    // Filter by role
+    if (role) {
+      filteredUsers = filteredUsers.filter(user => user.role.toLowerCase() === role.toLowerCase());
+    }
+
+    // Filter by status
+    if (status) {
+      filteredUsers = filteredUsers.filter(user => user.status.toLowerCase() === status.toLowerCase());
+    }
+
     this.renderUsers(filteredUsers);
   }
 
@@ -145,6 +168,15 @@ export class UserManager {
   }
 
   /**
+   * Deletes multiple users from the list.
+   * @param {number[]} userIds - An array of user IDs to delete.
+   */
+  bulkDeleteUsers(userIds) {
+    this.users = this.users.filter(user => !userIds.includes(user.id));
+    this.renderUsers();
+  }
+
+  /**
    * Generates the HTML for a single user row.
    * @param {object} user - The user object.
    * @returns {string} The HTML string for the table row.
@@ -161,14 +193,14 @@ export class UserManager {
 
     return `
         <td><input type="checkbox" name="user-select" value="${user.id}"></td>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td><span class="role-badge ${roleClass}">${user.role}</span></td>
-        <td>${user.department}</td>
-        <td><span class="status-badge ${statusClass}">${user.status}</span></td>
-        <td>${lastLoginDate}</td>
-        <td>${createdDate}</td>
-        <td>${twoFactorIcon}</td>
+        <td data-label="Username">${user.username}</td>
+        <td data-label="Email">${user.email}</td>
+        <td data-label="Role"><span class="role-badge ${roleClass}">${user.role}</span></td>
+        <td data-label="Department">${user.department}</td>
+        <td data-label="Status"><span class="status-badge ${statusClass}">${user.status}</span></td>
+        <td data-label="Last Login">${lastLoginDate}</td>
+        <td data-label="Created">${createdDate}</td>
+        <td data-label="2FA">${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
             <button class="btn btn-info btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
@@ -183,5 +215,41 @@ export class UserManager {
           </div>
         </td>
     `;
+  }
+
+  /**
+   * Exports the currently displayed users to a CSV file.
+   */
+  exportUsers() {
+    const rows = this.tableBody.querySelectorAll('tr');
+    if (rows.length === 0 || (rows.length === 1 && rows[0].querySelector('td[colspan="10"]'))) {
+        alert('No users to export.');
+        return;
+    }
+
+    const headers = ['Username', 'Email', 'Role', 'Department', 'Status', 'Last Login', 'Created', '2FA Enabled'];
+    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+
+    rows.forEach(row => {
+        const username = row.querySelector('[data-label="Username"]').textContent;
+        const email = row.querySelector('[data-label="Email"]').textContent;
+        const role = row.querySelector('[data-label="Role"]').textContent;
+        const department = row.querySelector('[data-label="Department"]').textContent;
+        const status = row.querySelector('[data-label="Status"]').textContent;
+        const lastLogin = row.querySelector('[data-label="Last Login"]').textContent;
+        const created = row.querySelector('[data-label="Created"]').textContent;
+        const twoFactor = row.querySelector('[data-label="2FA"] i').classList.contains('fa-check-circle');
+
+        const csvRow = [username, email, role, department, status, lastLogin, created, twoFactor].join(",");
+        csvContent += csvRow + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "user_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }
