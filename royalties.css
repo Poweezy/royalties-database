@@ -750,11 +750,6 @@ nav ul li a span.notification-badge {
   align-items: center;
 }
 
-.login-form .remember-me-group input[type="checkbox"] {
-  width: auto;
-  margin-right: 0.5rem;
-}
-
 .login-form .forgot-password-link,
 .forgot-password-section .login-footer a {
   color: var(--text-secondary);
