@@ -334,6 +334,9 @@ class App {
             await this.handleLogin(e.target);
         });
 
+        document.getElementById('username')?.addEventListener('input', (e) => this.validateField(e.target));
+        document.getElementById('password')?.addEventListener('input', (e) => this.validateField(e.target));
+
         // Navigation events
         document.querySelectorAll('nav a')?.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -374,11 +377,17 @@ class App {
             e.preventDefault();
             const email = e.target.elements['reset-email'].value;
             if (email) {
-                this.notificationManager.show('If an account with that email exists, a password reset link has been sent.', 'success');
-                this.showLogin();
+                document.getElementById('forgot-password-section').style.display = 'none';
+                document.getElementById('forgot-password-confirmation').style.display = 'flex';
             } else {
                 this.notificationManager.show('Please enter your email address.', 'error');
             }
+        });
+
+        document.getElementById('back-to-login-from-confirmation')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showLogin();
+            document.getElementById('forgot-password-confirmation').style.display = 'none';
         });
 
         // Communication Hub listeners
@@ -673,12 +682,50 @@ class App {
             return;
         }
 
+        const loginButton = form.querySelector('button[type="submit"]');
+        loginButton.classList.add('loading');
+        loginButton.disabled = true;
+
         try {
             await authService.login(username, password);
             this.showDashboard();
         } catch (error) {
             console.error('[App] Login error caught in handleLogin:', error);
             this.showError('Invalid username or password');
+        } finally {
+            loginButton.classList.remove('loading');
+            loginButton.disabled = false;
+        }
+    }
+
+    validateField(field) {
+        const fieldId = field.id;
+        const value = field.value.trim();
+        const errorEl = document.getElementById(`${fieldId}-error`);
+        let isValid = true;
+        let errorMessage = '';
+
+        if (fieldId === 'username') {
+            if (value.length < 3) {
+                isValid = false;
+                errorMessage = 'Username must be at least 3 characters long.';
+            }
+        }
+
+        if (fieldId === 'password') {
+            if (value.length < 6) {
+                isValid = false;
+                errorMessage = 'Password must be at least 6 characters long.';
+            }
+        }
+
+        if (!isValid) {
+            field.classList.add('field-invalid');
+            errorEl.textContent = errorMessage;
+            errorEl.style.display = 'block';
+        } else {
+            field.classList.remove('field-invalid');
+            errorEl.style.display = 'none';
         }
     }
 
@@ -730,12 +777,14 @@ class App {
     showLogin() {
         document.getElementById('login-section').style.display = 'flex';
         document.getElementById('forgot-password-section').style.display = 'none';
+        document.getElementById('forgot-password-confirmation').style.display = 'none';
         document.getElementById('app-container').style.display = 'none';
     }
 
     showForgotPassword() {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('forgot-password-section').style.display = 'flex';
+        document.getElementById('forgot-password-confirmation').style.display = 'none';
         document.getElementById('app-container').style.display = 'none';
     }
 
