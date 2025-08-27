@@ -528,11 +528,11 @@ nav ul li a span.notification-badge {
   background: var(--background-glass);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
-  padding: 3rem;
+  padding: 4rem;
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-2xl);
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
   border: 1px solid var(--border-color-light);
   position: relative;
   z-index: 2;
@@ -569,7 +569,7 @@ nav ul li a span.notification-badge {
 
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .login-logo {
@@ -613,10 +613,10 @@ nav ul li a span.notification-badge {
 }
 
 .login-header h2 {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   background: var(--gradient-corporate);
   background-clip: text;
   -webkit-background-clip: text;
@@ -625,14 +625,14 @@ nav ul li a span.notification-badge {
 
 .login-header p {
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: var(--font-weight-medium);
 }
 
 /* Enhanced Beautiful Form Controls */
 .login-form .input-group {
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .login-form .input-group i {
