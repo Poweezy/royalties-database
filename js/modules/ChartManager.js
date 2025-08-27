@@ -185,6 +185,14 @@ export class ChartManager {
     return null;
   }
 
+  changeChartType(chartName, newType) {
+    const chart = this.charts.get(chartName);
+    if (chart) {
+      chart.config.type = newType;
+      chart.update();
+    }
+  }
+
   destroyAll() {
     this.charts.forEach(chart => chart.destroy());
     this.charts.clear();

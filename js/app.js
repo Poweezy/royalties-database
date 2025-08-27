@@ -354,6 +354,7 @@ class App {
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
+        this.#setupChartControlListeners();
 
         // Confirm Logout
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
@@ -528,6 +529,35 @@ class App {
     }
 
     /**
+     * Sets up event listeners for the chart control buttons.
+     */
+    #setupChartControlListeners() {
+        const chartControlButtons = document.querySelectorAll('.chart-btn');
+        chartControlButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.currentTarget.dataset.chartId;
+                const chartType = e.currentTarget.dataset.chartType;
+
+                let chartName;
+                if (chartId === 'revenue-trends-chart') {
+                    chartName = 'revenue';
+                } else if (chartId === 'production-by-entity-chart') {
+                    chartName = 'production';
+                }
+
+                if (chartName) {
+                    this.chartManager.changeChartType(chartName, chartType);
+
+                    // Update active button state
+                    const parent = e.currentTarget.parentElement;
+                    parent.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                }
+            });
+        });
+    }
+
+    /**
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
@@ -587,6 +617,29 @@ class App {
                     statusFilter.value = 'inactive';
                     this.userManager.filterUsers({ status: 'inactive' });
                 }
+            });
+        }
+
+        const refreshBtn = document.getElementById('refresh-dashboard');
+        if(refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                this.notificationManager.show('Refreshing dashboard data...', 'info');
+                await this.initializeDashboard();
+                this.notificationManager.show('Dashboard refreshed successfully.', 'success');
+            });
+        }
+
+        const adminPanelBtn = document.getElementById('admin-panel-btn');
+        if(adminPanelBtn) {
+            adminPanelBtn.addEventListener('click', () => {
+                this.notificationManager.show('Admin Panel is not yet implemented.', 'info');
+            });
+        }
+
+        const viewAllActivityBtn = document.getElementById('view-all-activity');
+        if(viewAllActivityBtn) {
+            viewAllActivityBtn.addEventListener('click', () => {
+                this.notificationManager.show('Viewing all activity is not yet implemented.', 'info');
             });
         }
     }
@@ -656,7 +709,6 @@ class App {
      * Handle login form submission
      */
     async handleLogin(form) {
-        console.log('handleLogin called');
         const username = form.username.value.trim();
         const password = form.password.value.trim();
         const usernameError = document.getElementById('username-error');
@@ -689,7 +741,6 @@ class App {
 
         try {
             await authService.login(username, password);
-            console.log('Login successful');
             this.showDashboard();
         } catch (error) {
             console.error('[App] Login error caught in handleLogin:', error);
@@ -791,7 +842,6 @@ class App {
     }
 
     showDashboard() {
-        console.log('showDashboard called');
         document.getElementById('login-section').style.display = 'none';
         const appContainer = document.getElementById('app-container');
         appContainer.style.display = 'flex';
