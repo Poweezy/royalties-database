@@ -596,6 +596,26 @@ class App {
             });
         });
 
+        // Active Entities Modal Logic
+        const activeEntitiesCard = document.querySelector('#dashboard .metric-card:nth-child(2)');
+        const activeEntitiesModal = document.getElementById('active-entities-modal');
+        const closeEntitiesModalBtn = document.getElementById('close-active-entities-modal-btn');
+        const okEntitiesModalBtn = document.getElementById('ok-active-entities-btn');
+
+        if (activeEntitiesCard && activeEntitiesModal) {
+            activeEntitiesCard.addEventListener('click', () => {
+                activeEntitiesModal.style.display = 'block';
+            });
+        }
+
+        const closeFunc = () => {
+            if (activeEntitiesModal) {
+                activeEntitiesModal.style.display = 'none';
+            }
+        };
+        closeEntitiesModalBtn?.addEventListener('click', closeFunc);
+        okEntitiesModalBtn?.addEventListener('click', closeFunc);
+
         const refreshBtn = document.getElementById('refresh-dashboard');
         if(refreshBtn) {
             refreshBtn.addEventListener('click', async () => {
