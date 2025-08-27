@@ -26,6 +26,7 @@ import ContractManagement from './modules/contract-management.js';
 import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
 import RoyaltyRecords from './modules/royalty-records.js';
+import { GisDashboard } from './modules/GisDashboard.js';
 
 class App {
     constructor() {
@@ -100,6 +101,7 @@ class App {
         this.documentManagement = DocumentManagement;
         this.reporting = Reporting;
         this.royaltyRecords = RoyaltyRecords;
+        this.gisDashboard = new GisDashboard();
 
         // Initialize app
         this.initializeServices();
@@ -698,6 +700,10 @@ class App {
         // Render components specific to the route
         if (route === 'user-management') {
             this.userManager.renderUsers();
+        }
+
+        if (route === 'gis-dashboard') {
+            this.gisDashboard.init();
         }
 
         if (route === 'communication') {
