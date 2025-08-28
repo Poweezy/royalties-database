@@ -489,6 +489,13 @@ class App {
         closeFormBtn?.addEventListener('click', hideForm);
         cancelFormBtn?.addEventListener('click', hideForm);
 
+        const resetFormBtn = document.getElementById('reset-form');
+        resetFormBtn?.addEventListener('click', () => {
+            addUserForm.reset();
+            // Optional: Clear any validation styling if it were implemented more deeply
+            this.notificationManager.show('Form has been reset.', 'info');
+        });
+
         addUserForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
