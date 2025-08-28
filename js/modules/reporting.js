@@ -32,6 +32,36 @@ const Reporting = {
     if (outstandingPaymentsBtn) {
         outstandingPaymentsBtn.addEventListener('click', () => this.generateOutstandingPaymentsReport());
     }
+
+    // --- Custom Report Builder Listeners ---
+    const previewBtn = document.querySelector('#custom-reports .btn-success');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', () => this.handleCustomReportPreview());
+    }
+  },
+
+  handleCustomReportPreview() {
+    const reportType = document.getElementById('report-type').value;
+    const period = document.getElementById('report-period').value;
+    const entity = document.getElementById('report-entity').value;
+    const format = document.getElementById('output-format').value;
+
+    if (!reportType || !period) {
+        showToast('Please select a Report Type and Period.', 'error');
+        return;
+    }
+
+    const selectedMetrics = Array.from(document.querySelectorAll('#custom-reports .metrics-selector input:checked'))
+        .map(cb => cb.parentElement.textContent.trim());
+
+    let message = `Generating '${reportType}' for '${entity}' over period '${period}' in ${format} format.`;
+    if (selectedMetrics.length > 0) {
+        message += `\nMetrics: ${selectedMetrics.join(', ')}`;
+    } else {
+        message += `\nNo metrics selected.`;
+    }
+
+    showToast(message, 'info', 10000); // Show for 10 seconds
   },
 
   /**
