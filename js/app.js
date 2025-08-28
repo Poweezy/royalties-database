@@ -27,6 +27,7 @@ import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
 import RoyaltyRecords from './modules/royalty-records.js';
 import { GisDashboard } from './modules/GisDashboard.js';
+import { AuditLogManager } from './modules/AuditLogManager.js';
 
 class App {
     constructor() {
@@ -102,6 +103,7 @@ class App {
         this.reporting = Reporting;
         this.royaltyRecords = RoyaltyRecords;
         this.gisDashboard = new GisDashboard(this.state.contracts);
+        this.auditLogManager = null; // Will be initialized on auth state
 
         // Initialize app
         this.initializeServices();
@@ -203,6 +205,9 @@ class App {
 
             // Initialize Document Management
             await this.documentManagement.init();
+
+            // Initialize Audit Log Manager
+            this.auditLogManager = new AuditLogManager();
 
             // Show dashboard
             this.showDashboard();
