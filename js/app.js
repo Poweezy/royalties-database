@@ -64,7 +64,8 @@ class App {
                             { from: 51, to: 100, rate: 25 },
                             { from: 101, to: null, rate: 30 }
                         ],
-                        priceSource: 'some_api_endpoint'
+                        priceSource: 'some_api_endpoint',
+                        basePrice: 50 // Add a base price for the sliding scale calculation
                     }
                 },
                 {
@@ -499,6 +500,7 @@ class App {
         addUserForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
+            const editingId = e.target.dataset.editingId ? parseInt(e.target.dataset.editingId, 10) : null;
             const userData = {
                 username: formData.get('new-username'),
                 email: formData.get('new-email'),
@@ -512,10 +514,19 @@ class App {
                 return;
             }
 
-            const editingId = e.target.dataset.editingId;
+            // Duplicate validation
+            if (this.userManager.isUsernameTaken(userData.username, editingId)) {
+                this.notificationManager.show(`Username '${userData.username}' is already taken.`, 'error');
+                return;
+            }
+            if (this.userManager.isEmailTaken(userData.email, editingId)) {
+                this.notificationManager.show(`Email '${userData.email}' is already in use.`, 'error');
+                return;
+            }
+
             if (editingId) {
                 // Update existing user
-                this.userManager.updateUser(parseInt(editingId, 10), userData);
+                this.userManager.updateUser(editingId, userData);
                 this.notificationManager.show(`User '${userData.username}' updated successfully.`, 'success');
             } else {
                 // Add new user
@@ -598,18 +609,19 @@ class App {
         const refreshBtn = document.getElementById('refresh-users');
         refreshBtn?.addEventListener('click', () => this.userManager.renderUsers());
 
+        const bulkActionsContainer = document.getElementById('bulk-actions-container');
         const bulkDeleteBtn = document.getElementById('bulk-delete-users');
+        const bulkStatusApplyBtn = document.getElementById('bulk-apply-status-change');
+        const bulkStatusSelect = document.getElementById('bulk-action-status');
         const selectAllCheckbox = document.getElementById('select-all-users');
         const userTable = document.getElementById('users-table');
 
-        const toggleBulkDeleteButton = () => {
+        const toggleBulkActionsContainer = () => {
             const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
             if (selectedCheckboxes.length > 0) {
-                bulkDeleteBtn.style.display = 'inline-block';
-                bulkDeleteBtn.disabled = false;
+                bulkActionsContainer.style.display = 'inline-flex';
             } else {
-                bulkDeleteBtn.style.display = 'none';
-                bulkDeleteBtn.disabled = true;
+                bulkActionsContainer.style.display = 'none';
             }
         };
 
@@ -618,12 +630,12 @@ class App {
             checkboxes.forEach(checkbox => {
                 checkbox.checked = e.target.checked;
             });
-            toggleBulkDeleteButton();
+            toggleBulkActionsContainer();
         });
 
         userTable?.addEventListener('change', (e) => {
             if (e.target.matches('tbody input[type="checkbox"]')) {
-                toggleBulkDeleteButton();
+                toggleBulkActionsContainer();
             }
         });
 
@@ -634,7 +646,25 @@ class App {
             if (userIdsToDelete.length > 0 && confirm(`Are you sure you want to delete ${userIdsToDelete.length} selected user(s)?`)) {
                 this.userManager.bulkDeleteUsers(userIdsToDelete);
                 this.notificationManager.show(`${userIdsToDelete.length} user(s) deleted successfully.`, 'success');
-                toggleBulkDeleteButton();
+                toggleBulkActionsContainer();
+                selectAllCheckbox.checked = false;
+            }
+        });
+
+        bulkStatusApplyBtn?.addEventListener('click', () => {
+            const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
+            const userIdsToUpdate = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value, 10));
+            const newStatus = bulkStatusSelect.value;
+
+            if (!newStatus) {
+                this.notificationManager.show('Please select a status to apply.', 'warning');
+                return;
+            }
+
+            if (userIdsToUpdate.length > 0 && confirm(`Are you sure you want to change the status to '${newStatus}' for ${userIdsToUpdate.length} selected user(s)?`)) {
+                this.userManager.bulkUpdateUserStatus(userIdsToUpdate, newStatus);
+                this.notificationManager.show(`Status for ${userIdsToUpdate.length} user(s) updated to '${newStatus}'.`, 'success');
+                toggleBulkActionsContainer();
                 selectAllCheckbox.checked = false;
             }
         });
@@ -791,11 +821,11 @@ class App {
         }
 
         // --- Dashboard Card Click Listeners ---
-        const addClickListener = (selector, targetRoute) => {
+        const addClickListener = (selector, targetRoute, context = null) => {
             const element = document.querySelector(selector);
             if (element) {
                 element.style.cursor = 'pointer';
-                element.addEventListener('click', () => this.navigate(targetRoute));
+                element.addEventListener('click', () => this.navigate(targetRoute, context));
             }
         };
 
@@ -803,6 +833,7 @@ class App {
         addClickListener('#dashboard .metric-card:nth-child(3)', 'compliance');      // Compliance Rate
         addClickListener('#manage-users', 'user-management'); // Quick Action
         addClickListener('#generate-report', 'reporting-analytics'); // Quick Action
+        addClickListener('#view-overdue', 'royalty-records', { status: 'Overdue' }); // View Overdue Quick Action
     }
 
     handleDashboardFilterChange(metric, period) {
@@ -946,7 +977,7 @@ class App {
     /**
      * Navigation handler
      */
-    navigate(route) {
+    navigate(route, context = null) {
         // Hide all sections
         document.querySelectorAll('main > section').forEach(section => {
             section.style.display = 'none';
@@ -960,7 +991,11 @@ class App {
 
         // Render components specific to the route
         if (route === 'user-management') {
-            this.userManager.renderUsers();
+            this.userManager.renderUsers(null, context && context.page ? context.page : 1);
+        }
+
+        if (route === 'royalty-records') {
+            this.royaltyRecords.renderRecords(context);
         }
 
         if (route === 'gis-dashboard') {
@@ -1234,7 +1269,6 @@ class App {
                 '#export-report-btn',
                 '#view-audit-btn',
                 '#add-royalty-record',
-                '#view-overdue',
                 '#compliance-details',
                 '#notifications-btn',
                 '#refresh-dashboard',

@@ -37,18 +37,24 @@ export class RoyaltyCalculator {
     }
 
     calculateSlidingScale(contract, productionData) {
-        // This is a placeholder for a more complex calculation that would likely involve fetching the commodity price.
-        // For now, we will use a simple calculation based on the production volume.
+        // A more realistic calculation that incorporates a mock commodity price.
         const scales = contract.calculationParams.scales;
+        const basePrice = contract.calculationParams.basePrice || 50; // Assume a base price of 50 if not specified
+        const commodityPrice = productionData.commodityPrice || basePrice; // Use base price if no commodity price is provided
         const volume = productionData.volume;
-        let rate = 0;
+        let baseRate = 0;
 
         for (const scale of scales) {
             if (volume >= scale.from && (scale.to === null || volume <= scale.to)) {
-                rate = scale.rate;
+                baseRate = scale.rate;
                 break;
             }
         }
-        return volume * rate;
+
+        // Adjust the rate based on the commodity price.
+        const priceAdjustmentFactor = commodityPrice / basePrice;
+        const finalRate = baseRate * priceAdjustmentFactor;
+
+        return volume * finalRate;
     }
 }
