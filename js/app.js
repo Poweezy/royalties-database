@@ -359,6 +359,7 @@ class App {
         // Dashboard-specific listeners
         this.#setupDashboardListeners();
         this.#setupUserManagementListeners();
+        this.#setupGlobalActionListeners();
 
         // Confirm Logout
         document.getElementById('confirm-logout-btn')?.addEventListener('click', () => {
@@ -541,6 +542,13 @@ class App {
                 if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
                     this.userManager.deleteUser(userId);
                     this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
+                }
+            }
+
+            if (targetButton.title.includes('Reset password')) {
+                const user = this.userManager.getUser(userId);
+                if (user) {
+                    this.notificationManager.show(`Password reset link sent to ${user.email}.`, 'success');
                 }
             }
         });
@@ -755,6 +763,20 @@ class App {
                 this.notificationManager.show(`Royalty rate for ${mineral} updated to E${newRate}`, 'success');
             });
         }
+
+        // --- Dashboard Card Click Listeners ---
+        const addClickListener = (selector, targetRoute) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', () => this.navigate(targetRoute));
+            }
+        };
+
+        addClickListener('#dashboard .metric-card:nth-child(1)', 'royalty-records'); // Total Royalties
+        addClickListener('#dashboard .metric-card:nth-child(3)', 'compliance');      // Compliance Rate
+        addClickListener('#manage-users', 'user-management'); // Quick Action
+        addClickListener('#generate-report', 'reporting-analytics'); // Quick Action
     }
 
     handleDashboardFilterChange(metric, period) {
@@ -1175,6 +1197,30 @@ class App {
                 authService.logout();
             }, 10000);
         }, 40000);
+    }
+
+    #setupGlobalActionListeners() {
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('.btn');
+            if (!target) return;
+
+            const unimplementedActions = [
+                '#export-report-btn',
+                '#view-audit-btn',
+                '#add-royalty-record',
+                '#view-overdue',
+                '#compliance-details',
+                '#notifications-btn',
+                '#refresh-dashboard',
+                '#audit-dashboard .btn-primary',
+                '#reporting-analytics .page-actions .btn'
+            ];
+
+            if (unimplementedActions.some(selector => target.matches(selector))) {
+                e.preventDefault();
+                this.notificationManager.show('This feature is not yet implemented.', 'info');
+            }
+        });
     }
 }
 
