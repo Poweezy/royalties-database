@@ -7,18 +7,16 @@ import { showToast } from './NotificationManager.js';
 
 const RoyaltyRecords = {
   elements: {},
+  _eventsBound: false,
 
   async init() {
     console.log('Initializing Royalty Records...');
-    this.cacheDOMElements();
-    this.bindEvents();
-    await this.renderRecords();
-    console.log('Royalty Records Initialized.');
+    // Initial render is deferred until the section is shown
   },
 
   cacheDOMElements() {
     this.elements = {
-      form: document.getElementById('save-royalty-btn').closest('.user-form-container').querySelector('form'), // A bit fragile, but works for now
+      form: document.getElementById('save-royalty-btn')?.closest('.user-form-container').querySelector('form'),
       saveBtn: document.getElementById('save-royalty-btn'),
       tableBody: document.getElementById('royalty-records-tbody'),
       entitySelect: document.getElementById('entity'),
@@ -27,10 +25,45 @@ const RoyaltyRecords = {
       tariffInput: document.getElementById('tariff'),
       paymentDateInput: document.getElementById('payment-date'),
     };
+
+    // If elements are found and events haven't been bound, bind them.
+    if (this.elements.saveBtn && !this._eventsBound) {
+        this.bindEvents();
+    }
   },
 
   bindEvents() {
     this.elements.saveBtn.addEventListener('click', (e) => this.handleFormSubmit(e));
+    this.elements.entitySelect.addEventListener('change', () => this.updateTariffForSelection());
+    this.elements.mineralSelect.addEventListener('change', () => this.updateTariffForSelection());
+    this._eventsBound = true;
+    console.log('Royalty Records events bound.');
+  },
+
+  updateTariffForSelection() {
+    const selectedEntity = this.elements.entitySelect.value;
+    const selectedMineral = this.elements.mineralSelect.value;
+    const { contracts } = window.app.state;
+
+    if (!selectedEntity || !selectedMineral) {
+        this.elements.tariffInput.value = '';
+        this.elements.tariffInput.readOnly = false;
+        return;
+    }
+
+    const matchingContract = contracts.find(c =>
+        c.entity === selectedEntity &&
+        c.mineral === selectedMineral &&
+        c.calculationType === 'fixed'
+    );
+
+    if (matchingContract) {
+        this.elements.tariffInput.value = matchingContract.calculationParams.rate.toFixed(2);
+        this.elements.tariffInput.readOnly = true;
+    } else {
+        this.elements.tariffInput.value = '';
+        this.elements.tariffInput.readOnly = false;
+    }
   },
 
   async handleFormSubmit(event) {
@@ -68,14 +101,25 @@ const RoyaltyRecords = {
     }
   },
 
-  async renderRecords() {
+  async renderRecords(filter = null) {
+    this.cacheDOMElements();
+
     console.log('Rendering royalty records...');
+    if (!this.elements.tableBody) {
+        console.error('Royalty records table body not found. Cannot render.');
+        return;
+    }
     this.elements.tableBody.innerHTML = ''; // Clear existing records
 
-    const records = await dbService.getAll('royalties');
+    let records = await dbService.getAll('royalties');
+
+    if (filter && filter.status) {
+        records = records.filter(record => record.status === filter.status);
+    }
 
     if (!records || records.length === 0) {
-      this.elements.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem;">No royalty records found.</td></tr>`;
+      const message = filter ? `No records found with status "${filter.status}".` : 'No royalty records found.';
+      this.elements.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem;">${message}</td></tr>`;
       return;
     }
 
@@ -89,15 +133,19 @@ const RoyaltyRecords = {
   createRecordRow(record) {
     const row = document.createElement('tr');
     row.setAttribute('data-id', record.id);
+    const statusClass = record.status ? record.status.toLowerCase() : 'unknown';
     row.innerHTML = `
-      <td>${record.id}</td>
       <td>${record.entity}</td>
       <td>${record.mineral}</td>
       <td>${record.volume.toFixed(2)}</td>
-      <td>$${record.tariff.toFixed(2)}</td>
-      <td>$${record.royaltyPayment.toFixed(2)}</td>
+      <td>E ${record.tariff.toFixed(2)}</td>
+      <td>E ${record.royaltyPayment.toFixed(2)}</td>
       <td>${record.paymentDate}</td>
-      <td><span class="status ${record.status.toLowerCase()}">${record.status}</span></td>
+      <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-info" title="View Details"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-sm btn-warning" title="Edit Record"><i class="fas fa-edit"></i></button>
+      </td>
     `;
     return row;
   }

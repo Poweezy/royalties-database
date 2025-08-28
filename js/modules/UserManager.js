@@ -104,6 +104,26 @@ export class UserManager {
   }
 
   /**
+   * Checks if a username is already taken, excluding a specific user ID.
+   * @param {string} username - The username to check.
+   * @param {number|null} userIdToExclude - The ID of the user to exclude (used when editing).
+   * @returns {boolean} - True if the username is taken, otherwise false.
+   */
+  isUsernameTaken(username, userIdToExclude = null) {
+    return this.users.some(user => user.username.toLowerCase() === username.toLowerCase() && user.id !== userIdToExclude);
+  }
+
+  /**
+   * Checks if an email is already taken, excluding a specific user ID.
+   * @param {string} email - The email to check.
+   * @param {number|null} userIdToExclude - The ID of the user to exclude (used when editing).
+   * @returns {boolean} - True if the email is taken, otherwise false.
+   */
+  isEmailTaken(email, userIdToExclude = null) {
+    return this.users.some(user => user.email.toLowerCase() === email.toLowerCase() && user.id !== userIdToExclude);
+  }
+
+  /**
    * Adds a new user to the list and re-renders the table.
    * @param {object} userData - The new user's data from the form.
    */
@@ -205,6 +225,26 @@ export class UserManager {
     this.users = this.users.filter(user => !userIds.includes(user.id));
     this.filteredUsers = this.filteredUsers.filter(user => !userIds.includes(user.id));
     this.renderUsers(this.filteredUsers, 1);
+  }
+
+  /**
+   * Updates the status for multiple users.
+   * @param {number[]} userIds - An array of user IDs to update.
+   * @param {string} status - The new status to set.
+   */
+  bulkUpdateUserStatus(userIds, status) {
+    this.users.forEach(user => {
+      if (userIds.includes(user.id)) {
+        user.status = status;
+      }
+    });
+    // Also update the filtered list to reflect changes immediately
+    this.filteredUsers.forEach(user => {
+        if (userIds.includes(user.id)) {
+            user.status = status;
+        }
+    });
+    this.renderUsers(this.filteredUsers);
   }
 
   /**

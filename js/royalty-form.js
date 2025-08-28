@@ -33,7 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const contract = contracts.find(c => c.id === contractId);
         if (!contract) return;
 
-        const productionData = { volume };
+        // For sliding scale, we'll use a mock commodity price.
+        const productionData = {
+            volume,
+            commodityPrice: 65 // Mock commodity price, in a real app this would come from an API.
+        };
         const calculator = new RoyaltyCalculator();
         const royalty = calculator.calculate(contract, productionData);
         royaltyAmountSpan.textContent = `Calculated Royalty: E ${royalty.toFixed(2)}`;
