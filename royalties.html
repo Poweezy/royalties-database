@@ -853,24 +853,7 @@
               </tbody>
             </table>
           </div>
-          
-          <!-- Table Pagination -->
-          <div class="table-pagination" id="users-pagination">
-            <div class="pagination-info">
-              Showing <span id="users-start">1</span> to <span id="users-end">3</span> of <span id="users-total">3</span> users
-            </div>
-            <div class="pagination-controls">
-              <button class="btn btn-sm btn-secondary" id="users-prev" disabled>
-                <i class="fas fa-chevron-left" aria-label="Previous page icon"></i> Previous
-              </button>
-              <span class="pagination-pages" id="users-pages">
-                <button class="page-btn active">1</button>
-              </span>
-              <button class="btn btn-sm btn-secondary" id="users-next" disabled>
-                Next <i class="fas fa-chevron-right" aria-label="Next page icon"></i>
-              </button>
-            </div>
-          </div>
+          <div class="table-pagination" id="users-pagination"></div>
         </div>
 
         <!-- Security Audit Log -->
@@ -927,14 +910,16 @@
                 </select>
               </div>
               
-              <div class="form-group filter-actions">
-                <label>&nbsp;</label>
-                <button class="btn btn-primary" id="apply-audit-filters">
-                  <i class="fas fa-search" aria-label="Apply icon"></i> Apply
-                </button>
-                <button class="btn btn-secondary" id="clear-audit-filters">
-                  <i class="fas fa-times" aria-label="Clear icon"></i> Clear
-                </button>
+              <div class="filter-component filter-actions">
+                <div class="form-group filter-actions">
+                  <label>&nbsp;</label>
+                  <button class="btn btn-primary" id="apply-audit-filters">
+                    <i class="fas fa-search" aria-label="Apply icon"></i> Apply
+                  </button>
+                  <button class="btn btn-secondary" id="clear-audit-filters">
+                    <i class="fas fa-times" aria-label="Clear icon"></i> Clear
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -954,56 +939,9 @@
                 </tr>
               </thead>
               <tbody id="audit-log-tbody">
-                <tr>
-                  <td>2024-02-15 09:15:23</td>
-                  <td>admin</td>
-                  <td><span class="action-badge login">Login</span></td>
-                  <td>192.168.1.100</td>
-                  <td>Chrome 121.0.0.0</td>
-                  <td><span class="status-badge active">Success</span></td>
-                  <td>Standard login</td>
-                </tr>
-                <tr>
-                  <td>2024-02-15 08:45:12</td>
-                  <td>j.doe</td>
-                  <td><span class="action-badge data-access">Data Access</span></td>
-                  <td>192.168.1.105</td>
-                  <td>Firefox 123.0</td>
-                  <td><span class="status-badge active">Success</span></td>
-                  <td>Accessed royalty records</td>
-                </tr>
-                <tr>
-                  <td>2024-02-14 23:30:45</td>
-                  <td>unknown</td>
-                  <td><span class="action-badge failed-login">Failed Login</span></td>
-                  <td>203.0.113.15</td>
-                  <td>Unknown</td>
-                  <td><span class="status-badge warning">Failed</span></td>
-                  <td>Invalid credentials - blocked</td>
-                </tr>
-                <tr>
-                  <td>2024-02-14 16:30:22</td>
-                  <td>admin</td>
-                  <td><span class="action-badge create-user">Create User</span></td>
-                  <td>192.168.1.100</td>
-                  <td>Chrome 121.0.0.0</td>
-                  <td><span class="status-badge active">Success</span></td>
-                  <td>Created user: m.smith</td>
-                </tr>
-                <tr>
-                  <td>2024-02-14 15:20:18</td>
-                  <td>m.smith</td>
-                  <td><span class="action-badge logout">Logout</span></td>
-                  <td>192.168.1.110</td>
-                  <td>Safari 17.2</td>
-                  <td><span class="status-badge active">Success</span></td>
-                  <td>Manual logout</td>
-                </tr>
               </tbody>
             </table>
           </div>
-          
-          <!-- Audit Log Pagination -->
           <div class="table-pagination" id="audit-pagination"></div>
         </div>
       </section>
@@ -1137,7 +1075,6 @@
               </tbody>
             </table>
           </div>
-          <div class="table-pagination" id="lease-management-pagination"></div>
         </div>
       </section>
 
@@ -1198,16 +1135,6 @@
         </div>
         <div class="user-form-container">
           <div class="table-container">
-          <div class="page-title">
-            <h1>Lease Management</h1>
-            <p>Manage your lease agreements</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-success" id="add-lease-btn">Add Lease</button>
-          </div>
-        </div>
-        <div class="user-form-container">
-          <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
@@ -1223,7 +1150,7 @@
               </tbody>
             </table>
           </div>
-          <div class="table-pagination" id="expense-tracking-pagination"></div>
+          <div class="table-pagination" id="lease-management-pagination"></div>
         </div>
       </section>
 
@@ -1287,7 +1214,7 @@
               </tbody>
             </table>
           </div>
-          <div class="table-pagination" id="document-management-pagination"></div>
+          <div class="table-pagination" id="expense-tracking-pagination"></div>
         </div>
       </section>
 
@@ -1371,6 +1298,7 @@
               </tbody>
             </table>
           </div>
+          <div class="table-pagination" id="document-management-pagination"></div>
         </div>
       </section>
 
