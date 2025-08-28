@@ -631,6 +631,25 @@ class App {
                 selectAllCheckbox.checked = false;
             }
         });
+
+        // --- Sorting Listener ---
+        const tableHeaders = document.querySelectorAll('#users-table th[sortable]');
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const sortKey = header.dataset.sort;
+                this.userManager.sortUsers(sortKey);
+
+                // Update visual indicators
+                tableHeaders.forEach(th => {
+                    if (th === header) {
+                        th.classList.add(this.userManager.sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                        th.classList.remove(this.userManager.sortDirection === 'asc' ? 'sorted-desc' : 'sorted-asc');
+                    } else {
+                        th.classList.remove('sorted-asc', 'sorted-desc');
+                    }
+                });
+            });
+        });
     }
 
     /**

@@ -33,6 +33,9 @@ export class UserManager {
             this.renderUsers(this.filteredUsers, page);
         }
     });
+
+    this.sortColumn = 'username'; // Default sort column
+    this.sortDirection = 'asc';   // Default sort direction
   }
 
   /**
@@ -163,7 +166,35 @@ export class UserManager {
 
     // Merge the updated data into the existing user object
     Object.assign(user, updatedData);
-    this.renderUsers();
+    this.renderUsers(this.filteredUsers); // Re-render the currently filtered and paginated view
+  }
+
+  /**
+   * Sorts the user list by a given column and toggles the direction.
+   * @param {string} columnKey - The key of the user object to sort by.
+   */
+  sortUsers(columnKey) {
+    if (this.sortColumn === columnKey) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = columnKey;
+      this.sortDirection = 'asc';
+    }
+
+    this.filteredUsers.sort((a, b) => {
+      const valA = a[columnKey];
+      const valB = b[columnKey];
+
+      if (valA < valB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valA > valB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    this.renderUsers(this.filteredUsers, 1); // Re-render from page 1
   }
 
   /**
@@ -172,7 +203,8 @@ export class UserManager {
    */
   bulkDeleteUsers(userIds) {
     this.users = this.users.filter(user => !userIds.includes(user.id));
-    this.renderUsers();
+    this.filteredUsers = this.filteredUsers.filter(user => !userIds.includes(user.id));
+    this.renderUsers(this.filteredUsers, 1);
   }
 
   /**
