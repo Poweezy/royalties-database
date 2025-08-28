@@ -3693,3 +3693,70 @@ nav ul li a span.notification-badge {
 .legend img {
     vertical-align: middle;
 }
+
+/* Enhanced Filter and Form Actions Layout for better alignment */
+.filter-actions .form-group {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.filter-actions .form-group label {
+    display: none; /* The label is just for spacing, hide it */
+}
+
+.filter-actions .form-group .btn {
+  flex-grow: 1;
+}
+
+.table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: var(--neutral-50);
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.page-btn {
+    background: var(--background-white);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 0.75rem;
+    min-width: 36px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.page-btn:hover {
+    background: var(--neutral-100);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.page-btn.active {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    border-color: var(--primary-color);
+    font-weight: bold;
+}
