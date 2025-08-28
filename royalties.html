@@ -6,10 +6,17 @@
   <title>Mining Royalties Manager</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="royalties.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/user-management-enhanced.css">
+  <link rel="stylesheet" href="css/contract-management-enhanced.css">
+  <link rel="stylesheet" href="css/gis-dashboard-enhanced.css">
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.1/src/leaflet.geometryutil.js"></script>
   <script src="js/bcrypt.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -22,6 +29,7 @@
   <script type="module" src="js/modules/NavigationManager.js"></script>
   <script type="module" src="js/semantic-search.js"></script>
   <script type="module" src="js/user-form-validation.js"></script>
+  <script type="module" src="js/user-management-enhanced.js"></script>
   <script type="module" src="js/app.js"></script>
   <script>
     // Register Service Worker
@@ -169,9 +177,28 @@
             <p>Welcome back, <span id="user-name">System Administrator</span> | Last login: <span id="last-login-time">Today, 09:15 AM</span></p>
           </div>
           <div class="page-actions">
+            <div class="dashboard-controls">
+              <label class="auto-refresh-toggle">
+                <input type="checkbox" id="auto-refresh-toggle">
+                <span>Auto Refresh</span>
+              </label>
+              <span id="last-refresh-time" class="last-refresh">Last updated: Never</span>
+            </div>
             <button class="btn btn-info" id="refresh-dashboard" title="Refresh dashboard data">
               <i class="fas fa-sync-alt" aria-label="Refresh icon"></i> Refresh
             </button>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dashboardCustomize" data-toggle="dropdown">
+                <i class="fas fa-cog"></i> Customize
+              </button>
+              <div class="dropdown-menu">
+                <button class="dropdown-item" onclick="chartManager.switchTheme('light')">Light Theme</button>
+                <button class="dropdown-item" onclick="chartManager.switchTheme('dark')">Dark Theme</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="chartManager.toggleWidget('forecast')">Toggle Forecast</button>
+                <button class="dropdown-item" onclick="chartManager.toggleWidget('comparative')">Toggle Comparison</button>
+              </div>
+            </div>
             <button class="btn btn-primary" id="admin-panel-btn" title="Access Admin Panel">
               <i class="fas fa-cog" aria-label="Admin Panel icon"></i> Admin Panel
             </button>
@@ -181,11 +208,11 @@
           </div>
         </div>
 
-        <!-- Key Performance Indicators -->
+        <!-- Enhanced Key Performance Indicators -->
         <div class="charts-grid">
-          <div class="metric-card card">
+          <div class="metric-card card enhanced-kpi">
             <div class="card-header">
-              <h3><i class="fas fa-coins" aria-label="Total Royalties icon"></i> Total Royalties (YTD)</h3>
+              <h3><i class="fas fa-coins live-indicator" aria-label="Total Royalties icon"></i> Total Royalties (YTD)</h3>
               <select class="metric-period" id="royalties-period">
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
@@ -193,10 +220,19 @@
               </select>
             </div>
             <div class="card-body">
-              <p id="total-royalties">E 992,500.00</p>
-              <small class="trend-indicator" id="royalties-trend">
-                <i class="fas fa-arrow-up trend-positive" aria-label="Upward trend icon"></i> +15.8% from last year
-              </small>
+              <div class="metric-main">
+                <p id="total-royalties">E 992,500.00</p>
+                <div class="trend-sparkline" id="royalties-sparkline"></div>
+              </div>
+              <div class="metric-details">
+                <small class="trend-indicator" id="royalties-trend">
+                  <i class="fas fa-arrow-up trend-positive" aria-label="Upward trend icon"></i> +15.8% from last year
+                </small>
+                <div class="metric-breakdown">
+                  <span>YoY Growth: <strong id="royalties-yoy">+15.8%</strong></span>
+                  <span>Forecast: <strong id="royalties-forecast">E 1,200,000</strong></span>
+                </div>
+              </div>
               <div class="mini-progress">
                 <div class="progress-bar" id="royalties-progress" style="width: 75%;"></div>
               </div>
@@ -321,6 +357,120 @@
                 Total production: <strong><span id="total-production">52,000</span> m³</strong> |
                 Top producer: <strong><span id="top-producer">Kwalini Quarry</span></strong>
               </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Analytics Section -->
+        <div class="charts-grid">
+          <div class="analytics-chart card" id="compliance-widget">
+            <div class="chart-header">
+              <h3><i class="fas fa-shield-check" aria-label="Compliance Trends icon"></i> Compliance Trends</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="bar" data-chart-id="compliance-trends-chart">
+                  <i class="fas fa-chart-bar" aria-label="Bar chart icon"></i> Bar
+                </button>
+                <button class="chart-btn" data-chart-type="line" data-chart-id="compliance-trends-chart">
+                  <i class="fas fa-chart-line" aria-label="Line chart icon"></i> Line
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="compliance-trends-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="compliance-trends-chart" aria-label="Compliance rate trends over time"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                Average compliance: <strong>88.7%</strong> |
+                Best month: <strong>April (95%)</strong>
+              </small>
+            </div>
+          </div>
+
+          <div class="analytics-chart card" id="forecast-widget">
+            <div class="chart-header">
+              <h3><i class="fas fa-crystal-ball" aria-label="Revenue Forecast icon"></i> Revenue Forecast</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-forecast-chart">
+                  <i class="fas fa-chart-line" aria-label="Line chart icon"></i> Line
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="revenue-forecast-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="revenue-forecast-chart" aria-label="Revenue forecast for upcoming months"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                Next month forecast: <strong id="next-month-forecast">E 1,050,000</strong> |
+                Confidence: <strong>85%</strong>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparative Analytics -->
+        <div class="charts-grid">
+          <div class="analytics-chart card" id="comparative-widget">
+            <div class="chart-header">
+              <h3><i class="fas fa-chart-bar" aria-label="Year over Year Comparison icon"></i> Year-over-Year Comparison</h3>
+              <div class="chart-controls">
+                <button class="chart-btn active" data-chart-type="bar" data-chart-id="comparative-chart">
+                  <i class="fas fa-chart-bar" aria-label="Bar chart icon"></i> Bar
+                </button>
+                <button class="chart-btn" data-chart-type="line" data-chart-id="comparative-chart">
+                  <i class="fas fa-chart-line" aria-label="Line chart icon"></i> Line
+                </button>
+                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="comparative-chart">
+                    <i class="fas fa-download"></i> Export
+                </button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="comparative-chart" aria-label="Comparative analysis between years"></canvas>
+            </div>
+            <div class="chart-summary">
+              <small>
+                <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                YTD Growth: <strong>+18.2%</strong> |
+                Best performing month: <strong>June (+15.4%)</strong>
+              </small>
+            </div>
+          </div>
+
+          <div class="metric-card card advanced-metrics">
+            <div class="card-header">
+              <h3><i class="fas fa-analytics" aria-label="Advanced Metrics icon"></i> Advanced Metrics</h3>
+            </div>
+            <div class="card-body">
+              <div class="metrics-grid">
+                <div class="metric-item">
+                  <h4>Revenue per Entity</h4>
+                  <p id="revenue-per-entity">E 165,417</p>
+                  <small>+8.5% from last month</small>
+                </div>
+                <div class="metric-item">
+                  <h4>Production Efficiency</h4>
+                  <p id="avg-production-efficiency">87.5%</p>
+                  <small>+3.2% improvement</small>
+                </div>
+                <div class="metric-item">
+                  <h4>Compliance Score</h4>
+                  <p id="compliance-score">94.2%</p>
+                  <small>+1.8% from last quarter</small>
+                </div>
+                <div class="metric-item">
+                  <h4>Month-over-Month</h4>
+                  <p id="month-over-month">+12.8%</p>
+                  <small>Strong growth trend</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -466,6 +616,19 @@
           </div>
         </div>
       </section>
+
+      <!-- Entity Details Modal -->
+      <div id="entity-details-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="entity-name">Entity Details</h3>
+            <span class="close" onclick="document.getElementById('entity-details-modal').style.display='none'">&times;</span>
+          </div>
+          <div class="modal-body" id="entity-details-content">
+            <!-- Content will be dynamically populated -->
+          </div>
+        </div>
+      </div>
 
       <!-- Admin Panel -->
       <section id="admin-panel" style="display: none;">
@@ -768,6 +931,9 @@
               <button class="btn btn-info btn-sm" id="export-users" title="Export user list">
                 <i class="fas fa-download" aria-label="Export icon"></i> Export
               </button>
+              <button class="btn btn-primary btn-sm" id="manage-roles-permissions" title="Manage roles and permissions">
+                <i class="fas fa-users-cog" aria-label="Manage roles icon"></i> Manage Roles
+              </button>
               <div id="bulk-actions-container" style="display: none; align-items: center; gap: 0.5rem;">
                 <select id="bulk-action-status" class="form-control form-control-sm">
                   <option value="">-- Change Status --</option>
@@ -778,9 +944,23 @@
                 <button class="btn btn-primary btn-sm" id="bulk-apply-status-change" title="Apply status change">
                   <i class="fas fa-check" aria-label="Apply icon"></i> Apply
                 </button>
+                <button class="btn btn-info btn-sm" id="bulk-assign-roles" title="Assign roles to selected users">
+                  <i class="fas fa-user-tag" aria-label="Assign roles icon"></i> Assign Roles
+                </button>
+                <button class="btn btn-warning btn-sm" id="bulk-email-users" title="Send email to selected users">
+                  <i class="fas fa-envelope" aria-label="Email icon"></i> Email Selected
+                </button>
+                <button class="btn btn-success btn-sm" id="bulk-export-selected" title="Export selected users">
+                  <i class="fas fa-download" aria-label="Export icon"></i> Export Selected
+                </button>
                 <button class="btn btn-danger btn-sm" id="bulk-delete-users" title="Delete selected users">
                   <i class="fas fa-trash" aria-label="Delete icon"></i> Delete Selected
                 </button>
+              </div>
+              
+              <!-- Enhanced Bulk Operations Panel -->
+              <div id="bulk-operations-panel-container">
+                <!-- This will be populated by the BulkOperationsPanel component -->
               </div>
             </div>
           </div>
@@ -1078,6 +1258,7 @@
                   <th>Entity</th>
                   <th>Royalty Rate (E/m³)</th>
                   <th>Start Date</th>
+                  <th>End Date</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>

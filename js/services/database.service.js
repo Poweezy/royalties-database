@@ -6,13 +6,14 @@
 class DatabaseService {
     constructor() {
         this.dbName = 'RoyaltiesDB';
-        this.version = 2; // Incremented version to trigger upgrade
+        this.version = 3; // Incremented version to trigger upgrade
         this.stores = {
             royalties: 'royalties',
             users: 'users',
             leases: 'leases',
             expenses: 'expenses',
             contracts: 'contracts',
+            'contract-templates': 'contract-templates',
             documents: 'documents',
             offline: 'offline',
             settings: 'settings'
@@ -63,6 +64,10 @@ class DatabaseService {
 
                 if (!db.objectStoreNames.contains(this.stores.contracts)) {
                     db.createObjectStore(this.stores.contracts, { keyPath: 'id' });
+                }
+
+                if (!db.objectStoreNames.contains(this.stores['contract-templates'])) {
+                    db.createObjectStore(this.stores['contract-templates'], { keyPath: 'id' });
                 }
 
                 if (!db.objectStoreNames.contains(this.stores.documents)) {

@@ -22,7 +22,7 @@ import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
 import ExpenseTracking from './modules/expense-tracking.js';
-import ContractManagement from './modules/contract-management.js';
+import ContractManagement from './modules/contract-management-enhanced.js';
 import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
 import RoyaltyRecords from './modules/royalty-records.js';
@@ -97,6 +97,9 @@ class App {
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
         this.userManager = new UserManager();
+
+        // Make chartManager globally available for UI interactions
+        window.chartManager = this.chartManager;
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
         this.contractManagement = ContractManagement;
@@ -769,7 +772,7 @@ class App {
             });
         }
 
-        // Add event listeners for chart type buttons
+        // Enhanced event listeners for chart type buttons
         const chartControlButtons = document.querySelectorAll('.chart-btn[data-chart-id]');
         chartControlButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -781,6 +784,12 @@ class App {
                     chartName = 'revenue';
                 } else if (chartId === 'production-by-entity-chart') {
                     chartName = 'production';
+                } else if (chartId === 'compliance-trends-chart') {
+                    chartName = 'compliance';
+                } else if (chartId === 'revenue-forecast-chart') {
+                    chartName = 'forecast';
+                } else if (chartId === 'comparative-chart') {
+                    chartName = 'comparative';
                 }
 
                 if (chartName) {
@@ -790,6 +799,15 @@ class App {
                 // Update active button state
                 e.currentTarget.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
+            });
+        });
+
+        // Add event listeners for chart export buttons
+        const exportButtons = document.querySelectorAll('.export-chart-btn[data-chart-id]');
+        exportButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.currentTarget.dataset.chartId;
+                this.chartManager.exportChart(chartId);
             });
         });
 

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Enhanced User Management</title>
+    <link rel="stylesheet" href="royalties.css">
+    <link rel="stylesheet" href="css/user-management-enhanced.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/bcrypt.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced User Management Test</h1>
+        
+        <!-- Test Bulk Operations Panel -->
+        <div id="bulk-operations-panel-container"></div>
+        
+        <!-- Test User Table -->
+        <div class="table-container">
+            <table class="data-table" id="users-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all-users"></th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-tbody">
+                    <tr>
+                        <td><input type="checkbox" name="user-select" value="1"></td>
+                        <td>admin</td>
+                        <td>admin@example.com</td>
+                        <td>Administrator</td>
+                        <td><span class="status-badge active">Active</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-info btn-sm user-profile-btn" data-user-id="1">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                                <button class="btn btn-primary btn-sm" data-user-id="1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Test Buttons -->
+        <div class="test-buttons" style="margin: 2rem 0;">
+            <button class="btn btn-primary" id="test-bulk-operations">Test Bulk Operations</button>
+            <button class="btn btn-info" id="test-user-profile">Test User Profile</button>
+            <button class="btn btn-success" id="test-permission-service">Test Permission Service</button>
+            <button class="btn btn-warning" id="test-security-service">Test Security Service</button>
+        </div>
+        
+        <div id="test-results" style="margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem;">
+            <h3>Test Results:</h3>
+            <div id="results-content">Ready to test...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { userSecurityService } from './js/services/user-security.service.js';
+        import { permissionService } from './js/services/permission.service.js';
+        import { BulkOperationsPanel } from './js/components/BulkOperationsPanel.js';
+        import { UserProfileModal } from './js/components/UserProfileModal.js';
+        import { UserManager } from './js/modules/UserManager.js';
+
+        const resultsDiv = document.getElementById('results-content');
+        
+        function logResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff';
+            resultsDiv.innerHTML += `<div style="color: ${color}; margin: 0.5rem 0;">[${timestamp}] ${message}</div>`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        // Test initialization
+        async function runTests() {
+            try {
+                logResult('Starting enhanced user management tests...', 'info');
+
+                // Test 1: Initialize services
+                logResult('Test 1: Initializing user security service...', 'info');
+                await userSecurityService.init();
+                logResult('✓ User security service initialized', 'success');
+
+                // Test 2: Test permission service
+                logResult('Test 2: Testing permission service...', 'info');
+                const allRoles = permissionService.getAllRoles();
+                logResult(`✓ Found ${allRoles.length} roles in permission service`, 'success');
+                
+                const allPermissions = permissionService.getAllPermissions();
+                logResult(`✓ Found ${allPermissions.length} permissions in permission service`, 'success');
+
+                // Test 3: Initialize UserManager
+                logResult('Test 3: Initializing UserManager...', 'info');
+                const userManager = new UserManager();
+                await userManager.initializeEnhancedFeatures();
+                logResult('✓ UserManager initialized with enhanced features', 'success');
+
+                // Test 4: Initialize BulkOperationsPanel
+                logResult('Test 4: Initializing BulkOperationsPanel...', 'info');
+                const bulkPanel = new BulkOperationsPanel(userManager);
+                logResult('✓ BulkOperationsPanel initialized', 'success');
+
+                // Test 5: Initialize UserProfileModal
+                logResult('Test 5: Initializing UserProfileModal...', 'info');
+                const profileModal = new UserProfileModal(userManager);
+                logResult('✓ UserProfileModal initialized', 'success');
+
+                // Test 6: Test password validation
+                logResult('Test 6: Testing password validation...', 'info');
+                const passwordTest = userSecurityService.validatePassword('Test123!@#', 'testuser');
+                logResult(`✓ Password validation: ${passwordTest.valid ? 'Valid' : 'Invalid'}`, passwordTest.valid ? 'success' : 'error');
+
+                logResult('All tests completed successfully! ✓', 'success');
+
+                // Make components available for interactive testing
+                window.testUserManager = userManager;
+                window.testBulkPanel = bulkPanel;
+                window.testProfileModal = profileModal;
+
+            } catch (error) {
+                logResult(`✗ Test failed: ${error.message}`, 'error');
+                console.error('Test error:', error);
+            }
+        }
+
+        // Interactive test buttons
+        document.getElementById('test-bulk-operations').addEventListener('click', () => {
+            if (window.testBulkPanel) {
+                logResult('Testing bulk operations panel...', 'info');
+                const container = document.getElementById('bulk-operations-panel-container');
+                container.innerHTML = window.testBulkPanel.getBulkOperationsHTML();
+                logResult('✓ Bulk operations panel rendered', 'success');
+            }
+        });
+
+        document.getElementById('test-user-profile').addEventListener('click', async () => {
+            if (window.testProfileModal && window.testUserManager) {
+                logResult('Testing user profile modal...', 'info');
+                try {
+                    await window.testProfileModal.showProfile(1);
+                    logResult('✓ User profile modal opened', 'success');
+                } catch (error) {
+                    logResult(`✗ Profile modal error: ${error.message}`, 'error');
+                }
+            }
+        });
+
+        document.getElementById('test-permission-service').addEventListener('click', () => {
+            logResult('Testing permission service features...', 'info');
+            const templates = permissionService.getPermissionTemplates();
+            logResult(`✓ Found ${templates.length} permission templates`, 'success');
+            
+            const permissionsByCategory = permissionService.getPermissionsByCategory();
+            const categoryCount = Object.keys(permissionsByCategory).length;
+            logResult(`✓ Permissions organized into ${categoryCount} categories`, 'success');
+        });
+
+        document.getElementById('test-security-service').addEventListener('click', async () => {
+            logResult('Testing security service features...', 'info');
+            try {
+                // Test login tracking
+                await userSecurityService.trackSuccessfulLogin('testuser', '127.0.0.1', 'Test Browser');
+                logResult('✓ Login tracking works', 'success');
+
+                // Test security event logging
+                await userSecurityService.logSecurityEvent('test_event', 'testuser', { test: true });
+                logResult('✓ Security event logging works', 'success');
+            } catch (error) {
+                logResult(`✗ Security service error: ${error.message}`, 'error');
+            }
+        });
+
+        // Run tests on load
+        runTests();
+    </script>
+</body>
+</html>

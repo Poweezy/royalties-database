@@ -1,10 +1,15 @@
 import { Pagination } from './Pagination.js';
+import { userSecurityService } from '../services/user-security.service.js';
+import { permissionService } from '../services/permission.service.js';
+import { dbService } from '../services/database.service.js';
+import { ErrorHandler } from '../utils/error-handler.js';
 
 /**
- * UserManager Module
+ * Enhanced UserManager Module
  *
  * This module encapsulates all logic for managing users, including
  * fetching, rendering, adding, updating, and deleting users.
+ * Enhanced with advanced security, permissions, and bulk operations.
  */
 export class UserManager {
   constructor() {
@@ -36,6 +41,149 @@ export class UserManager {
 
     this.sortColumn = 'username'; // Default sort column
     this.sortDirection = 'asc';   // Default sort direction
+    
+    // Enhanced features
+    this.selectedUsers = new Set();
+    this.bulkOperationMode = false;
+    this.userProfiles = new Map();
+    this.passwordPolicies = new Map();
+    this.onboardingTemplates = new Map();
+    
+    // Initialize enhanced features
+    this.initializeEnhancedFeatures();
+  }
+
+  /**
+   * Initialize enhanced user management features
+   */
+  async initializeEnhancedFeatures() {
+    try {
+      await userSecurityService.init();
+      this.setupEventListeners();
+      this.initializePasswordPolicies();
+      this.initializeOnboardingTemplates();
+      await this.syncWithDatabase();
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to initialize enhanced features');
+    }
+  }
+
+  /**
+   * Sync user data with database
+   */
+  async syncWithDatabase() {
+    try {
+      const dbUsers = await dbService.getAll('users');
+      if (dbUsers.length > 0) {
+        this.users = dbUsers;
+      } else {
+        // Migrate initial users to database
+        for (const user of this.users) {
+          await dbService.add('users', user);
+        }
+      }
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to sync with database');
+    }
+  }
+
+  /**
+   * Setup event listeners for enhanced features
+   */
+  setupEventListeners() {
+    // Bulk selection
+    document.addEventListener('change', (e) => {
+      if (e.target.name === 'user-select') {
+        this.handleUserSelection(e.target);
+      } else if (e.target.id === 'select-all-users') {
+        this.handleSelectAll(e.target);
+      }
+    });
+
+    // Bulk operations
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'bulk-activate-users') {
+        this.bulkActivateUsers();
+      } else if (e.target.id === 'bulk-deactivate-users') {
+        this.bulkDeactivateUsers();
+      } else if (e.target.id === 'bulk-email-users') {
+        this.bulkEmailUsers();
+      } else if (e.target.id === 'bulk-export-users') {
+        this.bulkExportUsers();
+      } else if (e.target.id === 'bulk-import-users') {
+        this.bulkImportUsers();
+      }
+    });
+  }
+
+  /**
+   * Initialize password policies
+   */
+  initializePasswordPolicies() {
+    const policies = {
+      default: {
+        minLength: 8,
+        requireUppercase: true,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSymbols: true,
+        maxAge: 90,
+        preventReuse: 5
+      },
+      strict: {
+        minLength: 12,
+        requireUppercase: true,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSymbols: true,
+        maxAge: 60,
+        preventReuse: 10
+      },
+      relaxed: {
+        minLength: 6,
+        requireUppercase: false,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSymbols: false,
+        maxAge: 120,
+        preventReuse: 3
+      }
+    };
+
+    Object.entries(policies).forEach(([name, policy]) => {
+      this.passwordPolicies.set(name, policy);
+    });
+  }
+
+  /**
+   * Initialize onboarding templates
+   */
+  initializeOnboardingTemplates() {
+    const templates = {
+      standard: {
+        name: 'Standard Onboarding',
+        steps: [
+          { id: 'welcome', name: 'Welcome Message', required: true },
+          { id: 'profile', name: 'Complete Profile', required: true },
+          { id: 'security', name: 'Security Setup', required: true },
+          { id: 'training', name: 'System Training', required: false }
+        ]
+      },
+      admin: {
+        name: 'Administrator Onboarding',
+        steps: [
+          { id: 'welcome', name: 'Welcome Message', required: true },
+          { id: 'profile', name: 'Complete Profile', required: true },
+          { id: 'security', name: 'Security Setup', required: true },
+          { id: 'permissions', name: 'Permission Review', required: true },
+          { id: 'training', name: 'Admin Training', required: true }
+        ]
+      }
+    };
+
+    Object.entries(templates).forEach(([id, template]) => {
+      this.onboardingTemplates.set(id, template);
+    });
   }
 
   /**
@@ -274,7 +422,10 @@ export class UserManager {
         <td data-label="2FA">${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
-            <button class="btn btn-info btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
+            <button class="btn btn-info btn-sm user-profile-btn" title="View profile" data-user-id="${user.id}" aria-label="View profile for ${user.username}">
+              <i class="fas fa-user" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-primary btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
               <i class="fas fa-edit" aria-hidden="true"></i>
             </button>
             <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
@@ -322,5 +473,656 @@ export class UserManager {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  // ===== ENHANCED BULK OPERATIONS =====
+
+  /**
+   * Handle individual user selection
+   */
+  handleUserSelection(checkbox) {
+    const userId = parseInt(checkbox.value);
+    
+    if (checkbox.checked) {
+      this.selectedUsers.add(userId);
+    } else {
+      this.selectedUsers.delete(userId);
+    }
+    
+    this.updateBulkOperationsUI();
+  }
+
+  /**
+   * Handle select all users
+   */
+  handleSelectAll(checkbox) {
+    const userCheckboxes = document.querySelectorAll('input[name="user-select"]');
+    
+    if (checkbox.checked) {
+      userCheckboxes.forEach(cb => {
+        cb.checked = true;
+        this.selectedUsers.add(parseInt(cb.value));
+      });
+    } else {
+      userCheckboxes.forEach(cb => {
+        cb.checked = false;
+        this.selectedUsers.delete(parseInt(cb.value));
+      });
+    }
+    
+    this.updateBulkOperationsUI();
+  }
+
+  /**
+   * Update bulk operations UI
+   */
+  updateBulkOperationsUI() {
+    const bulkContainer = document.getElementById('bulk-actions-container');
+    const selectAllCheckbox = document.getElementById('select-all-users');
+    
+    if (this.selectedUsers.size > 0) {
+      bulkContainer.style.display = 'flex';
+      this.bulkOperationMode = true;
+    } else {
+      bulkContainer.style.display = 'none';
+      this.bulkOperationMode = false;
+    }
+    
+    // Update select all checkbox state
+    const totalUsers = document.querySelectorAll('input[name="user-select"]').length;
+    if (this.selectedUsers.size === totalUsers && totalUsers > 0) {
+      selectAllCheckbox.checked = true;
+      selectAllCheckbox.indeterminate = false;
+    } else if (this.selectedUsers.size > 0) {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = true;
+    } else {
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.indeterminate = false;
+    }
+  }
+
+  /**
+   * Bulk activate users
+   */
+  async bulkActivateUsers() {
+    if (this.selectedUsers.size === 0) return;
+    
+    try {
+      const userIds = Array.from(this.selectedUsers);
+      await this.bulkUpdateUserStatus(userIds, 'Active');
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('bulk_activate', 'system', {
+        userIds,
+        count: userIds.length
+      });
+      
+      this.clearSelection();
+      this.showNotification(`Successfully activated ${userIds.length} users`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to activate users');
+      this.showNotification('Failed to activate selected users', 'error');
+    }
+  }
+
+  /**
+   * Bulk deactivate users
+   */
+  async bulkDeactivateUsers() {
+    if (this.selectedUsers.size === 0) return;
+    
+    if (!confirm(`Are you sure you want to deactivate ${this.selectedUsers.size} users?`)) {
+      return;
+    }
+    
+    try {
+      const userIds = Array.from(this.selectedUsers);
+      await this.bulkUpdateUserStatus(userIds, 'Inactive');
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('bulk_deactivate', 'system', {
+        userIds,
+        count: userIds.length
+      });
+      
+      this.clearSelection();
+      this.showNotification(`Successfully deactivated ${userIds.length} users`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to deactivate users');
+      this.showNotification('Failed to deactivate selected users', 'error');
+    }
+  }
+
+  /**
+   * Bulk role assignment
+   */
+  async bulkAssignRole(roleId) {
+    if (this.selectedUsers.size === 0) return;
+    
+    try {
+      const userIds = Array.from(this.selectedUsers);
+      
+      for (const userId of userIds) {
+        await permissionService.assignRoleToUser(userId, roleId);
+        
+        // Update local data
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+          user.role = roleId;
+          user.roleAssignedAt = new Date().toISOString();
+          await dbService.put('users', user);
+        }
+      }
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('bulk_role_assignment', 'system', {
+        userIds,
+        roleId,
+        count: userIds.length
+      });
+      
+      this.clearSelection();
+      this.renderUsers(this.filteredUsers);
+      this.showNotification(`Successfully assigned role to ${userIds.length} users`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to assign roles');
+      this.showNotification('Failed to assign roles to selected users', 'error');
+    }
+  }
+
+  /**
+   * Bulk email users
+   */
+  async bulkEmailUsers() {
+    if (this.selectedUsers.size === 0) return;
+    
+    this.showBulkEmailModal();
+  }
+
+  /**
+   * Show bulk email modal
+   */
+  showBulkEmailModal() {
+    const modal = this.createBulkEmailModal();
+    document.body.appendChild(modal);
+    modal.style.display = 'block';
+  }
+
+  /**
+   * Create bulk email modal
+   */
+  createBulkEmailModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Send Bulk Email</h3>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="bulk-email-subject">Subject</label>
+            <input type="text" id="bulk-email-subject" class="form-control" placeholder="Email subject">
+          </div>
+          <div class="form-group">
+            <label for="bulk-email-message">Message</label>
+            <textarea id="bulk-email-message" class="form-control" rows="10" placeholder="Email message"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Recipients (${this.selectedUsers.size} users selected)</label>
+            <div class="recipient-list">
+              ${this.getSelectedUsersEmails().map(email => `<span class="recipient-tag">${email}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="userManager.sendBulkEmail()">Send Email</button>
+        </div>
+      </div>
+    `;
+    
+    // Close modal on click outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+    
+    // Close modal on X click
+    modal.querySelector('.close').addEventListener('click', () => {
+      modal.remove();
+    });
+    
+    return modal;
+  }
+
+  /**
+   * Get selected users' email addresses
+   */
+  getSelectedUsersEmails() {
+    return this.users
+      .filter(user => this.selectedUsers.has(user.id))
+      .map(user => user.email);
+  }
+
+  /**
+   * Send bulk email (simulation)
+   */
+  async sendBulkEmail() {
+    try {
+      const subject = document.getElementById('bulk-email-subject').value;
+      const message = document.getElementById('bulk-email-message').value;
+      
+      if (!subject || !message) {
+        alert('Please fill in both subject and message');
+        return;
+      }
+      
+      const recipients = this.getSelectedUsersEmails();
+      
+      // Simulate email sending
+      console.log('Sending bulk email:', { subject, message, recipients });
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('bulk_email', 'system', {
+        subject,
+        recipientCount: recipients.length,
+        userIds: Array.from(this.selectedUsers)
+      });
+      
+      // Close modal
+      document.querySelector('.modal').remove();
+      
+      this.clearSelection();
+      this.showNotification(`Email sent to ${recipients.length} users`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to send bulk email');
+      this.showNotification('Failed to send bulk email', 'error');
+    }
+  }
+
+  /**
+   * Bulk export selected users
+   */
+  async bulkExportUsers() {
+    if (this.selectedUsers.size === 0) return;
+    
+    try {
+      const selectedUserData = this.users.filter(user => this.selectedUsers.has(user.id));
+      
+      const headers = ['Username', 'Email', 'Role', 'Department', 'Status', 'Last Login', 'Created', '2FA Enabled'];
+      let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+      
+      selectedUserData.forEach(user => {
+        const csvRow = [
+          user.username,
+          user.email,
+          user.role,
+          user.department,
+          user.status,
+          user.lastLogin,
+          user.created.split('T')[0],
+          user.twoFactorEnabled
+        ].join(",");
+        csvContent += csvRow + "\n";
+      });
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `selected_users_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      this.clearSelection();
+      this.showNotification(`Exported ${selectedUserData.length} users`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to export users');
+      this.showNotification('Failed to export selected users', 'error');
+    }
+  }
+
+  /**
+   * Bulk import users
+   */
+  async bulkImportUsers() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    
+    input.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        const text = await this.readFileAsText(file);
+        const users = this.parseCSV(text);
+        await this.importUsers(users);
+      } catch (error) {
+        ErrorHandler.handle(error, 'Failed to import users');
+        this.showNotification('Failed to import users', 'error');
+      }
+    });
+    
+    input.click();
+  }
+
+  /**
+   * Read file as text
+   */
+  readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  }
+
+  /**
+   * Parse CSV text into user objects
+   */
+  parseCSV(text) {
+    const lines = text.split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    const users = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      
+      const values = lines[i].split(',').map(v => v.trim());
+      const user = {};
+      
+      headers.forEach((header, index) => {
+        user[header.toLowerCase().replace(' ', '_')] = values[index];
+      });
+      
+      users.push(user);
+    }
+    
+    return users;
+  }
+
+  /**
+   * Import users from parsed CSV data
+   */
+  async importUsers(importedUsers) {
+    try {
+      let imported = 0;
+      let skipped = 0;
+      
+      for (const userData of importedUsers) {
+        // Validate required fields
+        if (!userData.username || !userData.email) {
+          skipped++;
+          continue;
+        }
+        
+        // Check for duplicates
+        if (this.isUsernameTaken(userData.username) || this.isEmailTaken(userData.email)) {
+          skipped++;
+          continue;
+        }
+        
+        // Create new user
+        const newUser = {
+          id: Math.max(...this.users.map(u => u.id)) + 1 + imported,
+          username: userData.username,
+          email: userData.email,
+          role: userData.role || 'Viewer',
+          department: userData.department || 'General',
+          status: userData.status || 'Active',
+          lastLogin: 'Never',
+          created: new Date().toISOString(),
+          twoFactorEnabled: userData.two_factor_enabled === 'true' || false,
+          imported: true,
+          importedAt: new Date().toISOString()
+        };
+        
+        this.users.push(newUser);
+        await dbService.add('users', newUser);
+        imported++;
+      }
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('bulk_import', 'system', {
+        imported,
+        skipped,
+        total: importedUsers.length
+      });
+      
+      this.renderUsers(this.users, 1);
+      this.showNotification(`Imported ${imported} users, skipped ${skipped}`, 'success');
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to import users');
+      throw error;
+    }
+  }
+
+  /**
+   * Clear user selection
+   */
+  clearSelection() {
+    this.selectedUsers.clear();
+    document.querySelectorAll('input[name="user-select"]').forEach(cb => {
+      cb.checked = false;
+    });
+    document.getElementById('select-all-users').checked = false;
+    this.updateBulkOperationsUI();
+  }
+
+  /**
+   * Show notification
+   */
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }, 3000);
+  }
+
+  // ===== USER PROFILE MANAGEMENT =====
+
+  /**
+   * Get user profile data
+   */
+  async getUserProfile(userId) {
+    try {
+      const user = await dbService.getById('users', userId);
+      if (!user) return null;
+      
+      const profile = this.userProfiles.get(userId) || {};
+      const activity = await userSecurityService.getUserActivity(user.username);
+      
+      return {
+        ...user,
+        profile,
+        activity,
+        permissions: await permissionService.getUserPermissions(userId)
+      };
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to get user profile');
+      return null;
+    }
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateUserProfile(userId, profileData) {
+    try {
+      const user = await dbService.getById('users', userId);
+      if (!user) {
+        throw new Error(`User ${userId} not found`);
+      }
+      
+      // Update user record
+      Object.assign(user, profileData);
+      user.modifiedAt = new Date().toISOString();
+      
+      await dbService.put('users', user);
+      
+      // Update local data
+      const localUser = this.users.find(u => u.id === userId);
+      if (localUser) {
+        Object.assign(localUser, profileData);
+      }
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('profile_update', user.username, {
+        userId,
+        changes: Object.keys(profileData)
+      });
+      
+      this.renderUsers(this.filteredUsers);
+      return true;
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to update user profile');
+      throw error;
+    }
+  }
+
+  /**
+   * Get user onboarding status
+   */
+  getUserOnboardingStatus(userId) {
+    const user = this.users.find(u => u.id === userId);
+    if (!user) return null;
+    
+    const template = this.onboardingTemplates.get(user.onboardingTemplate || 'standard');
+    const completedSteps = user.onboardingSteps || [];
+    
+    return {
+      template,
+      completed: completedSteps,
+      progress: (completedSteps.length / template.steps.length) * 100,
+      isComplete: template.steps.every(step => 
+        !step.required || completedSteps.includes(step.id)
+      )
+    };
+  }
+
+  /**
+   * Update onboarding progress
+   */
+  async updateOnboardingProgress(userId, stepId, completed = true) {
+    try {
+      const user = this.users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error(`User ${userId} not found`);
+      }
+      
+      if (!user.onboardingSteps) {
+        user.onboardingSteps = [];
+      }
+      
+      if (completed && !user.onboardingSteps.includes(stepId)) {
+        user.onboardingSteps.push(stepId);
+      } else if (!completed) {
+        user.onboardingSteps = user.onboardingSteps.filter(s => s !== stepId);
+      }
+      
+      await dbService.put('users', user);
+      
+      // Log audit event
+      await userSecurityService.logSecurityEvent('onboarding_progress', user.username, {
+        userId,
+        stepId,
+        completed
+      });
+      
+      return this.getUserOnboardingStatus(userId);
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to update onboarding progress');
+      throw error;
+    }
+  }
+
+  // ===== PASSWORD POLICY ENFORCEMENT =====
+
+  /**
+   * Validate password against policy
+   */
+  async validatePasswordPolicy(password, username, policyName = 'default') {
+    try {
+      return await userSecurityService.validatePassword(password, username);
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to validate password policy');
+      return { valid: false, errors: ['Password validation failed'] };
+    }
+  }
+
+  /**
+   * Check if password change is required
+   */
+  async isPasswordChangeRequired(userId) {
+    try {
+      const user = await dbService.getById('users', userId);
+      if (!user) return false;
+      
+      // Check if force password change is set
+      if (user.forcePasswordChange) return true;
+      
+      // Check password age
+      const passwordAge = user.passwordChangedAt 
+        ? Date.now() - new Date(user.passwordChangedAt).getTime()
+        : Date.now() - new Date(user.created).getTime();
+      
+      const policy = this.passwordPolicies.get(user.passwordPolicy || 'default');
+      const maxAge = policy.maxAge * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+      
+      return passwordAge > maxAge;
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to check password change requirement');
+      return false;
+    }
+  }
+
+  // ===== USER ACTIVITY MONITORING =====
+
+  /**
+   * Get user activity summary
+   */
+  async getUserActivitySummary(userId, days = 30) {
+    try {
+      const user = this.users.find(u => u.id === userId);
+      if (!user) return null;
+      
+      return await userSecurityService.getUserActivity(user.username, days);
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to get user activity summary');
+      return null;
+    }
+  }
+
+  /**
+   * Track user login
+   */
+  async trackUserLogin(username, ipAddress, userAgent, successful = true) {
+    try {
+      if (successful) {
+        return await userSecurityService.trackSuccessfulLogin(username, ipAddress, userAgent);
+      } else {
+        return await userSecurityService.trackFailedLogin(username, ipAddress, userAgent);
+      }
+    } catch (error) {
+      ErrorHandler.handle(error, 'Failed to track user login');
+    }
   }
 }

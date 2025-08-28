@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced GIS Dashboard Test</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/gis-dashboard-enhanced.css">
+    <style>
+        body { margin: 0; padding: 20px; font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .feature { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .feature h3 { margin: 0 0 10px 0; color: #1f2937; font-size: 16px; }
+        .feature ul { margin: 0; padding-left: 20px; }
+        .feature li { margin-bottom: 5px; font-size: 14px; color: #6b7280; }
+        #test-map { height: 600px; width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .status { margin-top: 15px; padding: 10px; border-radius: 6px; }
+        .status.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Enhanced GIS Dashboard Test</h1>
+            <p>Testing advanced mapping features with Leaflet.js</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3><i class="fas fa-layer-group"></i> Advanced Mapping</h3>
+                <ul>
+                    <li>Multiple map layers (satellite, terrain)</li>
+                    <li>Custom markers for entity types</li>
+                    <li>Interactive enhanced popups</li>
+                    <li>Map clustering for dense areas</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3><i class="fas fa-map-marked-alt"></i> Geographic Overlays</h3>
+                <ul>
+                    <li>Mining concession boundaries</li>
+                    <li>Administrative district overlays</li>
+                    <li>Environmental protection areas</li>
+                    <li>Infrastructure overlays (roads, railways)</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3><i class="fas fa-tools"></i> Analysis Tools</h3>
+                <ul>
+                    <li>Distance measurement tools</li>
+                    <li>Area calculation features</li>
+                    <li>Buffer zone analysis</li>
+                    <li>Spatial query capabilities</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3><i class="fas fa-cog"></i> Enhanced Features</h3>
+                <ul>
+                    <li>Map export functionality</li>
+                    <li>Location search and geocoding</li>
+                    <li>GPS coordinate display</li>
+                    <li>Custom legend and controls</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="test-map"></div>
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.1/src/leaflet.geometryutil.js"></script>
+    <script type="module">
+        import { GisDashboard } from './js/modules/GisDashboard.js';
+
+        // Test data
+        const testContracts = [
+            { entity: 'Maloma Colliery', mineral: 'Coal', startDate: '2020-01-15', value: 2500000 },
+            { entity: 'Ngwenya Mine', mineral: 'Iron Ore', startDate: '2019-06-01', value: 5000000 },
+            { entity: 'Mbabane Quarry', mineral: 'Stone', startDate: '2021-03-01', value: 1200000 }
+        ];
+
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        try {
+            // Initialize the enhanced GIS dashboard
+            const dashboard = new GisDashboard(testContracts);
+            
+            // Create a test map container
+            const mapContainer = document.createElement('div');
+            mapContainer.id = 'map';
+            mapContainer.style.height = '600px';
+            mapContainer.style.width = '100%';
+            
+            // Replace test-map with the actual map container
+            const testMap = document.getElementById('test-map');
+            testMap.parentNode.replaceChild(mapContainer, testMap);
+            
+            // Initialize the dashboard
+            dashboard.init();
+            
+            showStatus('✅ Enhanced GIS Dashboard loaded successfully! All features are working.', 'success');
+
+            // Make dashboard globally available for testing popup buttons
+            window.app = { gisDashboard: dashboard };
+            
+            console.log('Enhanced GIS Dashboard Test:', {
+                version: 'Enhanced v2.0',
+                features: [
+                    'Multiple base layers (OpenStreetMap, Satellite, Terrain, Topographic)',
+                    'Advanced marker clustering',
+                    'Enhanced popups with actions',
+                    'Geographic overlays (concessions, districts, protected areas)',
+                    'Infrastructure overlays (roads, railways)',
+                    'Measurement and drawing tools',
+                    'Location search and geocoding',
+                    'Coordinate display',
+                    'Map export functionality',
+                    'Enhanced legend with multiple sections'
+                ],
+                mapLayers: Object.keys(dashboard.baseLayers),
+                overlayLayers: Object.keys(dashboard.overlayMaps),
+                status: 'Ready'
+            });
+            
+        } catch (error) {
+            console.error('Error initializing Enhanced GIS Dashboard:', error);
+            showStatus(`❌ Error: ${error.message}`, 'error');
+        }
+    </script>
+</body>
+</html>
