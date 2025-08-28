@@ -47,7 +47,7 @@ class EnhancedUserManagement {
             console.log('Enhanced User Management initialized successfully');
 
         } catch (error) {
-            ErrorHandler.handle(error, 'Failed to initialize Enhanced User Management');
+            new ErrorHandler().handleError(error, 'Failed to initialize Enhanced User Management');
             throw error;
         }
     }
@@ -482,14 +482,6 @@ const enhancedUserManagement = new EnhancedUserManagement();
 // Export for use in other modules
 export { enhancedUserManagement, EnhancedUserManagement };
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        enhancedUserManagement.init().catch(console.error);
-    });
-} else {
-    enhancedUserManagement.init().catch(console.error);
-}
 
 // Make available globally for onclick handlers
 window.enhancedUserManagement = enhancedUserManagement;

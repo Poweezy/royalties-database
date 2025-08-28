@@ -22,12 +22,13 @@ import { UserManager } from './modules/UserManager.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import LeaseManagement from './modules/lease-management.js';
 import ExpenseTracking from './modules/expense-tracking.js';
-import ContractManagement from './modules/contract-management-enhanced.js';
+import { contractManagementEnhanced } from './modules/contract-management-enhanced.js';
 import DocumentManagement from './modules/document-management.js';
 import Reporting from './modules/reporting.js';
 import RoyaltyRecords from './modules/royalty-records.js';
 import { GisDashboard } from './modules/GisDashboard.js';
 import { AuditLogManager } from './modules/AuditLogManager.js';
+import { enhancedUserManagement } from './user-management-enhanced.js';
 
 class App {
     constructor() {
@@ -102,7 +103,7 @@ class App {
         window.chartManager = this.chartManager;
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
-        this.contractManagement = ContractManagement;
+        this.contractManagement = contractManagementEnhanced;
         this.documentManagement = DocumentManagement;
         this.reporting = Reporting;
         this.royaltyRecords = RoyaltyRecords;
@@ -212,6 +213,10 @@ class App {
 
             // Initialize Audit Log Manager
             this.auditLogManager = new AuditLogManager();
+
+            // Initialize Enhanced User Management
+            await this.userManager.initializeEnhancedFeatures();
+            await enhancedUserManagement.init();
 
             // Show dashboard
             this.showDashboard();

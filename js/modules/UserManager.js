@@ -49,8 +49,6 @@ export class UserManager {
     this.passwordPolicies = new Map();
     this.onboardingTemplates = new Map();
     
-    // Initialize enhanced features
-    this.initializeEnhancedFeatures();
   }
 
   /**
@@ -64,7 +62,7 @@ export class UserManager {
       this.initializeOnboardingTemplates();
       await this.syncWithDatabase();
     } catch (error) {
-      ErrorHandler.handle(error, 'Failed to initialize enhanced features');
+      new ErrorHandler().handleError(error, 'Failed to initialize enhanced features');
     }
   }
 
@@ -83,7 +81,7 @@ export class UserManager {
         }
       }
     } catch (error) {
-      ErrorHandler.handle(error, 'Failed to sync with database');
+      new ErrorHandler().handleError(error, 'Failed to sync with database');
     }
   }
 

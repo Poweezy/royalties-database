@@ -28,7 +28,7 @@ export class NotificationManager {
   createElement(message, type) {
     const config = this.types[type] || this.types.info;
     const notification = document.createElement('div');
-    notification.className = 'notification-toast';
+    notification.className = `notification-toast notification-${type}`;
     
     notification.style.cssText = `
       position: fixed; top: 20px; right: 20px; z-index: 10000;
