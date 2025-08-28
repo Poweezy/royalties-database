@@ -288,11 +288,14 @@ class App {
      */
     async initializeDashboard() {
         try {
-            // Load demo dashboard data
+            // Load royalty data from the database
+            const royaltyRecords = await dbService.getAll('royalties');
+            const totalRoyalties = royaltyRecords.reduce((sum, record) => sum + record.royaltyPayment, 0);
+
             const royaltyData = {
-                totalRoyalties: 2847650.00,
-                paidRoyalties: 2135737.50,
-                pendingRoyalties: 711912.50,
+                totalRoyalties: totalRoyalties,
+                paidRoyalties: royaltyRecords.filter(r => r.status === 'Paid').reduce((sum, r) => sum + r.royaltyPayment, 0),
+                pendingRoyalties: royaltyRecords.filter(r => r.status !== 'Paid').reduce((sum, r) => sum + r.royaltyPayment, 0),
                 yearlyTarget: 3500000.00
             };
 
@@ -956,7 +959,7 @@ class App {
 
         try {
             await authService.login(username, password);
-            this.showDashboard();
+            await this.initializeAuthenticatedState();
         } catch (error) {
             console.error('[App] Login error caught in handleLogin:', error);
             this.showError('Invalid username or password');
