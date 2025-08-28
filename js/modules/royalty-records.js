@@ -24,6 +24,9 @@ const RoyaltyRecords = {
       volumeInput: document.getElementById('volume'),
       tariffInput: document.getElementById('tariff'),
       paymentDateInput: document.getElementById('payment-date'),
+      filterEntitySelect: document.getElementById('filter-entity'),
+      applyFiltersBtn: document.getElementById('apply-royalty-filters-btn'),
+      exportBtn: document.getElementById('export-royalty-report-btn'),
     };
 
     // If elements are found and events haven't been bound, bind them.
@@ -36,6 +39,11 @@ const RoyaltyRecords = {
     this.elements.saveBtn.addEventListener('click', (e) => this.handleFormSubmit(e));
     this.elements.entitySelect.addEventListener('change', () => this.updateTariffForSelection());
     this.elements.mineralSelect.addEventListener('change', () => this.updateTariffForSelection());
+    this.elements.applyFiltersBtn.addEventListener('click', () => {
+        const selectedEntity = this.elements.filterEntitySelect.value;
+        this.renderRecords({ entity: selectedEntity });
+    });
+    this.elements.exportBtn.addEventListener('click', () => this.exportRecords());
     this._eventsBound = true;
     console.log('Royalty Records events bound.');
   },
@@ -113,12 +121,17 @@ const RoyaltyRecords = {
 
     let records = await dbService.getAll('royalties');
 
-    if (filter && filter.status) {
-        records = records.filter(record => record.status === filter.status);
+    if (filter) {
+        if (filter.status) {
+            records = records.filter(record => record.status === filter.status);
+        }
+        if (filter.entity && filter.entity !== 'All Entities') {
+            records = records.filter(record => record.entity === filter.entity);
+        }
     }
 
     if (!records || records.length === 0) {
-      const message = filter ? `No records found with status "${filter.status}".` : 'No royalty records found.';
+      const message = filter ? `No records found matching your criteria.` : 'No royalty records found.';
       this.elements.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem;">${message}</td></tr>`;
       return;
     }
@@ -148,6 +161,26 @@ const RoyaltyRecords = {
       </td>
     `;
     return row;
+  },
+
+  exportRecords() {
+    if (this.elements.tableBody.rows.length === 1 && this.elements.tableBody.rows[0].cells.length === 1) {
+        showToast('There is no data to export.', 'warning');
+        return;
+    }
+
+    const table = this.elements.tableBody.parentElement; // Get the <table> element
+    if (!table) {
+        showToast('Could not find table to export.', 'error');
+        return;
+    }
+
+    // Use XLSX to create a workbook from the table
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Royalty Records" });
+
+    // Trigger the download
+    XLSX.writeFile(wb, "Royalty_Records_Export.xlsx");
+    showToast('Report exported successfully!', 'success');
   }
 };
 
