@@ -188,15 +188,15 @@
               <i class="fas fa-sync-alt" aria-label="Refresh icon"></i> Refresh
             </button>
             <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dashboardCustomize" data-toggle="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dashboardCustomize" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-cog"></i> Customize
               </button>
-              <div class="dropdown-menu">
-                <button class="dropdown-item" onclick="chartManager.switchTheme('light')">Light Theme</button>
-                <button class="dropdown-item" onclick="chartManager.switchTheme('dark')">Dark Theme</button>
+              <div class="dropdown-menu" aria-labelledby="dashboardCustomize">
+                <button class="dropdown-item" data-action="switch-theme" data-theme="light">Light Theme</button>
+                <button class="dropdown-item" data-action="switch-theme" data-theme="dark">Dark Theme</button>
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item" onclick="chartManager.toggleWidget('forecast')">Toggle Forecast</button>
-                <button class="dropdown-item" onclick="chartManager.toggleWidget('comparative')">Toggle Comparison</button>
+                <button class="dropdown-item" data-action="toggle-widget" data-widget="forecast">Toggle Forecast</button>
+                <button class="dropdown-item" data-action="toggle-widget" data-widget="comparative">Toggle Comparison</button>
               </div>
             </div>
             <button class="btn btn-primary" id="admin-panel-btn" title="Access Admin Panel">

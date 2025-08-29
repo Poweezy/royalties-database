@@ -718,6 +718,41 @@ class App {
      * Sets up event listeners for the dashboard widgets.
      */
     #setupDashboardListeners() {
+        // --- Dropdown Menu Logic for "Customize" ---
+        const customizeDropdown = document.getElementById('dashboardCustomize');
+        const dropdownMenu = customizeDropdown?.nextElementSibling;
+
+        customizeDropdown?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isExpanded = customizeDropdown.getAttribute('aria-expanded') === 'true';
+            customizeDropdown.setAttribute('aria-expanded', !isExpanded);
+            dropdownMenu?.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!customizeDropdown?.contains(e.target)) {
+                customizeDropdown?.setAttribute('aria-expanded', 'false');
+                dropdownMenu?.classList.remove('show');
+            }
+        });
+
+        dropdownMenu?.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+
+            const { action, theme, widget } = target.dataset;
+
+            if (action === 'switch-theme') {
+                this.chartManager.switchTheme(theme);
+                this.notificationManager.show(`Theme switched to ${theme}`, 'info');
+            }
+
+            if (action === 'toggle-widget') {
+                this.chartManager.toggleWidget(widget);
+                this.notificationManager.show(`Toggled ${widget} widget visibility`, 'info');
+            }
+        });
+
         const metricSelects = [
             document.getElementById('royalties-period'),
             document.getElementById('entities-period')
