@@ -125,8 +125,9 @@ class App {
     setupErrorHandling() {
         // Suppress browser extension errors
         window.addEventListener('error', (e) => {
-            if (e.message.includes('Extension context invalidated') || 
-                e.message.includes('message channel closed')) {
+            if (e.message.includes('Extension context invalidated') ||
+                e.message.includes('message channel closed') ||
+                e.message.includes('A listener indicated an asynchronous response')) {
                 e.preventDefault();
                 return false;
             }
@@ -134,9 +135,10 @@ class App {
         
         // Suppress unhandled promise rejections from extensions
         window.addEventListener('unhandledrejection', (e) => {
-            if (e.reason?.message && 
-                (e.reason.message.includes('Extension context') || 
-                 e.reason.message.includes('message channel'))) {
+            if (e.reason?.message &&
+                (e.reason.message.includes('Extension context') ||
+                 e.reason.message.includes('message channel') ||
+                 e.reason.message.includes('A listener indicated an asynchronous response'))) {
                 e.preventDefault();
                 return false;
             }

@@ -42,5 +42,41 @@ test.describe('Dashboard Navigation', () => {
     // Check for a specific record
     const kwaliniRecord = await tableBody.locator('tr:has-text("Kwalini Quarry")');
     await expect(kwaliniRecord).toBeVisible();
+
+    // Navigate back to dashboard for next test
+    await page.click('a[href="#dashboard"]');
+  });
+
+  test('should switch themes without console errors', async () => {
+    const consoleErrors = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    // Click the "Customize" dropdown
+    await page.click('#dashboardCustomize');
+
+    // Click the "Dark Theme" button
+    await page.click('button[data-theme="dark"]');
+
+    // Wait for a moment for the theme to apply
+    await page.waitForTimeout(500);
+
+    // Check for console errors
+    expect(consoleErrors).toEqual([]);
+
+    // Re-open the dropdown
+    await page.click('#dashboardCustomize');
+
+    // Click the "Light Theme" button
+    await page.click('button[data-theme="light"]');
+
+    // Wait for a moment for the theme to apply
+    await page.waitForTimeout(500);
+
+    // Check for console errors
+    expect(consoleErrors).toEqual([]);
   });
 });
