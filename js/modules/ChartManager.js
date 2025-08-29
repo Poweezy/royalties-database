@@ -466,9 +466,9 @@ export class ChartManager {
     updateTrendAnalysis() {
         // Update trend sparklines if they exist
         const sparklineElements = document.querySelectorAll('.trend-sparkline');
-        sparklineElements.forEach(element => {
-            this.createSparkline(element);
-        });
+        // sparklineElements.forEach(element => {
+        //     this.createSparkline(element);
+        // });
     }
 
     createSparkline(element) {
