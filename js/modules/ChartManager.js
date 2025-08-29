@@ -637,11 +637,23 @@ export class ChartManager {
             : { background: '#ffffff', text: '#1a202c', grid: '#e2e8f0' };
 
         this.charts.forEach(chart => {
-            chart.options.plugins.legend.labels.color = colors.text;
-            chart.options.scales.x.ticks.color = colors.text;
-            chart.options.scales.y.ticks.color = colors.text;
-            chart.options.scales.x.grid.color = colors.grid;
-            chart.options.scales.y.grid.color = colors.grid;
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = colors.text;
+            }
+            if (chart.options.scales) {
+                if (chart.options.scales.x && chart.options.scales.x.ticks) {
+                    chart.options.scales.x.ticks.color = colors.text;
+                }
+                if (chart.options.scales.y && chart.options.scales.y.ticks) {
+                    chart.options.scales.y.ticks.color = colors.text;
+                }
+                if (chart.options.scales.x && chart.options.scales.x.grid) {
+                    chart.options.scales.x.grid.color = colors.grid;
+                }
+                if (chart.options.scales.y && chart.options.scales.y.grid) {
+                    chart.options.scales.y.grid.color = colors.grid;
+                }
+            }
             chart.update();
         });
     }
