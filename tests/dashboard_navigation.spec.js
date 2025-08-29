@@ -79,4 +79,15 @@ test.describe('Dashboard Navigation', () => {
     // Check for console errors
     expect(consoleErrors).toEqual([]);
   });
+
+  test('should display the correct total royalties on the dashboard', async () => {
+    // The total from the seed data is 261150
+    const expectedTotal = 'E 261,150.00';
+
+    // Get the text content of the total royalties element
+    const totalRoyaltiesElement = await page.locator('#total-royalties');
+
+    // Wait for the text to be updated, as it might take a moment after login
+    await expect(totalRoyaltiesElement).toHaveText(expectedTotal, { timeout: 10000 });
+  });
 });
