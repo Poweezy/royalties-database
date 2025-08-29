@@ -370,6 +370,13 @@ class App {
                     target.setAttribute('aria-label', 'Show password');
                 }
             }
+
+            if (action === 'close-modal') {
+                const modal = target.closest('.modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
         });
 
         // Login form submission
