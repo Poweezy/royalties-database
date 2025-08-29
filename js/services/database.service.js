@@ -6,7 +6,7 @@
 class DatabaseService {
     constructor() {
         this.dbName = 'RoyaltiesDB';
-        this.version = 3; // Incremented version to trigger upgrade
+        this.version = 4; // Incremented version to trigger upgrade
         this.stores = {
             royalties: 'royalties',
             users: 'users',

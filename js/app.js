@@ -1194,7 +1194,7 @@ class App {
         // Update royalty metrics
         const totalRoyaltiesEl = document.getElementById('total-royalties');
         if (totalRoyaltiesEl) {
-            totalRoyaltiesEl.textContent = `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ')}`;
+            totalRoyaltiesEl.textContent = `E ${royaltyData.totalRoyalties.toLocaleString('en-SZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
         const activeEntitiesEl = document.getElementById('active-entities');
