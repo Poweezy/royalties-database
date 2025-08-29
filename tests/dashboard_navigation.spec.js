@@ -23,28 +23,22 @@ test.describe('Dashboard Navigation', () => {
     await page.close();
   });
 
-  test('should navigate to royalty records when "Total Royalties" card is clicked', async () => {
+  test('should not navigate when "Total Royalties" card is clicked', async () => {
+    // Get the current URL
+    const initialUrl = page.url();
+
     // Click on the "Total Royalties" card
     await page.click('#dashboard .metric-card:nth-child(1)');
 
-    // Wait for the royalty records section to be visible
-    await page.waitForSelector('#royalty-records', { state: 'visible' });
+    // Wait for a moment to see if navigation happens
+    await page.waitForTimeout(500);
 
-    // Verify that the royalty records section is visible
+    // Assert that the URL has not changed
+    expect(page.url()).toBe(initialUrl);
+
+    // Assert that the royalty records section is not visible
     const royaltyRecordsSection = await page.locator('#royalty-records');
-    await expect(royaltyRecordsSection).toBeVisible();
-
-    // Verify that the table contains the seeded data
-    const tableBody = await page.locator('#royalty-records-tbody');
-    const rows = await tableBody.locator('tr').count();
-    expect(rows).toBeGreaterThan(0);
-
-    // Check for a specific record
-    const kwaliniRecord = await tableBody.locator('tr:has-text("Kwalini Quarry")');
-    await expect(kwaliniRecord).toBeVisible();
-
-    // Navigate back to dashboard for next test
-    await page.click('a[href="#dashboard"]');
+    await expect(royaltyRecordsSection).not.toBeVisible();
   });
 
   test('should switch themes without console errors', async () => {

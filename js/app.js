@@ -926,7 +926,7 @@ class App {
             }
         };
 
-        addClickListener('#dashboard .metric-card:nth-child(1)', 'royalty-records'); // Total Royalties
+        // addClickListener('#dashboard .metric-card:nth-child(1)', 'royalty-records'); // Total Royalties
         addClickListener('#dashboard .metric-card:nth-child(3)', 'compliance');      // Compliance Rate
         addClickListener('#manage-users', 'user-management'); // Quick Action
         addClickListener('#generate-report', 'reporting-analytics'); // Quick Action
