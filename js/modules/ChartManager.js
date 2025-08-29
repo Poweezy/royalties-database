@@ -480,7 +480,16 @@ export class ChartManager {
         element.appendChild(canvas);
 
         const ctx = canvas.getContext('2d');
-        new Chart(ctx, {
+        const sparklineId = element.id || `sparkline-${[...Array(5)].map(() => Math.random().toString(36)[2]).join('')}`;
+        if (!element.id) {
+            element.id = sparklineId;
+        }
+
+        if (this.charts.has(sparklineId)) {
+            this.charts.get(sparklineId).destroy();
+        }
+
+        const chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['', '', '', '', '', ''],
@@ -500,6 +509,7 @@ export class ChartManager {
                 elements: { point: { radius: 0 } }
             }
         });
+        this.charts.set(sparklineId, chart);
     }
 
     updateForecastMetrics() {
