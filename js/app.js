@@ -345,6 +345,33 @@ class App {
      * Set up global event listeners
      */
     setupEventListeners() {
+        // --- Global Action Event Listener ---
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+
+            const action = target.dataset.action;
+
+            if (action === 'toggle-password') {
+                const targetId = target.dataset.target;
+                const input = document.querySelector(targetId);
+                if (!input) return;
+
+                const icon = target.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                    target.setAttribute('aria-label', 'Hide password');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                    target.setAttribute('aria-label', 'Show password');
+                }
+            }
+        });
+
         // Login form submission
         document.getElementById('login-form')?.addEventListener('submit', async (e) => {
             e.preventDefault();
