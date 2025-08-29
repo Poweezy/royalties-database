@@ -43,4 +43,21 @@ test.describe('GIS Dashboard', () => {
     // Check for console errors
     expect(consoleErrors).toEqual([]);
   });
+
+  test('should refresh the dashboard without console errors', async () => {
+    // Navigate back to the main dashboard
+    await page.click('a[href="#dashboard"]');
+
+    // Wait for the dashboard to be visible
+    await page.waitForSelector('#dashboard', { state: 'visible' });
+
+    // Click the refresh button
+    await page.click('#refresh-dashboard');
+
+    // Wait for a moment to allow for refresh logic to complete
+    await page.waitForTimeout(1000);
+
+    // Check for console errors
+    expect(consoleErrors).toEqual([]);
+  });
 });
