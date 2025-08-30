@@ -1,0 +1,273 @@
+/* Document Management System Styles */
+
+.file-explorer {
+    background: var(--surface-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.explorer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header-controls {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.view-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Grid View */
+.folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.document-card {
+    background: var(--surface-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    margin-bottom: 1rem;
+    background: var(--surface-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.card-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.card-info {
+    margin-bottom: 0.75rem;
+}
+
+.doc-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.doc-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.doc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    border-radius: 12px;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* List View */
+.folder-list {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.list-item {
+    display: table-row;
+}
+
+.list-item:hover {
+    background: var(--hover-color);
+}
+
+.list-cell {
+    display: table-cell;
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Search Results */
+.search-results {
+    margin-top: 1rem;
+}
+
+.search-result {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface-secondary);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.result-preview {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.result-content {
+    flex: 1;
+}
+
+.result-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.result-content p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.result-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Drag and Drop */
+.drag-over {
+    border: 2px dashed var(--primary-color);
+    background: var(--primary-light);
+}
+
+/* File Preview */
+.preview-pane {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    background: var(--surface-color);
+    box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.preview-pane.active {
+    transform: translateX(0);
+}
+
+.preview-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preview-content {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* Version Control */
+.version-list {
+    margin-top: 1rem;
+}
+
+.version-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.version-info {
+    flex: 1;
+}
+
+.version-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .folder-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .preview-pane {
+        width: 100%;
+    }
+
+    .explorer-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .header-controls,
+    .view-controls {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .file-explorer {
+        background: var(--surface-dark);
+    }
+
+    .document-card {
+        background: var(--surface-secondary-dark);
+    }
+
+    .card-preview {
+        background: var(--surface-dark);
+    }
+
+    .preview-pane {
+        background: var(--surface-dark);
+    }
+
+    .drag-over {
+        background: var(--primary-dark);
+    }
+}

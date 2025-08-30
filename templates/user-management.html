@@ -1,0 +1,120 @@
+<section id="user-management" class="module-section">
+    <!-- Header Section -->
+    <div class="section-header">
+        <h2>User Management</h2>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="add-user-btn">
+                <i class="fas fa-user-plus"></i> Add User
+            </button>
+            <div class="bulk-actions-wrapper">
+                <select id="bulk-actions" class="form-select">
+                    <option value="">Bulk Actions</option>
+                    <option value="activate">Activate</option>
+                    <option value="deactivate">Deactivate</option>
+                    <option value="delete">Delete</option>
+                    <option value="export">Export Selected</option>
+                </select>
+                <button class="btn btn-secondary" id="apply-bulk-action">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="search-box">
+            <input type="text" id="user-search" placeholder="Search users..." class="form-control">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="filters">
+            <select id="role-filter" class="form-select">
+                <option value="">All Roles</option>
+            </select>
+            <select id="status-filter" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+            </select>
+            <button class="btn btn-outline-secondary" id="clear-filters">
+                Clear Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-responsive">
+        <table id="users-table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="select-all-users">
+                    </th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamically populated -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="user-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add/Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="user-form">
+                        <input type="hidden" name="id" id="user-id">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" name="role" required>
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password">
+                                <button type="button" class="btn btn-outline-secondary toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength-meter mt-2"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="user-form" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -20,8 +20,21 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.1/src/leaflet.geometryutil.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <script src="js/bcrypt.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- Enhanced AI and Analytics Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.5.1/dist/tfjs-vis.umd.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.154.0/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  
+  <!-- Core Application Modules -->
   <script type="module" src="js/utils/error-handler.js"></script>
   <script type="module" src="js/services/database.service.js"></script>
   <script type="module" src="js/services/auth.service.js"></script>
@@ -29,10 +42,23 @@
   <script type="module" src="js/modules/ChartManager.js"></script>
   <script type="module" src="js/modules/FileManager.js"></script>
   <script type="module" src="js/modules/NavigationManager.js"></script>
+  
+  <!-- Enhanced AI and Analytics Modules -->
+  <script type="module" src="js/modules/enhanced/AdvancedAnalyticsEngine.js"></script>
+  <script type="module" src="js/modules/enhanced/BusinessIntelligenceEngine.js"></script>
+  <script type="module" src="js/modules/enhanced/AdvancedVisualizationEngine.js"></script>
+  <script type="module" src="js/modules/enhanced/AIInsightsEngine.js"></script>
+  
+  <!-- Application Features -->
   <script type="module" src="js/semantic-search.js"></script>
   <script type="module" src="js/user-form-validation.js"></script>
   <script type="module" src="js/user-management-enhanced.js"></script>
   <script type="module" src="js/app.js"></script>
+  
+  <!-- Real-time Data Processing -->
+  <script type="module" src="js/modules/enhanced/RealTimeDataProcessor.js"></script>
+  <script type="module" src="js/modules/enhanced/PredictiveAnalyticsEngine.js"></script>
+  <script type="module" src="js/modules/enhanced/AutomatedReportingEngine.js"></script>
   <script>
     // Register Service Worker
     if ('serviceWorker' in navigator) {
@@ -179,27 +205,89 @@
             <p>Welcome back, <span id="user-name">System Administrator</span> | Last login: <span id="last-login-time">Today, 09:15 AM</span></p>
           </div>
           <div class="page-actions">
-            <div class="dashboard-controls">
-              <label class="auto-refresh-toggle">
-                <input type="checkbox" id="auto-refresh-toggle">
-                <span>Auto Refresh</span>
-              </label>
-              <span id="last-refresh-time" class="last-refresh">Last updated: Never</span>
-            </div>
-            <button class="btn btn-info" id="refresh-dashboard" title="Refresh dashboard data">
-              <i class="fas fa-sync-alt" aria-label="Refresh icon"></i> Refresh
-            </button>
-            <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dashboardCustomize" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-cog"></i> Customize
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dashboardCustomize">
-                <button class="dropdown-item" data-action="switch-theme" data-theme="light">Light Theme</button>
-                <button class="dropdown-item" data-action="switch-theme" data-theme="dark">Dark Theme</button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" data-action="toggle-widget" data-widget="forecast">Toggle Forecast</button>
-                <button class="dropdown-item" data-action="toggle-widget" data-widget="comparative">Toggle Comparison</button>
+            <!-- Advanced Analytics Controls -->
+            <div class="analytics-controls">
+              <div class="date-range-picker">
+                <button class="btn btn-outline-secondary" id="date-range-btn">
+                  <i class="fas fa-calendar"></i>
+                  <span id="selected-date-range">Last 30 Days</span>
+                </button>
               </div>
+              <div class="filter-controls">
+                <button class="btn btn-outline-secondary" id="advanced-filters-btn">
+                  <i class="fas fa-filter"></i> Advanced Filters
+                </button>
+                <div class="active-filters" id="active-filters">
+                  <span class="filter-tag" data-filter="entity">
+                    Entity: All <i class="fas fa-times"></i>
+                  </span>
+                  <span class="filter-tag" data-filter="status">
+                    Status: Active <i class="fas fa-times"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real-time Controls -->
+            <div class="dashboard-controls">
+              <div class="refresh-controls">
+                <label class="auto-refresh-toggle">
+                  <input type="checkbox" id="auto-refresh-toggle">
+                  <span>Real-time Updates</span>
+                </label>
+                <select id="refresh-interval" class="form-control">
+                  <option value="30">30 seconds</option>
+                  <option value="60">1 minute</option>
+                  <option value="300">5 minutes</option>
+                </select>
+              </div>
+              <div class="sync-status">
+                <i class="fas fa-circle text-success"></i>
+                <span id="last-refresh-time">Live</span>
+              </div>
+              <button class="btn btn-info" id="refresh-dashboard" title="Refresh dashboard data">
+                <i class="fas fa-sync-alt" aria-label="Refresh icon"></i> Refresh
+              </button>
+            </div>
+
+            <!-- Customization Controls -->
+            <div class="customization-controls">
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dashboardCustomize" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-cog"></i> Customize
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dashboardCustomize">
+                  <h6 class="dropdown-header">Theme</h6>
+                  <button class="dropdown-item" data-action="switch-theme" data-theme="light">
+                    <i class="fas fa-sun"></i> Light Theme
+                  </button>
+                  <button class="dropdown-item" data-action="switch-theme" data-theme="dark">
+                    <i class="fas fa-moon"></i> Dark Theme
+                  </button>
+                  <button class="dropdown-item" data-action="switch-theme" data-theme="auto">
+                    <i class="fas fa-magic"></i> Auto Theme
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Widgets</h6>
+                  <button class="dropdown-item" data-action="toggle-widget" data-widget="ai-insights">
+                    <i class="fas fa-brain"></i> AI Insights
+                  </button>
+                  <button class="dropdown-item" data-action="toggle-widget" data-widget="forecast">
+                    <i class="fas fa-chart-line"></i> Forecast
+                  </button>
+                  <button class="dropdown-item" data-action="toggle-widget" data-widget="comparative">
+                    <i class="fas fa-chart-bar"></i> Comparison
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Layout</h6>
+                  <button class="dropdown-item" data-action="customize-layout">
+                    <i class="fas fa-th-large"></i> Customize Layout
+                  </button>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="save-layout" title="Save current layout">
+                <i class="fas fa-save"></i>
+              </button>
             </div>
             <button class="btn btn-primary" id="admin-panel-btn" title="Access Admin Panel">
               <i class="fas fa-cog" aria-label="Admin Panel icon"></i> Admin Panel
@@ -210,16 +298,79 @@
           </div>
         </div>
 
+        <!-- AI Insights Panel -->
+        <div class="ai-insights-panel">
+          <div class="insights-header">
+            <h2><i class="fas fa-brain" aria-label="AI Insights icon"></i> AI-Powered Insights</h2>
+            <div class="insights-controls">
+              <button class="btn btn-sm btn-primary" id="refresh-insights">
+                <i class="fas fa-sync-alt"></i> Update Insights
+              </button>
+              <button class="btn btn-sm btn-info" id="configure-insights">
+                <i class="fas fa-cog"></i> Configure
+              </button>
+            </div>
+          </div>
+          <div class="insights-grid">
+            <div class="insight-card anomaly-detection">
+              <h3><i class="fas fa-exclamation-triangle"></i> Anomaly Detection</h3>
+              <div class="insight-content" id="anomaly-insights">
+                <p class="insight-summary">AI has detected unusual patterns in recent transactions</p>
+                <ul class="anomaly-list">
+                  <li class="anomaly-item">
+                    <span class="anomaly-severity high">High</span>
+                    <span class="anomaly-desc">Unexpected spike in production from Kwalini Quarry</span>
+                  </li>
+                  <li class="anomaly-item">
+                    <span class="anomaly-severity medium">Medium</span>
+                    <span class="anomaly-desc">Delayed payments pattern detected</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="insight-card predictions">
+              <h3><i class="fas fa-chart-line"></i> Predictive Analytics</h3>
+              <div class="insight-content" id="prediction-insights">
+                <p class="insight-summary">Revenue forecast for next quarter</p>
+                <div class="prediction-details">
+                  <div class="prediction-value">
+                    <span class="value">E 1.2M</span>
+                    <span class="trend positive">+15%</span>
+                  </div>
+                  <div class="confidence-score">
+                    Confidence: <span>92%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="insight-card recommendations">
+              <h3><i class="fas fa-lightbulb"></i> Smart Recommendations</h3>
+              <div class="insight-content" id="ai-recommendations">
+                <ul class="recommendation-list">
+                  <li>Consider reviewing Kwalini Quarry's production reports</li>
+                  <li>Optimize collection schedule based on payment patterns</li>
+                  <li>Update risk assessment for delayed payments</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Enhanced Key Performance Indicators -->
         <div class="charts-grid">
           <div class="metric-card card enhanced-kpi">
             <div class="card-header">
               <h3><i class="fas fa-coins live-indicator" aria-label="Total Royalties icon"></i> Total Royalties (YTD)</h3>
-              <select class="metric-period" id="royalties-period">
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="all">All Time</option>
-              </select>
+              <div class="metric-controls">
+                <select class="metric-period" id="royalties-period">
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="all">All Time</option>
+                </select>
+                <button class="btn btn-sm btn-info" id="royalties-forecast" title="View AI Forecast">
+                  <i class="fas fa-robot"></i>
+                </button>
+              </div>
             </div>
             <div class="card-body">
               <div class="metric-main">
@@ -303,62 +454,290 @@
           </div>
         </div>
 
-        <!-- Analytics Charts Section -->
+        <!-- Advanced Analytics Charts Section -->
         <div class="charts-grid">
-          <div class="analytics-chart card">
-            <div class="chart-header">
-              <h3><i class="fas fa-chart-line" aria-label="Revenue Trends icon"></i> Revenue Trends</h3>
-              <div class="chart-controls">
-                <button class="chart-btn active" data-chart-type="line" data-chart-id="revenue-trends-chart">
-                  <i class="fas fa-chart-line" aria-label="Line chart icon"></i> Line
-                </button>
-                <button class="chart-btn" data-chart-type="bar" data-chart-id="revenue-trends-chart">
-                  <i class="fas fa-chart-bar" aria-label="Bar chart icon"></i> Bar
-                </button>
-                <button class="chart-btn" data-chart-type="area" data-chart-id="revenue-trends-chart">
-                  <i class="fas fa-chart-area" aria-label="Area chart icon"></i> Area
-                </button>
-                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="revenue-trends-chart">
-                    <i class="fas fa-download"></i> Export
-                </button>
+          <!-- Revenue Chart -->
+          <div class="chart-container" id="revenue-chart-container">
+            <h3 class="chart-title">
+              <i class="fas fa-chart-line"></i> Revenue Trends
+              <span class="ai-badge" title="AI-Enhanced Analytics">
+                <i class="fas fa-robot"></i>
+              </span>
+            </h3>
+            <canvas id="revenue-chart"></canvas>
+            <div class="chart-controls">
+              <button class="btn btn-sm btn-primary" id="analyze-revenue" title="AI Trend Analysis">
+                <i class="fas fa-brain"></i> Analyze
+              </button>
+              <button class="btn btn-sm btn-info" id="forecast-revenue" title="Show Forecast">
+                <i class="fas fa-chart-line"></i> Forecast
+              </button>
+            </div>
+          </div>
+
+          <!-- Production Chart -->
+          <div class="chart-container" id="production-chart-container">
+            <h3 class="chart-title">
+              <i class="fas fa-industry"></i> Production Volume
+            </h3>
+            <canvas id="production-chart"></canvas>
+            <div class="chart-controls">
+              <button class="btn btn-sm btn-primary" id="analyze-production" title="Analyze Production">
+                <i class="fas fa-brain"></i> Analyze
+              </button>
+            </div>
+          </div>
+
+          <!-- Compliance Chart -->
+          <div class="chart-container" id="compliance-chart-container">
+            <h3 class="chart-title">
+              <i class="fas fa-check-circle"></i> Compliance Metrics
+            </h3>
+            <canvas id="compliance-chart"></canvas>
+            <div class="chart-controls">
+              <button class="btn btn-sm btn-info" id="view-compliance-details" title="View Details">
+                <i class="fas fa-info-circle"></i> Details
+              </button>
+            </div>
+          </div>
+
+          <!-- Forecast Chart -->
+          <div class="chart-container" id="forecast-chart-container">
+            <h3 class="chart-title">
+              <i class="fas fa-chart-line"></i> AI Revenue Forecast
+              <span class="ai-badge" title="AI-Powered">
+                <i class="fas fa-robot"></i>
+              </span>
+            </h3>
+            <canvas id="forecast-chart"></canvas>
+            <div class="chart-controls">
+              <button class="btn btn-sm btn-primary" id="update-forecast" title="Update Forecast">
+                <i class="fas fa-sync"></i> Update
+              </button>
+            </div>
+          </div>
+
+          <!-- Comparative Chart -->
+          <div class="chart-container" id="comparative-chart-container">
+            <h3 class="chart-title">
+              <i class="fas fa-chart-bar"></i> Revenue vs Production
+            </h3>
+            <canvas id="comparative-chart"></canvas>
+            <div class="chart-controls">
+              <button class="btn btn-sm btn-info" id="toggle-correlation" title="Show Correlation">
+                <i class="fas fa-project-diagram"></i> Correlation
+              </button>
+            </div>
+          </div>
+                      <li><a class="dropdown-item" href="#" data-action="toggle-trends">
+                        <i class="fas fa-arrow-trend-up"></i> Show Trend Lines
+                      </a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#" data-action="export-chart">
+                        <i class="fas fa-download"></i> Export Chart
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" data-action="export-data">
+                        <i class="fas fa-table"></i> Export Data
+                      </a></li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="chart-container">
-              <canvas id="revenue-trends-chart" aria-label="Revenue trends chart showing monthly royalty collections"></canvas>
+              <div class="chart-overlay" id="chart-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing data...</p>
+              </div>
+              <div id="revenue-trends-chart" class="interactive-chart" aria-label="Revenue trends chart showing monthly royalty collections"></div>
             </div>
-            <div class="chart-summary">
-              <small>
-                <i class="fas fa-info-circle" aria-label="Info icon"></i>
-                Average monthly collection: <strong>E <span id="avg-monthly">82,708</span></strong> |
-                Peak month: <strong><span id="peak-month">January 2024</span></strong>
-              </small>
+            <div class="chart-insights">
+              <div class="insights-tabs">
+                <button class="insight-tab active" data-tab="summary">Summary</button>
+                <button class="insight-tab" data-tab="analysis">AI Analysis</button>
+                <button class="insight-tab" data-tab="forecast">Forecast</button>
+              </div>
+              <div class="insight-content">
+                <div class="insight-panel active" id="summary-panel">
+                  <div class="metric-grid">
+                    <div class="metric">
+                      <label>Monthly Average</label>
+                      <value>E <span id="avg-monthly">82,708</span></value>
+                      <trend class="positive">+12.5%</trend>
+                    </div>
+                    <div class="metric">
+                      <label>Peak Revenue</label>
+                      <value>E <span id="peak-revenue">125,000</span></value>
+                      <detail><span id="peak-month">January 2024</span></detail>
+                    </div>
+                    <div class="metric">
+                      <label>Growth Rate</label>
+                      <value><span id="growth-rate">15.8%</span></value>
+                      <trend class="positive">↑ YoY</trend>
+                    </div>
+                    <div class="metric">
+                      <label>Volatility</label>
+                      <value><span id="volatility">Low</span></value>
+                      <trend class="neutral">Stable</trend>
+                    </div>
+                  </div>
+                </div>
+                <div class="insight-panel" id="analysis-panel">
+                  <div class="ai-analysis">
+                    <div class="analysis-item">
+                      <i class="fas fa-lightbulb"></i>
+                      <p>Strong positive trend detected in Q2 2024</p>
+                    </div>
+                    <div class="analysis-item">
+                      <i class="fas fa-exclamation-circle"></i>
+                      <p>Seasonal pattern identified with peaks in January</p>
+                    </div>
+                    <div class="analysis-item">
+                      <i class="fas fa-chart-line"></i>
+                      <p>15.8% year-over-year growth rate sustained</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="insight-panel" id="forecast-panel">
+                  <div class="forecast-metrics">
+                    <div class="forecast-item">
+                      <label>Next Month</label>
+                      <value>E 95,000</value>
+                      <confidence>92% confidence</confidence>
+                    </div>
+                    <div class="forecast-item">
+                      <label>Q3 2024</label>
+                      <value>E 290,000</value>
+                      <confidence>85% confidence</confidence>
+                    </div>
+                    <div class="forecast-trend">
+                      <i class="fas fa-arrow-trend-up"></i>
+                      <span>Upward trend expected to continue</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="analytics-chart card">
             <div class="chart-header">
-              <h3><i class="fas fa-chart-pie" aria-label="Production by Entity icon"></i> Production by Entity</h3>
+              <h3>
+                <i class="fas fa-chart-network" aria-label="Production Analytics icon"></i> 
+                Production Analytics
+                <span class="ai-badge" title="AI-Enhanced Analytics">
+                  <i class="fas fa-robot"></i>
+                </span>
+              </h3>
               <div class="chart-controls">
-                <button class="chart-btn active" data-chart-type="pie" data-chart-id="production-by-entity-chart">
-                  <i class="fas fa-chart-pie" aria-label="Pie chart icon"></i> Pie
-                </button>
-                <button class="chart-btn" data-chart-type="doughnut" data-chart-id="production-by-entity-chart">
-                  <i class="fas fa-circle-notch" aria-label="Doughnut chart icon"></i> Doughnut
-                </button>
-                <button class="btn btn-sm btn-outline-secondary export-chart-btn" data-chart-id="production-by-entity-chart">
-                    <i class="fas fa-download"></i> Export
-                </button>
+                <div class="visualization-controls">
+                  <button class="chart-btn active" data-chart-type="advanced-treemap" data-chart-id="production-analytics-chart">
+                    <i class="fas fa-th-large" aria-label="Treemap icon"></i> Treemap
+                  </button>
+                  <button class="chart-btn" data-chart-type="sankey" data-chart-id="production-analytics-chart">
+                    <i class="fas fa-random" aria-label="Sankey diagram icon"></i> Flow
+                  </button>
+                  <button class="chart-btn" data-chart-type="bubble" data-chart-id="production-analytics-chart">
+                    <i class="fas fa-circle" aria-label="Bubble chart icon"></i> Bubble
+                  </button>
+                  <button class="chart-btn" data-chart-type="heatmap" data-chart-id="production-analytics-chart">
+                    <i class="fas fa-th" aria-label="Heatmap icon"></i> Heatmap
+                  </button>
+                </div>
+                <div class="analysis-controls">
+                  <button class="btn btn-sm btn-primary" id="analyze-production" title="AI Production Analysis">
+                    <i class="fas fa-brain"></i> Analyze
+                  </button>
+                  <button class="btn btn-sm btn-info" id="optimize-production" title="Production Optimization">
+                    <i class="fas fa-magic"></i> Optimize
+                  </button>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="productionOptions" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-cog"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="productionOptions">
+                      <li><a class="dropdown-item" href="#" data-action="show-efficiency">
+                        <i class="fas fa-tachometer-alt"></i> Show Efficiency Metrics
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" data-action="show-capacity">
+                        <i class="fas fa-warehouse"></i> Show Capacity Utilization
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" data-action="show-comparison">
+                        <i class="fas fa-balance-scale"></i> Show YoY Comparison
+                      </a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="#" data-action="export-analysis">
+                        <i class="fas fa-file-export"></i> Export Analysis
+                      </a></li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="chart-container">
-              <canvas id="production-by-entity-chart" aria-label="Production volume breakdown by mining entity"></canvas>
+              <div class="chart-overlay" id="production-loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing production data...</p>
+              </div>
+              <div id="production-analytics-chart" class="interactive-chart" aria-label="Advanced production analytics visualization"></div>
             </div>
-            <div class="chart-summary">
-              <small>
-                <i class="fas fa-info-circle" aria-label="Info icon"></i>
-                Total production: <strong><span id="total-production">52,000</span> m³</strong> |
-                Top producer: <strong><span id="top-producer">Kwalini Quarry</span></strong>
-              </small>
+            <div class="production-insights">
+              <div class="insights-tabs">
+                <button class="insight-tab active" data-tab="overview">Overview</button>
+                <button class="insight-tab" data-tab="efficiency">Efficiency</button>
+                <button class="insight-tab" data-tab="optimization">Optimization</button>
+              </div>
+              <div class="insight-content">
+                <div class="insight-panel active" id="overview-panel">
+                  <div class="metric-grid">
+                    <div class="metric">
+                      <label>Total Production</label>
+                      <value><span id="total-production">52,000</span> m³</value>
+                      <trend class="positive">+8.5% YoY</trend>
+                    </div>
+                    <div class="metric">
+                      <label>Top Producer</label>
+                      <value id="top-producer">Kwalini Quarry</value>
+                      <detail>32% of total production</detail>
+                    </div>
+                    <div class="metric">
+                      <label>Efficiency Score</label>
+                      <value><span id="efficiency-score">87.5%</span></value>
+                      <trend class="positive">↑ 2.3%</trend>
+                    </div>
+                    <div class="metric">
+                      <label>Capacity Utilization</label>
+                      <value><span id="capacity-utilization">78.2%</span></value>
+                      <trend class="neutral">→ Stable</trend>
+                    </div>
+                  </div>
+                </div>
+                <div class="insight-panel" id="efficiency-panel">
+                  <div class="efficiency-metrics">
+                    <div class="efficiency-gauge">
+                      <canvas id="efficiency-gauge"></canvas>
+                      <div class="gauge-label">Overall Efficiency</div>
+                    </div>
+                    <div class="efficiency-breakdown">
+                      <h4>Efficiency by Entity</h4>
+                      <div class="entity-efficiency-list" id="entity-efficiency">
+                        <!-- Dynamically populated -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="insight-panel" id="optimization-panel">
+                  <div class="optimization-recommendations">
+                    <h4>AI-Powered Recommendations</h4>
+                    <div class="recommendation-list" id="production-recommendations">
+                      <!-- Dynamically populated -->
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="implement-recommendations">
+                      Implement Selected
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
