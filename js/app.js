@@ -14,7 +14,7 @@
 import { authService } from './services/auth.service.js';
 import { dbService } from './services/database.service.js';
 import { security } from './utils/security.js';
-// import { ChartManager } from './modules/ChartManager.js';
+import ChartManager from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { notificationManager } from './modules/NotificationManager.js';
@@ -94,13 +94,13 @@ class App {
         // Initialize modules
         this.notificationManager = notificationManager;
         this.errorHandler = new ErrorHandler(notificationManager);
-        // this.chartManager = new ChartManager();
+        this.chartManager = new ChartManager();
         this.fileManager = new FileManager();
         this.navigationManager = new NavigationManager(this.notificationManager);
         this.userManager = new UserManager();
 
         // Make chartManager globally available for UI interactions
-        // window.chartManager = this.chartManager;
+        window.chartManager = this.chartManager;
         this.leaseManagement = LeaseManagement;
         this.expenseTracking = ExpenseTracking;
         this.contractManagement = contractManagementEnhanced;
@@ -158,7 +158,7 @@ class App {
             await Promise.all([
                 authService.init(),
                 dbService.init(),
-                // this.chartManager.initializeCharts()
+                this.chartManager.initializeCharts()
             ]);
 
             // Check authentication state
@@ -330,11 +330,11 @@ class App {
             this.updateLeaderboards();
 
             // Initialize charts with demo data
-            // await this.chartManager.initializeCharts({
-            //     royalties: royaltyData,
-            //     entities: entityData,
-            //     compliance: complianceData
-            // });
+            await this.chartManager.initializeCharts({
+                royalties: royaltyData,
+                entities: entityData,
+                compliance: complianceData
+            });
             
             // Show success notification
             this.notificationManager.show('Dashboard initialized successfully', 'success');
@@ -544,7 +544,7 @@ class App {
             this.notificationManager.show('Form has been reset.', 'info');
         });
 
-        addUserForm?.addEventListener('submit', async (e) => {
+        addUserForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const editingId = e.target.dataset.editingId ? parseInt(e.target.dataset.editingId, 10) : null;
@@ -573,11 +573,11 @@ class App {
 
             if (editingId) {
                 // Update existing user
-                await this.userManager.updateUser(editingId, userData);
+                this.userManager.updateUser(editingId, userData);
                 this.notificationManager.show(`User '${userData.username}' updated successfully.`, 'success');
             } else {
                 // Add new user
-                await this.userManager.addUser(userData);
+                this.userManager.addUser(userData);
                 this.notificationManager.show(`User '${userData.username}' created successfully.`, 'success');
             }
 
@@ -585,7 +585,7 @@ class App {
         });
 
         const userTableBody = document.getElementById('users-table-tbody');
-        userTableBody?.addEventListener('click', async (e) => {
+        userTableBody?.addEventListener('click', (e) => {
             const targetButton = e.target.closest('button[data-user-id]');
             if (!targetButton) return;
 
@@ -605,7 +605,7 @@ class App {
             if (targetButton.title.includes('Delete')) {
                 const user = this.userManager.getUser(userId);
                 if (user && confirm(`Are you sure you want to delete the user '${user.username}'?`)) {
-                    await this.userManager.deleteUser(userId);
+                    this.userManager.deleteUser(userId);
                     this.notificationManager.show(`User '${user.username}' has been deleted.`, 'success');
                 }
             }
@@ -686,19 +686,19 @@ class App {
             }
         });
 
-        bulkDeleteBtn?.addEventListener('click', async () => {
+        bulkDeleteBtn?.addEventListener('click', () => {
             const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
             const userIdsToDelete = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value, 10));
 
             if (userIdsToDelete.length > 0 && confirm(`Are you sure you want to delete ${userIdsToDelete.length} selected user(s)?`)) {
-                await this.userManager.bulkDeleteUsers(userIdsToDelete);
+                this.userManager.bulkDeleteUsers(userIdsToDelete);
                 this.notificationManager.show(`${userIdsToDelete.length} user(s) deleted successfully.`, 'success');
                 toggleBulkActionsContainer();
                 selectAllCheckbox.checked = false;
             }
         });
 
-        bulkStatusApplyBtn?.addEventListener('click', async () => {
+        bulkStatusApplyBtn?.addEventListener('click', () => {
             const selectedCheckboxes = userTable.querySelectorAll('tbody input[type="checkbox"]:checked');
             const userIdsToUpdate = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value, 10));
             const newStatus = bulkStatusSelect.value;
@@ -709,7 +709,7 @@ class App {
             }
 
             if (userIdsToUpdate.length > 0 && confirm(`Are you sure you want to change the status to '${newStatus}' for ${userIdsToUpdate.length} selected user(s)?`)) {
-                await this.userManager.bulkUpdateUserStatus(userIdsToUpdate, newStatus);
+                this.userManager.bulkUpdateUserStatus(userIdsToUpdate, newStatus);
                 this.notificationManager.show(`Status for ${userIdsToUpdate.length} user(s) updated to '${newStatus}'.`, 'success');
                 toggleBulkActionsContainer();
                 selectAllCheckbox.checked = false;
@@ -778,15 +778,15 @@ class App {
 
             const { action, theme, widget } = target.dataset;
 
-            // if (action === 'switch-theme') {
-            //     this.chartManager.switchTheme(theme);
-            //     this.notificationManager.show(`Theme switched to ${theme}`, 'info');
-            // }
+            if (action === 'switch-theme') {
+                this.chartManager.switchTheme(theme);
+                this.notificationManager.show(`Theme switched to ${theme}`, 'info');
+            }
 
-            // if (action === 'toggle-widget') {
-            //     this.chartManager.toggleWidget(widget);
-            //     this.notificationManager.show(`Toggled ${widget} widget visibility`, 'info');
-            // }
+            if (action === 'toggle-widget') {
+                this.chartManager.toggleWidget(widget);
+                this.notificationManager.show(`Toggled ${widget} widget visibility`, 'info');
+            }
         });
 
         const metricSelects = [
@@ -823,19 +823,19 @@ class App {
         exportChartBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const chartId = e.target.dataset.chartId;
-                // const chart = this.chartManager.getChart(chartId);
-                // if (chart) {
-                //     const data = chart.data.datasets[0].data;
-                //     const labels = chart.data.labels;
-                //     const ws_data = [
-                //         labels,
-                //         data
-                //     ];
-                //     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-                //     const wb = XLSX.utils.book_new();
-                //     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-                //     XLSX.writeFile(wb, `${chartId}.xlsx`);
-                // }
+                const chart = this.chartManager.getChart(chartId);
+                if (chart) {
+                    const data = chart.data.datasets[0].data;
+                    const labels = chart.data.labels;
+                    const ws_data = [
+                        labels,
+                        data
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                    XLSX.writeFile(wb, `${chartId}.xlsx`);
+                }
             });
         });
 
@@ -871,9 +871,9 @@ class App {
                     chartName = 'comparative';
                 }
 
-                // if (chartName) {
-                //     this.chartManager.changeChartType(chartName, newType);
-                // }
+                if (chartName) {
+                    this.chartManager.changeChartType(chartName, newType);
+                }
 
                 // Update active button state
                 e.currentTarget.parentElement.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
@@ -885,8 +885,8 @@ class App {
         const exportButtons = document.querySelectorAll('.export-chart-btn[data-chart-id]');
         exportButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // const chartId = e.currentTarget.dataset.chartId;
-                // this.chartManager.exportChart(chartId);
+                const chartId = e.currentTarget.dataset.chartId;
+                this.chartManager.exportChart(chartId);
             });
         });
 
@@ -981,7 +981,7 @@ class App {
             const trendEl = document.getElementById('royalties-trend');
             trendEl.innerHTML = `<i class="fas ${data.trendIcon} ${data.trendClass}"></i> ${data.royaltiesTrend}`;
             document.getElementById('royalties-progress').style.width = `${data.progress}%`;
-            // this.chartManager.updateChart('revenue', data.revenueLabels, data.revenueData);
+            this.chartManager.updateChart('revenue', data.revenueLabels, data.revenueData);
         }
 
         if (metric === 'entities') {

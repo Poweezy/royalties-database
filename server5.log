@@ -1,9 +1,0 @@
-
-> royalties-database@1.0.0 dev
-> vite --port 8000
-
-
-  VITE v5.4.19  ready in 430 ms
-
-  ➜  Local:   http://localhost:8000/
-  ➜  Network: use --host to expose

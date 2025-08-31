@@ -169,7 +169,7 @@ export class GisDashboard {
         // Add map export functionality
         this.setupMapExport();
 
-        console.log('Enhanced GIS Dashboard initialized with advanced features.');
+        // console.log('Enhanced GIS Dashboard initialized with advanced features.');
     }
 
     /**
@@ -323,7 +323,7 @@ export class GisDashboard {
         this.updateCoordinateDisplay(mine.lat, mine.lon);
         
         // Optional: Add analytics tracking
-        console.log(`Marker clicked: ${mine.name} at ${mine.lat}, ${mine.lon}`);
+        // console.log(`Marker clicked: ${mine.name} at ${mine.lat}, ${mine.lon}`);
     }
 
     /**
@@ -665,11 +665,11 @@ export class GisDashboard {
 
     // Analysis and utility methods
     toggleMeasureMode() {
-        console.log('Measure mode toggled - implement with leaflet-measure plugin');
+        // console.log('Measure mode toggled - implement with leaflet-measure plugin');
     }
 
     toggleDrawMode() {
-        console.log('Draw mode toggled - implement with leaflet-draw plugin');
+        // console.log('Draw mode toggled - implement with leaflet-draw plugin');
     }
 
     searchLocation(query) {
@@ -774,7 +774,7 @@ export class GisDashboard {
     }
 
     measureDistance(lat, lng) {
-        console.log(`Measure distance from ${lat}, ${lng} - implement with leaflet-measure`);
+        // console.log(`Measure distance from ${lat}, ${lng} - implement with leaflet-measure`);
     }
 
     showDetails(mineName) {
