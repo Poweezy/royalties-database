@@ -13,23 +13,9 @@ import { ErrorHandler } from '../utils/error-handler.js';
  */
 export class UserManager {
   constructor() {
-    // In a real application, this would be fetched from a server.
-    // For now, we use a static array based on the original HTML.
-    this.users = [
-      { id: 1, username: 'admin', email: 'admin@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:15', created: '2024-01-01', twoFactorEnabled: true },
-      { id: 2, username: 'j.doe', email: 'john.doe@government.sz', role: 'Editor', department: 'Operations', status: 'Active', lastLogin: '2024-02-14 16:30', created: '2024-01-15', twoFactorEnabled: false },
-      { id: 3, username: 'm.smith', email: 'mary.smith@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Inactive', lastLogin: '2024-02-10 14:22', created: '2024-02-01', twoFactorEnabled: true },
-      { id: 4, username: 's.jones', email: 'sue.jones@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Active', lastLogin: '2024-02-15 11:05', created: '2024-01-20', twoFactorEnabled: true },
-      { id: 5, username: 'p.dlamini', email: 'pete.dlamini@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-13 10:00', created: '2024-01-25', twoFactorEnabled: false },
-      { id: 6, username: 'l.gomez', email: 'lisa.gomez@government.sz', role: 'Editor', department: 'Legal Affairs', status: 'Inactive', lastLogin: '2024-02-01 18:30', created: '2024-02-01', twoFactorEnabled: true },
-      { id: 7, username: 't.brown', email: 'tom.brown@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:00', created: '2023-12-15', twoFactorEnabled: true },
-      { id: 8, username: 'a.white', email: 'anna.white@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Active', lastLogin: '2024-02-14 13:00', created: '2024-01-18', twoFactorEnabled: false },
-      { id: 9, username: 'c.green', email: 'chris.green@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Locked', lastLogin: '2024-02-12 09:00', created: '2024-01-22', twoFactorEnabled: false },
-      { id: 10, username: 'b.king', email: 'brian.king@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-15 14:00', created: '2024-01-30', twoFactorEnabled: true },
-      { id: 11, username: 'e.clark', email: 'emily.clark@government.sz', role: 'Editor', department: 'Operations', status: 'Expired', lastLogin: '2023-11-15 10:00', created: '2023-10-01', twoFactorEnabled: true },
-    ];
+    this.users = [];
     this.tableBody = document.getElementById('users-table-tbody');
-    this.filteredUsers = [...this.users]; // Keep a separate list of users after filtering
+    this.filteredUsers = []; // Keep a separate list of users after filtering
 
     this.pagination = new Pagination({
         containerSelector: '#users-pagination',
@@ -71,15 +57,30 @@ export class UserManager {
    */
   async syncWithDatabase() {
     try {
-      const dbUsers = await dbService.getAll('users');
-      if (dbUsers.length > 0) {
-        this.users = dbUsers;
-      } else {
-        // Migrate initial users to database
-        for (const user of this.users) {
+      let dbUsers = await dbService.getAll('users');
+      if (dbUsers.length === 0) {
+        // If DB is empty, seed it with initial data
+        const initialUsers = [
+          { id: 1, username: 'admin', email: 'admin@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:15', created: '2024-01-01', twoFactorEnabled: true },
+          { id: 2, username: 'j.doe', email: 'john.doe@government.sz', role: 'Editor', department: 'Operations', status: 'Active', lastLogin: '2024-02-14 16:30', created: '2024-01-15', twoFactorEnabled: false },
+          { id: 3, username: 'm.smith', email: 'mary.smith@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Inactive', lastLogin: '2024-02-10 14:22', created: '2024-02-01', twoFactorEnabled: true },
+          { id: 4, username: 's.jones', email: 'sue.jones@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Active', lastLogin: '2024-02-15 11:05', created: '2024-01-20', twoFactorEnabled: true },
+          { id: 5, username: 'p.dlamini', email: 'pete.dlamini@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-13 10:00', created: '2024-01-25', twoFactorEnabled: false },
+          { id: 6, username: 'l.gomez', email: 'lisa.gomez@government.sz', role: 'Editor', department: 'Legal Affairs', status: 'Inactive', lastLogin: '2024-02-01 18:30', created: '2024-02-01', twoFactorEnabled: true },
+          { id: 7, username: 't.brown', email: 'tom.brown@government.sz', role: 'Administrator', department: 'Administration', status: 'Active', lastLogin: '2024-02-15 09:00', created: '2023-12-15', twoFactorEnabled: true },
+          { id: 8, username: 'a.white', email: 'anna.white@government.sz', role: 'Auditor', department: 'Audit & Compliance', status: 'Active', lastLogin: '2024-02-14 13:00', created: '2024-01-18', twoFactorEnabled: false },
+          { id: 9, username: 'c.green', email: 'chris.green@government.sz', role: 'Finance Officer', department: 'Finance', status: 'Locked', lastLogin: '2024-02-12 09:00', created: '2024-01-22', twoFactorEnabled: false },
+          { id: 10, username: 'b.king', email: 'brian.king@government.sz', role: 'Viewer', department: 'Operations', status: 'Active', lastLogin: '2024-02-15 14:00', created: '2024-01-30', twoFactorEnabled: true },
+          { id: 11, username: 'e.clark', email: 'emily.clark@government.sz', role: 'Editor', department: 'Operations', status: 'Expired', lastLogin: '2023-11-15 10:00', created: '2023-10-01', twoFactorEnabled: true },
+        ];
+        for (const user of initialUsers) {
           await dbService.add('users', user);
         }
+        // Re-fetch from DB to ensure we have the stored data with IDs
+        dbUsers = await dbService.getAll('users');
       }
+      this.users = dbUsers;
+      this.filteredUsers = [...this.users];
     } catch (error) {
       new ErrorHandler().handleError(error, 'Failed to sync with database');
     }
