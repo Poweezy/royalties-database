@@ -32,21 +32,7 @@ export class BlockchainDocumentVerification {
     }
 
     async initializeIPFS() {
-        // IMPORTANT: Replace with your actual Infura API Key and Secret.
-        // This is a placeholder and will not work.
-        const apiKey = process.env.INFURA_API_KEY || '<YOUR-API-KEY>';
-        const apiKeySecret = process.env.INFURA_API_KEY_SECRET || '<YOUR-API-KEY-SECRET>';
-        const auth = 'Basic ' + btoa(apiKey + ':' + apiKeySecret);
-
-        this.ipfsClient = create({
-            host: 'ipfs.infura.io',
-            port: 5001,
-            protocol: 'https',
-            apiPath: '/api/v0',
-            headers: {
-                authorization: auth,
-            },
-        });
+        this.ipfsClient = create('https://ipfs.infura.io:5001/api/v0');
     }
 
     async verifyDocument(document) {

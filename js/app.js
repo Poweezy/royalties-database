@@ -14,7 +14,7 @@
 import { authService } from './services/auth.service.js';
 import { dbService } from './services/database.service.js';
 import { security } from './utils/security.js';
-import ChartManager from './modules/ChartManager.js';
+import { ChartManager } from './modules/ChartManager.js';
 import { FileManager } from './modules/FileManager.js';
 import { NavigationManager } from './modules/NavigationManager.js';
 import { notificationManager } from './modules/NotificationManager.js';
@@ -29,12 +29,15 @@ import RoyaltyRecords from './modules/royalty-records.js';
 import { GisDashboard } from './modules/GisDashboard.js';
 import { AuditLogManager } from './modules/AuditLogManager.js';
 import { enhancedUserManagement } from './user-management-enhanced.js';
+import { permissionService } from './services/permission.service.js';
+import { sectionAccessControl } from './config/access-control.js';
 
 class App {
     constructor() {
         // Global application state
         this.state = {
             currentUser: null,
+            userPermissions: [],
             currentSection: 'dashboard',
             users: [],
             royaltyRecords: [],
@@ -191,6 +194,10 @@ class App {
         try {
             // Load user data and preferences
             await this.loadUserData();
+
+            // Get user permissions
+            this.state.userPermissions = await permissionService.getRolePermissions(this.state.currentUser.role);
+            this.updateNavigation();
             
             // Initialize dashboard
             await this.initializeDashboard();
@@ -1075,6 +1082,13 @@ class App {
      * Navigation handler
      */
     navigate(route, context = null) {
+        const requiredPermission = sectionAccessControl[route];
+        if (requiredPermission && !this.state.userPermissions.includes(requiredPermission)) {
+            this.notificationManager.show('Access Denied: You do not have permission to view this section.', 'error');
+            this.navigate('dashboard');
+            return;
+        }
+
         // Hide all sections
         document.querySelectorAll('main > section').forEach(section => {
             section.style.display = 'none';
@@ -1111,6 +1125,19 @@ class App {
         if (route === 'admin-panel') {
             this.#renderAdminAuditLog();
         }
+    }
+
+    updateNavigation() {
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            const route = link.getAttribute('href').substring(1);
+            const requiredPermission = sectionAccessControl[route];
+            if (requiredPermission && !this.state.userPermissions.includes(requiredPermission)) {
+                link.parentElement.style.display = 'none';
+            } else {
+                link.parentElement.style.display = '';
+            }
+        });
     }
 
     #renderAdminAuditLog() {

@@ -3,7 +3,7 @@
  * Handles real-time data processing and updates for the dashboard
  */
 
-import * as tf from 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.fesm.js';
+import * as tf from 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.esm.js';
 
 export class RealTimeDataProcessor {
     constructor() {

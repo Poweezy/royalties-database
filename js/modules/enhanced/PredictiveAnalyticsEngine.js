@@ -3,7 +3,7 @@
  * Handles predictive analytics and forecasting
  */
 
-import * as tf from 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.esm.js';
+import * as tf from 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.esm.js';
 
 export class PredictiveAnalyticsEngine {
     constructor() {
