@@ -1,8 +1,23 @@
-import { Pagination } from './Pagination.js';
-import { userSecurityService } from '../services/user-security.service.js';
-import { permissionService } from '../services/permission.service.js';
-import { dbService } from '../services/database.service.js';
-import { ErrorHandler } from '../utils/error-handler.js';
+import {
+  Pagination
+} from './Pagination.js';
+import {
+  userSecurityService
+} from '../services/user-security.service.js';
+import {
+  permissionService
+} from '../services/permission.service.js';
+import {
+  dbService
+} from '../services/database.service.js';
+import {
+  ErrorHandler
+} from '../utils/error-handler.js';
+import { security } from '../utils/security.js';
+import { BulkOperationsPanel } from '../components/BulkOperationsPanel.js';
+import { UserProfileModal } from '../components/UserProfileModal.js';
+import { AuditLogManager } from './AuditLogManager.js';
+
 
 /**
  * Enhanced UserManager Module
@@ -49,6 +64,11 @@ export class UserManager {
     this.passwordPolicies = new Map();
     this.onboardingTemplates = new Map();
     
+    this.bulkOperationsPanel = new BulkOperationsPanel(this);
+    this.userProfileModal = new UserProfileModal(this);
+    this.auditLogManager = new AuditLogManager();
+    this.securityService = userSecurityService;
+    this.permissionService = permissionService;
   }
 
   /**
@@ -61,9 +81,82 @@ export class UserManager {
       this.initializePasswordPolicies();
       this.initializeOnboardingTemplates();
       await this.syncWithDatabase();
+      
+      // From EnhancedUserManager
+      await this.setupAdvancedSecurity();
+      await this.initializeUserAnalytics();
+      await this.setupRoleBasedAccess();
+      this.setupUserActivityMonitoring();
     } catch (error) {
       new ErrorHandler().handleError(error, 'Failed to initialize enhanced features');
     }
+  }
+
+  async setupAdvancedSecurity() {
+    // Enhanced security features
+    await this.securityService.initializeSecurityPolicies({
+        passwordPolicy: {
+            minLength: 12,
+            requireSpecialChars: true,
+            requireNumbers: true,
+            requireUppercase: true,
+            passwordHistory: 5
+        },
+        loginAttempts: {
+            maxAttempts: 5,
+            lockoutDuration: 15, // minutes
+            resetAfter: 24 // hours
+        },
+        sessionPolicy: {
+            duration: 30, // minutes
+            extendOnActivity: true,
+            maxConcurrentSessions: 3
+        }
+    });
+  }
+
+  async initializeUserAnalytics() {
+      // Setup user analytics and reporting
+      this.analyticsEnabled = true;
+      await this.auditLogManager.initialize({
+          trackUserActions: true,
+          trackSecurityEvents: true,
+          retentionPeriod: 90 // days
+      });
+  }
+
+  async setupRoleBasedAccess() {
+      // Initialize enhanced RBAC system
+      await this.permissionService.initializeRBAC({
+          roles: ['admin', 'manager', 'auditor', 'user'],
+          hierarchical: true,
+          customPermissions: true
+      });
+  }
+
+  setupUserActivityMonitoring() {
+      // Real-time user activity monitoring
+      this.activityMonitor = {
+          trackLoginPatterns: true,
+          trackFeatureUsage: true,
+          anomalyDetection: true
+      };
+  }
+
+  // Enhanced user operations
+  async bulkUpdateUsers(userIds, updates) {
+      const transaction = await dbService.startTransaction(['users', 'auditLog']);
+      try {
+          for (const userId of userIds) {
+              await this.updateUser(userId, updates);
+              await this.auditLogManager.logUserUpdate(userId, updates);
+          }
+          await transaction.commit();
+          return { success: true, message: 'Bulk update completed successfully' };
+      } catch (error) {
+          await transaction.rollback();
+          throw new Error(`Bulk update failed: ${error.message}`);
+      }
   }
 
   /**
@@ -410,13 +503,13 @@ export class UserManager {
 
     return `
         <td><input type="checkbox" name="user-select" value="${user.id}"></td>
-        <td data-label="Username">${user.username}</td>
-        <td data-label="Email">${user.email}</td>
-        <td data-label="Role"><span class="role-badge ${roleClass}">${user.role}</span></td>
-        <td data-label="Department">${user.department}</td>
-        <td data-label="Status"><span class="status-badge ${statusClass}">${user.status}</span></td>
-        <td data-label="Last Login">${lastLoginDate}</td>
-        <td data-label="Created">${createdDate}</td>
+        <td data-label="Username">${security.escapeHtml(user.username)}</td>
+        <td data-label="Email">${security.escapeHtml(user.email)}</td>
+        <td data-label="Role"><span class="role-badge ${roleClass}">${security.escapeHtml(user.role)}</span></td>
+        <td data-label="Department">${security.escapeHtml(user.department)}</td>
+        <td data-label="Status"><span class="status-badge ${statusClass}">${security.escapeHtml(user.status)}</span></td>
+        <td data-label="Last Login">${security.escapeHtml(lastLoginDate)}</td>
+        <td data-label="Created">${security.escapeHtml(createdDate)}</td>
         <td data-label="2FA">${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
@@ -671,7 +764,7 @@ export class UserManager {
           <div class="form-group">
             <label>Recipients (${this.selectedUsers.size} users selected)</label>
             <div class="recipient-list">
-              ${this.getSelectedUsersEmails().map(email => `<span class="recipient-tag">${email}</span>`).join('')}
+              ${this.getSelectedUsersEmails().map(email => `<span class="recipient-tag">${security.escapeHtml(email)}</span>`).join('')}
             </div>
           </div>
         </div>
@@ -722,7 +815,6 @@ export class UserManager {
       const recipients = this.getSelectedUsersEmails();
       
       // Simulate email sending
-      console.log('Sending bulk email:', { subject, message, recipients });
       
       // Log audit event
       await userSecurityService.logSecurityEvent('bulk_email', 'system', {

@@ -28,7 +28,6 @@ import Reporting from './modules/reporting.js';
 import RoyaltyRecords from './modules/royalty-records.js';
 import { GisDashboard } from './modules/GisDashboard.js';
 import { AuditLogManager } from './modules/AuditLogManager.js';
-import { enhancedUserManagement } from './user-management-enhanced.js';
 
 class App {
     constructor() {
@@ -218,7 +217,6 @@ class App {
 
             // Initialize Enhanced User Management
             await this.userManager.initializeEnhancedFeatures();
-            await enhancedUserManagement.init();
 
             // Show dashboard
             this.showDashboard();

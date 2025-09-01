@@ -10,11 +10,11 @@ export class AuditLogManager {
     this.filteredLogs = [];
     this.pagination = null;
     this.elements = {};
-
-    this.init();
+    this.config = {};
   }
 
-  async init() {
+  async initialize(config = {}) {
+    this.config = config;
     this.cacheDOMElements();
     this.pagination = new Pagination({
         containerSelector: '#audit-pagination',

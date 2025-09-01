@@ -22,6 +22,24 @@ class UserSecurityService {
     }
 
     /**
+     * Initialize security policies from a configuration object.
+     * @param {object} policies - The security policies to apply.
+     */
+    initializeSecurityPolicies(policies) {
+        if (policies.passwordPolicy) {
+            this.passwordPolicyRules = { ...this.passwordPolicyRules, ...policies.passwordPolicy };
+        }
+        if (policies.loginAttempts) {
+            this.maxLoginAttempts = policies.loginAttempts.maxAttempts || this.maxLoginAttempts;
+            this.lockoutDuration = (policies.loginAttempts.lockoutDuration || 30) * 60 * 1000;
+        }
+        // sessionPolicy is not used in this file, but we can add it for future use
+        if (policies.sessionPolicy) {
+            // No properties to set for sessionPolicy in this file yet
+        }
+    }
+
+    /**
      * Initialize security service
      */
     async init() {
