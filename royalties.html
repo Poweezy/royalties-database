@@ -2094,188 +2094,263 @@
           </div>
         </section>
 
-        <!-- Contract Management -->
+        <!-- Enhanced Contract Management -->
         <section id="contract-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Contract Management</h1>
-              <p>Manage royalty agreements for mines and quarries</p>
+              <h1>Enhanced Contract Management</h1>
+              <p>Advanced contract authoring, workflow, and analytics</p>
             </div>
             <div class="page-actions">
+              <button class="btn btn-info" id="contract-analytics-btn">
+                <i class="fas fa-chart-pie"></i> View Analytics
+              </button>
+              <button class="btn btn-primary" id="compare-contracts-btn">
+                <i class="fas fa-balance-scale"></i> Compare Contracts
+              </button>
               <button class="btn btn-success" id="add-contract-btn">
-                Add Contract
+                <i class="fas fa-plus"></i> Create Contract
               </button>
             </div>
           </div>
+
+          <!-- Contract List -->
           <div class="user-form-container">
+             <div class="section-header">
+                <h4><i class="fas fa-file-contract"></i> All Contracts</h4>
+             </div>
+             <div class="table-filters">
+                <div class="form-group">
+                    <label for="contract-filter-search">Search Contracts</label>
+                    <input type="text" id="contract-filter-search" placeholder="Search by entity, mineral, or status...">
+                </div>
+             </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Entity</th>
-                    <th>Royalty Rate (E/m³)</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
+                    <th sortable data-sort="id">ID</th>
+                    <th sortable data-sort="entity">Entity</th>
+                    <th sortable data-sort="mineral">Mineral</th>
+                    <th sortable data-sort="status">Status</th>
+                    <th sortable data-sort="startDate">Start Date</th>
+                    <th sortable data-sort="endDate">End Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="contract-management-table-body">
-                  <!-- Contract rows will be dynamically inserted here -->
+                  <!-- Enhanced contract rows will be dynamically inserted here -->
                 </tbody>
               </table>
             </div>
+            <div class="table-pagination" id="contract-management-pagination"></div>
+          </div>
+
+           <!-- Contract Details View -->
+          <div id="contract-details-view" class="user-form-container" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-file-alt"></i> Contract Details</h4>
+                    <div class="table-actions">
+                         <button class="btn btn-secondary btn-sm" id="close-details-view-btn"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                </div>
+                <div id="contract-details-content"></div>
           </div>
         </section>
 
-        <!-- Modal for Adding/Editing Contracts -->
+        <!-- Modal for Adding/Editing Contracts (Enhanced) -->
         <div id="add-contract-modal" class="modal" style="display: none">
-          <div class="modal-content">
+          <div class="modal-content large">
             <div class="modal-header">
-              <h4>Add New Contract</h4>
-              <button id="close-add-contract-modal-btn" class="close-btn">
-                &times;
-              </button>
+              <h4 id="contract-modal-title">Create New Contract</h4>
+              <button id="close-add-contract-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
               <form id="add-contract-form" novalidate>
-                <div class="grid-4">
-                  <div class="form-group">
-                    <label for="contract-entity">Entity</label>
-                    <select id="contract-entity" required>
-                      <option value="">Select Entity</option>
-                      <option>Kwalini Quarry</option>
-                      <option>Mbabane Quarry</option>
-                      <option>Sidvokodvo Quarry</option>
-                      <option>Maloma Colliery</option>
-                      <option>Ngwenya Mine</option>
-                      <option>Malolotja Mine</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="royalty-rate">Royalty Rate (E/m³)</label>
-                    <input
-                      type="number"
-                      id="royalty-rate"
-                      placeholder="e.g., 15.50"
-                      step="0.01"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="start-date">Start Date</label>
-                    <input type="date" id="start-date" required />
-                  </div>
-                  <div class="form-group">
-                    <label for="end-date">End Date (Optional)</label>
-                    <input type="date" id="end-date" />
-                  </div>
-                </div>
+                 <input type="hidden" id="contract-id" />
+                 <!-- Step 1: Template Selection -->
+                 <div id="contract-step-1">
+                    <h5>Step 1: Choose a Contract Template</h5>
+                    <div class="form-group">
+                        <label for="contract-template">Select Template</label>
+                        <select id="contract-template" required>
+                            <option value="">Start from scratch</option>
+                            <!-- Templates will be populated here -->
+                        </select>
+                    </div>
+                 </div>
+                 <hr>
+                 <!-- Step 2: Core Details -->
+                 <div id="contract-step-2">
+                    <h5>Step 2: Core Contract Details</h5>
+                    <div class="grid-4">
+                        <div class="form-group">
+                            <label for="contract-entity">Entity</label>
+                            <input type="text" id="contract-entity" placeholder="e.g., Kwalini Quarry" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="contract-mineral">Mineral</label>
+                            <input type="text" id="contract-mineral" placeholder="e.g., Coal" required />
+                        </div>
+                         <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <input type="date" id="start-date" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="end-date">End Date</label>
+                            <input type="date" id="end-date" />
+                        </div>
+                    </div>
+                 </div>
+                 <hr>
+                 <!-- Step 3: Terms and Conditions -->
+                 <div id="contract-step-3">
+                    <h5>Step 3: Royalty Terms & Conditions</h5>
+                     <div class="grid-4">
+                        <div class="form-group">
+                            <label for="calculation-type">Calculation Type</label>
+                            <select id="calculation-type">
+                                <option value="fixed">Fixed Rate</option>
+                                <option value="sliding_scale">Sliding Scale</option>
+                                <option value="ad_valorem">Ad Valorem</option>
+                            </select>
+                        </div>
+                        <div id="calculation-params-container" class="form-group grid-4">
+                            <!-- Dynamic fields for calculation params -->
+                        </div>
+                     </div>
+                 </div>
+                 <hr>
+                 <!-- Step 4: Document Upload -->
+                 <div id="contract-step-4">
+                    <h5>Step 4: Attach Documents</h5>
+                     <div class="form-group">
+                        <label for="contract-document-upload">Upload Contract Document</label>
+                        <input type="file" id="contract-document-upload" />
+                     </div>
+                 </div>
               </form>
             </div>
             <div class="modal-footer">
-              <button
-                type="button"
-                id="cancel-add-contract-btn"
-                class="btn btn-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                id="save-contract-btn"
-                class="btn btn-success"
-                form="add-contract-form"
-              >
-                Save Contract
-              </button>
+              <button type="button" id="cancel-add-contract-btn" class="btn btn-secondary">Cancel</button>
+              <button type="submit" id="save-contract-btn" class="btn btn-success" form="add-contract-form">Save Contract</button>
             </div>
           </div>
         </div>
 
-        <!-- Lease Management -->
+        <!-- Contract Analytics Modal -->
+        <div id="contract-analytics-modal" class="modal" style="display: none;">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h4>Contract Analytics</h4>
+                    <button id="close-analytics-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body" id="contract-analytics-content">
+                    <!-- Analytics content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Lease Management -->
         <section id="lease-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Lease Management</h1>
-              <p>Manage your lease agreements</p>
+              <h1>Enhanced Lease Management</h1>
+              <p>Advanced lease tracking, document management, and alerts</p>
             </div>
             <div class="page-actions">
               <button class="btn btn-success" id="add-lease-btn">
-                Add Lease
+                <i class="fas fa-plus"></i> Create Lease
               </button>
             </div>
           </div>
+
+          <!-- Lease List -->
           <div class="user-form-container">
+             <div class="section-header">
+                <h4><i class="fas fa-file-signature"></i> All Leases</h4>
+             </div>
+             <div class="table-filters">
+                <div class="form-group">
+                    <label for="lease-filter-search">Search Leases</label>
+                    <input type="text" id="lease-filter-search" placeholder="Search by entity, type, or status...">
+                </div>
+             </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Entity</th>
-                    <th>Lease Start Date</th>
-                    <th>Lease End Date</th>
-                    <th>Status</th>
+                    <th sortable data-sort="id">ID</th>
+                    <th sortable data-sort="entity">Entity</th>
+                    <th sortable data-sort="type">Type</th>
+                    <th sortable data-sort="status">Status</th>
+                    <th sortable data-sort="startDate">Start Date</th>
+                    <th sortable data-sort="endDate">End Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="lease-management-table-body">
-                  <!-- Lease rows will be dynamically inserted here -->
                 </tbody>
               </table>
             </div>
-            <div
-              class="table-pagination"
-              id="lease-management-pagination"
-            ></div>
+            <div class="table-pagination" id="lease-management-pagination"></div>
+          </div>
+
+           <!-- Lease Details View -->
+          <div id="lease-details-view" class="user-form-container" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-file-alt"></i> Lease Details</h4>
+                    <div class="table-actions">
+                         <button class="btn btn-secondary btn-sm" id="close-lease-details-view-btn"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                </div>
+                <div id="lease-details-content"></div>
           </div>
         </section>
 
-        <!-- Modal for Adding Leases -->
+        <!-- Modal for Adding/Editing Leases (Enhanced) -->
         <div id="add-lease-modal" class="modal" style="display: none">
-          <div class="modal-content">
+          <div class="modal-content large">
             <div class="modal-header">
-              <h4>Add New Lease</h4>
-              <button id="close-add-lease-modal-btn" class="close-btn">
-                &times;
-              </button>
+              <h4 id="lease-modal-title">Create New Lease</h4>
+              <button id="close-add-lease-modal-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
               <form id="add-lease-form" novalidate>
-                <div class="form-group">
-                  <label for="lease-entity">Entity</label>
-                  <input
-                    type="text"
-                    id="lease-entity"
-                    placeholder="e.g., Kwalini Quarry"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="lease-start-date">Lease Start Date</label>
-                  <input type="date" id="lease-start-date" required />
-                </div>
-                <div class="form-group">
-                  <label for="lease-end-date">Lease End Date</label>
-                  <input type="date" id="lease-end-date" required />
-                </div>
+                 <input type="hidden" id="lease-id" />
+                 <div class="grid-4">
+                    <div class="form-group">
+                        <label for="lease-entity">Entity</label>
+                        <input type="text" id="lease-entity" placeholder="e.g., Maloma Colliery" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-type">Lease Type</label>
+                        <select id="lease-type">
+                            <option value="Land">Land</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="lease-start-date">Start Date</label>
+                        <input type="date" id="lease-start-date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="lease-end-date">End Date</label>
+                        <input type="date" id="lease-end-date" />
+                    </div>
+                 </div>
+                 <hr>
+                 <h5>Attach Documents</h5>
+                 <div class="form-group">
+                    <label for="lease-document-upload">Upload Lease Agreement</label>
+                    <input type="file" id="lease-document-upload" />
+                 </div>
               </form>
             </div>
             <div class="modal-footer">
-              <button
-                type="button"
-                id="cancel-add-lease-btn"
-                class="btn btn-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                id="save-lease-btn"
-                class="btn btn-success"
-                form="add-lease-form"
-              >
-                Save Lease
-              </button>
+              <button type="button" id="cancel-add-lease-btn" class="btn btn-secondary">Cancel</button>
+              <button type="submit" id="save-lease-btn" class="btn btn-success" form="add-lease-form">Save Lease</button>
             </div>
           </div>
         </div>

@@ -20,8 +20,10 @@ import { NavigationManager } from "./modules/NavigationManager.js";
 import { notificationManager } from "./modules/NotificationManager.js";
 import { UserManager } from "./modules/UserManager.js";
 import { ErrorHandler } from "./utils/error-handler.js";
-import LeaseManagement from "./modules/lease-management.js";
+import { leaseManagementUI } from "./modules/lease-management-ui.js";
+import { leaseManagementEnhanced } from "./modules/lease-management-enhanced.js";
 import ExpenseTracking from "./modules/expense-tracking.js";
+import { contractManagementUI } from "./modules/contract-management-ui.js";
 import { contractManagementEnhanced } from "./modules/contract-management-enhanced.js";
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
@@ -100,7 +102,7 @@ class App {
 
     // Make chartManager globally available for UI interactions
     window.chartManager = this.chartManager;
-    this.leaseManagement = LeaseManagement;
+    this.leaseManagement = leaseManagementEnhanced;
     this.expenseTracking = ExpenseTracking;
     this.contractManagement = contractManagementEnhanced;
     this.documentManagement = DocumentManagement;
@@ -202,12 +204,14 @@ class App {
 
       // Initialize Lease Management
       await this.leaseManagement.init();
+      leaseManagementUI.init();
 
       // Initialize Expense Tracking
       await this.expenseTracking.init();
 
       // Initialize Contract Management
       await this.contractManagement.init();
+      contractManagementUI.init();
 
       // Initialize Reporting
       await this.reporting.init();

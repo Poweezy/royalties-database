@@ -39,10 +39,14 @@ class ContractManagementEnhanced {
       Cancelled: [],
     };
 
-    this.init();
   }
 
   async init() {
+    this.contracts = [];
+    this.contractTemplates = [];
+    this.workflows = new Map();
+    this.notifications = [];
+    this.auditTrail = [];
     await this.loadTemplates();
     await this.loadContracts();
     this.startNotificationMonitoring();
@@ -264,6 +268,18 @@ class ContractManagementEnhanced {
   /**
    * Create contract from template
    */
+  async updateContract(contractData) {
+    const index = this.contracts.findIndex(c => c.id === contractData.id);
+    if (index === -1) throw new Error("Contract not found");
+
+    const originalContract = this.contracts[index];
+    this.contracts[index] = { ...originalContract, ...contractData };
+    // In a real app, this would also save to the database.
+    // await dbService.put("contracts", this.contracts[index]);
+    this.recordAuditEvent("contract_updated", contractData.id);
+    return this.contracts[index];
+  }
+
   createContractFromTemplate(templateId, contractData) {
     const template = this.contractTemplates.find((t) => t.id === templateId);
     if (!template) {
