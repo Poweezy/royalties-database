@@ -5,7 +5,7 @@ test.describe("Dashboard Navigation", () => {
 
   test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
-    await page.goto("http://localhost:8000/royalties.html");
+    await page.goto("http://localhost:5173/royalties.html");
 
     // Wait for the login form to be visible
     await page.waitForSelector("#login-form");
