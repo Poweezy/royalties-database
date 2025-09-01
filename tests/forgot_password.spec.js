@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("Forgot Password functionality", async ({ page }) => {
-  await page.goto("http://localhost:8000/royalties.html");
+  await page.goto("http://localhost:5173/royalties.html");
 
   // Wait for the login form to be visible
   await page.waitForSelector("#login-form");
