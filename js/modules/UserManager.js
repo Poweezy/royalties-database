@@ -126,12 +126,7 @@ export class UserManager {
   }
 
   async setupRoleBasedAccess() {
-      // Initialize enhanced RBAC system
-      await this.permissionService.initializeRBAC({
-          roles: ['admin', 'manager', 'auditor', 'user'],
-          hierarchical: true,
-          customPermissions: true
-      });
+      // RBAC is initialized in the PermissionService constructor
   }
 
   setupUserActivityMonitoring() {
