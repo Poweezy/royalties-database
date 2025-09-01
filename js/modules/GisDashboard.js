@@ -321,14 +321,25 @@ export class GisDashboard {
         `;
 
     if (contract) {
-      const status =
-        new Date(contract.startDate) < new Date() ? "Active" : "Pending";
+      const getContractStatus = (c) => {
+          const now = new Date();
+          const start = new Date(c.startDate);
+          if (c.endDate) {
+              const end = new Date(c.endDate);
+              if (now < start) return "Pending";
+              if (now > end) return "Expired";
+              return "Active";
+          }
+          return now >= start ? "Active" : "Pending";
+      };
+      const status = getContractStatus(contract);
       const statusClass = status.toLowerCase();
 
       popupContent += `
                 <p><strong>Mineral:</strong> ${contract.mineral}</p>
                 <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${status}</span></p>
                 <p><strong>Start Date:</strong> ${new Date(contract.startDate).toLocaleDateString()}</p>
+                <p><strong>End Date:</strong> ${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : "N/A"}</p>
                 <p><strong>Contract Value:</strong> ${contract.value ? "E" + contract.value.toLocaleString() : "N/A"}</p>
             `;
     }
@@ -546,25 +557,26 @@ export class GisDashboard {
    * Setup measurement tools for distance and area calculation
    */
   setupMeasurementTools() {
-    // Note: This would require leaflet-measure plugin in a real implementation
+    this.measure = {
+        points: [],
+        line: null,
+        tooltip: null,
+    };
+
     const measureControl = L.control({ position: "topleft" });
 
     measureControl.onAdd = (map) => {
-      const div = L.DomUtil.create(
-        "div",
-        "leaflet-bar leaflet-control leaflet-control-custom",
-      );
-      div.innerHTML =
-        '<a href="#" title="Measure distances and areas"><i class="fas fa-ruler"></i></a>';
+      const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+      div.innerHTML = '<a href="#" title="Measure distances"><i class="fas fa-ruler"></i></a>';
       div.style.backgroundColor = "white";
       div.style.width = "30px";
       div.style.height = "30px";
       div.style.lineHeight = "30px";
       div.style.textAlign = "center";
 
-      div.onclick = () => {
-        this.toggleMeasureMode();
-      };
+      L.DomEvent.on(div, 'click', L.DomEvent.stopPropagation)
+                .on(div, 'click', L.DomEvent.preventDefault)
+                .on(div, 'click', () => this.toggleMeasureMode());
 
       return div;
     };
@@ -577,24 +589,25 @@ export class GisDashboard {
    * Setup drawing tools for buffer zones and custom shapes
    */
   setupDrawingTools() {
+    this.draw = {
+        points: [],
+        polygon: null,
+    };
+
     const drawControl = L.control({ position: "topleft" });
 
     drawControl.onAdd = (map) => {
-      const div = L.DomUtil.create(
-        "div",
-        "leaflet-bar leaflet-control leaflet-control-custom",
-      );
-      div.innerHTML =
-        '<a href="#" title="Draw shapes and buffer zones"><i class="fas fa-draw-polygon"></i></a>';
+      const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+      div.innerHTML = '<a href="#" title="Draw a polygon"><i class="fas fa-draw-polygon"></i></a>';
       div.style.backgroundColor = "white";
       div.style.width = "30px";
       div.style.height = "30px";
       div.style.lineHeight = "30px";
       div.style.textAlign = "center";
 
-      div.onclick = () => {
-        this.toggleDrawMode();
-      };
+      L.DomEvent.on(div, 'click', L.DomEvent.stopPropagation)
+                .on(div, 'click', L.DomEvent.preventDefault)
+                .on(div, 'click', () => this.toggleDrawMode());
 
       return div;
     };
@@ -756,33 +769,140 @@ export class GisDashboard {
 
   // Analysis and utility methods
   toggleMeasureMode() {
-    console.log("Measure mode toggled - implement with leaflet-measure plugin");
+    this.isMeasuring = !this.isMeasuring;
+    const measureIcon = this.measureControl.getContainer().querySelector('i');
+
+    if (this.isMeasuring) {
+        measureIcon.style.color = '#2563eb'; // Active color
+        this.map.on('click', this.onMapClickForMeasure, this);
+        this.map.getContainer().style.cursor = 'crosshair';
+    } else {
+        measureIcon.style.color = '#000'; // Default color
+        this.map.off('click', this.onMapClickForMeasure, this);
+        this.map.getContainer().style.cursor = '';
+        this.clearMeasurement();
+    }
+  }
+
+  onMapClickForMeasure(e) {
+    this.measure.points.push(e.latlng);
+
+    if (this.measure.points.length === 1) {
+        this.measure.tooltip = L.tooltip({ permanent: true })
+            .setLatLng(e.latlng)
+            .setContent("Click to set the second point")
+            .addTo(this.map);
+    }
+
+    if (this.measure.points.length === 2) {
+        if (this.measure.line) {
+            this.map.removeLayer(this.measure.line);
+        }
+        this.measure.line = L.polyline(this.measure.points, { color: 'red' }).addTo(this.map);
+
+        const distance = this.measure.points[0].distanceTo(this.measure.points[1]);
+        this.measure.tooltip.setContent(`Distance: ${(distance / 1000).toFixed(2)} km`);
+
+        // Reset for next measurement
+        this.measure.points = [];
+        setTimeout(() => this.toggleMeasureMode(), 1000); // Auto-disable after measurement
+    }
+  }
+
+  clearMeasurement() {
+    if (this.measure.line) {
+        this.map.removeLayer(this.measure.line);
+    }
+    if (this.measure.tooltip) {
+        this.map.removeLayer(this.measure.tooltip);
+    }
+    this.measure.points = [];
+    this.measure.line = null;
+    this.measure.tooltip = null;
   }
 
   toggleDrawMode() {
-    console.log("Draw mode toggled - implement with leaflet-draw plugin");
+    this.isDrawing = !this.isDrawing;
+    const drawIcon = this.drawControl.getContainer().querySelector('i');
+
+    if (this.isDrawing) {
+        drawIcon.style.color = '#2563eb';
+        this.map.on('click', this.onMapClickForDraw, this);
+        this.map.getContainer().style.cursor = 'crosshair';
+
+        // Add a button to finish drawing
+        this.addFinishDrawingButton();
+    } else {
+        drawIcon.style.color = '#000';
+        this.map.off('click', this.onMapClickForDraw, this);
+        this.map.getContainer().style.cursor = '';
+        this.clearDrawing();
+        this.removeFinishDrawingButton();
+    }
+  }
+
+  onMapClickForDraw(e) {
+    this.draw.points.push(e.latlng);
+    if (this.draw.polygon) {
+        this.map.removeLayer(this.draw.polygon);
+    }
+    this.draw.polygon = L.polygon(this.draw.points, { color: 'blue' }).addTo(this.map);
+  }
+
+  addFinishDrawingButton() {
+      if(this.finishDrawingControl) return;
+      this.finishDrawingControl = L.control({ position: 'topright' });
+      this.finishDrawingControl.onAdd = (map) => {
+          const div = L.DomUtil.create('div', 'leaflet-control-custom finish-drawing-btn');
+          div.innerHTML = '<button class="btn btn-primary">Finish Drawing</button>';
+          L.DomEvent.on(div, 'click', () => {
+              this.toggleDrawMode();
+          });
+          return div;
+      };
+      this.finishDrawingControl.addTo(this.map);
+  }
+
+  removeFinishDrawingButton() {
+      if(this.finishDrawingControl) {
+          this.map.removeControl(this.finishDrawingControl);
+          this.finishDrawingControl = null;
+      }
+  }
+
+  clearDrawing() {
+    if (this.draw.polygon) {
+        this.map.removeLayer(this.draw.polygon);
+    }
+    this.draw.points = [];
+    this.draw.polygon = null;
   }
 
   searchLocation(query) {
     if (!query) return;
 
-    // Simple search for predefined locations
-    const locations = {
-      mbabane: [-26.3054, 31.1367],
-      manzini: [-26.4833, 31.3667],
-      lobamba: [-26.4333, 31.2],
-    };
+    const searchTerm = query.toLowerCase();
+    const result = this.mineLocations.find(mine => mine.name.toLowerCase().includes(searchTerm));
 
-    const location = locations[query.toLowerCase()];
-    if (location) {
-      this.map.setView(location, 12);
-      L.popup()
-        .setLatLng(location)
-        .setContent(`<b>${query}</b>`)
-        .openOn(this.map);
+    if (result) {
+        this.map.setView([result.lat, result.lon], 14);
+        const marker = this.findMarkerByMineName(result.name);
+        if (marker) {
+            marker.openPopup();
+        }
     } else {
-      alert(`Location "${query}" not found`);
+        alert(`Location "${query}" not found`);
     }
+  }
+
+  findMarkerByMineName(name) {
+      let foundMarker = null;
+      this.layers.markerClusters.eachLayer(marker => {
+          if (marker.getPopup().getContent().includes(name)) {
+              foundMarker = marker;
+          }
+      });
+      return foundMarker;
   }
 
   updateCoordinateDisplay(lat, lng) {
