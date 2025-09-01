@@ -2,48 +2,48 @@
  * Enhanced Login Modal Component with 2FA, Security Features, and Advanced Authentication
  */
 
-import { enhancedAuthService } from '../services/auth-enhanced.service.js';
-import { userSecurityService } from '../services/user-security.service.js';
-import { deviceFingerprint } from '../utils/device-fingerprint.js';
-import { ErrorHandler } from '../utils/error-handler.js';
+import { enhancedAuthService } from "../services/auth-enhanced.service.js";
+import { userSecurityService } from "../services/user-security.service.js";
+import { deviceFingerprint } from "../utils/device-fingerprint.js";
+import { ErrorHandler } from "../utils/error-handler.js";
 
 class EnhancedLoginModal {
-    constructor() {
-        this.isVisible = false;
-        this.currentStep = 'login'; // login, twoFactor, setup2FA, passwordReset
-        this.loginData = {};
-        this.deviceFingerprint = null;
-        
-        this.steps = {
-            login: 'Basic Authentication',
-            twoFactor: '2FA Verification',
-            setup2FA: '2FA Setup',
-            passwordReset: 'Password Reset'
-        };
-    }
+  constructor() {
+    this.isVisible = false;
+    this.currentStep = "login"; // login, twoFactor, setup2FA, passwordReset
+    this.loginData = {};
+    this.deviceFingerprint = null;
 
-    /**
-     * Initialize the enhanced login modal
-     */
-    async init() {
-        try {
-            await this.createModal();
-            await this.setupEventListeners();
-            
-            // Generate device fingerprint
-            this.deviceFingerprint = await deviceFingerprint.generateFingerprint();
-            
-            console.log('Enhanced login modal initialized');
-        } catch (error) {
-            ErrorHandler.handle(error, 'Failed to initialize enhanced login modal');
-        }
-    }
+    this.steps = {
+      login: "Basic Authentication",
+      twoFactor: "2FA Verification",
+      setup2FA: "2FA Setup",
+      passwordReset: "Password Reset",
+    };
+  }
 
-    /**
-     * Create the login modal HTML structure
-     */
-    async createModal() {
-        const modalHTML = `
+  /**
+   * Initialize the enhanced login modal
+   */
+  async init() {
+    try {
+      await this.createModal();
+      await this.setupEventListeners();
+
+      // Generate device fingerprint
+      this.deviceFingerprint = await deviceFingerprint.generateFingerprint();
+
+      console.log("Enhanced login modal initialized");
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to initialize enhanced login modal");
+    }
+  }
+
+  /**
+   * Create the login modal HTML structure
+   */
+  async createModal() {
+    const modalHTML = `
             <div id="enhancedLoginModal" class="modal" style="display: none;">
                 <div class="modal-content enhanced-login-modal">
                     <div class="modal-header">
@@ -254,17 +254,17 @@ class EnhancedLoginModal {
             </div>
         `;
 
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Add CSS for enhanced login modal
-        await this.addStyles();
-    }
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-    /**
-     * Add enhanced login modal styles
-     */
-    async addStyles() {
-        const styles = `
+    // Add CSS for enhanced login modal
+    await this.addStyles();
+  }
+
+  /**
+   * Add enhanced login modal styles
+   */
+  async addStyles() {
+    const styles = `
             <style id="enhancedLoginStyles">
                 .enhanced-login-modal {
                     max-width: 450px;
@@ -629,486 +629,530 @@ class EnhancedLoginModal {
             </style>
         `;
 
-        if (!document.getElementById('enhancedLoginStyles')) {
-            document.head.insertAdjacentHTML('beforeend', styles);
-        }
+    if (!document.getElementById("enhancedLoginStyles")) {
+      document.head.insertAdjacentHTML("beforeend", styles);
+    }
+  }
+
+  /**
+   * Setup event listeners for the enhanced login modal
+   */
+  async setupEventListeners() {
+    const modal = document.getElementById("enhancedLoginModal");
+    const closeBtn = document.getElementById("closeEnhancedLogin");
+
+    // Close modal events
+    closeBtn.addEventListener("click", () => this.hide());
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) this.hide();
+    });
+
+    // Main login form
+    document
+      .getElementById("enhancedLoginForm")
+      .addEventListener("submit", (e) => this.handleLogin(e));
+
+    // Demo account buttons
+    document.querySelectorAll(".demo-account-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => this.fillDemoCredentials(e));
+    });
+
+    // Password visibility toggle
+    document.querySelectorAll(".password-toggle").forEach((toggle) => {
+      toggle.addEventListener("click", (e) => this.togglePasswordVisibility(e));
+    });
+
+    // Two-factor forms
+    document
+      .getElementById("twoFactorForm")
+      .addEventListener("submit", (e) => this.handleTwoFactor(e));
+    document
+      .getElementById("backupCodeForm")
+      .addEventListener("submit", (e) => this.handleBackupCode(e));
+
+    // 2FA setup form
+    document
+      .getElementById("verify2FASetupForm")
+      .addEventListener("submit", (e) => this.handleVerify2FASetup(e));
+
+    // Password reset form
+    document
+      .getElementById("passwordResetForm")
+      .addEventListener("submit", (e) => this.handlePasswordReset(e));
+
+    // Navigation buttons
+    document
+      .getElementById("forgotPasswordBtn")
+      .addEventListener("click", () => this.showStep("passwordReset"));
+    document
+      .getElementById("backToLoginBtn")
+      .addEventListener("click", () => this.showStep("login"));
+    document
+      .getElementById("useBackupCodeBtn")
+      .addEventListener("click", () => this.toggleBackupCodeForm(true));
+    document
+      .getElementById("useTotpBtn")
+      .addEventListener("click", () => this.toggleBackupCodeForm(false));
+    document
+      .getElementById("skip2FABtn")
+      .addEventListener("click", () => this.complete2FASetup(true));
+
+    // Copy button for manual secret
+    document.querySelectorAll(".copy-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => this.copyToClipboard(e));
+    });
+
+    // Download backup codes
+    document
+      .getElementById("downloadBackupCodes")
+      .addEventListener("click", () => this.downloadBackupCodes());
+  }
+
+  /**
+   * Show the enhanced login modal
+   */
+  show() {
+    this.isVisible = true;
+    this.currentStep = "login";
+    this.showStep("login");
+    document.getElementById("enhancedLoginModal").style.display = "block";
+    document.getElementById("loginUsername").focus();
+  }
+
+  /**
+   * Hide the enhanced login modal
+   */
+  hide() {
+    this.isVisible = false;
+    document.getElementById("enhancedLoginModal").style.display = "none";
+    this.resetModal();
+  }
+
+  /**
+   * Show specific step in the login process
+   */
+  showStep(step) {
+    // Hide all steps
+    document
+      .querySelectorAll(".login-step")
+      .forEach((s) => s.classList.remove("active"));
+    document
+      .querySelectorAll(".progress-step")
+      .forEach((s) => s.classList.remove("active"));
+
+    // Show current step
+    document.getElementById(`${step}Step`).classList.add("active");
+
+    // Update progress indicator
+    const progressStep = document.querySelector(`[data-step="${step}"]`);
+    if (progressStep) {
+      progressStep.classList.add("active");
     }
 
-    /**
-     * Setup event listeners for the enhanced login modal
-     */
-    async setupEventListeners() {
-        const modal = document.getElementById('enhancedLoginModal');
-        const closeBtn = document.getElementById('closeEnhancedLogin');
-        
-        // Close modal events
-        closeBtn.addEventListener('click', () => this.hide());
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) this.hide();
-        });
+    // Update title
+    document.getElementById("loginModalTitle").textContent =
+      this.steps[step] || "Secure Login";
 
-        // Main login form
-        document.getElementById('enhancedLoginForm').addEventListener('submit', (e) => this.handleLogin(e));
-        
-        // Demo account buttons
-        document.querySelectorAll('.demo-account-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.fillDemoCredentials(e));
-        });
+    this.currentStep = step;
+  }
 
-        // Password visibility toggle
-        document.querySelectorAll('.password-toggle').forEach(toggle => {
-            toggle.addEventListener('click', (e) => this.togglePasswordVisibility(e));
-        });
+  /**
+   * Handle main login form submission
+   */
+  async handleLogin(e) {
+    e.preventDefault();
 
-        // Two-factor forms
-        document.getElementById('twoFactorForm').addEventListener('submit', (e) => this.handleTwoFactor(e));
-        document.getElementById('backupCodeForm').addEventListener('submit', (e) => this.handleBackupCode(e));
-        
-        // 2FA setup form
-        document.getElementById('verify2FASetupForm').addEventListener('submit', (e) => this.handleVerify2FASetup(e));
-        
-        // Password reset form
-        document.getElementById('passwordResetForm').addEventListener('submit', (e) => this.handlePasswordReset(e));
+    try {
+      const formData = new FormData(e.target);
+      const username = formData.get("username");
+      const password = formData.get("password");
+      const rememberMe = formData.get("rememberMe") === "on";
 
-        // Navigation buttons
-        document.getElementById('forgotPasswordBtn').addEventListener('click', () => this.showStep('passwordReset'));
-        document.getElementById('backToLoginBtn').addEventListener('click', () => this.showStep('login'));
-        document.getElementById('useBackupCodeBtn').addEventListener('click', () => this.toggleBackupCodeForm(true));
-        document.getElementById('useTotpBtn').addEventListener('click', () => this.toggleBackupCodeForm(false));
-        document.getElementById('skip2FABtn').addEventListener('click', () => this.complete2FASetup(true));
+      this.showLoading("Signing in...");
 
-        // Copy button for manual secret
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.copyToClipboard(e));
-        });
+      const result = await enhancedAuthService.login(
+        username,
+        password,
+        null,
+        rememberMe,
+        this.deviceFingerprint,
+      );
 
-        // Download backup codes
-        document.getElementById('downloadBackupCodes').addEventListener('click', () => this.downloadBackupCodes());
-    }
+      this.hideLoading();
 
-    /**
-     * Show the enhanced login modal
-     */
-    show() {
-        this.isVisible = true;
-        this.currentStep = 'login';
-        this.showStep('login');
-        document.getElementById('enhancedLoginModal').style.display = 'block';
-        document.getElementById('loginUsername').focus();
-    }
-
-    /**
-     * Hide the enhanced login modal
-     */
-    hide() {
-        this.isVisible = false;
-        document.getElementById('enhancedLoginModal').style.display = 'none';
-        this.resetModal();
-    }
-
-    /**
-     * Show specific step in the login process
-     */
-    showStep(step) {
-        // Hide all steps
-        document.querySelectorAll('.login-step').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.progress-step').forEach(s => s.classList.remove('active'));
-        
-        // Show current step
-        document.getElementById(`${step}Step`).classList.add('active');
-        
-        // Update progress indicator
-        const progressStep = document.querySelector(`[data-step="${step}"]`);
-        if (progressStep) {
-            progressStep.classList.add('active');
-        }
-        
-        // Update title
-        document.getElementById('loginModalTitle').textContent = this.steps[step] || 'Secure Login';
-        
-        this.currentStep = step;
-    }
-
-    /**
-     * Handle main login form submission
-     */
-    async handleLogin(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(e.target);
-            const username = formData.get('username');
-            const password = formData.get('password');
-            const rememberMe = formData.get('rememberMe') === 'on';
-            
-            this.showLoading('Signing in...');
-            
-            const result = await enhancedAuthService.login(
-                username, 
-                password, 
-                null, 
-                rememberMe, 
-                this.deviceFingerprint
-            );
-
-            this.hideLoading();
-
-            if (result.requiresTwoFactor) {
-                this.loginData = { username, password, rememberMe };
-                this.showStep('twoFactor');
-            } else if (result.success) {
-                this.showSuccessNotification('Login successful!');
-                setTimeout(() => {
-                    this.hide();
-                    window.location.reload(); // Refresh to load authenticated state
-                }, 1000);
-            }
-
-        } catch (error) {
-            this.hideLoading();
-            this.showErrorNotification(error.message);
-        }
-    }
-
-    /**
-     * Handle two-factor authentication
-     */
-    async handleTwoFactor(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(e.target);
-            const totpCode = formData.get('totpCode');
-            
-            this.showLoading('Verifying code...');
-            
-            const result = await enhancedAuthService.login(
-                this.loginData.username,
-                this.loginData.password,
-                totpCode,
-                this.loginData.rememberMe,
-                this.deviceFingerprint
-            );
-
-            this.hideLoading();
-
-            if (result.success) {
-                this.showSuccessNotification('Login successful!');
-                setTimeout(() => {
-                    this.hide();
-                    window.location.reload();
-                }, 1000);
-            }
-
-        } catch (error) {
-            this.hideLoading();
-            this.showErrorNotification(error.message);
-        }
-    }
-
-    /**
-     * Handle backup code authentication
-     */
-    async handleBackupCode(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(e.target);
-            const backupCode = formData.get('backupCode');
-            
-            this.showLoading('Verifying backup code...');
-            
-            const result = await enhancedAuthService.login(
-                this.loginData.username,
-                this.loginData.password,
-                backupCode,
-                this.loginData.rememberMe,
-                this.deviceFingerprint
-            );
-
-            this.hideLoading();
-
-            if (result.success) {
-                this.showSuccessNotification('Login successful!');
-                setTimeout(() => {
-                    this.hide();
-                    window.location.reload();
-                }, 1000);
-            }
-
-        } catch (error) {
-            this.hideLoading();
-            this.showErrorNotification(error.message);
-        }
-    }
-
-    /**
-     * Handle 2FA setup verification
-     */
-    async handleVerify2FASetup(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(e.target);
-            const totpCode = formData.get('verifyTotpCode');
-            
-            this.showLoading('Enabling 2FA...');
-            
-            const result = await enhancedAuthService.enable2FA(this.loginData.username, totpCode);
-            
-            this.hideLoading();
-
-            if (result) {
-                this.showBackupCodes();
-                this.showSuccessNotification('Two-factor authentication enabled successfully!');
-            }
-
-        } catch (error) {
-            this.hideLoading();
-            this.showErrorNotification(error.message);
-        }
-    }
-
-    /**
-     * Handle password reset request
-     */
-    async handlePasswordReset(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(e.target);
-            const username = formData.get('resetUsername');
-            const email = formData.get('resetEmail');
-            
-            this.showLoading('Sending reset link...');
-            
-            const token = await enhancedAuthService.generatePasswordResetToken(username, email);
-            
-            this.hideLoading();
-            
-            if (token) {
-                this.showInfoNotification('Password reset link sent! Check console for demo token.');
-                this.showStep('login');
-            }
-
-        } catch (error) {
-            this.hideLoading();
-            this.showErrorNotification(error.message);
-        }
-    }
-
-    /**
-     * Fill demo credentials
-     */
-    fillDemoCredentials(e) {
-        const username = e.currentTarget.dataset.username;
-        const password = e.currentTarget.dataset.password;
-        
-        document.getElementById('loginUsername').value = username;
-        document.getElementById('loginPassword').value = password;
-    }
-
-    /**
-     * Toggle password visibility
-     */
-    togglePasswordVisibility(e) {
-        const targetId = e.currentTarget.dataset.target;
-        const input = document.getElementById(targetId);
-        const icon = e.currentTarget;
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
-
-    /**
-     * Toggle backup code form
-     */
-    toggleBackupCodeForm(show) {
-        const totpForm = document.getElementById('twoFactorForm');
-        const backupForm = document.getElementById('backupCodeForm');
-        
-        if (show) {
-            totpForm.style.display = 'none';
-            backupForm.style.display = 'block';
-            document.getElementById('backupCode').focus();
-        } else {
-            totpForm.style.display = 'block';
-            backupForm.style.display = 'none';
-            document.getElementById('totpCode').focus();
-        }
-    }
-
-    /**
-     * Show backup codes after 2FA setup
-     */
-    showBackupCodes() {
-        // This would be called after successful 2FA setup
-        const backupCodesDisplay = document.getElementById('backupCodesDisplay');
-        backupCodesDisplay.style.display = 'block';
-        
-        // In a real implementation, backup codes would be retrieved from the setup result
-        const demoBackupCodes = ['ABCD1234', 'EFGH5678', 'IJKL9012', 'MNOP3456', 'QRST7890'];
-        const codesList = document.getElementById('backupCodesList');
-        
-        codesList.innerHTML = demoBackupCodes.map(code => 
-            `<div class="backup-code">${code}</div>`
-        ).join('');
-    }
-
-    /**
-     * Complete 2FA setup (skip or after viewing backup codes)
-     */
-    complete2FASetup(skipped = false) {
-        if (skipped) {
-            this.showWarningNotification('2FA setup skipped. You can enable it later in your profile.');
-        }
-        
+      if (result.requiresTwoFactor) {
+        this.loginData = { username, password, rememberMe };
+        this.showStep("twoFactor");
+      } else if (result.success) {
+        this.showSuccessNotification("Login successful!");
         setTimeout(() => {
-            this.hide();
-            window.location.reload();
+          this.hide();
+          window.location.reload(); // Refresh to load authenticated state
         }, 1000);
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showErrorNotification(error.message);
+    }
+  }
+
+  /**
+   * Handle two-factor authentication
+   */
+  async handleTwoFactor(e) {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData(e.target);
+      const totpCode = formData.get("totpCode");
+
+      this.showLoading("Verifying code...");
+
+      const result = await enhancedAuthService.login(
+        this.loginData.username,
+        this.loginData.password,
+        totpCode,
+        this.loginData.rememberMe,
+        this.deviceFingerprint,
+      );
+
+      this.hideLoading();
+
+      if (result.success) {
+        this.showSuccessNotification("Login successful!");
+        setTimeout(() => {
+          this.hide();
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showErrorNotification(error.message);
+    }
+  }
+
+  /**
+   * Handle backup code authentication
+   */
+  async handleBackupCode(e) {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData(e.target);
+      const backupCode = formData.get("backupCode");
+
+      this.showLoading("Verifying backup code...");
+
+      const result = await enhancedAuthService.login(
+        this.loginData.username,
+        this.loginData.password,
+        backupCode,
+        this.loginData.rememberMe,
+        this.deviceFingerprint,
+      );
+
+      this.hideLoading();
+
+      if (result.success) {
+        this.showSuccessNotification("Login successful!");
+        setTimeout(() => {
+          this.hide();
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showErrorNotification(error.message);
+    }
+  }
+
+  /**
+   * Handle 2FA setup verification
+   */
+  async handleVerify2FASetup(e) {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData(e.target);
+      const totpCode = formData.get("verifyTotpCode");
+
+      this.showLoading("Enabling 2FA...");
+
+      const result = await enhancedAuthService.enable2FA(
+        this.loginData.username,
+        totpCode,
+      );
+
+      this.hideLoading();
+
+      if (result) {
+        this.showBackupCodes();
+        this.showSuccessNotification(
+          "Two-factor authentication enabled successfully!",
+        );
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showErrorNotification(error.message);
+    }
+  }
+
+  /**
+   * Handle password reset request
+   */
+  async handlePasswordReset(e) {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData(e.target);
+      const username = formData.get("resetUsername");
+      const email = formData.get("resetEmail");
+
+      this.showLoading("Sending reset link...");
+
+      const token = await enhancedAuthService.generatePasswordResetToken(
+        username,
+        email,
+      );
+
+      this.hideLoading();
+
+      if (token) {
+        this.showInfoNotification(
+          "Password reset link sent! Check console for demo token.",
+        );
+        this.showStep("login");
+      }
+    } catch (error) {
+      this.hideLoading();
+      this.showErrorNotification(error.message);
+    }
+  }
+
+  /**
+   * Fill demo credentials
+   */
+  fillDemoCredentials(e) {
+    const username = e.currentTarget.dataset.username;
+    const password = e.currentTarget.dataset.password;
+
+    document.getElementById("loginUsername").value = username;
+    document.getElementById("loginPassword").value = password;
+  }
+
+  /**
+   * Toggle password visibility
+   */
+  togglePasswordVisibility(e) {
+    const targetId = e.currentTarget.dataset.target;
+    const input = document.getElementById(targetId);
+    const icon = e.currentTarget;
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  }
+
+  /**
+   * Toggle backup code form
+   */
+  toggleBackupCodeForm(show) {
+    const totpForm = document.getElementById("twoFactorForm");
+    const backupForm = document.getElementById("backupCodeForm");
+
+    if (show) {
+      totpForm.style.display = "none";
+      backupForm.style.display = "block";
+      document.getElementById("backupCode").focus();
+    } else {
+      totpForm.style.display = "block";
+      backupForm.style.display = "none";
+      document.getElementById("totpCode").focus();
+    }
+  }
+
+  /**
+   * Show backup codes after 2FA setup
+   */
+  showBackupCodes() {
+    // This would be called after successful 2FA setup
+    const backupCodesDisplay = document.getElementById("backupCodesDisplay");
+    backupCodesDisplay.style.display = "block";
+
+    // In a real implementation, backup codes would be retrieved from the setup result
+    const demoBackupCodes = [
+      "ABCD1234",
+      "EFGH5678",
+      "IJKL9012",
+      "MNOP3456",
+      "QRST7890",
+    ];
+    const codesList = document.getElementById("backupCodesList");
+
+    codesList.innerHTML = demoBackupCodes
+      .map((code) => `<div class="backup-code">${code}</div>`)
+      .join("");
+  }
+
+  /**
+   * Complete 2FA setup (skip or after viewing backup codes)
+   */
+  complete2FASetup(skipped = false) {
+    if (skipped) {
+      this.showWarningNotification(
+        "2FA setup skipped. You can enable it later in your profile.",
+      );
     }
 
-    /**
-     * Copy text to clipboard
-     */
-    async copyToClipboard(e) {
-        const targetId = e.currentTarget.dataset.target;
-        const element = document.getElementById(targetId);
-        
-        try {
-            await navigator.clipboard.writeText(element.textContent);
-            this.showInfoNotification('Copied to clipboard!');
-        } catch (error) {
-            // Fallback for older browsers
-            element.select();
-            document.execCommand('copy');
-            this.showInfoNotification('Copied to clipboard!');
-        }
-    }
+    setTimeout(() => {
+      this.hide();
+      window.location.reload();
+    }, 1000);
+  }
 
-    /**
-     * Download backup codes
-     */
-    downloadBackupCodes() {
-        const codes = Array.from(document.querySelectorAll('.backup-code'))
-            .map(el => el.textContent);
-        
-        const content = 'Mining Royalties Manager - Backup Codes\\n\\n' + 
-                       codes.join('\\n') + 
-                       '\\n\\nKeep these codes safe. Each can only be used once.';
-        
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'backup-codes.txt';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+  /**
+   * Copy text to clipboard
+   */
+  async copyToClipboard(e) {
+    const targetId = e.currentTarget.dataset.target;
+    const element = document.getElementById(targetId);
 
-    /**
-     * Show loading state
-     */
-    showLoading(message = 'Loading...') {
-        // Add loading indicator
-        const loadingHTML = `
+    try {
+      await navigator.clipboard.writeText(element.textContent);
+      this.showInfoNotification("Copied to clipboard!");
+    } catch (error) {
+      // Fallback for older browsers
+      element.select();
+      document.execCommand("copy");
+      this.showInfoNotification("Copied to clipboard!");
+    }
+  }
+
+  /**
+   * Download backup codes
+   */
+  downloadBackupCodes() {
+    const codes = Array.from(document.querySelectorAll(".backup-code")).map(
+      (el) => el.textContent,
+    );
+
+    const content =
+      "Mining Royalties Manager - Backup Codes\\n\\n" +
+      codes.join("\\n") +
+      "\\n\\nKeep these codes safe. Each can only be used once.";
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "backup-codes.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Show loading state
+   */
+  showLoading(message = "Loading...") {
+    // Add loading indicator
+    const loadingHTML = `
             <div id="loginLoading" class="login-loading">
                 <div class="spinner"></div>
                 <span>${message}</span>
             </div>
         `;
-        
-        document.querySelector('.modal-body').insertAdjacentHTML('beforeend', loadingHTML);
+
+    document
+      .querySelector(".modal-body")
+      .insertAdjacentHTML("beforeend", loadingHTML);
+  }
+
+  /**
+   * Hide loading state
+   */
+  hideLoading() {
+    const loading = document.getElementById("loginLoading");
+    if (loading) {
+      loading.remove();
     }
+  }
 
-    /**
-     * Hide loading state
-     */
-    hideLoading() {
-        const loading = document.getElementById('loginLoading');
-        if (loading) {
-            loading.remove();
-        }
-    }
+  /**
+   * Show success notification
+   */
+  showSuccessNotification(message) {
+    this.showNotification(message, "success");
+  }
 
-    /**
-     * Show success notification
-     */
-    showSuccessNotification(message) {
-        this.showNotification(message, 'success');
-    }
+  /**
+   * Show error notification
+   */
+  showErrorNotification(message) {
+    this.showNotification(message, "error");
+  }
 
-    /**
-     * Show error notification
-     */
-    showErrorNotification(message) {
-        this.showNotification(message, 'error');
-    }
+  /**
+   * Show warning notification
+   */
+  showWarningNotification(message) {
+    this.showNotification(message, "warning");
+  }
 
-    /**
-     * Show warning notification
-     */
-    showWarningNotification(message) {
-        this.showNotification(message, 'warning');
-    }
+  /**
+   * Show info notification
+   */
+  showInfoNotification(message) {
+    this.showNotification(message, "info");
+  }
 
-    /**
-     * Show info notification
-     */
-    showInfoNotification(message) {
-        this.showNotification(message, 'info');
-    }
+  /**
+   * Show notification
+   */
+  showNotification(message, type) {
+    const icons = {
+      success: "fa-check-circle",
+      error: "fa-exclamation-circle",
+      warning: "fa-exclamation-triangle",
+      info: "fa-info-circle",
+    };
 
-    /**
-     * Show notification
-     */
-    showNotification(message, type) {
-        const icons = {
-            success: 'fa-check-circle',
-            error: 'fa-exclamation-circle',
-            warning: 'fa-exclamation-triangle',
-            info: 'fa-info-circle'
-        };
-
-        const notification = document.createElement('div');
-        notification.className = `security-notification ${type}`;
-        notification.innerHTML = `
+    const notification = document.createElement("div");
+    notification.className = `security-notification ${type}`;
+    notification.innerHTML = `
             <i class="fas ${icons[type]}"></i>
             ${message}
         `;
 
-        const container = document.getElementById('securityNotifications');
-        container.appendChild(notification);
+    const container = document.getElementById("securityNotifications");
+    container.appendChild(notification);
 
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
-    }
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
 
-    /**
-     * Reset modal to initial state
-     */
-    resetModal() {
-        document.getElementById('enhancedLoginForm').reset();
-        document.getElementById('twoFactorForm').reset();
-        document.getElementById('backupCodeForm').reset();
-        document.getElementById('verify2FASetupForm').reset();
-        document.getElementById('passwordResetForm').reset();
-        
-        document.getElementById('securityNotifications').innerHTML = '';
-        
-        this.loginData = {};
-        this.currentStep = 'login';
-    }
+  /**
+   * Reset modal to initial state
+   */
+  resetModal() {
+    document.getElementById("enhancedLoginForm").reset();
+    document.getElementById("twoFactorForm").reset();
+    document.getElementById("backupCodeForm").reset();
+    document.getElementById("verify2FASetupForm").reset();
+    document.getElementById("passwordResetForm").reset();
+
+    document.getElementById("securityNotifications").innerHTML = "";
+
+    this.loginData = {};
+    this.currentStep = "login";
+  }
 }
 
 export const enhancedLoginModal = new EnhancedLoginModal();

@@ -4,28 +4,28 @@
  */
 
 export class BulkOperationsPanel {
-    constructor(userManager) {
-        this.userManager = userManager;
-        this.selectedUsers = new Set();
-        this.createBulkOperationsHTML();
-        this.setupEventListeners();
-    }
+  constructor(userManager) {
+    this.userManager = userManager;
+    this.selectedUsers = new Set();
+    this.createBulkOperationsHTML();
+    this.setupEventListeners();
+  }
 
-    /**
-     * Create bulk operations HTML
-     */
-    createBulkOperationsHTML() {
-        const existingContainer = document.getElementById('bulk-actions-container');
-        if (existingContainer) {
-            existingContainer.innerHTML = this.getBulkOperationsHTML();
-        }
+  /**
+   * Create bulk operations HTML
+   */
+  createBulkOperationsHTML() {
+    const existingContainer = document.getElementById("bulk-actions-container");
+    if (existingContainer) {
+      existingContainer.innerHTML = this.getBulkOperationsHTML();
     }
+  }
 
-    /**
-     * Get bulk operations HTML
-     */
-    getBulkOperationsHTML() {
-        return `
+  /**
+   * Get bulk operations HTML
+   */
+  getBulkOperationsHTML() {
+    return `
             <div class="bulk-operations-panel" style="display: none;" id="bulk-operations-panel">
                 <div class="bulk-operations-header">
                     <h5><i class="fas fa-tasks"></i> Bulk Operations</h5>
@@ -143,297 +143,300 @@ export class BulkOperationsPanel {
                 </div>
             </div>
         `;
+  }
+
+  /**
+   * Setup event listeners
+   */
+  setupEventListeners() {
+    document.addEventListener("click", (e) => {
+      switch (e.target.id) {
+        case "clear-selection":
+          this.clearSelection();
+          break;
+        case "bulk-activate":
+          this.bulkActivate();
+          break;
+        case "bulk-deactivate":
+          this.bulkDeactivate();
+          break;
+        case "bulk-lock":
+          this.bulkLock();
+          break;
+        case "bulk-assign-role":
+          this.bulkAssignRole();
+          break;
+        case "bulk-apply-template":
+          this.bulkApplyTemplate();
+          break;
+        case "bulk-email":
+          this.bulkEmail();
+          break;
+        case "bulk-notify":
+          this.bulkNotify();
+          break;
+        case "bulk-export":
+          this.bulkExport();
+          break;
+        case "bulk-import":
+          this.bulkImport();
+          break;
+        case "bulk-delete":
+          this.bulkDelete();
+          break;
+        case "bulk-force-password-change":
+          this.bulkForcePasswordChange();
+          break;
+        case "bulk-enable-2fa":
+          this.bulkEnable2FA();
+          break;
+        case "bulk-unlock":
+          this.bulkUnlock();
+          break;
+      }
+    });
+  }
+
+  /**
+   * Update selection
+   */
+  updateSelection(selectedUsers) {
+    this.selectedUsers = selectedUsers;
+    const panel = document.getElementById("bulk-operations-panel");
+    const countElement = document.getElementById("selected-count");
+
+    if (selectedUsers.size > 0) {
+      panel.style.display = "block";
+      countElement.textContent = `${selectedUsers.size} users selected`;
+    } else {
+      panel.style.display = "none";
+    }
+  }
+
+  /**
+   * Clear selection
+   */
+  clearSelection() {
+    this.userManager.clearSelection();
+  }
+
+  /**
+   * Bulk activate users
+   */
+  async bulkActivate() {
+    if (!this.confirmAction("activate")) return;
+
+    await this.executeWithProgress(async () => {
+      await this.userManager.bulkActivateUsers();
+    });
+  }
+
+  /**
+   * Bulk deactivate users
+   */
+  async bulkDeactivate() {
+    if (!this.confirmAction("deactivate")) return;
+
+    await this.executeWithProgress(async () => {
+      await this.userManager.bulkDeactivateUsers();
+    });
+  }
+
+  /**
+   * Bulk lock users
+   */
+  async bulkLock() {
+    if (!this.confirmAction("lock")) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      await this.userManager.bulkUpdateUserStatus(userIds, "Locked");
+    });
+  }
+
+  /**
+   * Bulk assign role
+   */
+  async bulkAssignRole() {
+    const roleSelect = document.getElementById("bulk-role-select");
+    const roleId = roleSelect.value;
+
+    if (!roleId) {
+      alert("Please select a role");
+      return;
     }
 
-    /**
-     * Setup event listeners
-     */
-    setupEventListeners() {
-        document.addEventListener('click', (e) => {
-            switch (e.target.id) {
-                case 'clear-selection':
-                    this.clearSelection();
-                    break;
-                case 'bulk-activate':
-                    this.bulkActivate();
-                    break;
-                case 'bulk-deactivate':
-                    this.bulkDeactivate();
-                    break;
-                case 'bulk-lock':
-                    this.bulkLock();
-                    break;
-                case 'bulk-assign-role':
-                    this.bulkAssignRole();
-                    break;
-                case 'bulk-apply-template':
-                    this.bulkApplyTemplate();
-                    break;
-                case 'bulk-email':
-                    this.bulkEmail();
-                    break;
-                case 'bulk-notify':
-                    this.bulkNotify();
-                    break;
-                case 'bulk-export':
-                    this.bulkExport();
-                    break;
-                case 'bulk-import':
-                    this.bulkImport();
-                    break;
-                case 'bulk-delete':
-                    this.bulkDelete();
-                    break;
-                case 'bulk-force-password-change':
-                    this.bulkForcePasswordChange();
-                    break;
-                case 'bulk-enable-2fa':
-                    this.bulkEnable2FA();
-                    break;
-                case 'bulk-unlock':
-                    this.bulkUnlock();
-                    break;
-            }
+    if (!this.confirmAction(`assign role "${roleId}" to`)) return;
+
+    await this.executeWithProgress(async () => {
+      await this.userManager.bulkAssignRole(roleId);
+    });
+  }
+
+  /**
+   * Bulk apply permission template
+   */
+  async bulkApplyTemplate() {
+    const templateSelect = document.getElementById("bulk-permission-template");
+    const templateId = templateSelect.value;
+
+    if (!templateId) {
+      alert("Please select a permission template");
+      return;
+    }
+
+    if (!this.confirmAction(`apply template "${templateId}" to`)) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      for (const userId of userIds) {
+        await permissionService.applyPermissionTemplate(userId, templateId);
+      }
+    });
+  }
+
+  /**
+   * Bulk email
+   */
+  async bulkEmail() {
+    await this.userManager.bulkEmailUsers();
+  }
+
+  /**
+   * Bulk notify
+   */
+  async bulkNotify() {
+    this.showBulkNotificationModal();
+  }
+
+  /**
+   * Bulk export
+   */
+  async bulkExport() {
+    await this.userManager.bulkExportUsers();
+  }
+
+  /**
+   * Bulk import
+   */
+  async bulkImport() {
+    await this.userManager.bulkImportUsers();
+  }
+
+  /**
+   * Bulk delete
+   */
+  async bulkDelete() {
+    if (!this.confirmAction("permanently delete", true)) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      this.userManager.bulkDeleteUsers(userIds);
+    });
+  }
+
+  /**
+   * Bulk force password change
+   */
+  async bulkForcePasswordChange() {
+    if (!this.confirmAction("force password change for")) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      for (const userId of userIds) {
+        await this.userManager.updateUser(userId, {
+          forcePasswordChange: true,
         });
+      }
+    });
+  }
+
+  /**
+   * Bulk enable 2FA
+   */
+  async bulkEnable2FA() {
+    if (!this.confirmAction("enable 2FA for")) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      for (const userId of userIds) {
+        await this.userManager.updateUser(userId, { twoFactorEnabled: true });
+      }
+    });
+  }
+
+  /**
+   * Bulk unlock accounts
+   */
+  async bulkUnlock() {
+    if (!this.confirmAction("unlock")) return;
+
+    await this.executeWithProgress(async () => {
+      const userIds = Array.from(this.selectedUsers);
+      await this.userManager.bulkUpdateUserStatus(userIds, "Active");
+    });
+  }
+
+  /**
+   * Confirm action with user
+   */
+  confirmAction(action, dangerous = false) {
+    const count = this.selectedUsers.size;
+    const message = `Are you sure you want to ${action} ${count} user${count > 1 ? "s" : ""}?`;
+
+    if (dangerous) {
+      return confirm(`${message}\n\nThis action cannot be undone!`);
     }
 
-    /**
-     * Update selection
-     */
-    updateSelection(selectedUsers) {
-        this.selectedUsers = selectedUsers;
-        const panel = document.getElementById('bulk-operations-panel');
-        const countElement = document.getElementById('selected-count');
-        
-        if (selectedUsers.size > 0) {
-            panel.style.display = 'block';
-            countElement.textContent = `${selectedUsers.size} users selected`;
-        } else {
-            panel.style.display = 'none';
-        }
+    return confirm(message);
+  }
+
+  /**
+   * Execute action with progress indication
+   */
+  async executeWithProgress(action) {
+    const progressContainer = document.querySelector(
+      ".bulk-operation-progress",
+    );
+    const progressBar = progressContainer.querySelector(".progress-bar");
+    const progressText = progressContainer.querySelector(".progress-text");
+
+    try {
+      progressContainer.style.display = "block";
+      progressBar.style.width = "0%";
+      progressText.textContent = "Processing...";
+
+      // Simulate progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = `${progress}%`;
+      }, 100);
+
+      await action();
+
+      clearInterval(interval);
+      progressBar.style.width = "100%";
+      progressText.textContent = "Complete!";
+
+      setTimeout(() => {
+        progressContainer.style.display = "none";
+      }, 1000);
+    } catch (error) {
+      progressContainer.style.display = "none";
+      console.error("Bulk operation failed:", error);
+      alert("Operation failed. Please try again.");
     }
+  }
 
-    /**
-     * Clear selection
-     */
-    clearSelection() {
-        this.userManager.clearSelection();
-    }
-
-    /**
-     * Bulk activate users
-     */
-    async bulkActivate() {
-        if (!this.confirmAction('activate')) return;
-        
-        await this.executeWithProgress(async () => {
-            await this.userManager.bulkActivateUsers();
-        });
-    }
-
-    /**
-     * Bulk deactivate users
-     */
-    async bulkDeactivate() {
-        if (!this.confirmAction('deactivate')) return;
-        
-        await this.executeWithProgress(async () => {
-            await this.userManager.bulkDeactivateUsers();
-        });
-    }
-
-    /**
-     * Bulk lock users
-     */
-    async bulkLock() {
-        if (!this.confirmAction('lock')) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            await this.userManager.bulkUpdateUserStatus(userIds, 'Locked');
-        });
-    }
-
-    /**
-     * Bulk assign role
-     */
-    async bulkAssignRole() {
-        const roleSelect = document.getElementById('bulk-role-select');
-        const roleId = roleSelect.value;
-        
-        if (!roleId) {
-            alert('Please select a role');
-            return;
-        }
-
-        if (!this.confirmAction(`assign role "${roleId}" to`)) return;
-        
-        await this.executeWithProgress(async () => {
-            await this.userManager.bulkAssignRole(roleId);
-        });
-    }
-
-    /**
-     * Bulk apply permission template
-     */
-    async bulkApplyTemplate() {
-        const templateSelect = document.getElementById('bulk-permission-template');
-        const templateId = templateSelect.value;
-        
-        if (!templateId) {
-            alert('Please select a permission template');
-            return;
-        }
-
-        if (!this.confirmAction(`apply template "${templateId}" to`)) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            for (const userId of userIds) {
-                await permissionService.applyPermissionTemplate(userId, templateId);
-            }
-        });
-    }
-
-    /**
-     * Bulk email
-     */
-    async bulkEmail() {
-        await this.userManager.bulkEmailUsers();
-    }
-
-    /**
-     * Bulk notify
-     */
-    async bulkNotify() {
-        this.showBulkNotificationModal();
-    }
-
-    /**
-     * Bulk export
-     */
-    async bulkExport() {
-        await this.userManager.bulkExportUsers();
-    }
-
-    /**
-     * Bulk import
-     */
-    async bulkImport() {
-        await this.userManager.bulkImportUsers();
-    }
-
-    /**
-     * Bulk delete
-     */
-    async bulkDelete() {
-        if (!this.confirmAction('permanently delete', true)) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            this.userManager.bulkDeleteUsers(userIds);
-        });
-    }
-
-    /**
-     * Bulk force password change
-     */
-    async bulkForcePasswordChange() {
-        if (!this.confirmAction('force password change for')) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            for (const userId of userIds) {
-                await this.userManager.updateUser(userId, { forcePasswordChange: true });
-            }
-        });
-    }
-
-    /**
-     * Bulk enable 2FA
-     */
-    async bulkEnable2FA() {
-        if (!this.confirmAction('enable 2FA for')) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            for (const userId of userIds) {
-                await this.userManager.updateUser(userId, { twoFactorEnabled: true });
-            }
-        });
-    }
-
-    /**
-     * Bulk unlock accounts
-     */
-    async bulkUnlock() {
-        if (!this.confirmAction('unlock')) return;
-        
-        await this.executeWithProgress(async () => {
-            const userIds = Array.from(this.selectedUsers);
-            await this.userManager.bulkUpdateUserStatus(userIds, 'Active');
-        });
-    }
-
-    /**
-     * Confirm action with user
-     */
-    confirmAction(action, dangerous = false) {
-        const count = this.selectedUsers.size;
-        const message = `Are you sure you want to ${action} ${count} user${count > 1 ? 's' : ''}?`;
-        
-        if (dangerous) {
-            return confirm(`${message}\n\nThis action cannot be undone!`);
-        }
-        
-        return confirm(message);
-    }
-
-    /**
-     * Execute action with progress indication
-     */
-    async executeWithProgress(action) {
-        const progressContainer = document.querySelector('.bulk-operation-progress');
-        const progressBar = progressContainer.querySelector('.progress-bar');
-        const progressText = progressContainer.querySelector('.progress-text');
-        
-        try {
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressText.textContent = 'Processing...';
-            
-            // Simulate progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress > 90) progress = 90;
-                progressBar.style.width = `${progress}%`;
-            }, 100);
-            
-            await action();
-            
-            clearInterval(interval);
-            progressBar.style.width = '100%';
-            progressText.textContent = 'Complete!';
-            
-            setTimeout(() => {
-                progressContainer.style.display = 'none';
-            }, 1000);
-            
-        } catch (error) {
-            progressContainer.style.display = 'none';
-            console.error('Bulk operation failed:', error);
-            alert('Operation failed. Please try again.');
-        }
-    }
-
-    /**
-     * Show bulk notification modal
-     */
-    showBulkNotificationModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
+  /**
+   * Show bulk notification modal
+   */
+  showBulkNotificationModal() {
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Send Bulk Notification</h3>
@@ -470,43 +473,52 @@ export class BulkOperationsPanel {
                 </div>
             </div>
         `;
-        
-        document.body.appendChild(modal);
-        modal.style.display = 'block';
-        
-        // Setup modal event listeners
-        modal.querySelector('.close').addEventListener('click', () => modal.remove());
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
-        });
-    }
 
-    /**
-     * Send bulk notification
-     */
-    async sendBulkNotification() {
-        try {
-            const type = document.getElementById('notification-type').value;
-            const title = document.getElementById('notification-title').value;
-            const message = document.getElementById('notification-message').value;
-            
-            if (!title || !message) {
-                alert('Please fill in both title and message');
-                return;
-            }
-            
-            // Simulate sending notifications
-            console.log('Sending bulk notification:', { type, title, message, recipients: this.selectedUsers });
-            
-            // Close modal
-            document.querySelector('.modal').remove();
-            
-            this.userManager.showNotification(`Notification sent to ${this.selectedUsers.size} users`, 'success');
-            this.clearSelection();
-            
-        } catch (error) {
-            console.error('Failed to send bulk notification:', error);
-            alert('Failed to send notification. Please try again.');
-        }
+    document.body.appendChild(modal);
+    modal.style.display = "block";
+
+    // Setup modal event listeners
+    modal
+      .querySelector(".close")
+      .addEventListener("click", () => modal.remove());
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.remove();
+    });
+  }
+
+  /**
+   * Send bulk notification
+   */
+  async sendBulkNotification() {
+    try {
+      const type = document.getElementById("notification-type").value;
+      const title = document.getElementById("notification-title").value;
+      const message = document.getElementById("notification-message").value;
+
+      if (!title || !message) {
+        alert("Please fill in both title and message");
+        return;
+      }
+
+      // Simulate sending notifications
+      console.log("Sending bulk notification:", {
+        type,
+        title,
+        message,
+        recipients: this.selectedUsers,
+      });
+
+      // Close modal
+      document.querySelector(".modal").remove();
+
+      this.userManager.showNotification(
+        `Notification sent to ${this.selectedUsers.size} users`,
+        "success",
+      );
+      this.clearSelection();
+    } catch (error) {
+      console.error("Failed to send bulk notification:", error);
+      alert("Failed to send notification. Please try again.");
     }
+  }
 }

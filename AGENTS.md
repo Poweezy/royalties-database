@@ -1,6 +1,7 @@
 # AGENTS.md - Mining Royalties Manager
 
 ## Test Commands
+
 - **Run Playwright tests**: `npx playwright test`
 - **Run single test**: `npx playwright test forgot_password.spec.js`
 - **Run tests with UI**: `npx playwright test --ui`
@@ -9,6 +10,7 @@
 - **Simple GIS test**: `node test-gis-simple.js` (Node.js test)
 
 ## Architecture
+
 - **Frontend-only PWA** (Progressive Web App) - no backend server
 - **Local storage**: IndexedDB for all data persistence
 - **Main entry**: `royalties.html` with ES6 modules
@@ -18,6 +20,7 @@
 - **Authentication**: Client-side only with hardcoded demo users
 
 ## Enhanced User Management Features
+
 - **Bulk Operations**: Multi-user activation, deactivation, role assignment, email, import/export
 - **Advanced Permissions**: Granular permission system with role inheritance and templates
 - **Enhanced User Features**: Comprehensive profiles, password policies, activity monitoring, onboarding
@@ -25,6 +28,7 @@
 - **Enhanced GIS Dashboard**: Advanced mapping with multiple layers, overlays, analysis tools, and enhanced features
 
 ## Code Style Guidelines
+
 - **ES6 modules**: Use `import/export` syntax
 - **File structure**: PascalCase for classes, camelCase for instances
 - **Error handling**: Use ErrorHandler class from `utils/error-handler.js`
@@ -35,12 +39,14 @@
 - **Component structure**: Modular, reusable UI components with event delegation
 
 ## Development
+
 - Serve locally with HTTP server for testing (required for ES6 modules)
 - Service worker enabled for offline functionality
 - No build step required - vanilla JS/HTML/CSS
 - Enhanced CSS styles in `/css/user-management-enhanced.css`
 
 ## Enhanced User Management Integration
+
 - **Main integration file**: `js/user-management-enhanced.js`
 - **Services**: Import user-security.service.js and permission.service.js for advanced features
 - **Components**: Use BulkOperationsPanel and UserProfileModal for enhanced UI
@@ -48,6 +54,7 @@
 - **Responsive**: All enhanced features work on desktop, tablet, and mobile
 
 ## Security Features
+
 - **Login tracking**: Failed attempts, successful logins, session management
 - **Password policies**: Configurable strength requirements and expiration
 - **Audit logging**: Comprehensive activity and security event logging

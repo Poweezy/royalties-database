@@ -12,7 +12,9 @@ export class Pagination {
   constructor({ containerSelector, itemsPerPage = 10, onPageChange }) {
     this.container = document.querySelector(containerSelector);
     if (!this.container) {
-      throw new Error(`Pagination container with selector "${containerSelector}" not found.`);
+      throw new Error(
+        `Pagination container with selector "${containerSelector}" not found.`,
+      );
     }
     this.itemsPerPage = itemsPerPage;
     this.onPageChange = onPageChange;
@@ -29,10 +31,15 @@ export class Pagination {
   render(totalItems, currentPage = 1) {
     this.totalItems = totalItems;
     this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-    this.currentPage = currentPage > this.totalPages ? this.totalPages : (currentPage < 1 ? 1 : currentPage);
+    this.currentPage =
+      currentPage > this.totalPages
+        ? this.totalPages
+        : currentPage < 1
+          ? 1
+          : currentPage;
 
     if (this.totalPages <= 1) {
-      this.container.innerHTML = ''; // No need for pagination if there's only one page or less
+      this.container.innerHTML = ""; // No need for pagination if there's only one page or less
       return;
     }
 
@@ -46,10 +53,13 @@ export class Pagination {
    */
   generateHtml() {
     const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
+    const endItem = Math.min(
+      this.currentPage * this.itemsPerPage,
+      this.totalItems,
+    );
 
-    const prevDisabled = this.currentPage === 1 ? 'disabled' : '';
-    const nextDisabled = this.currentPage === this.totalPages ? 'disabled' : '';
+    const prevDisabled = this.currentPage === 1 ? "disabled" : "";
+    const nextDisabled = this.currentPage === this.totalPages ? "disabled" : "";
 
     return `
       <div class="pagination-info">
@@ -107,7 +117,7 @@ export class Pagination {
       buttons.push(this.createPageButton(this.totalPages));
     }
 
-    return buttons.join('');
+    return buttons.join("");
   }
 
   /**
@@ -116,7 +126,7 @@ export class Pagination {
    * @returns {string} The HTML string for a single button.
    */
   createPageButton(page) {
-    const activeClass = page === this.currentPage ? 'active' : '';
+    const activeClass = page === this.currentPage ? "active" : "";
     return `<button class="page-btn ${activeClass}" data-page="${page}">${page}</button>`;
   }
 
@@ -124,13 +134,16 @@ export class Pagination {
    * Binds event listeners to the pagination controls.
    */
   bindEvents() {
-    this.container.addEventListener('click', (e) => {
+    this.container.addEventListener("click", (e) => {
       const target = e.target;
-      if (target.id === 'pagination-prev' && this.currentPage > 1) {
+      if (target.id === "pagination-prev" && this.currentPage > 1) {
         this.goToPage(this.currentPage - 1);
-      } else if (target.id === 'pagination-next' && this.currentPage < this.totalPages) {
+      } else if (
+        target.id === "pagination-next" &&
+        this.currentPage < this.totalPages
+      ) {
         this.goToPage(this.currentPage + 1);
-      } else if (target.classList.contains('page-btn')) {
+      } else if (target.classList.contains("page-btn")) {
         const page = parseInt(target.dataset.page, 10);
         if (page !== this.currentPage) {
           this.goToPage(page);

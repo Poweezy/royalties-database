@@ -9,6 +9,7 @@ The user management system has been significantly enhanced with advanced securit
 ## 🚀 New Features
 
 ### 1. **Bulk Operations**
+
 - **Bulk User Activation/Deactivation**: Activate or deactivate multiple users simultaneously
 - **Bulk Role Assignment**: Assign roles to multiple users at once with notification options
 - **Bulk Email Functionality**: Send emails to selected users with custom messages
@@ -16,6 +17,7 @@ The user management system has been significantly enhanced with advanced securit
 - **Advanced Progress Tracking**: Visual progress indicators for bulk operations
 
 ### 2. **Advanced Permissions System**
+
 - **Granular Permission System**: Fine-grained control over user capabilities
 - **Permission Templates**: Pre-configured permission sets for common roles
 - **Role Inheritance**: Hierarchical role system with inheritance support
@@ -23,6 +25,7 @@ The user management system has been significantly enhanced with advanced securit
 - **Dynamic Role Management**: Create, edit, and delete custom roles
 
 ### 3. **Enhanced User Features**
+
 - **Comprehensive User Profiles**: Detailed user information with activity tracking
 - **Password Policy Enforcement**: Configurable password policies with strength validation
 - **User Activity Monitoring**: Real-time tracking of user actions and sessions
@@ -30,6 +33,7 @@ The user management system has been significantly enhanced with advanced securit
 - **Profile Management**: Self-service and admin-managed profile updates
 
 ### 4. **Security Enhancements**
+
 - **Failed Login Tracking**: Monitor and track failed login attempts
 - **Account Lockout Policies**: Automatic account lockout after failed attempts
 - **Security Notifications**: Real-time security alerts and notifications
@@ -41,6 +45,7 @@ The user management system has been significantly enhanced with advanced securit
 ### Core Components
 
 #### 1. **UserManager.js (Enhanced)**
+
 ```javascript
 // Enhanced with new capabilities
 - Bulk operations support
@@ -50,6 +55,7 @@ The user management system has been significantly enhanced with advanced securit
 ```
 
 #### 2. **User Security Service**
+
 ```javascript
 // Location: js/services/user-security.service.js
 - Login attempt tracking
@@ -60,6 +66,7 @@ The user management system has been significantly enhanced with advanced securit
 ```
 
 #### 3. **Permission Service**
+
 ```javascript
 // Location: js/services/permission.service.js
 - Role-based access control
@@ -69,6 +76,7 @@ The user management system has been significantly enhanced with advanced securit
 ```
 
 #### 4. **UI Components**
+
 ```javascript
 // BulkOperationsPanel: js/components/BulkOperationsPanel.js
 // UserProfileModal: js/components/UserProfileModal.js
@@ -103,7 +111,7 @@ The system extends the existing IndexedDB schema with new stores:
 ```javascript
 // Example: Bulk role assignment
 const userIds = [1, 2, 3];
-await userManager.bulkAssignRole(userIds, 'Editor');
+await userManager.bulkAssignRole(userIds, "Editor");
 ```
 
 ### User Profile Management
@@ -114,8 +122,8 @@ const profile = await userManager.getUserProfile(userId);
 
 // Update profile
 await userManager.updateUserProfile(userId, {
-  email: 'newemail@example.com',
-  department: 'Finance'
+  email: "newemail@example.com",
+  department: "Finance",
 });
 ```
 
@@ -123,26 +131,39 @@ await userManager.updateUserProfile(userId, {
 
 ```javascript
 // Track login attempt
-await userSecurityService.trackFailedLogin('username', '192.168.1.1', 'Browser');
+await userSecurityService.trackFailedLogin(
+  "username",
+  "192.168.1.1",
+  "Browser",
+);
 
 // Check account lock status
-const isLocked = await userSecurityService.isAccountLocked('username');
+const isLocked = await userSecurityService.isAccountLocked("username");
 
 // Validate password
-const validation = userSecurityService.validatePassword('password123', 'username');
+const validation = userSecurityService.validatePassword(
+  "password123",
+  "username",
+);
 ```
 
 ### Permission Management
 
 ```javascript
 // Check user permission
-const hasPermission = await permissionService.userHasPermission(userId, 'users.edit');
+const hasPermission = await permissionService.userHasPermission(
+  userId,
+  "users.edit",
+);
 
 // Create custom role
-await permissionService.createRole('CustomRole', ['users.view', 'reports.view']);
+await permissionService.createRole("CustomRole", [
+  "users.view",
+  "reports.view",
+]);
 
 // Apply permission template
-await permissionService.applyPermissionTemplate(userId, 'Department Manager');
+await permissionService.applyPermissionTemplate(userId, "Department Manager");
 ```
 
 ## 🎨 UI/UX Enhancements
@@ -173,6 +194,7 @@ await permissionService.applyPermissionTemplate(userId, 'Department Manager');
 ### Responsive Design
 
 All new components are fully responsive and work across devices:
+
 - Desktop: Full feature set
 - Tablet: Adapted layouts
 - Mobile: Optimized touch interface
@@ -192,13 +214,13 @@ const policies = {
     requireNumbers: true,
     requireSymbols: true,
     maxAge: 90,
-    preventReuse: 5
+    preventReuse: 5,
   },
   strict: {
     minLength: 12,
     maxAge: 60,
-    preventReuse: 10
-  }
+    preventReuse: 10,
+  },
 };
 ```
 
@@ -208,7 +230,7 @@ const policies = {
 const securityConfig = {
   maxLoginAttempts: 5,
   lockoutDuration: 30 * 60 * 1000, // 30 minutes
-  sessionTimeout: 24 * 60 * 60 * 1000 // 24 hours
+  sessionTimeout: 24 * 60 * 60 * 1000, // 24 hours
 };
 ```
 
@@ -237,18 +259,21 @@ const activity = await userSecurityService.getUserActivity(username, 30); // 30 
 ## 🚨 Security Considerations
 
 ### Data Protection
+
 - All sensitive data is encrypted
 - Passwords are properly hashed
 - Session tokens are secure
 - Audit logs are immutable
 
 ### Access Control
+
 - Role-based permissions
 - Least privilege principle
 - Regular access reviews
 - Automated compliance checks
 
 ### Incident Response
+
 - Automatic threat detection
 - Real-time notifications
 - Incident logging
@@ -313,6 +338,7 @@ userManager.bulkActivateUsers(); // New method
 ### External Systems
 
 Ready for integration with:
+
 - LDAP/Active Directory
 - Single Sign-On (SSO)
 - External audit systems
@@ -324,59 +350,59 @@ Ready for integration with:
 
 ```javascript
 // Bulk operations
-bulkActivateUsers()
-bulkDeactivateUsers()
-bulkAssignRole(roleId)
-bulkEmailUsers()
-bulkExportUsers()
-bulkImportUsers()
+bulkActivateUsers();
+bulkDeactivateUsers();
+bulkAssignRole(roleId);
+bulkEmailUsers();
+bulkExportUsers();
+bulkImportUsers();
 
 // Profile management
-getUserProfile(userId)
-updateUserProfile(userId, data)
-getUserOnboardingStatus(userId)
-updateOnboardingProgress(userId, stepId)
+getUserProfile(userId);
+updateUserProfile(userId, data);
+getUserOnboardingStatus(userId);
+updateOnboardingProgress(userId, stepId);
 
 // Activity monitoring
-getUserActivitySummary(userId, days)
-trackUserLogin(username, ipAddress, userAgent, successful)
+getUserActivitySummary(userId, days);
+trackUserLogin(username, ipAddress, userAgent, successful);
 ```
 
 ### Security Service Methods
 
 ```javascript
 // Login tracking
-trackFailedLogin(username, ipAddress, userAgent)
-trackSuccessfulLogin(username, ipAddress, userAgent)
-isAccountLocked(username)
+trackFailedLogin(username, ipAddress, userAgent);
+trackSuccessfulLogin(username, ipAddress, userAgent);
+isAccountLocked(username);
 
 // Password management
-validatePassword(password, username)
-storePasswordHistory(username, passwordHash)
-isPasswordReused(username, passwordHash)
+validatePassword(password, username);
+storePasswordHistory(username, passwordHash);
+isPasswordReused(username, passwordHash);
 
 // Security events
-logSecurityEvent(eventType, username, details)
-sendSecurityNotification(username, type, data)
+logSecurityEvent(eventType, username, details);
+sendSecurityNotification(username, type, data);
 ```
 
 ### Permission Service Methods
 
 ```javascript
 // Permission checking
-userHasPermission(userId, permissionId)
-getUserPermissions(userId)
-getRolePermissions(roleName)
+userHasPermission(userId, permissionId);
+getUserPermissions(userId);
+getRolePermissions(roleName);
 
 // Role management
-createRole(roleName, permissions, description)
-updateRole(roleName, updates)
-deleteRole(roleName)
-assignRoleToUser(userId, roleName)
+createRole(roleName, permissions, description);
+updateRole(roleName, updates);
+deleteRole(roleName);
+assignRoleToUser(userId, roleName);
 
 // Templates
-getPermissionTemplates()
-applyPermissionTemplate(userId, templateId)
+getPermissionTemplates();
+applyPermissionTemplate(userId, templateId);
 ```
 
 ## 🔄 Updates & Maintenance
@@ -423,6 +449,7 @@ applyPermissionTemplate(userId, templateId)
 ### Support
 
 For issues or questions:
+
 1. Check the browser console for errors
 2. Review the audit logs
 3. Test with the provided test suite
@@ -437,6 +464,7 @@ This enhanced user management system is part of the Mining Royalties Manager and
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
+
 1. Follow the existing code style
 2. Add appropriate tests
 3. Update documentation
@@ -444,5 +472,5 @@ Contributions are welcome! Please:
 
 ---
 
-*Enhanced User Management for Mining Royalties Manager*  
-*Version 1.0 - Built with security, scalability, and user experience in mind*
+_Enhanced User Management for Mining Royalties Manager_  
+_Version 1.0 - Built with security, scalability, and user experience in mind_

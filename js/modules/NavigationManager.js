@@ -1,21 +1,21 @@
 export class NavigationManager {
   constructor(notificationManager) {
-    this.currentSection = 'dashboard';
+    this.currentSection = "dashboard";
     this.notificationManager = notificationManager;
     this.initializeEventListeners();
   }
 
   initializeEventListeners() {
-    document.addEventListener('click', this.handleClick.bind(this));
+    document.addEventListener("click", this.handleClick.bind(this));
   }
 
   handleClick(event) {
-    const link = event.target.closest('.sidebar nav a');
+    const link = event.target.closest(".sidebar nav a");
     if (link) {
       event.preventDefault();
-      const href = link.getAttribute('href');
-      
-      if (href?.startsWith('#')) {
+      const href = link.getAttribute("href");
+
+      if (href?.startsWith("#")) {
         const sectionId = href.substring(1);
         this.showSection(sectionId);
         this.closeMobileSidebar();
@@ -27,18 +27,18 @@ export class NavigationManager {
     if (sectionId === this.currentSection) return;
 
     // Hide all sections
-    document.querySelectorAll('main > section').forEach(section => {
-      section.style.display = 'none';
+    document.querySelectorAll("main > section").forEach((section) => {
+      section.style.display = "none";
     });
-    
+
     // Show target section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-      targetSection.style.display = 'block';
+      targetSection.style.display = "block";
       this.scrollToTop();
       this.updateActiveNavigation(sectionId);
       this.currentSection = sectionId;
-      
+
       // Trigger section-specific initialization
       this.onSectionChange(sectionId);
     } else {
@@ -47,32 +47,36 @@ export class NavigationManager {
   }
 
   updateActiveNavigation(sectionId) {
-    document.querySelectorAll('.sidebar nav a').forEach(link => {
-      link.classList.remove('active');
+    document.querySelectorAll(".sidebar nav a").forEach((link) => {
+      link.classList.remove("active");
     });
-    
-    const activeLink = document.querySelector(`.sidebar nav a[href="#${sectionId}"]`);
-    activeLink?.classList.add('active');
+
+    const activeLink = document.querySelector(
+      `.sidebar nav a[href="#${sectionId}"]`,
+    );
+    activeLink?.classList.add("active");
   }
 
   scrollToTop() {
-    document.querySelector('.main-content')?.scrollTo({
+    document.querySelector(".main-content")?.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 
   closeMobileSidebar() {
     if (window.innerWidth <= 768) {
-      document.getElementById('sidebar')?.classList.remove('active');
+      document.getElementById("sidebar")?.classList.remove("active");
     }
   }
 
   onSectionChange(sectionId) {
     // Override in subclasses or use event system
-    window.dispatchEvent(new CustomEvent('sectionChanged', { 
-      detail: { sectionId, previousSection: this.currentSection } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("sectionChanged", {
+        detail: { sectionId, previousSection: this.currentSection },
+      }),
+    );
   }
 
   getCurrentSection() {

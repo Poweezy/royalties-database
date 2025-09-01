@@ -2,62 +2,72 @@
  * @module ExpenseTracking
  * @description Handles all logic for the JIB / Expense Tracking section.
  */
-import { dbService } from '../services/database.service.js';
-import { showToast } from './NotificationManager.js';
-import { Pagination } from './Pagination.js';
+import { dbService } from "../services/database.service.js";
+import { showToast } from "./NotificationManager.js";
+import { Pagination } from "./Pagination.js";
 
 const ExpenseTracking = {
   elements: {},
   pagination: null,
 
   async init() {
-    console.log('Initializing Expense Tracking...');
+    console.log("Initializing Expense Tracking...");
     this.cacheDOMElements();
     this.pagination = new Pagination({
-        containerSelector: '#expense-tracking-pagination',
-        itemsPerPage: 5,
-        onPageChange: (page) => {
-            this.renderExpenses(page);
-        }
+      containerSelector: "#expense-tracking-pagination",
+      itemsPerPage: 5,
+      onPageChange: (page) => {
+        this.renderExpenses(page);
+      },
     });
     this.bindEvents();
     await this.seedInitialData();
     await this.renderExpenses();
-    console.log('Expense Tracking Initialized.');
+    console.log("Expense Tracking Initialized.");
   },
 
   cacheDOMElements() {
     this.elements = {
-      tableBody: document.getElementById('expense-tracking-table-body'),
-      paginationContainer: document.getElementById('expense-tracking-pagination'),
-      addExpenseBtn: document.getElementById('add-expense-btn'),
-      addExpenseModal: document.getElementById('add-expense-modal'),
-      modalTitle: document.querySelector('#add-expense-modal .modal-header h4'),
-      saveExpenseBtn: document.getElementById('save-expense-btn'),
-      closeModalBtn: document.getElementById('close-add-expense-modal-btn'),
-      cancelBtn: document.getElementById('cancel-add-expense-btn'),
-      addExpenseForm: document.getElementById('add-expense-form'),
-      expenseDateInput: document.getElementById('expense-date'),
-      expenseCategoryInput: document.getElementById('expense-category'),
-      expenseDescriptionInput: document.getElementById('expense-description'),
-      expenseAmountInput: document.getElementById('expense-amount'),
-      expenseEntityInput: document.getElementById('expense-entity'),
+      tableBody: document.getElementById("expense-tracking-table-body"),
+      paginationContainer: document.getElementById(
+        "expense-tracking-pagination",
+      ),
+      addExpenseBtn: document.getElementById("add-expense-btn"),
+      addExpenseModal: document.getElementById("add-expense-modal"),
+      modalTitle: document.querySelector("#add-expense-modal .modal-header h4"),
+      saveExpenseBtn: document.getElementById("save-expense-btn"),
+      closeModalBtn: document.getElementById("close-add-expense-modal-btn"),
+      cancelBtn: document.getElementById("cancel-add-expense-btn"),
+      addExpenseForm: document.getElementById("add-expense-form"),
+      expenseDateInput: document.getElementById("expense-date"),
+      expenseCategoryInput: document.getElementById("expense-category"),
+      expenseDescriptionInput: document.getElementById("expense-description"),
+      expenseAmountInput: document.getElementById("expense-amount"),
+      expenseEntityInput: document.getElementById("expense-entity"),
     };
 
     if (!this.elements.paginationContainer) {
-        this.elements.paginationContainer = document.createElement('div');
-        this.elements.paginationContainer.id = 'expense-tracking-pagination';
-        this.elements.tableBody.parentElement.after(this.elements.paginationContainer);
+      this.elements.paginationContainer = document.createElement("div");
+      this.elements.paginationContainer.id = "expense-tracking-pagination";
+      this.elements.tableBody.parentElement.after(
+        this.elements.paginationContainer,
+      );
     }
   },
 
   bindEvents() {
-    this.elements.addExpenseBtn.addEventListener('click', () => this.openModal());
-    this.elements.closeModalBtn.addEventListener('click', () => this.closeModal());
-    this.elements.cancelBtn.addEventListener('click', () => this.closeModal());
-    this.elements.addExpenseForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+    this.elements.addExpenseBtn.addEventListener("click", () =>
+      this.openModal(),
+    );
+    this.elements.closeModalBtn.addEventListener("click", () =>
+      this.closeModal(),
+    );
+    this.elements.cancelBtn.addEventListener("click", () => this.closeModal());
+    this.elements.addExpenseForm.addEventListener("submit", (e) =>
+      this.handleFormSubmit(e),
+    );
 
-    window.addEventListener('click', (event) => {
+    window.addEventListener("click", (event) => {
       if (event.target === this.elements.addExpenseModal) {
         this.closeModal();
       }
@@ -68,8 +78,8 @@ const ExpenseTracking = {
     this.elements.addExpenseForm.reset();
     if (expense) {
       // Edit mode
-      this.elements.modalTitle.textContent = 'Edit Expense';
-      this.elements.saveExpenseBtn.textContent = 'Update Expense';
+      this.elements.modalTitle.textContent = "Edit Expense";
+      this.elements.saveExpenseBtn.textContent = "Update Expense";
       this.elements.addExpenseForm.dataset.editingId = expense.id;
       this.elements.expenseDateInput.value = expense.date;
       this.elements.expenseCategoryInput.value = expense.category;
@@ -78,15 +88,15 @@ const ExpenseTracking = {
       this.elements.expenseEntityInput.value = expense.entity;
     } else {
       // Add mode
-      this.elements.modalTitle.textContent = 'Add New Expense';
-      this.elements.saveExpenseBtn.textContent = 'Save Expense';
+      this.elements.modalTitle.textContent = "Add New Expense";
+      this.elements.saveExpenseBtn.textContent = "Save Expense";
       delete this.elements.addExpenseForm.dataset.editingId;
     }
-    this.elements.addExpenseModal.style.display = 'block';
+    this.elements.addExpenseModal.style.display = "block";
   },
 
   closeModal() {
-    this.elements.addExpenseModal.style.display = 'none';
+    this.elements.addExpenseModal.style.display = "none";
     this.elements.addExpenseForm.reset();
     delete this.elements.addExpenseForm.dataset.editingId;
   },
@@ -100,61 +110,67 @@ const ExpenseTracking = {
       description: this.elements.expenseDescriptionInput.value.trim(),
       amount: parseFloat(this.elements.expenseAmountInput.value),
       entity: this.elements.expenseEntityInput.value,
-      status: 'Pending', // Default status, can be updated later
+      status: "Pending", // Default status, can be updated later
     };
 
-    if (!expenseData.date || !expenseData.category || !expenseData.description || isNaN(expenseData.amount) || !expenseData.entity) {
-      showToast('Please fill in all fields correctly.', 'error');
+    if (
+      !expenseData.date ||
+      !expenseData.category ||
+      !expenseData.description ||
+      isNaN(expenseData.amount) ||
+      !expenseData.entity
+    ) {
+      showToast("Please fill in all fields correctly.", "error");
       return;
     }
 
     try {
       if (editingId) {
         expenseData.id = editingId;
-        await dbService.put('expenses', expenseData);
-        showToast('Expense updated successfully!', 'success');
+        await dbService.put("expenses", expenseData);
+        showToast("Expense updated successfully!", "success");
       } else {
         expenseData.id = `exp_${Date.now()}`;
-        await dbService.add('expenses', expenseData);
-        showToast('Expense added successfully!', 'success');
+        await dbService.add("expenses", expenseData);
+        showToast("Expense added successfully!", "success");
       }
       await this.renderExpenses(1);
       this.closeModal();
     } catch (error) {
-      console.error('Error saving expense:', error);
-      showToast('Failed to save expense.', 'error');
+      console.error("Error saving expense:", error);
+      showToast("Failed to save expense.", "error");
     }
   },
 
   async renderExpenses(page = 1) {
     try {
-      const expenses = await dbService.getAll('expenses');
+      const expenses = await dbService.getAll("expenses");
       expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const startIndex = (page - 1) * this.pagination.itemsPerPage;
       const endIndex = startIndex + this.pagination.itemsPerPage;
       const paginatedExpenses = expenses.slice(startIndex, endIndex);
 
-      this.elements.tableBody.innerHTML = '';
+      this.elements.tableBody.innerHTML = "";
 
       if (expenses.length === 0) {
         this.elements.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">No expenses recorded.</td></tr>`;
       } else {
-        paginatedExpenses.forEach(expense => {
-            const row = this.createExpenseRow(expense);
-            this.elements.tableBody.appendChild(row);
+        paginatedExpenses.forEach((expense) => {
+          const row = this.createExpenseRow(expense);
+          this.elements.tableBody.appendChild(row);
         });
       }
       this.pagination.render(expenses.length, page);
     } catch (error) {
-      console.error('Error rendering expenses:', error);
-      showToast('Failed to load expenses.', 'error');
+      console.error("Error rendering expenses:", error);
+      showToast("Failed to load expenses.", "error");
     }
   },
 
   createExpenseRow(expense) {
-    const row = document.createElement('tr');
-    row.setAttribute('data-id', expense.id);
+    const row = document.createElement("tr");
+    row.setAttribute("data-id", expense.id);
     const statusClass = expense.status.toLowerCase();
 
     row.innerHTML = `
@@ -172,55 +188,115 @@ const ExpenseTracking = {
       </td>
     `;
 
-    row.querySelector('.edit-btn').addEventListener('click', () => this.handleEditExpense(expense.id));
-    row.querySelector('.delete-btn').addEventListener('click', () => this.handleDeleteExpense(expense.id));
+    row
+      .querySelector(".edit-btn")
+      .addEventListener("click", () => this.handleEditExpense(expense.id));
+    row
+      .querySelector(".delete-btn")
+      .addEventListener("click", () => this.handleDeleteExpense(expense.id));
     return row;
   },
 
   async handleEditExpense(expenseId) {
     try {
-      const expense = await dbService.getById('expenses', expenseId);
+      const expense = await dbService.getById("expenses", expenseId);
       if (expense) {
         this.openModal(expense);
       } else {
-        showToast('Expense not found.', 'error');
+        showToast("Expense not found.", "error");
       }
     } catch (error) {
-      console.error('Error fetching expense for editing:', error);
-      showToast('Failed to fetch expense details.', 'error');
+      console.error("Error fetching expense for editing:", error);
+      showToast("Failed to fetch expense details.", "error");
     }
   },
 
   async handleDeleteExpense(expenseId) {
-    if (confirm('Are you sure you want to delete this expense?')) {
+    if (confirm("Are you sure you want to delete this expense?")) {
       try {
-        await dbService.delete('expenses', expenseId);
+        await dbService.delete("expenses", expenseId);
         await this.renderExpenses(1);
-        showToast('Expense deleted successfully.', 'success');
+        showToast("Expense deleted successfully.", "success");
       } catch (error) {
-        console.error('Error deleting expense:', error);
-        showToast('Failed to delete expense.', 'error');
+        console.error("Error deleting expense:", error);
+        showToast("Failed to delete expense.", "error");
       }
     }
   },
 
   async seedInitialData() {
-    const expenses = await dbService.getAll('expenses');
+    const expenses = await dbService.getAll("expenses");
     if (expenses.length === 0) {
-        const seedData = [
-            { id: 'exp_1', date: '2024-07-20', category: 'Operational', description: 'Fuel for machinery', amount: 5000.00, entity: 'Kwalini Quarry', status: 'Approved' },
-            { id: 'exp_2', date: '2024-07-18', category: 'JIB', description: 'Joint Interest Billing Q2', amount: 12500.00, entity: 'Maloma Colliery', status: 'Pending' },
-            { id: 'exp_3', date: '2024-07-15', category: 'Administrative', description: 'Office supplies', amount: 1500.00, entity: 'Mbabane Quarry', status: 'Approved' },
-            { id: 'exp_4', date: '2024-07-12', category: 'Capital', description: 'New drill bit', amount: 25000.00, entity: 'Ngwenya Mine', status: 'Pending' },
-            { id: 'exp_5', date: '2024-07-10', category: 'Operational', description: 'Vehicle maintenance', amount: 3500.00, entity: 'Sidvokodvo Quarry', status: 'Approved' },
-            { id: 'exp_6', date: '2024-07-05', category: 'JIB', description: 'Shared road maintenance', amount: 7500.00, entity: 'Malolotja Mine', status: 'Rejected' },
-            { id: 'exp_7', date: '2024-07-01', category: 'Administrative', description: 'Legal consultation', amount: 10000.00, entity: 'Eswatini Minerals', status: 'Approved' },
-        ];
-        for (const expense of seedData) {
-            await dbService.add('expenses', expense);
-        }
+      const seedData = [
+        {
+          id: "exp_1",
+          date: "2024-07-20",
+          category: "Operational",
+          description: "Fuel for machinery",
+          amount: 5000.0,
+          entity: "Kwalini Quarry",
+          status: "Approved",
+        },
+        {
+          id: "exp_2",
+          date: "2024-07-18",
+          category: "JIB",
+          description: "Joint Interest Billing Q2",
+          amount: 12500.0,
+          entity: "Maloma Colliery",
+          status: "Pending",
+        },
+        {
+          id: "exp_3",
+          date: "2024-07-15",
+          category: "Administrative",
+          description: "Office supplies",
+          amount: 1500.0,
+          entity: "Mbabane Quarry",
+          status: "Approved",
+        },
+        {
+          id: "exp_4",
+          date: "2024-07-12",
+          category: "Capital",
+          description: "New drill bit",
+          amount: 25000.0,
+          entity: "Ngwenya Mine",
+          status: "Pending",
+        },
+        {
+          id: "exp_5",
+          date: "2024-07-10",
+          category: "Operational",
+          description: "Vehicle maintenance",
+          amount: 3500.0,
+          entity: "Sidvokodvo Quarry",
+          status: "Approved",
+        },
+        {
+          id: "exp_6",
+          date: "2024-07-05",
+          category: "JIB",
+          description: "Shared road maintenance",
+          amount: 7500.0,
+          entity: "Malolotja Mine",
+          status: "Rejected",
+        },
+        {
+          id: "exp_7",
+          date: "2024-07-01",
+          category: "Administrative",
+          description: "Legal consultation",
+          amount: 10000.0,
+          entity: "Eswatini Minerals",
+          status: "Approved",
+        },
+      ];
+      for (const expense of seedData) {
+        await dbService.add("expenses", expense);
+      }
     }
-  }
+  },
 };
 
 export default ExpenseTracking;

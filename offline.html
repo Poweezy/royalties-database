@@ -1,114 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Offline - Mining Royalties Manager</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1a365d;
+        --background-color: #f8fafc;
+        --text-color: #1e293b;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      .offline-container {
+        text-align: center;
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .offline-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 auto 2rem;
+      }
+
+      h1 {
+        color: var(--secondary-color);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+
+      .refresh-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .refresh-btn:hover {
+        background-color: #1d4ed8;
+      }
+
+      .offline-icon {
+        font-size: 48px;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+      }
+
+      @media (prefers-color-scheme: dark) {
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1a365d;
-            --background-color: #f8fafc;
-            --text-color: #1e293b;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--background-color);
-            color: var(--text-color);
-        }
-
-        .offline-container {
-            text-align: center;
-            padding: 2rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .offline-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 auto 2rem;
-        }
-
-        h1 {
-            color: var(--secondary-color);
-            font-size: 2rem;
-            margin-bottom: 1rem;
+          --background-color: #0f172a;
+          --text-color: #f8fafc;
         }
 
         p {
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 2rem;
+          color: #94a3b8;
         }
-
-        .refresh-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .refresh-btn:hover {
-            background-color: #1d4ed8;
-        }
-
-        .offline-icon {
-            font-size: 48px;
-            color: var(--secondary-color);
-            margin-bottom: 1rem;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background-color: #0f172a;
-                --text-color: #f8fafc;
-            }
-
-            p {
-                color: #94a3b8;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="offline-container">
-        <div class="offline-logo">MR</div>
-        <div class="offline-icon">📡</div>
-        <h1>You're Offline</h1>
-        <p>It seems you've lost your internet connection. Don't worry - any changes you make will be synchronized when you're back online.</p>
-        <button class="refresh-btn" onclick="window.location.reload()">
-            Try Again
-        </button>
+      <div class="offline-logo">MR</div>
+      <div class="offline-icon">📡</div>
+      <h1>You're Offline</h1>
+      <p>
+        It seems you've lost your internet connection. Don't worry - any changes
+        you make will be synchronized when you're back online.
+      </p>
+      <button class="refresh-btn" onclick="window.location.reload()">
+        Try Again
+      </button>
     </div>
 
     <script>
-        // Check for online status
-        window.addEventListener('online', () => {
-            window.location.reload();
-        });
+      // Check for online status
+      window.addEventListener("online", () => {
+        window.location.reload();
+      });
     </script>
-</body>
+  </body>
 </html>
