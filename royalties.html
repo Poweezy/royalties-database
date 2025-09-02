@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="css/user-management-enhanced.css" />
     <link rel="stylesheet" href="css/contract-management-enhanced.css" />
     <link rel="stylesheet" href="css/gis-dashboard-enhanced.css" />
+    <link rel="stylesheet" href="css/print.css" media="print" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -213,6 +214,27 @@
         </form>
         <div class="login-footer">
           <p><a href="#" id="back-to-login-link">Back to Sign In</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2FA Section -->
+    <section class="two-factor-section" id="two-factor-section" style="display: none;">
+      <div class="login-container">
+        <div class="login-header">
+          <div class="login-logo" aria-label="Mining Royalties Manager Logo">MR</div>
+          <h2>Two-Factor Authentication</h2>
+          <p>Please enter the code from your authenticator app.</p>
+        </div>
+        <form class="two-factor-form" id="two-factor-form">
+          <div class="input-group">
+            <i class="fas fa-shield-alt" aria-label="2FA code icon"></i>
+            <input type="text" id="2fa-code" placeholder="6-digit code" required maxlength="6" inputmode="numeric" pattern="[0-9]{6}">
+          </div>
+          <button type="submit" class="btn btn-primary btn-large">Verify</button>
+        </form>
+        <div class="login-footer">
+          <p><a href="#" id="cancel-2fa-link">Cancel and logout</a></p>
         </div>
       </div>
     </section>
@@ -434,6 +456,14 @@
                   </button>
                 </div>
               </div>
+              <button
+                class="btn btn-info"
+                id="export-dashboard-pdf-btn"
+                title="Export Dashboard to PDF"
+              >
+                <i class="fas fa-file-pdf" aria-label="Export to PDF icon"></i>
+                Export to PDF
+              </button>
               <button
                 class="btn btn-primary"
                 id="admin-panel-btn"
@@ -2066,11 +2096,13 @@
                 <button class="btn btn-primary" id="apply-royalty-filters-btn">
                   Apply Filters
                 </button>
+                <button class="btn btn-success" id="import-royalty-csv-btn">Import from CSV</button>
+                <input type="file" id="royalty-csv-input" accept=".csv, .xlsx" style="display: none;">
                 <button
                   class="btn btn-secondary"
                   id="export-royalty-report-btn"
                 >
-                  Export Report
+                  Export to CSV
                 </button>
               </div>
             </div>
