@@ -1,13 +1,10 @@
-/**
- * Core authentication service for the Mining Royalties Manager
- */
-
 import { security } from "../utils/security.js";
 
 class AuthService {
   constructor() {
     this.isAuthenticated = false;
     this.currentUser = null;
+    this.pending2FAUser = null; // For 2FA flow
     this.token = localStorage.getItem("auth_token");
 
     // Demo credentials
@@ -36,20 +33,13 @@ class AuthService {
     };
   }
 
-  /**
-   * Get the current authenticated user
-   * @returns {Object|null} The current user object or null if not authenticated
-   */
   getCurrentUser() {
     if (!this.isAuthenticated || !this.currentUser) {
       return null;
     }
-    return { ...this.currentUser }; // Return a copy to prevent direct modification
+    return { ...this.currentUser };
   }
 
-  /**
-   * Initialize authentication state
-   */
   async init() {
     try {
       if (this.token) {
@@ -58,8 +48,6 @@ class AuthService {
           this.logout();
           return false;
         }
-
-        // Restore user data from localStorage
         const userData = localStorage.getItem("user_data");
         if (userData) {
           this.currentUser = JSON.parse(userData);
@@ -74,33 +62,21 @@ class AuthService {
     }
   }
 
-  /**
-   * Attempt user login for demo version
-   */
   async login(username, password) {
     try {
-      // Sanitize inputs
       username = security.sanitizeInput(username, "username");
-
-      // Demo authentication
       const user = this.demoUsers[username];
       if (!user || !window.bcrypt.compareSync(password, user.password)) {
         throw new Error("Invalid credentials");
       }
-
-      // Create mock auth data
-      const authData = {
-        token: "demo_token_" + Math.random().toString(36).substr(2),
-        user: {
-          username,
-          role: user.role,
-          department: user.department,
-          email: user.email,
-          lastLogin: new Date().toISOString(),
-        },
+      // Store user for 2FA verification instead of finalizing login
+      this.pending2FAUser = {
+        username,
+        role: user.role,
+        department: user.department,
+        email: user.email,
+        lastLogin: new Date().toISOString(),
       };
-
-      this.setAuthenticationState(authData);
       return true;
     } catch (error) {
       console.error("Login error:", error);
@@ -108,10 +84,25 @@ class AuthService {
     }
   }
 
-  /**
-   * Set the authentication state after successful login
-   * @param {Object} authData - The authentication data containing token and user info
-   */
+  async verify2FA(code) {
+    if (!this.pending2FAUser) {
+      throw new Error("No user pending 2FA verification.");
+    }
+    // For demo, any 6-digit code is valid
+    if (!/^\d{6}$/.test(code)) {
+      throw new Error("Invalid 2FA code format.");
+    }
+
+    const authData = {
+      token: "demo_token_" + Math.random().toString(36).substr(2),
+      user: this.pending2FAUser,
+    };
+
+    this.setAuthenticationState(authData);
+    this.pending2FAUser = null; // Clear pending user
+    return true;
+  }
+
   setAuthenticationState(authData) {
     this.token = authData.token;
     this.currentUser = authData.user;
@@ -120,42 +111,30 @@ class AuthService {
     localStorage.setItem("user_data", JSON.stringify(this.currentUser));
   }
 
-  /**
-   * Log out current user
-   */
   logout() {
     this.isAuthenticated = false;
     this.currentUser = null;
+    this.pending2FAUser = null;
     this.token = null;
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_data"); // Also remove user data
     window.location.reload();
   }
 
-  /**
-   * Validate current auth token
-   */
   async validateToken() {
     if (!this.token) return false;
-
     try {
-      // For demo, validate token format and expiration
       if (!this.token.startsWith("demo_token_")) {
         throw new Error("Invalid token format");
       }
-
-      // Simulate token validation
-      const mockData = {
-        token: this.token,
-        user: this.currentUser || {
-          username: "admin",
-          role: "Administrator",
-          department: "Administration",
-          email: "admin@government.sz",
-          lastLogin: new Date().toISOString(),
-        },
-      };
-
-      this.setAuthenticationState(mockData);
+      const userData = localStorage.getItem("user_data");
+      if (userData) {
+        this.currentUser = JSON.parse(userData);
+        this.isAuthenticated = true;
+      } else {
+        // If there's a token but no user data, something is wrong.
+        throw new Error("Inconsistent auth state.");
+      }
       return true;
     } catch (error) {
       console.error("Token validation error:", error);
@@ -163,20 +142,12 @@ class AuthService {
     }
   }
 
-  /**
-   * Check if user has required role
-   */
   hasRole(role) {
     return this.currentUser && this.currentUser.role === role;
   }
 
-  /**
-   * Check if user has required permission based on role
-   */
   hasPermission(permission) {
     if (!this.currentUser) return false;
-
-    // Demo permission mapping
     const rolePermissions = {
       Administrator: [
         "manage_users",
@@ -187,7 +158,6 @@ class AuthService {
       "Finance Officer": ["manage_royalties", "view_reports", "export_data"],
       Auditor: ["view_audit_logs", "export_data", "view_reports"],
     };
-
     const userPermissions = rolePermissions[this.currentUser.role] || [];
     return userPermissions.includes(permission);
   }

@@ -491,6 +491,22 @@ class App {
         }
       });
 
+    // 2FA form submission
+    document
+      .getElementById("two-factor-form")
+      ?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await this.handle2FALogin(e.target);
+      });
+
+    // Cancel 2FA link
+    document
+      .getElementById("cancel-2fa-link")
+      ?.addEventListener("click", (e) => {
+        e.preventDefault();
+        authService.logout(); // Simple logout will clear state and reload
+      });
+
     // Communication Hub listeners
     document
       .getElementById("compose-message-btn")
@@ -1224,13 +1240,30 @@ class App {
 
     try {
       await authService.login(username, password);
-      await this.initializeAuthenticatedState();
+      this.show2FA();
     } catch (error) {
       console.error("[App] Login error caught in handleLogin:", error);
       this.showError("Invalid username or password");
     } finally {
       loginButton.classList.remove("loading");
       loginButton.disabled = false;
+    }
+  }
+
+  async handle2FALogin(form) {
+    const code = form.querySelector("#2fa-code").value;
+    const verifyButton = form.querySelector('button[type="submit"]');
+    verifyButton.classList.add("loading");
+    verifyButton.disabled = true;
+
+    try {
+      await authService.verify2FA(code);
+      await this.initializeAuthenticatedState();
+    } catch (error) {
+      this.showError(error.message || "Invalid 2FA code.");
+    } finally {
+      verifyButton.classList.remove("loading");
+      verifyButton.disabled = false;
     }
   }
 
@@ -1389,16 +1422,26 @@ class App {
     document.getElementById("login-section").style.display = "flex";
     document.getElementById("forgot-password-section").style.display = "none";
     document.getElementById("app-container").style.display = "none";
+    document.getElementById("two-factor-section").style.display = "none";
   }
 
   showForgotPassword() {
     document.getElementById("login-section").style.display = "none";
     document.getElementById("forgot-password-section").style.display = "flex";
     document.getElementById("app-container").style.display = "none";
+    document.getElementById("two-factor-section").style.display = "none";
+  }
+
+  show2FA() {
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("forgot-password-section").style.display = "none";
+    document.getElementById("two-factor-section").style.display = "flex";
+    document.getElementById("app-container").style.display = "none";
   }
 
   showDashboard() {
     document.getElementById("login-section").style.display = "none";
+    document.getElementById("two-factor-section").style.display = "none";
     const appContainer = document.getElementById("app-container");
     appContainer.style.display = "flex";
     this.navigate("dashboard");
