@@ -36,71 +36,63 @@ class DatabaseService {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // Create or get the royalty store
-        let royaltyStore;
+        // Create object stores if they don't exist
         if (!db.objectStoreNames.contains(this.stores.royalties)) {
-          royaltyStore = db.createObjectStore(this.stores.royalties, {
+          const royaltyStore = db.createObjectStore(this.stores.royalties, {
             keyPath: "id",
             autoIncrement: true,
           });
-        } else {
-          royaltyStore = event.target.transaction.objectStore(
-            this.stores.royalties,
-          );
+          // Seed data only when the store is first created
+          const royaltyData = [
+            {
+              entity: "Kwalini Quarry",
+              mineral: "Quarried Stone",
+              volume: 1200,
+              tariff: 15.5,
+              royaltyPayment: 18600,
+              paymentDate: "2025-07-15",
+              status: "Paid",
+            },
+            {
+              entity: "Maloma Colliery",
+              mineral: "Coal",
+              volume: 5000,
+              tariff: 25.0,
+              royaltyPayment: 125000,
+              paymentDate: "2025-07-10",
+              status: "Paid",
+            },
+            {
+              entity: "Mbabane Quarry",
+              mineral: "Gravel",
+              volume: 800,
+              tariff: 18.5,
+              royaltyPayment: 14800,
+              paymentDate: "2025-06-20",
+              status: "Overdue",
+            },
+            {
+              entity: "Ngwenya Mine",
+              mineral: "Iron Ore",
+              volume: 2500,
+              tariff: 30.0,
+              royaltyPayment: 75000,
+              paymentDate: "2025-07-05",
+              status: "Paid",
+            },
+            {
+              entity: "Sidvokodvo Quarry",
+              mineral: "Gravel",
+              volume: 1500,
+              tariff: 18.5,
+              royaltyPayment: 27750,
+              paymentDate: "2025-05-15",
+              status: "Overdue",
+            },
+          ];
+          royaltyData.forEach((record) => royaltyStore.add(record));
         }
 
-        // Clear existing data and re-seed to ensure a consistent state on upgrade
-        royaltyStore.clear();
-        const royaltyData = [
-          {
-            entity: "Kwalini Quarry",
-            mineral: "Quarried Stone",
-            volume: 1200,
-            tariff: 15.5,
-            royaltyPayment: 18600,
-            paymentDate: "2025-07-15",
-            status: "Paid",
-          },
-          {
-            entity: "Maloma Colliery",
-            mineral: "Coal",
-            volume: 5000,
-            tariff: 25.0,
-            royaltyPayment: 125000,
-            paymentDate: "2025-07-10",
-            status: "Paid",
-          },
-          {
-            entity: "Mbabane Quarry",
-            mineral: "Gravel",
-            volume: 800,
-            tariff: 18.5,
-            royaltyPayment: 14800,
-            paymentDate: "2025-06-20",
-            status: "Overdue",
-          },
-          {
-            entity: "Ngwenya Mine",
-            mineral: "Iron Ore",
-            volume: 2500,
-            tariff: 30.0,
-            royaltyPayment: 75000,
-            paymentDate: "2025-07-05",
-            status: "Paid",
-          },
-          {
-            entity: "Sidvokodvo Quarry",
-            mineral: "Gravel",
-            volume: 1500,
-            tariff: 18.5,
-            royaltyPayment: 27750,
-            paymentDate: "2025-05-15",
-            status: "Overdue",
-          },
-        ];
-        royaltyData.forEach((record) => royaltyStore.add(record));
-
-        // Create other stores if they don't exist
         if (!db.objectStoreNames.contains(this.stores.users)) {
           db.createObjectStore(this.stores.users, { keyPath: "id" });
         }
