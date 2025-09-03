@@ -341,6 +341,28 @@ export class ChartManager {
     this.charts.set("comparative", chart);
   }
 
+  createChart(chartId, canvas, type, data, options = {}) {
+    if (!canvas || typeof Chart === "undefined") return;
+
+    const ctx = canvas.getContext("2d");
+    this.charts.get(chartId)?.destroy();
+
+    const defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: "top" } },
+    };
+
+    const chart = new Chart(ctx, {
+        type: type,
+        data: data,
+        options: { ...defaultOptions, ...options },
+    });
+
+    this.charts.set(chartId, chart);
+    return chart;
+  }
+
   showFallbackCharts() {
     const containers = ["#revenue-trends-chart", "#production-by-entity-chart"];
     containers.forEach((selector) => {
