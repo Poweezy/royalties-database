@@ -1102,6 +1102,13 @@ class App {
       });
     }
 
+    const exportPdfBtn = document.getElementById("export-pdf-btn");
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener("click", () => {
+            this.fileManager.exportDashboardToPDF();
+        });
+    }
+
     // --- Dashboard Card Click Listeners ---
     const addClickListener = (selector, targetRoute, context = null) => {
       const element = document.querySelector(selector);
