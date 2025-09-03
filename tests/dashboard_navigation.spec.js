@@ -18,7 +18,14 @@ test.describe("Dashboard Navigation", () => {
     await page.fill("#username", "admin");
     await page.fill("#password", "demo123");
     await page.click('button[type="submit"]');
+
     await page.waitForSelector("#app-container", { state: "visible" });
+  });
+
+  test.afterEach(async ({ page }) => {
+    await page.evaluate(() => {
+      window.app.leaseManagement.stopMonitoring();
+    });
   });
 
   test('should not navigate when "Total Royalties" card is clicked', async ({ page }) => {
