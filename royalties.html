@@ -2381,11 +2381,62 @@
             </div>
             <div class="page-actions">
               <button class="btn btn-success" id="add-expense-btn">
-                Add Expense
+                <i class="fas fa-plus"></i> Add Expense
               </button>
             </div>
           </div>
+
+          <!-- Expense Visualization -->
+          <div class="charts-grid">
+            <div class="analytics-chart card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> Expense Breakdown by Category</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="expense-category-chart"></canvas>
+                </div>
+            </div>
+            <div class="metric-card card">
+                <div class="card-header">
+                    <h3><i class="fas fa-coins"></i> Total Expenses (YTD)</h3>
+                </div>
+                <div class="card-body">
+                    <p id="total-expenses">E 0.00</p>
+                    <small>Across all categories</small>
+                </div>
+            </div>
+          </div>
+
           <div class="user-form-container">
+            <!-- Expense Filters -->
+            <div class="table-filters">
+              <h6><i class="fas fa-filter"></i> Filter Expenses</h6>
+              <div class="grid-4">
+                <div class="form-group">
+                  <label for="expense-filter-category">Category</label>
+                  <select id="expense-filter-category">
+                    <option value="">All</option>
+                    <option value="Operational">Operational</option>
+                    <option value="Capital">Capital</option>
+                    <option value="Administrative">Administrative</option>
+                    <option value="JIB">JIB</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="expense-filter-entity">Entity</label>
+                  <select id="expense-filter-entity">
+                    <option value="">All Entities</option>
+                     <!-- Options will be populated dynamically -->
+                  </select>
+                </div>
+                <div class="form-group filter-actions">
+                  <label>&nbsp;</label>
+                  <button class="btn btn-primary" id="apply-expense-filters">Apply</button>
+                  <button class="btn btn-secondary" id="clear-expense-filters">Clear</button>
+                </div>
+              </div>
+            </div>
+
             <div class="table-container">
               <table class="data-table">
                 <thead>
