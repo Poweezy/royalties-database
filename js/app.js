@@ -206,9 +206,6 @@ class App {
       await this.leaseManagement.init();
       leaseManagementUI.init();
 
-      // Initialize Expense Tracking
-      await this.expenseTracking.init();
-
       // Initialize Contract Management
       await this.contractManagement.init();
       contractManagementUI.init();
@@ -1293,6 +1290,10 @@ class App {
         null,
         context && context.page ? context.page : 1,
       );
+    }
+
+    if (route === "expense-tracking") {
+      this.expenseTracking.init();
     }
 
     if (route === "royalty-records") {

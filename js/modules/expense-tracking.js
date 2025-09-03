@@ -44,6 +44,10 @@ const ExpenseTracking = {
       expenseDescriptionInput: document.getElementById("expense-description"),
       expenseAmountInput: document.getElementById("expense-amount"),
       expenseEntityInput: document.getElementById("expense-entity"),
+      filterCategory: document.getElementById("expense-filter-category"),
+      filterEntity: document.getElementById("expense-filter-entity"),
+      applyFiltersBtn: document.getElementById("apply-expense-filters"),
+      clearFiltersBtn: document.getElementById("clear-expense-filters"),
     };
 
     if (!this.elements.paginationContainer) {
@@ -71,6 +75,13 @@ const ExpenseTracking = {
       if (event.target === this.elements.addExpenseModal) {
         this.closeModal();
       }
+    });
+
+    this.elements.applyFiltersBtn.addEventListener("click", () => this.renderExpenses());
+    this.elements.clearFiltersBtn.addEventListener("click", () => {
+        this.elements.filterCategory.value = "";
+        this.elements.filterEntity.value = "";
+        this.renderExpenses();
     });
   },
 
@@ -144,7 +155,22 @@ const ExpenseTracking = {
 
   async renderExpenses(page = 1) {
     try {
-      const expenses = await dbService.getAll("expenses");
+      let expenses = await dbService.getAll("expenses");
+
+      // Populate filter dropdowns dynamically
+      this.populateFilterDropdowns(expenses);
+
+      // Apply filters
+      const categoryFilter = this.elements.filterCategory.value;
+      const entityFilter = this.elements.filterEntity.value;
+
+      if (categoryFilter) {
+        expenses = expenses.filter(e => e.category === categoryFilter);
+      }
+      if (entityFilter) {
+        expenses = expenses.filter(e => e.entity === entityFilter);
+      }
+
       expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const startIndex = (page - 1) * this.pagination.itemsPerPage;
@@ -154,7 +180,7 @@ const ExpenseTracking = {
       this.elements.tableBody.innerHTML = "";
 
       if (expenses.length === 0) {
-        this.elements.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">No expenses recorded.</td></tr>`;
+        this.elements.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem;">No expenses match the current filters.</td></tr>`;
       } else {
         paginatedExpenses.forEach((expense) => {
           const row = this.createExpenseRow(expense);
@@ -162,10 +188,60 @@ const ExpenseTracking = {
         });
       }
       this.pagination.render(expenses.length, page);
+
+      // Update visualization
+      this.renderExpenseChart(expenses);
+      this.updateTotalExpenses(expenses);
+
     } catch (error) {
       console.error("Error rendering expenses:", error);
       showToast("Failed to load expenses.", "error");
     }
+  },
+
+  renderExpenseChart(expenses) {
+    const categoryData = expenses.reduce((acc, expense) => {
+        acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+        return acc;
+    }, {});
+
+    const chartData = {
+        labels: Object.keys(categoryData),
+        datasets: [{
+            data: Object.values(categoryData),
+            backgroundColor: ['#2563eb', '#dc2626', '#d97706', '#059669'],
+        }]
+    };
+
+    const chartCanvas = document.getElementById('expense-category-chart');
+    if (window.app.chartManager.getChart('expenseChart')) {
+        window.app.chartManager.updateChart('expenseChart', chartData.labels, chartData.datasets[0].data);
+    } else {
+        window.app.chartManager.createChart('expenseChart', chartCanvas, 'doughnut', chartData);
+    }
+  },
+
+  updateTotalExpenses(expenses) {
+    const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const totalEl = document.getElementById('total-expenses');
+    if (totalEl) {
+        totalEl.textContent = `E ${total.toLocaleString('en-SZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  },
+
+  populateFilterDropdowns(expenses) {
+    const entityFilter = this.elements.filterEntity;
+    const existingOptions = new Set(Array.from(entityFilter.options).map(o => o.value));
+    const entities = [...new Set(expenses.map(e => e.entity))];
+
+    entities.forEach(entity => {
+      if (!existingOptions.has(entity)) {
+        const option = document.createElement('option');
+        option.value = entity;
+        option.textContent = entity;
+        entityFilter.appendChild(option);
+      }
+    });
   },
 
   createExpenseRow(expense) {
