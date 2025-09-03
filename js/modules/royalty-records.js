@@ -29,7 +29,9 @@ const RoyaltyRecords = {
       paymentDateInput: document.getElementById("payment-date"),
       filterEntitySelect: document.getElementById("filter-entity"),
       applyFiltersBtn: document.getElementById("apply-royalty-filters-btn"),
-      exportBtn: document.getElementById("export-royalty-report-btn"),
+      exportBtn: document.getElementById("export-records-btn"),
+      importBtn: document.getElementById("import-records-btn"),
+      importInput: document.getElementById("import-input"),
     };
 
     // If elements are found and events haven't been bound, bind them.
@@ -55,6 +57,14 @@ const RoyaltyRecords = {
     this.elements.exportBtn.addEventListener("click", () =>
       this.exportRecords(),
     );
+    this.elements.importBtn.addEventListener("click", () =>
+      this.elements.importInput.click(),
+    );
+    this.elements.importInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+            this.importFromExcel(e.target.files[0]);
+        }
+    });
     this._eventsBound = true;
     console.log("Royalty Records events bound.");
   },
@@ -206,6 +216,52 @@ const RoyaltyRecords = {
     XLSX.writeFile(wb, "Royalty_Records_Export.xlsx");
     showToast("Report exported successfully!", "success");
   },
+
+  async importFromExcel(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const records = XLSX.utils.sheet_to_json(firstSheet);
+
+        if (records.length === 0) {
+          showToast("No records found in the file.", "warning");
+          return;
+        }
+
+        let importedCount = 0;
+        for (const record of records) {
+          // Basic validation to ensure required fields exist
+          if (record.Entity && record.Mineral && record.Volume && record.Tariff && record.Date) {
+            const newRecord = {
+              entity: record.Entity,
+              mineral: record.Mineral,
+              volume: parseFloat(record.Volume),
+              tariff: parseFloat(record.Tariff),
+              paymentDate: record.Date,
+              royaltyPayment: parseFloat(record.Volume) * parseFloat(record.Tariff),
+              status: record.Status || "Paid",
+            };
+            await dbService.add("royalties", newRecord);
+            importedCount++;
+          }
+        }
+
+        if (importedCount > 0) {
+          showToast(`${importedCount} records imported successfully!`, "success");
+          await this.renderRecords();
+        } else {
+          showToast("Could not import any records. Please check the file format.", "error");
+        }
+      } catch (error) {
+        console.error("Error importing records:", error);
+        showToast("Failed to import records. See console for details.", "error");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
 };
 
 export default RoyaltyRecords;
