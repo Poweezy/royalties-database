@@ -305,8 +305,8 @@ export class UserManager {
         this.bulkExportUsers();
       } else if (target.id === "bulk-import-users") {
         this.bulkImportUsers();
-      } else if (target.classList.contains("toggle-2fa-btn")) {
-        this.toggleTwoFactorAuth(parseInt(userId));
+      } else if (target.classList.contains("unlock-user-btn")) {
+        this.unlockUser(parseInt(userId));
       }
     });
   }
@@ -547,43 +547,39 @@ export class UserManager {
   }
 
   /**
-   * Toggles the Two-Factor Authentication status for a user.
-   * @param {number} userId - The ID of the user to update.
+   * Unlocks a user's account.
+   * @param {number} userId - The ID of the user to unlock.
    */
-  async toggleTwoFactorAuth(userId) {
+  async unlockUser(userId) {
     const user = this.getUser(userId);
     if (!user) {
-      console.error(`Cannot toggle 2FA: User with ID ${userId} not found.`);
-      this.showNotification("Failed to update 2FA status", "error");
+      console.error(`Cannot unlock user: User with ID ${userId} not found.`);
+      this.showNotification("Failed to unlock user", "error");
       return;
     }
 
-    const newStatus = !user.twoFactorEnabled;
-    const action = newStatus ? "enabled" : "disabled";
+    if (user.status !== "Locked") {
+      console.warn(`User ${user.username} is not locked.`);
+      return;
+    }
 
     try {
-      await this.updateUser(userId, { twoFactorEnabled: newStatus });
+      // Update user status
+      await this.updateUser(userId, { status: "Active" });
+
+      // Clear failed login attempts
+      await userSecurityService.clearFailedAttempts(user.username);
 
       // Log security event
-      await userSecurityService.logSecurityEvent(
-        `2fa_${action}`,
-        user.username,
-        { userId },
-      );
+      await userSecurityService.logSecurityEvent("account_unlocked", "admin", {
+        userId,
+        unlockedUser: user.username,
+      });
 
-      // Send notification
-      await userSecurityService.sendSecurityNotification(
-        user.username,
-        `two_factor_${action}`,
-      );
-
-      this.showNotification(
-        `2FA has been ${action} for ${user.username}.`,
-        "success",
-      );
+      this.showNotification(`User ${user.username} has been unlocked.`, "success");
     } catch (error) {
-      ErrorHandler.handle(error, "Failed to toggle 2FA status");
-      this.showNotification("Failed to update 2FA status", "error");
+      ErrorHandler.handle(error, "Failed to unlock user");
+      this.showNotification("Failed to unlock user", "error");
     }
   }
 
@@ -659,14 +655,6 @@ export class UserManager {
       ? '<i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i>'
       : '<i class="fas fa-times-circle text-danger" title="2FA Disabled" aria-label="2FA Disabled"></i>';
 
-    const twoFactorButtonClass = user.twoFactorEnabled
-      ? "btn-success"
-      : "btn-secondary";
-    const twoFactorButtonTitle = user.twoFactorEnabled
-      ? "Disable 2FA"
-      : "Enable 2FA";
-    const twoFactorButtonIcon = '<i class="fas fa-shield-alt" aria-hidden="true"></i>';
-
     const lastLoginDate =
       user.lastLogin === "Never" ? "Never" : user.lastLogin.split(" ")[0];
     const createdDate = user.created.split("T")[0];
@@ -683,21 +671,23 @@ export class UserManager {
         <td data-label="2FA">${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
-            <button class="btn btn-info btn-sm user-profile-btn" title="View profile" data-user-id="${user.id}" aria-label="View profile for ${user.username}">
-              <i class="fas fa-user" aria-hidden="true"></i>
-            </button>
-            <button class="btn btn-primary btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
-              <i class="fas fa-edit" aria-hidden="true"></i>
-            </button>
-            <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
-              <i class="fas fa-key" aria-hidden="true"></i>
-            </button>
-            <button class="btn ${twoFactorButtonClass} btn-sm toggle-2fa-btn" title="${twoFactorButtonTitle}" data-user-id="${user.id}" aria-label="${twoFactorButtonTitle} for user ${user.username}">
-              ${twoFactorButtonIcon}
-            </button>
-            <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
-              <i class="fas fa-trash" aria-hidden="true"></i>
-            </button>
+            ${user.status === 'Locked'
+              ? `<button class="btn btn-success btn-sm unlock-user-btn" title="Unlock user" data-user-id="${user.id}" aria-label="Unlock user ${user.username}">
+                   <i class="fas fa-unlock" aria-hidden="true"></i>
+                 </button>`
+              : `<button class="btn btn-info btn-sm user-profile-btn" title="View profile" data-user-id="${user.id}" aria-label="View profile for ${user.username}">
+                   <i class="fas fa-user" aria-hidden="true"></i>
+                 </button>
+                 <button class="btn btn-primary btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
+                   <i class="fas fa-edit" aria-hidden="true"></i>
+                 </button>
+                 <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
+                   <i class="fas fa-key" aria-hidden="true"></i>
+                 </button>
+                 <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
+                   <i class="fas fa-trash" aria-hidden="true"></i>
+                 </button>`
+            }
           </div>
         </td>
     `;
