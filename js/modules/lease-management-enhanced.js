@@ -154,8 +154,15 @@ class LeaseManagementEnhanced {
   }
 
   startMonitoring() {
-    setInterval(() => this.checkLeaseExpirations(), 24 * 60 * 60 * 1000); // Daily check
+    this.monitoringIntervalId = setInterval(() => this.checkLeaseExpirations(), 24 * 60 * 60 * 1000); // Daily check
     this.checkLeaseExpirations();
+  }
+
+  stopMonitoring() {
+    if (this.monitoringIntervalId) {
+      clearInterval(this.monitoringIntervalId);
+      this.monitoringIntervalId = null;
+    }
   }
 
   checkLeaseExpirations() {

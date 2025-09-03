@@ -30,8 +30,6 @@ const RoyaltyRecords = {
       filterEntitySelect: document.getElementById("filter-entity"),
       applyFiltersBtn: document.getElementById("apply-royalty-filters-btn"),
       exportBtn: document.getElementById("export-royalty-report-btn"),
-      importBtn: document.getElementById("import-royalty-csv-btn"),
-      importInput: document.getElementById("royalty-csv-input"),
     };
 
     // If elements are found and events haven't been bound, bind them.
@@ -55,13 +53,7 @@ const RoyaltyRecords = {
       this.renderRecords({ entity: selectedEntity });
     });
     this.elements.exportBtn.addEventListener("click", () =>
-      this.exportToCSV(),
-    );
-    this.elements.importBtn.addEventListener("click", () =>
-      this.elements.importInput.click(),
-    );
-    this.elements.importInput.addEventListener("change", (e) =>
-      this.importFromCSV(e.target.files[0]),
+      this.exportRecords(),
     );
     this._eventsBound = true;
     console.log("Royalty Records events bound.");
@@ -192,74 +184,28 @@ const RoyaltyRecords = {
     return row;
   },
 
-  async exportToCSV() {
-    const records = await dbService.getAll("royalties");
-    if (records.length === 0) {
+  exportRecords() {
+    if (
+      this.elements.tableBody.rows.length === 1 &&
+      this.elements.tableBody.rows[0].cells.length === 1
+    ) {
       showToast("There is no data to export.", "warning");
       return;
     }
-    const data = records.map(r => ({
-        Entity: r.entity,
-        Mineral: r.mineral,
-        Volume: r.volume,
-        Tariff: r.tariff,
-        RoyaltyPayment: r.royaltyPayment,
-        PaymentDate: r.paymentDate,
-        Status: r.status,
-    }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Royalty Records");
+
+    const table = this.elements.tableBody.parentElement; // Get the <table> element
+    if (!table) {
+      showToast("Could not find table to export.", "error");
+      return;
+    }
+
+    // Use XLSX to create a workbook from the table
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Royalty Records" });
+
+    // Trigger the download
     XLSX.writeFile(wb, "Royalty_Records_Export.xlsx");
-    showToast("Records exported successfully!", "success");
+    showToast("Report exported successfully!", "success");
   },
-
-  importFromCSV(file) {
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet);
-
-        if (json.length === 0) {
-          showToast("The selected file is empty.", "warning");
-          return;
-        }
-
-        let recordsAdded = 0;
-        for (const record of json) {
-          // Basic validation to ensure required fields exist
-          if (record.Entity && record.Mineral && record.Volume && record.Tariff && record.PaymentDate) {
-            const newRecord = {
-              entity: record.Entity,
-              mineral: record.Mineral,
-              volume: parseFloat(record.Volume),
-              tariff: parseFloat(record.Tariff),
-              paymentDate: record.PaymentDate,
-              royaltyPayment: parseFloat(record.Volume) * parseFloat(record.Tariff),
-              status: record.Status || "Paid",
-            };
-            await dbService.add("royalties", newRecord);
-            recordsAdded++;
-          }
-        }
-        showToast(`${recordsAdded} records imported successfully!`, "success");
-        this.renderRecords();
-      } catch (error) {
-        console.error("Error importing records:", error);
-        showToast("Failed to import file. Make sure it's a valid CSV or XLSX file.", "error");
-      } finally {
-        // Reset file input to allow re-uploading the same file
-        this.elements.importInput.value = "";
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }
 };
 
 export default RoyaltyRecords;

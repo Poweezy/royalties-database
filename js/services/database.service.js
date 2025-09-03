@@ -27,108 +27,46 @@ class DatabaseService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        this.db = request.result;
-        resolve();
+      request.onerror = (event) => {
+        console.error(`Database error: ${event.target.errorCode}`);
+        reject(event.target.error);
+      };
+
+      request.onsuccess = (event) => {
+        this.db = event.target.result;
+        resolve(this.db);
       };
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // Create object stores if they don't exist
-        if (!db.objectStoreNames.contains(this.stores.royalties)) {
-          const royaltyStore = db.createObjectStore(this.stores.royalties, {
-            keyPath: "id",
-            autoIncrement: true,
-          });
-          // Seed data only when the store is first created
+        const createStore = (storeName, options) => {
+          if (!db.objectStoreNames.contains(storeName)) {
+            return db.createObjectStore(storeName, options);
+          }
+          return null;
+        };
+
+        const royaltyStore = createStore(this.stores.royalties, { keyPath: "id", autoIncrement: true });
+        if (royaltyStore) {
           const royaltyData = [
-            {
-              entity: "Kwalini Quarry",
-              mineral: "Quarried Stone",
-              volume: 1200,
-              tariff: 15.5,
-              royaltyPayment: 18600,
-              paymentDate: "2025-07-15",
-              status: "Paid",
-            },
-            {
-              entity: "Maloma Colliery",
-              mineral: "Coal",
-              volume: 5000,
-              tariff: 25.0,
-              royaltyPayment: 125000,
-              paymentDate: "2025-07-10",
-              status: "Paid",
-            },
-            {
-              entity: "Mbabane Quarry",
-              mineral: "Gravel",
-              volume: 800,
-              tariff: 18.5,
-              royaltyPayment: 14800,
-              paymentDate: "2025-06-20",
-              status: "Overdue",
-            },
-            {
-              entity: "Ngwenya Mine",
-              mineral: "Iron Ore",
-              volume: 2500,
-              tariff: 30.0,
-              royaltyPayment: 75000,
-              paymentDate: "2025-07-05",
-              status: "Paid",
-            },
-            {
-              entity: "Sidvokodvo Quarry",
-              mineral: "Gravel",
-              volume: 1500,
-              tariff: 18.5,
-              royaltyPayment: 27750,
-              paymentDate: "2025-05-15",
-              status: "Overdue",
-            },
+            { entity: "Kwalini Quarry", mineral: "Quarried Stone", volume: 1200, tariff: 15.5, royaltyPayment: 18600, paymentDate: "2025-07-15", status: "Paid" },
+            { entity: "Maloma Colliery", mineral: "Coal", volume: 5000, tariff: 25.0, royaltyPayment: 125000, paymentDate: "2025-07-10", status: "Paid" },
+            { entity: "Mbabane Quarry", mineral: "Gravel", volume: 800, tariff: 18.5, royaltyPayment: 14800, paymentDate: "2025-06-20", status: "Overdue" },
+            { entity: "Ngwenya Mine", mineral: "Iron Ore", volume: 2500, tariff: 30.0, royaltyPayment: 75000, paymentDate: "2025-07-05", status: "Paid" },
+            { entity: "Sidvokodvo Quarry", mineral: "Gravel", volume: 1500, tariff: 18.5, royaltyPayment: 27750, paymentDate: "2025-05-15", status: "Overdue" },
           ];
-          royaltyData.forEach((record) => royaltyStore.add(record));
+          royaltyData.forEach(record => royaltyStore.add(record));
         }
 
-        if (!db.objectStoreNames.contains(this.stores.users)) {
-          db.createObjectStore(this.stores.users, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.leases)) {
-          db.createObjectStore(this.stores.leases, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.expenses)) {
-          db.createObjectStore(this.stores.expenses, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.contracts)) {
-          db.createObjectStore(this.stores.contracts, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores["contract-templates"])) {
-          db.createObjectStore(this.stores["contract-templates"], {
-            keyPath: "id",
-          });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.documents)) {
-          db.createObjectStore(this.stores.documents, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.offline)) {
-          db.createObjectStore(this.stores.offline, {
-            keyPath: "id",
-            autoIncrement: true,
-          });
-        }
-
-        if (!db.objectStoreNames.contains(this.stores.settings)) {
-          db.createObjectStore(this.stores.settings, { keyPath: "key" });
-        }
+        createStore(this.stores.users, { keyPath: "id" });
+        createStore(this.stores.leases, { keyPath: "id" });
+        createStore(this.stores.expenses, { keyPath: "id" });
+        createStore(this.stores.contracts, { keyPath: "id" });
+        createStore(this.stores["contract-templates"], { keyPath: "id" });
+        createStore(this.stores.documents, { keyPath: "id" });
+        createStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
+        createStore(this.stores.settings, { keyPath: "key" });
       };
     });
   }
