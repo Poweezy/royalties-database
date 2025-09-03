@@ -177,7 +177,7 @@ export class UserManager {
     try {
       await userSecurityService.init();
       this.setupEventListeners();
-      this.initializePasswordPolicies();
+      await this.loadPasswordPolicies();
       this.initializeOnboardingTemplates();
       await this.syncWithDatabase();
 
@@ -305,49 +305,70 @@ export class UserManager {
         this.bulkExportUsers();
       } else if (target.id === "bulk-import-users") {
         this.bulkImportUsers();
-      } else if (target.classList.contains("unlock-user-btn")) {
-        this.unlockUser(parseInt(userId));
       }
     });
+
+    // Add user form submission
+    const addUserForm = document.getElementById('add-user-form');
+    if (addUserForm) {
+      addUserForm.addEventListener('submit', (event) => this.validateAndAddNewUser(event));
+    }
   }
 
-  /**
-   * Initialize password policies
-   */
-  initializePasswordPolicies() {
-    const policies = {
-      default: {
-        minLength: 8,
-        requireUppercase: true,
-        requireLowercase: true,
-        requireNumbers: true,
-        requireSymbols: true,
-        maxAge: 90,
-        preventReuse: 5,
-      },
-      strict: {
-        minLength: 12,
-        requireUppercase: true,
-        requireLowercase: true,
-        requireNumbers: true,
-        requireSymbols: true,
-        maxAge: 60,
-        preventReuse: 10,
-      },
-      relaxed: {
-        minLength: 6,
-        requireUppercase: false,
-        requireLowercase: true,
-        requireNumbers: true,
-        requireSymbols: false,
-        maxAge: 120,
-        preventReuse: 3,
-      },
-    };
+  async loadPasswordPolicies() {
+    try {
+      let policies = await dbService.getAll("passwordPolicies");
+      if (policies.length === 0) {
+        // If no policies exist, create default ones
+        const defaultPolicies = [
+          { name: 'default', minLength: 8, requireUppercase: true, requireLowercase: true, requireNumbers: true, requireSymbols: true, maxAge: 90, preventReuse: 5 },
+          { name: 'strict', minLength: 12, requireUppercase: true, requireLowercase: true, requireNumbers: true, requireSymbols: true, maxAge: 60, preventReuse: 10 },
+          { name: 'relaxed', minLength: 6, requireUppercase: false, requireLowercase: true, requireNumbers: true, requireSymbols: false, maxAge: 120, preventReuse: 3 },
+        ];
 
-    Object.entries(policies).forEach(([name, policy]) => {
-      this.passwordPolicies.set(name, policy);
-    });
+        for (const policy of defaultPolicies) {
+          await dbService.add("passwordPolicies", policy);
+        }
+        policies = await dbService.getAll("passwordPolicies");
+      }
+
+      this.passwordPolicies.clear();
+      policies.forEach(policy => {
+        this.passwordPolicies.set(policy.name, policy);
+      });
+
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to load password policies");
+    }
+  }
+
+  getPasswordPolicies() {
+    return this.passwordPolicies;
+  }
+
+  async savePasswordPolicy(policy) {
+    try {
+      const id = await dbService.put("passwordPolicies", policy);
+      policy.id = id;
+      this.passwordPolicies.set(policy.name, policy);
+      return policy;
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to save password policy");
+      throw error;
+    }
+  }
+
+  async deletePasswordPolicy(policyId) {
+    try {
+      const policy = await dbService.getById("passwordPolicies", policyId);
+      if (policy) {
+        await dbService.delete("passwordPolicies", policyId);
+        this.passwordPolicies.delete(policy.name);
+      }
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to delete password policy");
+      throw error;
+    }
   }
 
   /**
@@ -480,10 +501,63 @@ export class UserManager {
   }
 
   /**
+   * Validates form data and adds a new user.
+   * @param {Event} event - The form submission event.
+   */
+  async validateAndAddNewUser(event) {
+    event.preventDefault();
+    const form = event.target;
+    const userData = Object.fromEntries(new FormData(form).entries());
+    const password = userData["new-password"];
+    const confirmPassword = userData["confirm-password"];
+
+    // --- Validation ---
+    const validationErrors = [];
+
+    // Required fields
+    if (!userData.username || !userData.email || !userData.role || !userData.department || !password) {
+      validationErrors.push("All fields are required.");
+    }
+
+    // Username and Email uniqueness
+    if (this.isUsernameTaken(userData.username)) {
+      validationErrors.push("Username is already taken.");
+    }
+    if (this.isEmailTaken(userData.email)) {
+      validationErrors.push("Email is already registered.");
+    }
+
+    // Password confirmation
+    if (password !== confirmPassword) {
+      validationErrors.push("Passwords do not match.");
+    }
+
+    // Password policy
+    const passwordPolicyResult = await this.validatePasswordPolicy(password, userData.username);
+    if (!passwordPolicyResult.valid) {
+      validationErrors.push(...passwordPolicyResult.errors);
+    }
+
+    const errorContainer = document.getElementById('add-user-errors');
+    errorContainer.innerHTML = '';
+
+    if (validationErrors.length > 0) {
+        errorContainer.innerHTML = validationErrors.map(error => `<li>${error}</li>`).join('');
+        errorContainer.style.display = 'block';
+        return;
+    }
+
+    errorContainer.style.display = 'none';
+    this.addUser(userData);
+    form.reset();
+    // Optionally close a modal if the form is in one
+  }
+
+  /**
    * Adds a new user to the list and re-renders the table.
    * @param {object} userData - The new user's data from the form.
    */
-  addUser(userData) {
+  async addUser(userData) {
     // Generate a new ID (in a real app, this would come from the backend)
     const newId =
       this.users.length > 0 ? Math.max(...this.users.map((u) => u.id)) + 1 : 1;
@@ -501,7 +575,9 @@ export class UserManager {
     };
 
     this.users.push(newUser);
+    await dbService.add("users", newUser);
     this.renderUsers(this.users, 1);
+    this.showNotification("User added successfully", "success");
   }
 
   /**
@@ -546,42 +622,6 @@ export class UserManager {
     this.renderUsers(this.filteredUsers); // Re-render the currently filtered and paginated view
   }
 
-  /**
-   * Unlocks a user's account.
-   * @param {number} userId - The ID of the user to unlock.
-   */
-  async unlockUser(userId) {
-    const user = this.getUser(userId);
-    if (!user) {
-      console.error(`Cannot unlock user: User with ID ${userId} not found.`);
-      this.showNotification("Failed to unlock user", "error");
-      return;
-    }
-
-    if (user.status !== "Locked") {
-      console.warn(`User ${user.username} is not locked.`);
-      return;
-    }
-
-    try {
-      // Update user status
-      await this.updateUser(userId, { status: "Active" });
-
-      // Clear failed login attempts
-      await userSecurityService.clearFailedAttempts(user.username);
-
-      // Log security event
-      await userSecurityService.logSecurityEvent("account_unlocked", "admin", {
-        userId,
-        unlockedUser: user.username,
-      });
-
-      this.showNotification(`User ${user.username} has been unlocked.`, "success");
-    } catch (error) {
-      ErrorHandler.handle(error, "Failed to unlock user");
-      this.showNotification("Failed to unlock user", "error");
-    }
-  }
 
   /**
    * Sorts the user list by a given column and toggles the direction.
@@ -671,23 +711,18 @@ export class UserManager {
         <td data-label="2FA">${twoFactorIcon}</td>
         <td>
           <div class="btn-group">
-            ${user.status === 'Locked'
-              ? `<button class="btn btn-success btn-sm unlock-user-btn" title="Unlock user" data-user-id="${user.id}" aria-label="Unlock user ${user.username}">
-                   <i class="fas fa-unlock" aria-hidden="true"></i>
-                 </button>`
-              : `<button class="btn btn-info btn-sm user-profile-btn" title="View profile" data-user-id="${user.id}" aria-label="View profile for ${user.username}">
-                   <i class="fas fa-user" aria-hidden="true"></i>
-                 </button>
-                 <button class="btn btn-primary btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
-                   <i class="fas fa-edit" aria-hidden="true"></i>
-                 </button>
-                 <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
-                   <i class="fas fa-key" aria-hidden="true"></i>
-                 </button>
-                 <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
-                   <i class="fas fa-trash" aria-hidden="true"></i>
-                 </button>`
-            }
+            <button class="btn btn-info btn-sm user-profile-btn" title="View profile" data-user-id="${user.id}" aria-label="View profile for ${user.username}">
+              <i class="fas fa-user" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-primary btn-sm" title="Edit user" data-user-id="${user.id}" aria-label="Edit user ${user.username}">
+              <i class="fas fa-edit" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
+              <i class="fas fa-key" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
         </td>
     `;

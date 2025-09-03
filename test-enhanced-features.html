@@ -56,6 +56,7 @@
           </tbody>
         </table>
       </div>
+      <div id="users-pagination"></div>
 
       <!-- Test Buttons -->
       <div class="test-buttons" style="margin: 2rem 0">
@@ -71,9 +72,27 @@
         <button class="btn btn-warning" id="test-security-service">
           Test Security Service
         </button>
-        <button class="btn btn-success" id="test-unlock-user">
-          Test Unlock User
+        <button class="btn btn-primary" id="test-password-policies">
+          Test Password Policies
         </button>
+        <button class="btn btn-danger" id="test-add-user">
+          Test Add User Form
+        </button>
+      </div>
+
+      <!-- Mock Add User Form for testing -->
+      <div id="add-user-form-container" style="display: none;">
+          <h4>Add New User</h4>
+          <div id="add-user-errors" class="alert alert-danger" style="display: none;"></div>
+          <form id="add-user-form">
+              <input type="text" name="username" id="new-username" value="testuser">
+              <input type="email" name="email" id="new-email" value="test@example.com">
+              <input type="text" name="role" id="new-role" value="Viewer">
+              <input type="text" name="department" id="new-department" value="Testing">
+              <input type="password" name="new-password" id="new-password" value="ValidPass123!">
+              <input type="password" name="confirm-password" id="confirm-password" value="ValidPass123!">
+              <button type="submit">Submit</button>
+          </form>
       </div>
 
       <div
@@ -249,48 +268,116 @@
           }
         });
 
+
       document
-        .getElementById("test-unlock-user")
+        .getElementById("test-password-policies")
         .addEventListener("click", async () => {
           if (!window.testUserManager) {
             logResult("✗ User manager not initialized", "error");
             return;
           }
 
-          logResult("Testing unlock user button...", "info");
+          logResult("Testing password policy CRUD...", "info");
 
           try {
-            // Find a locked user to test with
-            const user = window.testUserManager.users.find(u => u.status === 'Locked');
-            if (!user) {
-              logResult("✗ No locked users found to test", "error");
-              return;
+            // 1. Create a new policy
+            const newPolicy = {
+              name: 'test-policy',
+              minLength: 10,
+              requireUppercase: true,
+              requireLowercase: true,
+              requireNumbers: true,
+              requireSymbols: true,
+              maxAge: 45,
+              preventReuse: 3,
+            };
+            const savedPolicy = await window.testUserManager.savePasswordPolicy(newPolicy);
+            if (savedPolicy && savedPolicy.name === 'test-policy') {
+              logResult("✓ Policy created successfully", "success");
+            } else {
+              throw new Error("Policy creation failed");
             }
 
-            logResult(
-              `Testing with user: ${user.username}, initial status: ${user.status}`,
-            );
-
-            // Simulate the click
-            await window.testUserManager.unlockUser(user.id);
-
-            // Check the new status
-            const updatedUser = window.testUserManager.getUser(user.id);
-            const newStatus = updatedUser.status;
-
-            if (newStatus === "Active") {
-              logResult(
-                `✓ User status successfully changed to ${newStatus}`,
-                "success",
-              );
+            // 2. Read the policy
+            const policies = window.testUserManager.getPasswordPolicies();
+            if (policies.has('test-policy')) {
+              logResult("✓ Policy read successfully", "success");
             } else {
-              logResult(
-                `✗ User status did not change correctly. Expected "Active", got ${newStatus}`,
-                "error",
-              );
+              throw new Error("Policy read failed");
+            }
+
+            // 3. Update the policy
+            savedPolicy.minLength = 15;
+            const updatedPolicy = await window.testUserManager.savePasswordPolicy(savedPolicy);
+            if (updatedPolicy && updatedPolicy.minLength === 15) {
+              logResult("✓ Policy updated successfully", "success");
+            } else {
+              throw new Error("Policy update failed");
+            }
+
+            // 4. Delete the policy
+            await window.testUserManager.deletePasswordPolicy(updatedPolicy.id);
+            const policiesAfterDelete = window.testUserManager.getPasswordPolicies();
+            if (!policiesAfterDelete.has('test-policy')) {
+              logResult("✓ Policy deleted successfully", "success");
+            } else {
+              throw new Error("Policy deletion failed");
             }
           } catch (error) {
-            logResult(`✗ Unlock user test failed: ${error.message}`, "error");
+            logResult(`✗ Password policy test failed: ${error.message}`, "error");
+          }
+        });
+
+      document
+        .getElementById("test-add-user")
+        .addEventListener("click", async () => {
+          if (!window.testUserManager) {
+            logResult("✗ User manager not initialized", "error");
+            return;
+          }
+
+          logResult("Testing Add User form...", "info");
+          const userManager = window.testUserManager;
+          const form = document.getElementById('add-user-form');
+
+          // --- Test 1: Successful user creation ---
+          logResult("Testing valid user creation...", "info");
+          document.getElementById('new-username').value = 'newtestuser';
+          document.getElementById('new-email').value = 'newtest@example.com';
+          document.getElementById('new-password').value = 'StrongPass123!';
+          document.getElementById('confirm-password').value = 'StrongPass123!';
+
+          const initialUserCount = userManager.users.length;
+
+          await userManager.validateAndAddNewUser({
+            preventDefault: () => {},
+            target: form
+          });
+
+          if (userManager.users.length === initialUserCount + 1) {
+            logResult("✓ User added successfully", "success");
+          } else {
+            logResult("✗ User not added", "error");
+          }
+
+          // --- Test 2: Invalid password ---
+          logResult("Testing invalid password...", "info");
+          document.getElementById('new-username').value = 'anotheruser';
+          document.getElementById('new-password').value = 'weak';
+          document.getElementById('confirm-password').value = 'weak';
+
+          const userCountBeforeFail = userManager.users.length;
+          const errorContainer = document.getElementById('add-user-errors');
+
+          await userManager.validateAndAddNewUser({
+            preventDefault: () => {},
+            target: form
+          });
+
+          if (userManager.users.length === userCountBeforeFail && errorContainer.style.display !== 'none') {
+            logResult(`✓ Form correctly rejected weak password. Errors: ${errorContainer.textContent}`, "success");
+          } else {
+            logResult("✗ Form did not handle weak password correctly", "error");
           }
         });
 

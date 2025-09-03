@@ -851,3 +851,58 @@ input:checked + .slider:before {
     transition: none;
   }
 }
+
+.policies-container {
+  display: flex;
+  gap: 2rem;
+}
+
+.policy-list-container {
+  flex: 1;
+}
+
+.policy-editor-container {
+  flex: 2;
+}
+
+.policy-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.policy-list li {
+  padding: 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.policy-list li:last-child {
+  border-bottom: none;
+}
+
+.policy-list li:hover {
+  background-color: #f5f5f5;
+}
+
+.policy-list li.active {
+  background-color: #e0e7ff;
+  font-weight: bold;
+}
+
+#policy-editor-form .grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+#policy-editor-form .checkbox-group {
+  margin-top: 1rem;
+}
+
+#policy-editor-form .form-actions {
+  margin-top: 1.5rem;
+}

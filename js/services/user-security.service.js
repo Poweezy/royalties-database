@@ -32,6 +32,14 @@ class UserSecurityService {
         ...policies.passwordPolicy,
       };
     }
+  }
+
+  /**
+   * Set the password policy to use for validation.
+   * @param {object} policy - The password policy to use.
+   */
+  setPasswordPolicy(policy) {
+    this.passwordPolicyRules = { ...this.passwordPolicyRules, ...policy };
     if (policies.loginAttempts) {
       this.maxLoginAttempts =
         policies.loginAttempts.maxAttempts || this.maxLoginAttempts;

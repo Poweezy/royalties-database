@@ -30,6 +30,7 @@ import Reporting from "./modules/reporting.js";
 import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
+import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 class App {
   constructor() {
@@ -99,6 +100,7 @@ class App {
     this.fileManager = new FileManager();
     this.navigationManager = new NavigationManager(this.notificationManager);
     this.userManager = new UserManager();
+    this.passwordPolicyManager = new PasswordPolicyManager(this.userManager);
 
     // Make chartManager globally available for UI interactions
     window.chartManager = this.chartManager;
@@ -118,6 +120,17 @@ class App {
     this.setupIdleTimeout();
     this.setupEventListeners();
     this.setupErrorHandling();
+    this.#setupSectionChangeListeners();
+    this.passwordPolicyManagerInitialized = false;
+  }
+
+  #setupSectionChangeListeners() {
+    window.addEventListener("sectionChanged", (e) => {
+      if (e.detail.sectionId === 'user-management' && !this.passwordPolicyManagerInitialized) {
+        this.passwordPolicyManager.init();
+        this.passwordPolicyManagerInitialized = true;
+      }
+    });
   }
 
   /**
