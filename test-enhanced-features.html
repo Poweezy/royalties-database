@@ -71,6 +71,9 @@
         <button class="btn btn-warning" id="test-security-service">
           Test Security Service
         </button>
+        <button class="btn btn-danger" id="test-2fa-toggle">
+          Test 2FA Toggle
+        </button>
       </div>
 
       <div
@@ -243,6 +246,52 @@
             logResult("✓ Security event logging works", "success");
           } catch (error) {
             logResult(`✗ Security service error: ${error.message}`, "error");
+          }
+        });
+
+      document
+        .getElementById("test-2fa-toggle")
+        .addEventListener("click", async () => {
+          if (!window.testUserManager) {
+            logResult("✗ User manager not initialized", "error");
+            return;
+          }
+
+          logResult("Testing 2FA toggle button...", "info");
+
+          try {
+            // Find a user to test with
+            const user = window.testUserManager.users[0];
+            if (!user) {
+              logResult("✗ No users found to test", "error");
+              return;
+            }
+
+            const initialStatus = user.twoFactorEnabled;
+            logResult(
+              `Testing with user: ${user.username}, initial 2FA status: ${initialStatus}`,
+            );
+
+            // Simulate the click
+            await window.testUserManager.toggleTwoFactorAuth(user.id);
+
+            // Check the new status
+            const updatedUser = window.testUserManager.getUser(user.id);
+            const newStatus = updatedUser.twoFactorEnabled;
+
+            if (newStatus === !initialStatus) {
+              logResult(
+                `✓ 2FA status successfully toggled to ${newStatus}`,
+                "success",
+              );
+            } else {
+              logResult(
+                `✗ 2FA status did not toggle correctly. Expected ${!initialStatus}, got ${newStatus}`,
+                "error",
+              );
+            }
+          } catch (error) {
+            logResult(`✗ 2FA toggle test failed: ${error.message}`, "error");
           }
         });
 

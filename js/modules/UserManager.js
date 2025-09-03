@@ -288,18 +288,25 @@ export class UserManager {
       }
     });
 
-    // Bulk operations
+    // Bulk operations and other actions
     document.addEventListener("click", (e) => {
-      if (e.target.id === "bulk-activate-users") {
+      const target = e.target.closest("button");
+      if (!target) return;
+
+      const userId = target.dataset.userId;
+
+      if (target.id === "bulk-activate-users") {
         this.bulkActivateUsers();
-      } else if (e.target.id === "bulk-deactivate-users") {
+      } else if (target.id === "bulk-deactivate-users") {
         this.bulkDeactivateUsers();
-      } else if (e.target.id === "bulk-email-users") {
+      } else if (target.id === "bulk-email-users") {
         this.bulkEmailUsers();
-      } else if (e.target.id === "bulk-export-users") {
+      } else if (target.id === "bulk-export-users") {
         this.bulkExportUsers();
-      } else if (e.target.id === "bulk-import-users") {
+      } else if (target.id === "bulk-import-users") {
         this.bulkImportUsers();
+      } else if (target.classList.contains("toggle-2fa-btn")) {
+        this.toggleTwoFactorAuth(parseInt(userId));
       }
     });
   }
@@ -540,6 +547,47 @@ export class UserManager {
   }
 
   /**
+   * Toggles the Two-Factor Authentication status for a user.
+   * @param {number} userId - The ID of the user to update.
+   */
+  async toggleTwoFactorAuth(userId) {
+    const user = this.getUser(userId);
+    if (!user) {
+      console.error(`Cannot toggle 2FA: User with ID ${userId} not found.`);
+      this.showNotification("Failed to update 2FA status", "error");
+      return;
+    }
+
+    const newStatus = !user.twoFactorEnabled;
+    const action = newStatus ? "enabled" : "disabled";
+
+    try {
+      await this.updateUser(userId, { twoFactorEnabled: newStatus });
+
+      // Log security event
+      await userSecurityService.logSecurityEvent(
+        `2fa_${action}`,
+        user.username,
+        { userId },
+      );
+
+      // Send notification
+      await userSecurityService.sendSecurityNotification(
+        user.username,
+        `two_factor_${action}`,
+      );
+
+      this.showNotification(
+        `2FA has been ${action} for ${user.username}.`,
+        "success",
+      );
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to toggle 2FA status");
+      this.showNotification("Failed to update 2FA status", "error");
+    }
+  }
+
+  /**
    * Sorts the user list by a given column and toggles the direction.
    * @param {string} columnKey - The key of the user object to sort by.
    */
@@ -611,6 +659,14 @@ export class UserManager {
       ? '<i class="fas fa-check-circle text-success" title="2FA Enabled" aria-label="2FA Enabled"></i>'
       : '<i class="fas fa-times-circle text-danger" title="2FA Disabled" aria-label="2FA Disabled"></i>';
 
+    const twoFactorButtonClass = user.twoFactorEnabled
+      ? "btn-success"
+      : "btn-secondary";
+    const twoFactorButtonTitle = user.twoFactorEnabled
+      ? "Disable 2FA"
+      : "Enable 2FA";
+    const twoFactorButtonIcon = '<i class="fas fa-shield-alt" aria-hidden="true"></i>';
+
     const lastLoginDate =
       user.lastLogin === "Never" ? "Never" : user.lastLogin.split(" ")[0];
     const createdDate = user.created.split("T")[0];
@@ -635,6 +691,9 @@ export class UserManager {
             </button>
             <button class="btn btn-warning btn-sm" title="Reset password" data-user-id="${user.id}" aria-label="Reset password for user ${user.username}">
               <i class="fas fa-key" aria-hidden="true"></i>
+            </button>
+            <button class="btn ${twoFactorButtonClass} btn-sm toggle-2fa-btn" title="${twoFactorButtonTitle}" data-user-id="${user.id}" aria-label="${twoFactorButtonTitle} for user ${user.username}">
+              ${twoFactorButtonIcon}
             </button>
             <button class="btn btn-danger btn-sm" title="Delete user" data-user-id="${user.id}" aria-label="Delete user ${user.username}">
               <i class="fas fa-trash" aria-hidden="true"></i>
