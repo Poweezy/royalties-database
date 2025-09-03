@@ -71,8 +71,8 @@
         <button class="btn btn-warning" id="test-security-service">
           Test Security Service
         </button>
-        <button class="btn btn-danger" id="test-2fa-toggle">
-          Test 2FA Toggle
+        <button class="btn btn-success" id="test-unlock-user">
+          Test Unlock User
         </button>
       </div>
 
@@ -250,48 +250,47 @@
         });
 
       document
-        .getElementById("test-2fa-toggle")
+        .getElementById("test-unlock-user")
         .addEventListener("click", async () => {
           if (!window.testUserManager) {
             logResult("✗ User manager not initialized", "error");
             return;
           }
 
-          logResult("Testing 2FA toggle button...", "info");
+          logResult("Testing unlock user button...", "info");
 
           try {
-            // Find a user to test with
-            const user = window.testUserManager.users[0];
+            // Find a locked user to test with
+            const user = window.testUserManager.users.find(u => u.status === 'Locked');
             if (!user) {
-              logResult("✗ No users found to test", "error");
+              logResult("✗ No locked users found to test", "error");
               return;
             }
 
-            const initialStatus = user.twoFactorEnabled;
             logResult(
-              `Testing with user: ${user.username}, initial 2FA status: ${initialStatus}`,
+              `Testing with user: ${user.username}, initial status: ${user.status}`,
             );
 
             // Simulate the click
-            await window.testUserManager.toggleTwoFactorAuth(user.id);
+            await window.testUserManager.unlockUser(user.id);
 
             // Check the new status
             const updatedUser = window.testUserManager.getUser(user.id);
-            const newStatus = updatedUser.twoFactorEnabled;
+            const newStatus = updatedUser.status;
 
-            if (newStatus === !initialStatus) {
+            if (newStatus === "Active") {
               logResult(
-                `✓ 2FA status successfully toggled to ${newStatus}`,
+                `✓ User status successfully changed to ${newStatus}`,
                 "success",
               );
             } else {
               logResult(
-                `✗ 2FA status did not toggle correctly. Expected ${!initialStatus}, got ${newStatus}`,
+                `✗ User status did not change correctly. Expected "Active", got ${newStatus}`,
                 "error",
               );
             }
           } catch (error) {
-            logResult(`✗ 2FA toggle test failed: ${error.message}`, "error");
+            logResult(`✗ Unlock user test failed: ${error.message}`, "error");
           }
         });
 
