@@ -56,7 +56,6 @@
     <script type="module" src="js/modules/FileManager.js"></script>
     <script type="module" src="js/modules/NavigationManager.js"></script>
     <script type="module" src="js/semantic-search.js"></script>
-    <script type="module" src="js/user-form-validation.js"></script>
     <script type="module" src="js/modules/UserManager.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
@@ -1302,557 +1301,643 @@
             </div>
           </div>
 
-          <!-- User Management Metrics Dashboard -->
-          <div class="charts-grid">
-            <div class="metric-card card">
-              <div class="card-header">
-                <h3>
-                  <i class="fas fa-users" aria-label="Active Users icon"></i>
-                  Active Users
-                </h3>
-                <select class="metric-period">
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
-              </div>
-              <div class="card-body">
-                <p id="active-users-count">3</p>
-                <small
-                  ><i
-                    class="fas fa-circle text-success"
-                    aria-label="Online status icon"
-                  ></i>
-                  Currently active and logged in</small
-                >
-              </div>
-            </div>
-            <div class="metric-card card">
-              <div class="card-header">
-                <h3>
-                  <i
-                    class="fas fa-exclamation-triangle"
-                    aria-label="Failed Logins icon"
-                  ></i>
-                  Failed Logins
-                </h3>
-                <select class="metric-period">
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
-              </div>
-              <div class="card-body">
-                <p id="failed-logins-count">0</p>
-                <small
-                  ><i
-                    class="fas fa-shield-alt text-success"
-                    aria-label="Security status icon"
-                  ></i>
-                  Security status: Normal</small
-                >
-              </div>
-            </div>
-            <div class="metric-card card">
-              <div class="card-header">
-                <h3>
-                  <i class="fas fa-bell" aria-label="Security Alerts icon"></i>
-                  Security Alerts
-                </h3>
-              </div>
-              <div class="card-body">
-                <p id="security-alerts-count">None</p>
-                <small
-                  ><i
-                    class="fas fa-check-circle text-success"
-                    aria-label="All systems secure icon"
-                  ></i>
-                  All systems secure</small
-                >
-              </div>
-            </div>
-            <div class="metric-card card">
-              <div class="card-header">
-                <h3>
-                  <i
-                    class="fas fa-key"
-                    aria-label="Password Compliance icon"
-                  ></i>
-                  Password Compliance
-                </h3>
-              </div>
-              <div class="card-body">
-                <p id="password-compliance-rate">100%</p>
-                <small
-                  ><i
-                    class="fas fa-certificate text-success"
-                    aria-label="Security standards icon"
-                  ></i>
-                  Meeting security standards</small
-                >
-                <div class="mini-progress">
-                  <div
-                    class="progress-bar"
-                    style="width: 100%; background: var(--success-color)"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Add New User Form -->
-          <div
-            class="user-form-container"
-            id="add-user-form-container"
-            style="display: none"
-          >
-            <div class="section-header">
-              <h4>
-                <i class="fas fa-user-plus" aria-label="Add New User icon"></i>
-                Add New User Account
-              </h4>
-              <div class="table-actions">
-                <button
-                  class="btn btn-secondary btn-sm"
-                  id="close-add-user-form"
-                  title="Close form"
-                >
-                  <i class="fas fa-times" aria-label="Close icon"></i> Close
-                </button>
-              </div>
-            </div>
-
-            <form id="add-user-form" novalidate>
-              <div class="grid-4">
-                <!-- Username Field -->
-                <div class="form-group">
-                  <label for="new-username">Username</label>
-                  <input
-                    type="text"
-                    id="new-username"
-                    name="new-username"
-                    placeholder="Enter username"
-                    aria-describedby="new-username-error"
-                    autocomplete="username"
-                  />
-                  <div class="validation-error" id="new-username-error">
-                    Username is required
-                  </div>
-                  <div class="validation-success" id="new-username-success">
-                    Username is available
-                  </div>
-                </div>
-
-                <!-- Email Field -->
-                <div class="form-group">
-                  <label for="new-email">Email Address</label>
-                  <input
-                    type="email"
-                    id="new-email"
-                    name="new-email"
-                    placeholder="user@example.com"
-                    aria-describedby="new-email-error"
-                  />
-                  <div class="validation-error" id="new-email-error">
-                    Valid email is required
-                  </div>
-                  <div class="validation-success" id="new-email-success">
-                    Email is valid
-                  </div>
-                </div>
-
-                <!-- Role Field -->
-                <div class="form-group">
-                  <label for="new-role">Role</label>
-                  <select
-                    id="new-role"
-                    name="new-role"
-                    aria-describedby="new-role-error"
-                  >
-                    <option value="">Select Role</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Editor">Editor</option>
-                    <option value="Auditor">Auditor</option>
-                    <option value="Finance Officer">Finance Officer</option>
-                    <option value="Viewer">Viewer</option>
-                  </select>
-                  <div class="validation-error" id="new-role-error">
-                    Role selection is required
-                  </div>
-                  <div class="validation-success" id="new-role-success">
-                    Role selected
-                  </div>
-                </div>
-
-                <!-- Department Field -->
-                <div class="form-group">
-                  <label for="new-department">Department</label>
-                  <select
-                    id="new-department"
-                    name="new-department"
-                    aria-describedby="new-department-error"
-                  >
-                    <option value="">Select Department</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Audit & Compliance">
-                      Audit & Compliance
-                    </option>
-                    <option value="Legal Affairs">Legal Affairs</option>
-                  </select>
-                  <div class="validation-error" id="new-department-error">
-                    Department selection is required
-                  </div>
-                  <div class="validation-success" id="new-department-success">
-                    Department selected
-                  </div>
-                </div>
-
-                <!-- Password Field -->
-                <div class="form-group">
-                  <label for="new-password">Password</label>
-                  <div class="password-input-container">
-                    <input
-                      type="password"
-                      id="new-password"
-                      placeholder="Enter secure password"
-                      aria-describedby="new-password-error"
-                      autocomplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      class="password-toggle-btn"
-                      data-action="toggle-password"
-                      data-target="#new-password"
-                      aria-label="Show password"
-                    >
-                      <i class="fas fa-eye" aria-label="Show password icon"></i>
-                    </button>
-                  </div>
-                  <div class="validation-error" id="new-password-error">
-                    Strong password is required
-                  </div>
-                  <div class="validation-success" id="new-password-success">
-                    Password is secure
-                  </div>
-                  <div class="password-strength-meter">
-                    <div class="strength-bar">
-                      <div class="strength-bar-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="strength-text">
-                      Password Strength: Enter password
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Confirm Password Field -->
-                <div class="form-group">
-                  <label for="confirm-password">Confirm Password</label>
-                  <div class="password-input-container">
-                    <input
-                      type="password"
-                      id="confirm-password"
-                      placeholder="Confirm password"
-                      aria-describedby="confirm-password-error"
-                      autocomplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      class="password-toggle-btn"
-                      data-action="toggle-password"
-                      data-target="#confirm-password"
-                      aria-label="Show password"
-                    >
-                      <i class="fas fa-eye" aria-label="Show password icon"></i>
-                    </button>
-                  </div>
-                  <div class="validation-error" id="confirm-password-error">
-                    Passwords must match
-                  </div>
-                  <div class="validation-success" id="confirm-password-success">
-                    Passwords match
-                  </div>
-                </div>
-
-                <!-- Account Expiry Field -->
-                <div class="form-group">
-                  <label for="account-expires"
-                    >Account Expires (Optional)</label
-                  >
-                  <input
-                    type="date"
-                    id="account-expires"
-                    aria-describedby="account-expires-help"
-                  />
-                  <div class="form-help" id="account-expires-help">
-                    <i class="fas fa-info-circle" aria-label="Info icon"></i>
-                    Leave blank for no expiration
-                  </div>
-                </div>
-
-                <!-- Additional Options -->
-                <div class="form-group">
-                  <label>Account Options</label>
-                  <div class="checkbox-group">
-                    <label class="checkbox-label">
-                      <input type="checkbox" id="send-welcome-email" checked />
-                      Send welcome email with login instructions
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox" id="force-password-change" />
-                      Force password change on first login
-                    </label>
-                    <label class="checkbox-label">
-                      <input type="checkbox" id="account-active" checked />
-                      Account is active (can login immediately)
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  id="cancel-add-user"
-                >
-                  <i class="fas fa-times" aria-label="Cancel icon"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-warning" id="reset-form">
-                  <i class="fas fa-undo" aria-label="Reset icon"></i> Reset Form
-                </button>
-                <button
-                  type="submit"
-                  class="btn btn-success"
-                  id="create-user-btn"
-                  disabled
-                >
-                  <i class="fas fa-user-plus" aria-label="Create User icon"></i>
-                  Create User
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <!-- User Accounts Management Table -->
           <div class="user-form-container">
-            <div class="section-header">
-              <h4>
-                <i
-                  class="fas fa-users-cog"
-                  aria-label="User Accounts Management icon"
-                ></i>
-                User Accounts Management
-              </h4>
-              <div class="table-actions">
-                <button
-                  class="btn btn-secondary btn-sm"
-                  id="refresh-users"
-                  title="Refresh user list"
-                >
-                  <i class="fas fa-sync" aria-label="Refresh icon"></i> Refresh
-                </button>
-                <button
-                  class="btn btn-info btn-sm"
-                  id="export-users"
-                  title="Export user list"
-                >
-                  <i class="fas fa-download" aria-label="Export icon"></i>
-                  Export
-                </button>
-                <button
-                  class="btn btn-primary btn-sm"
-                  id="manage-roles-permissions"
-                  title="Manage roles and permissions"
-                >
-                  <i
-                    class="fas fa-users-cog"
-                    aria-label="Manage roles icon"
-                  ></i>
-                  Manage Roles
-                </button>
-                <div
-                  id="bulk-actions-container"
-                  style="display: none; align-items: center; gap: 0.5rem"
-                >
-                  <select
-                    id="bulk-action-status"
-                    class="form-control form-control-sm"
-                  >
-                    <option value="">-- Change Status --</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Locked">Locked</option>
-                  </select>
-                  <button
-                    class="btn btn-primary btn-sm"
-                    id="bulk-apply-status-change"
-                    title="Apply status change"
-                  >
-                    <i class="fas fa-check" aria-label="Apply icon"></i> Apply
-                  </button>
-                  <button
-                    class="btn btn-info btn-sm"
-                    id="bulk-assign-roles"
-                    title="Assign roles to selected users"
-                  >
-                    <i
-                      class="fas fa-user-tag"
-                      aria-label="Assign roles icon"
-                    ></i>
-                    Assign Roles
-                  </button>
-                  <button
-                    class="btn btn-warning btn-sm"
-                    id="bulk-email-users"
-                    title="Send email to selected users"
-                  >
-                    <i class="fas fa-envelope" aria-label="Email icon"></i>
-                    Email Selected
-                  </button>
-                  <button
-                    class="btn btn-success btn-sm"
-                    id="bulk-export-selected"
-                    title="Export selected users"
-                  >
-                    <i class="fas fa-download" aria-label="Export icon"></i>
-                    Export Selected
-                  </button>
-                  <button
-                    class="btn btn-danger btn-sm"
-                    id="bulk-delete-users"
-                    title="Delete selected users"
-                  >
-                    <i class="fas fa-trash" aria-label="Delete icon"></i> Delete
-                    Selected
-                  </button>
-                </div>
-
-                <!-- Enhanced Bulk Operations Panel -->
-                <div id="bulk-operations-panel-container">
-                  <!-- This will be populated by the BulkOperationsPanel component -->
-                </div>
-              </div>
+            <div class="regulatory-tabs">
+              <button class="tab-btn active" data-tab="#user-accounts-tab">
+                User Accounts
+              </button>
+              <button class="tab-btn" data-tab="#password-policies-tab">
+                Password Policies
+              </button>
             </div>
 
-            <!-- Advanced Filtering -->
-            <div class="table-filters">
-              <h6>
-                <i class="fas fa-filter" aria-label="Filter icon"></i> Filter &
-                Search Options
-              </h6>
-              <div class="grid-4">
-                <!-- Search Users Component -->
-                <div class="filter-component filter-search">
-                  <div class="form-group">
-                    <label for="filter-search">Search Users</label>
-                    <input
-                      type="text"
-                      id="filter-search"
-                      placeholder="Search by name, email, or username..."
-                    />
-                  </div>
-                </div>
-
-                <!-- Filter by Role Component -->
-                <div class="filter-component filter-role">
-                  <div class="form-group">
-                    <label for="filter-role">Filter by Role</label>
-                    <select id="filter-role">
-                      <option value="">All Roles</option>
-                      <option value="administrator">Administrator</option>
-                      <option value="editor">Editor</option>
-                      <option value="auditor">Auditor</option>
-                      <option value="finance">Finance Officer</option>
-                      <option value="viewer">Viewer</option>
+            <div class="tab-content active" id="user-accounts-tab">
+              <!-- User Management Metrics Dashboard -->
+              <div class="charts-grid">
+                <div class="metric-card card">
+                  <div class="card-header">
+                    <h3>
+                      <i class="fas fa-users" aria-label="Active Users icon"></i>
+                      Active Users
+                    </h3>
+                    <select class="metric-period">
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
                     </select>
                   </div>
-                </div>
-
-                <!-- Filter by Status Component -->
-                <div class="filter-component filter-status">
-                  <div class="form-group">
-                    <label for="filter-status">Filter by Status</label>
-                    <select id="filter-status">
-                      <option value="">All Statuses</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="locked">Locked</option>
-                      <option value="expired">Expired</option>
-                    </select>
+                  <div class="card-body">
+                    <p id="active-users-count">3</p>
+                    <small
+                      ><i
+                        class="fas fa-circle text-success"
+                        aria-label="Online status icon"
+                      ></i>
+                      Currently active and logged in</small
+                    >
                   </div>
                 </div>
-
-                <!-- Filter Actions Component -->
-                <div class="filter-component filter-actions">
-                  <div class="form-group filter-actions">
-                    <label>&nbsp;</label>
-                    <button class="btn btn-primary" id="apply-filters">
+                <div class="metric-card card">
+                  <div class="card-header">
+                    <h3>
                       <i
-                        class="fas fa-search"
-                        aria-label="Apply Filters icon"
+                        class="fas fa-exclamation-triangle"
+                        aria-label="Failed Logins icon"
                       ></i>
-                      Apply Filters
-                    </button>
-                    <button class="btn btn-secondary" id="clear-filters">
+                      Failed Logins
+                    </h3>
+                    <select class="metric-period">
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                  </div>
+                  <div class="card-body">
+                    <p id="failed-logins-count">0</p>
+                    <small
+                      ><i
+                        class="fas fa-shield-alt text-success"
+                        aria-label="Security status icon"
+                      ></i>
+                      Security status: Normal</small
+                    >
+                  </div>
+                </div>
+                <div class="metric-card card">
+                  <div class="card-header">
+                    <h3>
+                      <i class="fas fa-bell" aria-label="Security Alerts icon"></i>
+                      Security Alerts
+                    </h3>
+                  </div>
+                  <div class="card-body">
+                    <p id="security-alerts-count">None</p>
+                    <small
+                      ><i
+                        class="fas fa-check-circle text-success"
+                        aria-label="All systems secure icon"
+                      ></i>
+                      All systems secure</small
+                    >
+                  </div>
+                </div>
+                <div class="metric-card card">
+                  <div class="card-header">
+                    <h3>
                       <i
-                        class="fas fa-times"
-                        aria-label="Clear Filters icon"
+                        class="fas fa-key"
+                        aria-label="Password Compliance icon"
                       ></i>
-                      Clear
-                    </button>
+                      Password Compliance
+                    </h3>
+                  </div>
+                  <div class="card-body">
+                    <p id="password-compliance-rate">100%</p>
+                    <small
+                      ><i
+                        class="fas fa-certificate text-success"
+                        aria-label="Security standards icon"
+                      ></i>
+                      Meeting security standards</small
+                    >
+                    <div class="mini-progress">
+                      <div
+                        class="progress-bar"
+                        style="width: 100%; background: var(--success-color)"
+                      ></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Users Data Table -->
-            <div class="table-container">
-              <table class="data-table" id="users-table">
-                <thead>
-                  <tr>
-                    <th>
+              <!-- Add New User Form -->
+              <div
+                class="user-form-container"
+                id="add-user-form-container"
+                style="display: none"
+              >
+                <div class="section-header">
+                  <h4>
+                    <i class="fas fa-user-plus" aria-label="Add New User icon"></i>
+                    Add New User Account
+                  </h4>
+                  <div class="table-actions">
+                    <button
+                      class="btn btn-secondary btn-sm"
+                      id="close-add-user-form"
+                      title="Close form"
+                    >
+                      <i class="fas fa-times" aria-label="Close icon"></i> Close
+                    </button>
+                  </div>
+                </div>
+
+                <div id="add-user-errors" class="alert alert-danger" style="display: none;"></div>
+                <form id="add-user-form" novalidate>
+                  <div class="grid-4">
+                    <!-- Username Field -->
+                    <div class="form-group">
+                      <label for="new-username">Username</label>
                       <input
-                        type="checkbox"
-                        id="select-all-users"
-                        title="Select all users"
+                        type="text"
+                        id="new-username"
+                        name="new-username"
+                        placeholder="Enter username"
+                        aria-describedby="new-username-error"
+                        autocomplete="username"
                       />
-                    </th>
-                    <th sortable data-sort="username">
-                      Username
-                      <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="email">
-                      Email <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="role">
-                      Role <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="department">
-                      Department
-                      <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="status">
-                      Status <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="lastLogin">
-                      Last Login
-                      <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th sortable data-sort="created">
-                      Created <i class="fas fa-sort" aria-label="Sort icon"></i>
-                    </th>
-                    <th>2FA</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="users-table-tbody">
-                  <!-- Users will be populated here by JavaScript -->
-                </tbody>
-              </table>
+                      <div class="validation-error" id="new-username-error">
+                        Username is required
+                      </div>
+                      <div class="validation-success" id="new-username-success">
+                        Username is available
+                      </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                      <label for="new-email">Email Address</label>
+                      <input
+                        type="email"
+                        id="new-email"
+                        name="new-email"
+                        placeholder="user@example.com"
+                        aria-describedby="new-email-error"
+                      />
+                      <div class="validation-error" id="new-email-error">
+                        Valid email is required
+                      </div>
+                      <div class="validation-success" id="new-email-success">
+                        Email is valid
+                      </div>
+                    </div>
+
+                    <!-- Role Field -->
+                    <div class="form-group">
+                      <label for="new-role">Role</label>
+                      <select
+                        id="new-role"
+                        name="new-role"
+                        aria-describedby="new-role-error"
+                      >
+                        <option value="">Select Role</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Editor">Editor</option>
+                        <option value="Auditor">Auditor</option>
+                        <option value="Finance Officer">Finance Officer</option>
+                        <option value="Viewer">Viewer</option>
+                      </select>
+                      <div class="validation-error" id="new-role-error">
+                        Role selection is required
+                      </div>
+                      <div class="validation-success" id="new-role-success">
+                        Role selected
+                      </div>
+                    </div>
+
+                    <!-- Department Field -->
+                    <div class="form-group">
+                      <label for="new-department">Department</label>
+                      <select
+                        id="new-department"
+                        name="new-department"
+                        aria-describedby="new-department-error"
+                      >
+                        <option value="">Select Department</option>
+                        <option value="Administration">Administration</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Audit & Compliance">
+                          Audit & Compliance
+                        </option>
+                        <option value="Legal Affairs">Legal Affairs</option>
+                      </select>
+                      <div class="validation-error" id="new-department-error">
+                        Department selection is required
+                      </div>
+                      <div class="validation-success" id="new-department-success">
+                        Department selected
+                      </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                      <label for="new-password">Password</label>
+                      <div class="password-input-container">
+                        <input
+                          type="password"
+                          id="new-password"
+                          placeholder="Enter secure password"
+                          aria-describedby="new-password-error"
+                          autocomplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          class="password-toggle-btn"
+                          data-action="toggle-password"
+                          data-target="#new-password"
+                          aria-label="Show password"
+                        >
+                          <i class="fas fa-eye" aria-label="Show password icon"></i>
+                        </button>
+                      </div>
+                      <div class="validation-error" id="new-password-error">
+                        Strong password is required
+                      </div>
+                      <div class="validation-success" id="new-password-success">
+                        Password is secure
+                      </div>
+                      <div class="password-strength-meter">
+                        <div class="strength-bar">
+                          <div class="strength-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="strength-text">
+                          Password Strength: Enter password
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="form-group">
+                      <label for="confirm-password">Confirm Password</label>
+                      <div class="password-input-container">
+                        <input
+                          type="password"
+                          id="confirm-password"
+                          placeholder="Confirm password"
+                          aria-describedby="confirm-password-error"
+                          autocomplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          class="password-toggle-btn"
+                          data-action="toggle-password"
+                          data-target="#confirm-password"
+                          aria-label="Show password"
+                        >
+                          <i class="fas fa-eye" aria-label="Show password icon"></i>
+                        </button>
+                      </div>
+                      <div class="validation-error" id="confirm-password-error">
+                        Passwords must match
+                      </div>
+                      <div class="validation-success" id="confirm-password-success">
+                        Passwords match
+                      </div>
+                    </div>
+
+                    <!-- Account Expiry Field -->
+                    <div class="form-group">
+                      <label for="account-expires"
+                        >Account Expires (Optional)</label
+                      >
+                      <input
+                        type="date"
+                        id="account-expires"
+                        aria-describedby="account-expires-help"
+                      />
+                      <div class="form-help" id="account-expires-help">
+                        <i class="fas fa-info-circle" aria-label="Info icon"></i>
+                        Leave blank for no expiration
+                      </div>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="form-group">
+                      <label>Account Options</label>
+                      <div class="checkbox-group">
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="send-welcome-email" checked />
+                          Send welcome email with login instructions
+                        </label>
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="force-password-change" />
+                          Force password change on first login
+                        </label>
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="account-active" checked />
+                          Account is active (can login immediately)
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      id="cancel-add-user"
+                    >
+                      <i class="fas fa-times" aria-label="Cancel icon"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" id="reset-form">
+                      <i class="fas fa-undo" aria-label="Reset icon"></i> Reset Form
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-success"
+                      id="create-user-btn"
+                      disabled
+                    >
+                      <i class="fas fa-user-plus" aria-label="Create User icon"></i>
+                      Create User
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- User Accounts Management Table -->
+              <div class="user-form-container">
+                <div class="section-header">
+                  <h4>
+                    <i
+                      class="fas fa-users-cog"
+                      aria-label="User Accounts Management icon"
+                    ></i>
+                    User Accounts Management
+                  </h4>
+                  <div class="table-actions">
+                    <button
+                      class="btn btn-secondary btn-sm"
+                      id="refresh-users"
+                      title="Refresh user list"
+                    >
+                      <i class="fas fa-sync" aria-label="Refresh icon"></i> Refresh
+                    </button>
+                    <button
+                      class="btn btn-info btn-sm"
+                      id="export-users"
+                      title="Export user list"
+                    >
+                      <i class="fas fa-download" aria-label="Export icon"></i>
+                      Export
+                    </button>
+                    <button
+                      class="btn btn-primary btn-sm"
+                      id="manage-roles-permissions"
+                      title="Manage roles and permissions"
+                    >
+                      <i
+                        class="fas fa-users-cog"
+                        aria-label="Manage roles icon"
+                      ></i>
+                      Manage Roles
+                    </button>
+                    <div
+                      id="bulk-actions-container"
+                      style="display: none; align-items: center; gap: 0.5rem"
+                    >
+                      <select
+                        id="bulk-action-status"
+                        class="form-control form-control-sm"
+                      >
+                        <option value="">-- Change Status --</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Locked">Locked</option>
+                      </select>
+                      <button
+                        class="btn btn-primary btn-sm"
+                        id="bulk-apply-status-change"
+                        title="Apply status change"
+                      >
+                        <i class="fas fa-check" aria-label="Apply icon"></i> Apply
+                      </button>
+                      <button
+                        class="btn btn-info btn-sm"
+                        id="bulk-assign-roles"
+                        title="Assign roles to selected users"
+                      >
+                        <i
+                          class="fas fa-user-tag"
+                          aria-label="Assign roles icon"
+                        ></i>
+                        Assign Roles
+                      </button>
+                      <button
+                        class="btn btn-warning btn-sm"
+                        id="bulk-email-users"
+                        title="Send email to selected users"
+                      >
+                        <i class="fas fa-envelope" aria-label="Email icon"></i>
+                        Email Selected
+                      </button>
+                      <button
+                        class="btn btn-success btn-sm"
+                        id="bulk-export-selected"
+                        title="Export selected users"
+                      >
+                        <i class="fas fa-download" aria-label="Export icon"></i>
+                        Export Selected
+                      </button>
+                      <button
+                        class="btn btn-danger btn-sm"
+                        id="bulk-delete-users"
+                        title="Delete selected users"
+                      >
+                        <i class="fas fa-trash" aria-label="Delete icon"></i> Delete
+                        Selected
+                      </button>
+                    </div>
+
+                    <!-- Enhanced Bulk Operations Panel -->
+                    <div id="bulk-operations-panel-container">
+                      <!-- This will be populated by the BulkOperationsPanel component -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Advanced Filtering -->
+                <div class="table-filters">
+                  <h6>
+                    <i class="fas fa-filter" aria-label="Filter icon"></i> Filter &
+                    Search Options
+                  </h6>
+                  <div class="grid-4">
+                    <!-- Search Users Component -->
+                    <div class="filter-component filter-search">
+                      <div class="form-group">
+                        <label for="filter-search">Search Users</label>
+                        <input
+                          type="text"
+                          id="filter-search"
+                          placeholder="Search by name, email, or username..."
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Filter by Role Component -->
+                    <div class="filter-component filter-role">
+                      <div class="form-group">
+                        <label for="filter-role">Filter by Role</label>
+                        <select id="filter-role">
+                          <option value="">All Roles</option>
+                          <option value="administrator">Administrator</option>
+                          <option value="editor">Editor</option>
+                          <option value="auditor">Auditor</option>
+                          <option value="finance">Finance Officer</option>
+                          <option value="viewer">Viewer</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Filter by Status Component -->
+                    <div class="filter-component filter-status">
+                      <div class="form-group">
+                        <label for="filter-status">Filter by Status</label>
+                        <select id="filter-status">
+                          <option value="">All Statuses</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                          <option value="locked">Locked</option>
+                          <option value="expired">Expired</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Filter Actions Component -->
+                    <div class="filter-component filter-actions">
+                      <div class="form-group filter-actions">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" id="apply-filters">
+                          <i
+                            class="fas fa-search"
+                            aria-label="Apply Filters icon"
+                          ></i>
+                          Apply Filters
+                        </button>
+                        <button class="btn btn-secondary" id="clear-filters">
+                          <i
+                            class="fas fa-times"
+                            aria-label="Clear Filters icon"
+                          ></i>
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Users Data Table -->
+                <div class="table-container">
+                  <table class="data-table" id="users-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <input
+                            type="checkbox"
+                            id="select-all-users"
+                            title="Select all users"
+                          />
+                        </th>
+                        <th sortable data-sort="username">
+                          Username
+                          <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="email">
+                          Email <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="role">
+                          Role <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="department">
+                          Department
+                          <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="status">
+                          Status <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="lastLogin">
+                          Last Login
+                          <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th sortable data-sort="created">
+                          Created <i class="fas fa-sort" aria-label="Sort icon"></i>
+                        </th>
+                        <th>2FA</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="users-table-tbody">
+                      <!-- Users will be populated here by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+                <div class="table-pagination" id="users-pagination"></div>
+              </div>
             </div>
-            <div class="table-pagination" id="users-pagination"></div>
+
+            <div class="tab-content" id="password-policies-tab">
+              <div class="user-form-container">
+                <div class="section-header">
+                  <h4>
+                    <i class="fas fa-key" aria-label="Password Policies icon"></i>
+                    Password Policies
+                  </h4>
+                  <div class="table-actions">
+                    <button class="btn btn-success btn-sm" id="new-policy-btn">
+                      <i class="fas fa-plus" aria-label="New Policy icon"></i> New Policy
+                    </button>
+                  </div>
+                </div>
+                <div class="policies-container">
+                  <div class="policy-list-container">
+                    <h5>Existing Policies</h5>
+                    <ul class="policy-list" id="password-policy-list">
+                      <!-- Policies will be populated here -->
+                    </ul>
+                  </div>
+                  <div class="policy-editor-container">
+                    <h5>Policy Editor</h5>
+                    <form id="policy-editor-form">
+                      <input type="hidden" id="policy-id" />
+                      <div class="form-group">
+                        <label for="policy-name">Policy Name</label>
+                        <input type="text" id="policy-name" class="form-control" required />
+                      </div>
+                      <div class="grid-2">
+                        <div class="form-group">
+                          <label for="policy-minLength">Min Length</label>
+                          <input type="number" id="policy-minLength" class="form-control" value="8" />
+                        </div>
+                        <div class="form-group">
+                          <label for="policy-maxAge">Max Age (days)</label>
+                          <input type="number" id="policy-maxAge" class="form-control" value="90" />
+                        </div>
+                      </div>
+                      <div class="grid-2">
+                        <div class="form-group">
+                          <label for="policy-preventReuse">Prevent Reuse (count)</label>
+                          <input type="number" id="policy-preventReuse" class="form-control" value="5" />
+                        </div>
+                      </div>
+                      <div class="checkbox-group">
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="policy-requireUppercase" checked />
+                          Require Uppercase
+                        </label>
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="policy-requireLowercase" checked />
+                          Require Lowercase
+                        </label>
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="policy-requireNumbers" checked />
+                          Require Numbers
+                        </label>
+                        <label class="checkbox-label">
+                          <input type="checkbox" id="policy-requireSymbols" checked />
+                          Require Symbols
+                        </label>
+                      </div>
+                      <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Policy</button>
+                        <button type="button" class="btn btn-danger" id="delete-policy-btn" style="display: none;">Delete Policy</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Security Audit Log -->

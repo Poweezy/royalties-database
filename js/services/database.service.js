@@ -6,7 +6,7 @@
 class DatabaseService {
   constructor() {
     this.dbName = "RoyaltiesDB";
-    this.version = 5; // Incremented version to trigger upgrade
+    this.version = 6; // Incremented version to trigger upgrade
     this.stores = {
       royalties: "royalties",
       users: "users",
@@ -17,6 +17,7 @@ class DatabaseService {
       documents: "documents",
       offline: "offline",
       settings: "settings",
+      passwordPolicies: "passwordPolicies",
     };
   }
 
@@ -67,6 +68,7 @@ class DatabaseService {
         createStore(this.stores.documents, { keyPath: "id" });
         createStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
         createStore(this.stores.settings, { keyPath: "key" });
+        createStore(this.stores.passwordPolicies, { keyPath: "id", autoIncrement: true });
       };
     });
   }

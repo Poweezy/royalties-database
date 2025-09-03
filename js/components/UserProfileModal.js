@@ -205,6 +205,14 @@ export class UserProfileModal {
    * Get security tab HTML
    */
   getSecurityTabHTML() {
+    const passwordPolicies = this.userManager.getPasswordPolicies();
+    let options = "";
+    passwordPolicies.forEach((policy, name) => {
+      options += `<option value="${name}" ${
+        (this.currentUser.passwordPolicy || "default") === name ? "selected" : ""
+      }>${name}</option>`;
+    });
+
     return `
             <div class="security-settings">
                 <div class="security-section">
@@ -243,9 +251,7 @@ export class UserProfileModal {
                     <div class="form-group">
                         <label for="profile-password-policy">Password Policy</label>
                         <select id="profile-password-policy" class="form-control">
-                            <option value="default" ${(this.currentUser.passwordPolicy || "default") === "default" ? "selected" : ""}>Default Policy</option>
-                            <option value="strict" ${this.currentUser.passwordPolicy === "strict" ? "selected" : ""}>Strict Policy</option>
-                            <option value="relaxed" ${this.currentUser.passwordPolicy === "relaxed" ? "selected" : ""}>Relaxed Policy</option>
+                            ${options}
                         </select>
                     </div>
                     <div class="password-policy-info">
