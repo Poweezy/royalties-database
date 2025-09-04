@@ -18,6 +18,14 @@ export class EnhancedReportingService {
     await this.initializeScheduler();
   }
 
+  async loadTemplates() {
+    // Placeholder for loading report templates
+  }
+
+  async initializeScheduler() {
+    // Placeholder for initializing the report scheduler
+  }
+
   async setupReportingEngine() {
     this.features = {
       customReports: true,

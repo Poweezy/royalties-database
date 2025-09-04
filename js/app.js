@@ -27,13 +27,14 @@ import { contractManagementUI } from "./modules/contract-management-ui.js";
 import { contractManagementEnhanced } from "./modules/contract-management-enhanced.js";
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
-import RoyaltyRecords from "./modules/royalty-records.js";
-import { GisDashboard } from "./modules/GisDashboard.js";
+import { royaltyRecordsUI } from "./modules/royalty-records-ui.js";
+import { EnhancedGisDashboard } from "./modules/GisDashboard.enhanced.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 class App {
   constructor() {
+    console.log("App constructor called");
     // Global application state
     this.state = {
       currentUser: null,
@@ -109,8 +110,8 @@ class App {
     this.contractManagement = contractManagementEnhanced;
     this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
-    this.royaltyRecords = RoyaltyRecords;
-    this.gisDashboard = new GisDashboard(this.state.contracts);
+    this.royaltyRecordsUI = royaltyRecordsUI;
+    this.gisDashboard = new EnhancedGisDashboard();
     this.auditLogManager = null; // Will be initialized on auth state
 
     // Initialize app
@@ -169,6 +170,7 @@ class App {
    * Initialize application services
    */
   async initializeServices() {
+    console.log("initializeServices called");
     let hasError = false;
     try {
       // Show loading screen
@@ -227,7 +229,7 @@ class App {
       await this.reporting.init();
 
       // Initialize Royalty Records
-      await this.royaltyRecords.init();
+      this.royaltyRecordsUI.init();
 
       // Initialize Document Management
       await this.documentManagement.init();
@@ -1310,11 +1312,11 @@ class App {
     }
 
     if (route === "royalty-records") {
-      this.royaltyRecords.renderRecords(context);
+      this.royaltyRecordsUI.renderRecords();
     }
 
     if (route === "gis-dashboard") {
-      this.gisDashboard.init();
+      this.gisDashboard.initialize();
     }
 
     if (route === "communication") {
