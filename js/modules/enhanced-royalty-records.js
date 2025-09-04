@@ -85,6 +85,7 @@ class EnhancedRoyaltyRecords {
 
   async init() {
     console.log("Initializing Enhanced Royalty Records...");
+    this.cacheDOMElements();
     await this.loadTemplates();
     await this.setupNotificationScheduler();
   }
@@ -95,7 +96,7 @@ class EnhancedRoyaltyRecords {
       saveBtn: document.getElementById("save-enhanced-royalty-btn"),
       templateBtn: document.getElementById("save-as-template-btn"),
       bulkBtn: document.getElementById("bulk-create-btn"),
-      tableBody: document.getElementById("enhanced-royalty-records-tbody"),
+      tableBody: document.getElementById("royalty-records-tbody"),
       entitySelect: document.getElementById("entity"),
       mineralSelect: document.getElementById("mineral"),
       volumeInput: document.getElementById("volume"),
@@ -116,7 +117,9 @@ class EnhancedRoyaltyRecords {
       filterDateFromInput: document.getElementById("filter-date-from"),
       filterDateToInput: document.getElementById("filter-date-to"),
       applyFiltersBtn: document.getElementById("apply-enhanced-filters-btn"),
-      exportBtn: document.getElementById("export-enhanced-report-btn"),
+      exportBtn: document.getElementById("export-records-btn"),
+      importBtn: document.getElementById("import-records-btn"),
+      importInput: document.getElementById("import-input"),
     };
 
     if (this.elements.saveBtn && !this._eventsBound) {
@@ -169,6 +172,14 @@ class EnhancedRoyaltyRecords {
     this.elements.exportBtn?.addEventListener("click", () =>
       this.exportRecords(),
     );
+    this.elements.importBtn?.addEventListener("click", () =>
+        this.elements.importInput.click(),
+    );
+    this.elements.importInput?.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+            this.importFromExcel(e.target.files[0]);
+        }
+    });
 
     this._eventsBound = true;
     console.log("Enhanced Royalty Records events bound.");
@@ -817,10 +828,127 @@ class EnhancedRoyaltyRecords {
     /* Implementation for applying filters */
   }
   async renderRecords(filter = null) {
-    /* Implementation for rendering records */
+    this.cacheDOMElements();
+
+    console.log("Rendering royalty records...");
+    if (!this.elements.tableBody) {
+      console.error("Royalty records table body not found. Cannot render.");
+      return;
+    }
+    this.elements.tableBody.innerHTML = ""; // Clear existing records
+
+    let records = await dbService.getAll("royalties");
+
+    if (filter) {
+      if (filter.status) {
+        records = records.filter((record) => record.status === filter.status);
+      }
+      if (filter.entity && filter.entity !== "All Entities") {
+        records = records.filter((record) => record.entity === filter.entity);
+      }
+    }
+
+    if (!records || records.length === 0) {
+      const message = filter
+        ? `No records found matching your criteria.`
+        : "No royalty records found.";
+      this.elements.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem;">${message}</td></tr>`;
+      return;
+    }
+
+    records.forEach((record) => {
+      const row = this.createRecordRow(record);
+      this.elements.tableBody.appendChild(row);
+    });
+    console.log("Finished rendering royalty records.");
+  }
+
+  createRecordRow(record) {
+    const row = document.createElement("tr");
+    row.setAttribute("data-id", record.id);
+    const statusClass = record.status ? record.status.toLowerCase() : "unknown";
+    row.innerHTML = `
+      <td>${record.entity}</td>
+      <td>${record.mineral}</td>
+      <td>${(record.volume || 0).toFixed(2)}</td>
+      <td>E ${(record.tariff || 0).toFixed(2)}</td>
+      <td>E ${(record.royaltyPayment || 0).toFixed(2)}</td>
+      <td>${record.paymentDate}</td>
+      <td><span class="status-badge ${statusClass}">${record.status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-info" title="View Details"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-sm btn-warning" title="Edit Record"><i class="fas fa-edit"></i></button>
+      </td>
+    `;
+    return row;
   }
   exportRecords() {
-    /* Implementation for exporting records */
+    if (
+      this.elements.tableBody.rows.length === 1 &&
+      this.elements.tableBody.rows[0].cells.length === 1
+    ) {
+      showToast("There is no data to export.", "warning");
+      return;
+    }
+
+    const table = this.elements.tableBody.parentElement; // Get the <table> element
+    if (!table) {
+      showToast("Could not find table to export.", "error");
+      return;
+    }
+
+    // Use XLSX to create a workbook from the table
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Royalty Records" });
+
+    // Trigger the download
+    XLSX.writeFile(wb, "Royalty_Records_Export.xlsx");
+    showToast("Report exported successfully!", "success");
+  }
+
+  async importFromExcel(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const records = XLSX.utils.sheet_to_json(firstSheet);
+
+        if (records.length === 0) {
+          showToast("No records found in the file.", "warning");
+          return;
+        }
+
+        let importedCount = 0;
+        for (const record of records) {
+          // Basic validation to ensure required fields exist
+          if (record.Entity && record.Mineral && record.Volume && record.Tariff && record.Date) {
+            const newRecord = {
+              entity: record.Entity,
+              mineral: record.Mineral,
+              volume: parseFloat(record.Volume),
+              tariff: parseFloat(record.Tariff),
+              paymentDate: record.Date,
+              royaltyPayment: parseFloat(record.Volume) * parseFloat(record.Tariff),
+              status: record.Status || "Paid",
+            };
+            await dbService.add("royalties", newRecord);
+            importedCount++;
+          }
+        }
+
+        if (importedCount > 0) {
+          showToast(`${importedCount} records imported successfully!`, "success");
+          await this.renderRecords();
+        } else {
+          showToast("Could not import any records. Please check the file format.", "error");
+        }
+      } catch (error) {
+        console.error("Error importing records:", error);
+        showToast("Failed to import records. See console for details.", "error");
+      }
+    };
+    reader.readAsArrayBuffer(file);
   }
 }
 

@@ -36,8 +36,8 @@ test.describe("GIS Dashboard", () => {
       }
     });
     await page.click('a[href="#gis-dashboard"]');
-    await page.waitForSelector("#gis-map", { state: "visible" });
-    const map = await page.locator("#gis-map");
+    await page.waitForSelector("#map", { state: "visible" });
+    const map = await page.locator("#map");
     await expect(map).toBeVisible();
     expect(consoleErrors).toEqual([]);
   });

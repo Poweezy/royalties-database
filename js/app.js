@@ -27,14 +27,13 @@ import { contractManagementUI } from "./modules/contract-management-ui.js";
 import { contractManagementEnhanced } from "./modules/contract-management-enhanced.js";
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
-import { royaltyRecordsUI } from "./modules/royalty-records-ui.js";
+import EnhancedRoyaltyRecords from "./modules/enhanced-royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 class App {
   constructor() {
-    console.log("App constructor called");
     // Global application state
     this.state = {
       currentUser: null,
@@ -110,7 +109,7 @@ class App {
     this.contractManagement = contractManagementEnhanced;
     this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
-    this.royaltyRecordsUI = royaltyRecordsUI;
+    this.royaltyRecords = EnhancedRoyaltyRecords;
     this.gisDashboard = new GisDashboard(this.state.contracts);
     this.auditLogManager = null; // Will be initialized on auth state
 
@@ -170,7 +169,6 @@ class App {
    * Initialize application services
    */
   async initializeServices() {
-    console.log("initializeServices called");
     let hasError = false;
     try {
       // Show loading screen
@@ -229,7 +227,7 @@ class App {
       await this.reporting.init();
 
       // Initialize Royalty Records
-      this.royaltyRecordsUI.init();
+      await this.royaltyRecords.init();
 
       // Initialize Document Management
       await this.documentManagement.init();
@@ -1312,7 +1310,7 @@ class App {
     }
 
     if (route === "royalty-records") {
-      this.royaltyRecordsUI.renderRecords();
+      this.royaltyRecords.renderRecords(context);
     }
 
     if (route === "gis-dashboard") {
