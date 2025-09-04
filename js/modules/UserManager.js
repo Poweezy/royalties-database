@@ -313,6 +313,16 @@ export class UserManager {
     if (addUserForm) {
       addUserForm.addEventListener('submit', (event) => this.validateAndAddNewUser(event));
     }
+
+    const viewAuditBtn = document.getElementById("view-audit-btn");
+    if (viewAuditBtn) {
+        viewAuditBtn.addEventListener("click", () => {
+            const auditLogSection = document.querySelector(".user-form-container:has(#audit-log-table)");
+            if (auditLogSection) {
+                auditLogSection.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    }
   }
 
   async loadPasswordPolicies() {

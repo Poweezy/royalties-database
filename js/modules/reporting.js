@@ -2,23 +2,13 @@
  * @module Reporting
  * @description Handles all logic for generating and exporting reports.
  */
-import {
-  dbService
-} from "../services/database.service.js";
-import {
-  showToast
-} from "./NotificationManager.js";
-import {
-  EnhancedReportingService
-} from "../services/enhanced-reporting.service.js";
+import { dbService } from "../services/database.service.js";
+import { showToast } from "./NotificationManager.js";
 
 const Reporting = {
   async init() {
     console.log("Reporting module initialized.");
-    this.reportingService = new EnhancedReportingService();
-    await this.reportingService.initialize();
     this.bindEvents();
-    this.renderScheduledReports();
   },
 
   bindEvents() {
@@ -59,94 +49,39 @@ const Reporting = {
     }
 
     // --- Custom Report Builder Listeners ---
-    const customReportForm = document.getElementById("custom-report-form");
-    if (customReportForm) {
-      customReportForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        this.handleCustomReport();
-      });
-    }
-
-    const scheduleReportBtn = document.getElementById(
-      "schedule-new-report-btn",
-    );
-    if (scheduleReportBtn) {
-      scheduleReportBtn.addEventListener("click", () =>
-        this.handleScheduleReport(),
+    const previewBtn = document.querySelector("#custom-reports .btn-success");
+    if (previewBtn) {
+      previewBtn.addEventListener("click", () =>
+        this.handleCustomReportPreview(),
       );
     }
   },
 
-  async handleCustomReport() {
+  handleCustomReportPreview() {
     const reportType = document.getElementById("report-type").value;
     const period = document.getElementById("report-period").value;
     const entity = document.getElementById("report-entity").value;
     const format = document.getElementById("output-format").value;
 
-    showToast("Generating custom report...", "info");
-    try {
-      const report = await this.reportingService.generateComprehensiveReport({
-        type: reportType,
-        period,
-        entity,
-        format,
-      });
-      showToast("Custom report generated successfully!", "success");
-      // For now, just log the report to the console
-      console.log("Custom Report:", report);
-    } catch (error) {
-      showToast("Failed to generate custom report.", "error");
-      console.error(error);
-    }
-  },
-
-  async handleScheduleReport() {
-    // This would typically open a modal to configure the schedule
-    const config = {
-      reportType: "Financial Analysis",
-      schedule: "Monthly",
-      recipients: ["admin@example.com"],
-      format: "PDF",
-    };
-    showToast("Scheduling report...", "info");
-    try {
-      const job = await this.reportingService.scheduleReport(config);
-      showToast(`Report scheduled with ID: ${job.id}`, "success");
-      this.renderScheduledReports();
-    } catch (error) {
-      showToast("Failed to schedule report.", "error");
-      console.error(error);
-    }
-  },
-
-  renderScheduledReports() {
-    const container = document.getElementById("scheduled-reports-list");
-    if (!container) return;
-
-    const reports = this.reportingService.scheduledReports;
-    if (reports.size === 0) {
-      container.innerHTML = "<p>No reports scheduled.</p>";
+    if (!reportType || !period) {
+      showToast("Please select a Report Type and Period.", "error");
       return;
     }
 
-    container.innerHTML = "";
-    for (const [id, job] of reports.entries()) {
-      const item = document.createElement("div");
-      item.className = "schedule-item";
-      item.innerHTML = `
-        <div class="schedule-info">
-          <h6>${job.reportType}</h6>
-          <p>Schedule: ${job.schedule}</p>
-          <span class="status-badge active">${job.status}</span>
-        </div>
-        <div class="schedule-actions">
-          <button class="btn btn-sm btn-secondary">Edit</button>
-          <button class="btn btn-sm btn-warning">Pause</button>
-          <button class="btn btn-sm btn-danger">Delete</button>
-        </div>
-      `;
-      container.appendChild(item);
+    const selectedMetrics = Array.from(
+      document.querySelectorAll(
+        "#custom-reports .metrics-selector input:checked",
+      ),
+    ).map((cb) => cb.parentElement.textContent.trim());
+
+    let message = `Generating '${reportType}' for '${entity}' over period '${period}' in ${format} format.`;
+    if (selectedMetrics.length > 0) {
+      message += `\nMetrics: ${selectedMetrics.join(", ")}`;
+    } else {
+      message += `\nNo metrics selected.`;
     }
+
+    showToast(message, "info", 10000); // Show for 10 seconds
   },
 
   /**

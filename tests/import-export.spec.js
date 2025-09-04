@@ -35,7 +35,7 @@ test.describe("Royalty Record Import/Export", () => {
     await page.click('button[type="submit"]');
     await page.waitForSelector("#app-container", { state: "visible" });
     await page.click('a[href="#royalty-records"]');
-    await page.waitForSelector("#enhanced-royalty-records-tbody", { state: "visible" });
+    await page.waitForSelector("#royalty-records-tbody", { state: "visible" });
   });
 
   test("should export royalty records to an Excel file", async ({ page }) => {

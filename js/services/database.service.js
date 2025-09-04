@@ -210,11 +210,6 @@ class DatabaseService {
       console.error("Failed to initialize default settings:", error);
     }
   }
-
-  async getMiningConcessions() {
-    // Placeholder for fetching mining concessions
-    return [];
-  }
 }
 
 export const dbService = new DatabaseService();

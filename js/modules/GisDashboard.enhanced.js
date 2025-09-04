@@ -4,7 +4,6 @@
  */
 import { dbService } from "../services/database.service.js";
 import { RoyaltyCalculator } from "./RoyaltyCalculator.js";
-import { SpatialAnalytics } from "./SpatialAnalytics.js";
 
 export class EnhancedGisDashboard {
   constructor() {
@@ -19,10 +18,6 @@ export class EnhancedGisDashboard {
     await this.setupAdvancedLayers();
     this.setupInteractiveFeatures();
     this.initializeAnalytics();
-  }
-
-  initializeAnalytics() {
-    // Placeholder for initializing analytics
   }
 
   async initializeMap() {
@@ -42,18 +37,6 @@ export class EnhancedGisDashboard {
     this.addMeasurementTools();
     this.addDrawingTools();
     this.addLayerControls();
-  }
-
-  addMeasurementTools() {
-    // Placeholder for measurement tools
-  }
-
-  addDrawingTools() {
-    // Placeholder for drawing tools
-  }
-
-  addLayerControls() {
-    // Placeholder for layer controls
   }
 
   async setupAdvancedLayers() {
@@ -83,39 +66,11 @@ export class EnhancedGisDashboard {
     );
   }
 
-  async setupEnvironmentalZones() {
-    // Placeholder for setting up environmental zones layer
-  }
-
-  async setupInfrastructure() {
-    // Placeholder for setting up infrastructure layer
-  }
-
-  async setupClusteredMarkers() {
-    // Placeholder for setting up clustered markers
-  }
-
   setupAnalytics() {
     // Initialize spatial analysis tools
     this.analytics.enableHeatmaps();
     this.analytics.setupBufferAnalysis();
     this.analytics.enableDensityCalculations();
-  }
-
-  enableRealTimeUpdates() {
-    // Placeholder for real-time updates
-  }
-
-  setupPopupTemplates() {
-    // Placeholder for popup templates
-  }
-
-  enableLayerFiltering() {
-    // Placeholder for layer filtering
-  }
-
-  setupLegendControl() {
-    // Placeholder for legend control
   }
 
   // Enhanced event handlers
@@ -138,13 +93,13 @@ export class EnhancedGisDashboard {
     // Create different types of base layers
     switch (type) {
       case "satellite":
-        return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 });
+        return L.tileLayer("satellite-url", { maxZoom: 19 });
       case "terrain":
-        return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 17 });
+        return L.tileLayer("terrain-url", { maxZoom: 17 });
       case "hybrid":
-        return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 });
+        return L.tileLayer("hybrid-url", { maxZoom: 18 });
       default:
-        return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 });
+        return L.tileLayer("default-url", { maxZoom: 18 });
     }
   }
 }

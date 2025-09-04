@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Dashboard Navigation", () => {
   test.beforeEach(async ({ page }) => {
-    page.on('console', msg => console.log(msg.text()));
     await page.goto("/royalties.html", { waitUntil: 'domcontentloaded' });
     await page.evaluate(async () => {
       const registrations = await navigator.serviceWorker.getRegistrations();
@@ -25,9 +24,7 @@ test.describe("Dashboard Navigation", () => {
 
   test.afterEach(async ({ page }) => {
     await page.evaluate(() => {
-      if (window.app && window.app.leaseManagement) {
-        window.app.leaseManagement.stopMonitoring();
-      }
+      window.app.leaseManagement.stopMonitoring();
     });
   });
 

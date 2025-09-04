@@ -226,19 +226,34 @@ class ContractManagementUI {
     };
 
     try {
+        let contract;
         if (contractData.id) {
-            await contractManagementEnhanced.updateContract(contractData);
+            contract = await contractManagementEnhanced.updateContract(contractData);
             notificationManager.show("Contract updated successfully!", "success");
         } else {
             const templateId = this.elements.templateSelect.value;
-            const newContract = contractManagementEnhanced.createContractFromTemplate(templateId, {
+            contract = contractManagementEnhanced.createContractFromTemplate(templateId, {
                 entity: contractData.entity,
                 mineral: contractData.mineral,
                 startDate: contractData.startDate,
                 endDate: contractData.endDate,
             });
-            notificationManager.show(`Contract ${newContract.id} created successfully!`, "success");
+            notificationManager.show(`Contract ${contract.id} created successfully!`, "success");
         }
+
+        // Handle document upload
+        const fileInput = this.elements.docUploadInput;
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const documentData = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+            };
+            contractManagementEnhanced.attachDocument(contract.id, documentData);
+            notificationManager.show(`Document ${file.name} attached to contract ${contract.id}.`, "success");
+        }
+
         this.renderContracts();
         this.closeAddContractModal();
     } catch(error) {
@@ -278,6 +293,17 @@ class ContractManagementUI {
         `;
     }
 
+    let workflowActionsHtml = '';
+    const possibleActions = contractManagementEnhanced.workflowSteps[contract.status] || [];
+    if (possibleActions.length > 0) {
+        workflowActionsHtml = `
+            <div class="workflow-actions">
+                <h5>Workflow Actions</h5>
+                ${possibleActions.map(action => `<button class="btn btn-sm btn-primary workflow-action-btn" data-action="${action}" data-id="${contract.id}">${action}</button>`).join('')}
+            </div>
+        `;
+    }
+
     this.elements.detailsContent.innerHTML = `
         <div class="grid-2">
             <div>
@@ -292,8 +318,29 @@ class ContractManagementUI {
             </div>
         </div>
         <hr>
-        ${workflowHtml}
+        <div class="grid-2">
+            ${workflowHtml}
+            ${workflowActionsHtml}
+        </div>
     `;
+
+    this.elements.detailsContent.querySelectorAll('.workflow-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = e.currentTarget.dataset.action;
+            const contractId = e.currentTarget.dataset.id;
+            const notes = prompt(`Enter notes for this action (${action}):`);
+            if(notes !== null){
+                try {
+                    contractManagementEnhanced.advanceWorkflow(contractId, action, notes);
+                    notificationManager.show(`Contract workflow advanced to ${action}.`, "success");
+                    this.showContractDetails(contractId); // Refresh details view
+                    this.renderContracts(); // Refresh contract list
+                } catch(error){
+                    notificationManager.show(`Error: ${error.message}`, "error");
+                }
+            }
+        });
+    });
 
     this.elements.detailsView.style.display = 'block';
   }
