@@ -28,7 +28,7 @@ import { contractManagementEnhanced } from "./modules/contract-management-enhanc
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
 import { royaltyRecordsUI } from "./modules/royalty-records-ui.js";
-import { EnhancedGisDashboard } from "./modules/GisDashboard.enhanced.js";
+import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
@@ -111,7 +111,7 @@ class App {
     this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
     this.royaltyRecordsUI = royaltyRecordsUI;
-    this.gisDashboard = new EnhancedGisDashboard();
+    this.gisDashboard = new GisDashboard(this.state.contracts);
     this.auditLogManager = null; // Will be initialized on auth state
 
     // Initialize app
@@ -1316,7 +1316,7 @@ class App {
     }
 
     if (route === "gis-dashboard") {
-      this.gisDashboard.initialize();
+      this.gisDashboard.init();
     }
 
     if (route === "communication") {
