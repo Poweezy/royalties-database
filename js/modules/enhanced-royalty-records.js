@@ -87,6 +87,7 @@ class EnhancedRoyaltyRecords {
     console.log("Initializing Enhanced Royalty Records...");
     this.cacheDOMElements();
     this.populateSelects();
+    this.onCalculationMethodChange();
     await this.loadTemplates();
     await this.setupNotificationScheduler();
   }
@@ -98,6 +99,7 @@ class EnhancedRoyaltyRecords {
       currencySelect,
       calculationMethodSelect,
       statusSelect,
+      contractSelect,
     } = this.elements;
 
     this.populateSelect(
@@ -120,14 +122,24 @@ class EnhancedRoyaltyRecords {
       statusSelect,
       this.paymentStatuses,
     );
+    this.populateSelect(
+      contractSelect,
+      window.app.state.contracts.map(c => ({ value: c.id, text: `${c.id} - ${c.entity}` }))
+    );
   }
 
   populateSelect(selectElement, options) {
     if (!selectElement) return;
+    selectElement.innerHTML = '<option value="">Select an option</option>';
     options.forEach((option) => {
       const opt = document.createElement("option");
-      opt.value = option;
-      opt.textContent = option;
+      if (typeof option === 'object') {
+          opt.value = option.value;
+          opt.textContent = option.text;
+      } else {
+          opt.value = option;
+          opt.textContent = option;
+      }
       selectElement.appendChild(opt);
     });
   }
@@ -196,6 +208,12 @@ class EnhancedRoyaltyRecords {
     );
     this.elements.currencySelect?.addEventListener("change", () =>
       this.validateAndCalculate(),
+    );
+    this.elements.interestRateInput?.addEventListener("input", () =>
+        this.validateAndCalculate(),
+    );
+    this.elements.penaltyRateInput?.addEventListener("input", () =>
+        this.validateAndCalculate(),
     );
     this.elements.calculationMethodSelect?.addEventListener("change", () =>
       this.onCalculationMethodChange(),
@@ -814,12 +832,36 @@ class EnhancedRoyaltyRecords {
     return window.app?.state?.currentUser?.username || "system";
   }
 
-  // Placeholder methods for additional functionality
   async loadTemplates() {
-    /* Implementation for loading saved templates */
+    try {
+      const templates = await dbService.getAll("royaltyTemplates");
+      this.templates = templates || [];
+      this.populateTemplateSelect();
+    } catch (error) {
+      console.error("Error loading royalty templates:", error);
+      showToast("Failed to load royalty templates.", "error");
+    }
+  }
+
+  populateTemplateSelect() {
+    const { templateSelect } = this.elements;
+    if (!templateSelect) return;
+    templateSelect.innerHTML = '<option value="">Select a template</option>';
+    this.templates.forEach(template => {
+        const option = document.createElement('option');
+        option.value = template.id;
+        option.textContent = template.name;
+        templateSelect.appendChild(option);
+    });
   }
   async saveTemplates() {
-    /* Implementation for saving templates */
+    try {
+      await dbService.set("royaltyTemplates", this.templates);
+      showToast("Royalty templates saved successfully!", "success");
+    } catch (error) {
+      console.error("Error saving royalty templates:", error);
+      showToast("Failed to save royalty templates.", "error");
+    }
   }
   async populateTemplateSelect() {
     /* Implementation for populating template dropdown */
@@ -858,10 +900,41 @@ class EnhancedRoyaltyRecords {
     /* Implementation for mineral change handler */
   }
   onCalculationMethodChange() {
-    /* Implementation for calculation method change handler */
+    const method = this.elements.calculationMethodSelect.value;
+    const tariffGroup = this.elements.tariffInput.closest('.form-group');
+    const contractGroup = this.elements.contractSelect.closest('.form-group');
+
+    // Hide all conditional fields first
+    if(tariffGroup) tariffGroup.style.display = 'none';
+    if(contractGroup) contractGroup.style.display = 'none';
+
+    if (method === 'fixed') {
+      if(tariffGroup) tariffGroup.style.display = 'block';
+    } else if (method === 'tiered' || method === 'sliding_scale') {
+      if(contractGroup) contractGroup.style.display = 'block';
+    }
+
+    // We can add more conditions for other calculation types here
+
+    this.validateAndCalculate();
   }
   onContractChange() {
-    /* Implementation for contract change handler */
+    const contractId = parseInt(this.elements.contractSelect.value);
+    if (!contractId) return;
+
+    const contract = this.getContractById(contractId);
+    if (!contract) return;
+
+    if (this.elements.mineralSelect) {
+      this.elements.mineralSelect.value = contract.mineral;
+    }
+    if (this.elements.calculationMethodSelect) {
+      this.elements.calculationMethodSelect.value = contract.calculationType;
+    }
+
+    this.onCalculationMethodChange();
+    this.validateAndCalculate();
+    showToast("Contract details loaded.", "info");
   }
   showBulkCreateDialog(event) {
     /* Implementation for bulk create dialog */
@@ -908,13 +981,14 @@ class EnhancedRoyaltyRecords {
   createRecordRow(record) {
     const row = document.createElement("tr");
     row.setAttribute("data-id", record.id);
-    const statusClass = record.status ? record.status.toLowerCase() : "unknown";
+    const statusClass = record.status ? record.status.toLowerCase().replace(/ /g, '-') : "unknown";
+    const currencySymbol = record.currency === 'USD' ? '$' : 'E';
     row.innerHTML = `
       <td>${record.entity}</td>
       <td>${record.mineral}</td>
       <td>${(record.volume || 0).toFixed(2)}</td>
-      <td>E ${(record.tariff || 0).toFixed(2)}</td>
-      <td>E ${(record.royaltyPayment || 0).toFixed(2)}</td>
+      <td>${currencySymbol} ${(record.tariff || 0).toFixed(2)}</td>
+      <td>${currencySymbol} ${(record.royaltyPayment || 0).toFixed(2)}</td>
       <td>${record.paymentDate}</td>
       <td><span class="status-badge ${statusClass}">${record.status}</span></td>
       <td>
@@ -954,7 +1028,7 @@ class EnhancedRoyaltyRecords {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const records = XLSX.utils.sheet_to_json(firstSheet);
+        const records = XLSX.utils.sheet_to_json(firstSheet, { raw: false });
 
         if (records.length === 0) {
           showToast("No records found in the file.", "warning");
@@ -962,29 +1036,43 @@ class EnhancedRoyaltyRecords {
         }
 
         let importedCount = 0;
-        for (const record of records) {
-          // Basic validation to ensure required fields exist
-          if (record.Entity && record.Mineral && record.Volume && record.Tariff && record.Date) {
-            const newRecord = {
-              entity: record.Entity,
-              mineral: record.Mineral,
-              volume: parseFloat(record.Volume),
-              tariff: parseFloat(record.Tariff),
-              paymentDate: record.Date,
-              royaltyPayment: parseFloat(record.Volume) * parseFloat(record.Tariff),
-              status: record.Status || "Paid",
-            };
-            await dbService.add("royalties", newRecord);
-            importedCount++;
+        const errors = [];
+
+        for (let i = 0; i < records.length; i++) {
+          const record = records[i];
+          const recordData = {
+            entity: record.Entity,
+            mineral: record.Mineral,
+            volume: parseFloat(record.Volume),
+            tariff: parseFloat(record.Tariff),
+            paymentDate: record.Date,
+            status: record.Status || "Paid",
+            currency: record.Currency || "SZL",
+          };
+
+          const validationErrors = this.validateAllFields(recordData);
+          if (validationErrors.length > 0) {
+            errors.push({ row: i + 2, errors: validationErrors });
+            continue;
           }
+
+          recordData.royaltyPayment = this.calculateBaseRoyalty(recordData);
+          await dbService.add("royalties", recordData);
+          importedCount++;
         }
 
-        if (importedCount > 0) {
-          showToast(`${importedCount} records imported successfully!`, "success");
-          await this.renderRecords();
+        if (errors.length > 0) {
+          let errorMessage = `${importedCount} records imported successfully. However, some rows failed validation:\n`;
+          errors.forEach(err => {
+            errorMessage += `\nRow ${err.row}: ${err.errors.join(', ')}`;
+          });
+          showToast(errorMessage, "warning", 10000); // Show for 10 seconds
         } else {
-          showToast("Could not import any records. Please check the file format.", "error");
+          showToast(`${importedCount} records imported successfully!`, "success");
         }
+
+        await this.renderRecords();
+
       } catch (error) {
         console.error("Error importing records:", error);
         showToast("Failed to import records. See console for details.", "error");

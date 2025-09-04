@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="royalties.css" />
     <link rel="stylesheet" href="css/user-management-enhanced.css" />
     <link rel="stylesheet" href="css/contract-management-enhanced.css" />
+    <link rel="stylesheet" href="css/gis-dashboard-enhanced.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -1671,63 +1672,6 @@
                       <i class="fas fa-download" aria-label="Export icon"></i>
                       Export
                     </button>
-                    <div
-                      id="bulk-actions-container"
-                      style="display: none; align-items: center; gap: 0.5rem"
-                    >
-                      <select
-                        id="bulk-action-status"
-                        class="form-control form-control-sm"
-                      >
-                        <option value="">-- Change Status --</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                        <option value="Locked">Locked</option>
-                      </select>
-                      <button
-                        class="btn btn-primary btn-sm"
-                        id="bulk-apply-status-change"
-                        title="Apply status change"
-                      >
-                        <i class="fas fa-check" aria-label="Apply icon"></i> Apply
-                      </button>
-                      <button
-                        class="btn btn-info btn-sm"
-                        id="bulk-assign-roles"
-                        title="Assign roles to selected users"
-                      >
-                        <i
-                          class="fas fa-user-tag"
-                          aria-label="Assign roles icon"
-                        ></i>
-                        Assign Roles
-                      </button>
-                      <button
-                        class="btn btn-warning btn-sm"
-                        id="bulk-email-users"
-                        title="Send email to selected users"
-                      >
-                        <i class="fas fa-envelope" aria-label="Email icon"></i>
-                        Email Selected
-                      </button>
-                      <button
-                        class="btn btn-success btn-sm"
-                        id="bulk-export-selected"
-                        title="Export selected users"
-                      >
-                        <i class="fas fa-download" aria-label="Export icon"></i>
-                        Export Selected
-                      </button>
-                      <button
-                        class="btn btn-danger btn-sm"
-                        id="bulk-delete-users"
-                        title="Delete selected users"
-                      >
-                        <i class="fas fa-trash" aria-label="Delete icon"></i> Delete
-                        Selected
-                      </button>
-                    </div>
-
                     <!-- Enhanced Bulk Operations Panel -->
                     <div id="bulk-operations-panel-container">
                       <!-- This will be populated by the BulkOperationsPanel component -->
@@ -2094,6 +2038,22 @@
                 <label for="currency">Currency</label>
                 <select id="currency"></select>
               </div>
+              <div class="form-group">
+                <label for="contract">Contract</label>
+                <select id="contract"></select>
+              </div>
+              <div class="form-group">
+                <label for="interest-rate">Interest Rate (%)</label>
+                <input type="number" id="interest-rate" placeholder="e.g., 12" />
+              </div>
+              <div class="form-group">
+                <label for="penalty-rate">Penalty Rate (%)</label>
+                <input type="number" id="penalty-rate" placeholder="e.g., 2" />
+              </div>
+              <div class="form-group">
+                <label for="template-select">Load from Template</label>
+                <select id="template-select"></select>
+              </div>
             </div>
             <div id="validation-summary" class="validation-summary" style="display: none;"></div>
             <div id="calculation-preview" class="calculation-preview" style="display: none;"></div>
@@ -2161,6 +2121,9 @@
               <button class="btn btn-info" id="contract-analytics-btn">
                 <i class="fas fa-chart-pie"></i> View Analytics
               </button>
+              <button class="btn btn-primary" id="compare-contracts-btn" disabled>
+                <i class="fas fa-balance-scale"></i> Compare Selected
+              </button>
               <button class="btn btn-success" id="add-contract-btn">
                 <i class="fas fa-plus"></i> Create Contract
               </button>
@@ -2182,12 +2145,14 @@
               <table class="data-table">
                 <thead>
                   <tr>
+                    <th><input type="checkbox" id="select-all-contracts" /></th>
                     <th sortable data-sort="id">ID</th>
                     <th sortable data-sort="entity">Entity</th>
                     <th sortable data-sort="mineral">Mineral</th>
                     <th sortable data-sort="status">Status</th>
                     <th sortable data-sort="startDate">Start Date</th>
                     <th sortable data-sort="endDate">End Date</th>
+                    <th>Workflow</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -2207,7 +2172,9 @@
                          <button class="btn btn-secondary btn-sm" id="close-details-view-btn"><i class="fas fa-times"></i> Close</button>
                     </div>
                 </div>
-                <div id="contract-details-content"></div>
+                <div id="contract-details-content">
+                    <!-- Contract details will be populated here -->
+                </div>
           </div>
         </section>
 
@@ -2300,6 +2267,40 @@
                 </div>
                 <div class="modal-body" id="contract-analytics-content">
                     <!-- Analytics content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Contract Comparison Modal -->
+        <div id="contract-comparison-modal" class="modal" style="display: none;">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h4>Contract Comparison</h4>
+                    <button id="close-comparison-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body" id="contract-comparison-content">
+                    <!-- Comparison content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Notes Modal -->
+        <div id="workflow-notes-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Workflow Notes</h4>
+                    <button id="close-workflow-notes-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="workflow-notes-form">
+                        <div class="form-group">
+                            <label for="workflow-notes-input">Notes</label>
+                            <textarea id="workflow-notes-input" class="form-control" rows="5" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

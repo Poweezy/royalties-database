@@ -15,7 +15,7 @@ export class BulkOperationsPanel {
    * Create bulk operations HTML
    */
   createBulkOperationsHTML() {
-    const existingContainer = document.getElementById("bulk-actions-container");
+    const existingContainer = document.getElementById("bulk-operations-panel-container");
     if (existingContainer) {
       existingContainer.innerHTML = this.getBulkOperationsHTML();
     }
@@ -26,7 +26,7 @@ export class BulkOperationsPanel {
    */
   getBulkOperationsHTML() {
     return `
-            <div class="bulk-operations-panel" style="display: none;" id="bulk-operations-panel">
+            <div class="bulk-operations-panel" id="bulk-operations-panel">
                 <div class="bulk-operations-header">
                     <h5><i class="fas fa-tasks"></i> Bulk Operations</h5>
                     <span class="selected-count" id="selected-count">0 users selected</span>

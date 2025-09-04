@@ -295,16 +295,14 @@ export class UserManager {
 
       const userId = target.dataset.userId;
 
-      if (target.id === "bulk-activate-users") {
-        this.bulkActivateUsers();
-      } else if (target.id === "bulk-deactivate-users") {
-        this.bulkDeactivateUsers();
+      if (target.id === "bulk-delete-users") {
+        this.handleBulkDelete();
+      } else if (target.id === "bulk-apply-status-change") {
+        this.handleBulkStatusChange();
       } else if (target.id === "bulk-email-users") {
         this.bulkEmailUsers();
-      } else if (target.id === "bulk-export-users") {
+      } else if (target.id === "bulk-export-selected") {
         this.bulkExportUsers();
-      } else if (target.id === "bulk-import-users") {
-        this.bulkImportUsers();
       }
     });
 
@@ -845,17 +843,9 @@ export class UserManager {
    * Update bulk operations UI
    */
   updateBulkOperationsUI() {
-    const bulkContainer = document.getElementById("bulk-actions-container");
+    this.bulkOperationsPanel.updateSelection(this.selectedUsers);
+
     const selectAllCheckbox = document.getElementById("select-all-users");
-
-    if (this.selectedUsers.size > 0) {
-      bulkContainer.style.display = "flex";
-      this.bulkOperationMode = true;
-    } else {
-      bulkContainer.style.display = "none";
-      this.bulkOperationMode = false;
-    }
-
     // Update select all checkbox state
     const totalUsers = document.querySelectorAll(
       'input[name="user-select"]',
@@ -870,6 +860,40 @@ export class UserManager {
       selectAllCheckbox.checked = false;
       selectAllCheckbox.indeterminate = false;
     }
+  }
+
+  handleBulkDelete() {
+    if (this.selectedUsers.size === 0) {
+      this.showNotification("No users selected for deletion.", "warning");
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${this.selectedUsers.size} selected users? This action cannot be undone.`)) {
+      const userIds = Array.from(this.selectedUsers);
+      this.bulkDeleteUsers(userIds);
+      this.clearSelection();
+      this.showNotification(`Successfully deleted ${userIds.length} users.`, "success");
+    }
+  }
+
+  handleBulkStatusChange() {
+    if (this.selectedUsers.size === 0) {
+      this.showNotification("No users selected for status change.", "warning");
+      return;
+    }
+
+    const statusSelect = document.getElementById("bulk-action-status");
+    const newStatus = statusSelect.value;
+
+    if (!newStatus) {
+      this.showNotification("Please select a status to apply.", "warning");
+      return;
+    }
+
+    const userIds = Array.from(this.selectedUsers);
+    this.bulkUpdateUserStatus(userIds, newStatus);
+    this.clearSelection();
+    this.showNotification(`Successfully updated status for ${userIds.length} users.`, "success");
   }
 
   /**
