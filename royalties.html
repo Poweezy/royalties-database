@@ -57,6 +57,7 @@
     <script type="module" src="js/modules/NavigationManager.js"></script>
     <script type="module" src="js/semantic-search.js"></script>
     <script type="module" src="js/modules/UserManager.js"></script>
+    <script type="module" src="js/modules/royalty-records-ui.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
       // Register Service Worker
@@ -1251,9 +1252,33 @@
               <h1>GIS Dashboard</h1>
               <p>Geospatial overview of mining operations in Eswatini</p>
             </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="gis-spatial-analysis-btn">
+                <i class="fas fa-chart-area"></i> Spatial Analysis
+              </button>
+              <button class="btn btn-info" id="gis-layer-manager-btn">
+                <i class="fas fa-layer-group"></i> Layer Manager
+              </button>
+            </div>
           </div>
-          <div class="user-form-container">
-            <div id="map" style="height: 600px; width: 100%"></div>
+          <div class="gis-container">
+            <div class="gis-map-container">
+              <div id="gis-map" style="height: 600px; width: 100%"></div>
+            </div>
+            <div class="gis-sidebar">
+              <h4>Map Layers</h4>
+              <div id="layer-control" class="layer-control">
+                <!-- Layer controls will be populated here -->
+              </div>
+              <h4>Map Legend</h4>
+              <div id="map-legend" class="map-legend">
+                <!-- Legend will be populated here -->
+              </div>
+              <h4>Analysis Tools</h4>
+              <div id="analysis-tools" class="analysis-tools">
+                <!-- Analysis tools will be populated here -->
+              </div>
+            </div>
           </div>
         </section>
 
@@ -2061,114 +2086,128 @@
               <p>Manage and review all royalty payments</p>
             </div>
             <div class="page-actions">
-              <input type="file" id="import-input" style="display: none;" accept=".csv, .xlsx">
+              <input
+                type="file"
+                id="import-input"
+                style="display: none"
+                accept=".csv, .xlsx"
+              />
               <button class="btn btn-info" id="import-records-btn">
                 <i class="fas fa-upload"></i> Import
               </button>
               <button class="btn btn-primary" id="export-records-btn">
                 <i class="fas fa-download"></i> Export
               </button>
-              <button class="btn btn-success">Record Payment</button>
-            </div>
-          </div>
-          <div class="user-form-container">
-            <h4>Record Royalty Payment</h4>
-            <div class="grid-4">
-              <div class="form-group">
-                <label for="entity">Entity</label>
-                <select id="entity" aria-describedby="entity-validation">
-                  <option>Select Entity</option>
-                  <option>Kwalini Quarry</option>
-                  <option>Mbabane Quarry</option>
-                  <option>Sidvokodvo Quarry</option>
-                  <option>Maloma Colliery</option>
-                  <option>Ngwenya Mine</option>
-                  <option>Malolotja Mine</option>
-                </select>
-                <div class="validation-error" id="entity-validation">
-                  Entity is required
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="mineral">Mineral</label>
-                <select id="mineral" aria-describedby="mineral-validation">
-                  <option>Select Mineral</option>
-                  <option>Coal</option>
-                  <option>Iron Ore</option>
-                  <option>Green Chert</option>
-                  <option>Gravel</option>
-                  <option>River Sand</option>
-                  <option>Plaster Sand</option>
-                  <option>Quarried Stone</option>
-                </select>
-                <div class="validation-error" id="mineral-validation">
-                  Mineral is required
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="volume">Volume (m³)</label>
-                <input
-                  type="number"
-                  id="volume"
-                  placeholder="Volume (m³)"
-                  aria-describedby="volume-validation"
-                />
-                <div class="validation-error" id="volume-validation">
-                  Volume must be a positive number
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="tariff">Royalty Tariff (E/m³)</label>
-                <input
-                  type="number"
-                  id="tariff"
-                  placeholder="Tariff (E/m³)"
-                  aria-describedby="tariff-validation"
-                />
-                <div class="validation-error" id="tariff-validation">
-                  Tariff must be a positive number
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="payment-date">Date</label>
-                <input
-                  type="date"
-                  id="payment-date"
-                  aria-describedby="date-validation"
-                />
-                <div class="validation-error" id="date-validation">
-                  Date is required
-                </div>
-              </div>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-success" id="save-royalty-btn">
-                Save Royalty
+              <button class="btn btn-success" id="record-payment-btn">
+                <i class="fas fa-plus"></i> Record Payment
               </button>
             </div>
           </div>
+          <div class="user-form-container" id="enhanced-royalty-form-container">
+            <div class="section-header">
+              <h4>Record Royalty Payment</h4>
+              <div class="table-actions">
+                <button class="btn btn-secondary btn-sm" id="save-as-template-btn">
+                  <i class="fas fa-save"></i> Save as Template
+                </button>
+                <button class="btn btn-info btn-sm" id="bulk-create-btn">
+                  <i class="fas fa-layer-group"></i> Bulk Create
+                </button>
+              </div>
+            </div>
+            <form id="enhanced-royalty-form">
+              <div class="grid-4">
+                <div class="form-group">
+                  <label for="entity">Entity</label>
+                  <select id="entity">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="mineral">Mineral</label>
+                  <select id="mineral">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="volume">Volume (m³)</label>
+                  <input type="number" id="volume" placeholder="Volume" />
+                </div>
+                <div class="form-group">
+                  <label for="tariff">Royalty Tariff (E/m³)</label>
+                  <input type="number" id="tariff" placeholder="Tariff" />
+                </div>
+                <div class="form-group">
+                  <label for="payment-date">Date</label>
+                  <input type="date" id="payment-date" />
+                </div>
+                <div class="form-group">
+                  <label for="currency">Currency</label>
+                  <select id="currency">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="calculation-method">Calculation Method</label>
+                  <select id="calculation-method">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="payment-status">Status</label>
+                  <select id="payment-status">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+              </div>
+              <div id="validation-summary" class="validation-summary"></div>
+              <div id="calculation-preview"></div>
+              <div class="form-actions">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  id="save-enhanced-royalty-btn"
+                >
+                  Save Royalty
+                </button>
+              </div>
+            </form>
+          </div>
           <div class="user-form-container">
             <h4>Royalty Records Table</h4>
-            <div class="grid-4">
-              <div class="form-group">
-                <label for="filter-entity">Entity</label>
-                <select id="filter-entity">
-                  <option>All Entities</option>
-                  <option>Kwalini Quarry</option>
-                  <option>Mbabane Quarry</option>
-                  <option>Sidvokodvo Quarry</option>
-                  <option>Maloma Colliery</option>
-                  <option>Ngwenya Mine</option>
-                  <option>Malolotja Mine</option>
-                </select>
+            <div class="table-filters">
+              <div class="grid-4">
+                <div class="form-group">
+                  <label for="filter-entity">Entity</label>
+                  <select id="filter-entity">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="filter-status">Status</label>
+                  <select id="filter-status">
+                    <!-- Options populated by JS -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="filter-date-from">From</label>
+                  <input type="date" id="filter-date-from" />
+                </div>
+                <div class="form-group">
+                  <label for="filter-date-to">To</label>
+                  <input type="date" id="filter-date-to" />
+                </div>
               </div>
-              <div class="form-group">
-                <button class="btn btn-primary" id="apply-royalty-filters-btn">
+              <div class="form-actions">
+                <button
+                  class="btn btn-primary"
+                  id="apply-enhanced-filters-btn"
+                >
                   Apply Filters
                 </button>
                 <button
                   class="btn btn-secondary"
-                  id="export-royalty-report-btn"
+                  id="export-enhanced-report-btn"
                 >
                   Export Report
                 </button>
@@ -2188,20 +2227,26 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody id="royalty-records-tbody"></tbody>
+                <tbody id="enhanced-royalty-records-tbody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Enhanced Contract Management -->
+        <!-- Contract Management -->
         <section id="contract-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Enhanced Contract Management</h1>
+              <h1>Contract Management</h1>
               <p>Advanced contract authoring, workflow, and analytics</p>
             </div>
             <div class="page-actions">
+              <button class="btn btn-info" id="contract-analytics-btn">
+                <i class="fas fa-chart-pie"></i> View Analytics
+              </button>
+              <button class="btn btn-primary" id="compare-contracts-btn">
+                <i class="fas fa-balance-scale"></i> Compare Contracts
+              </button>
               <button class="btn btn-info" id="contract-analytics-btn">
                 <i class="fas fa-chart-pie"></i> View Analytics
               </button>
@@ -2351,31 +2396,63 @@
             </div>
         </div>
 
-        <!-- Enhanced Lease Management -->
+        <!-- Lease Management -->
         <section id="lease-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Enhanced Lease Management</h1>
+              <h1>Lease Management</h1>
               <p>Advanced lease tracking, document management, and alerts</p>
             </div>
             <div class="page-actions">
-              <button class="btn btn-success" id="add-lease-btn">
-                <i class="fas fa-plus"></i> Create Lease
+              <button class="btn btn-info" id="view-lease-templates-btn">
+                <i class="fas fa-file-alt"></i> View Templates
               </button>
+              <button class="btn btn-primary" id="lease-audit-trail-btn">
+                <i class="fas fa-history"></i> Audit Trail
+              </button>
+              <div class="dropdown">
+                <button
+                  class="btn btn-success dropdown-toggle"
+                  type="button"
+                  id="createLeaseDropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <i class="fas fa-plus"></i> Create Lease
+                </button>
+                <div class="dropdown-menu" aria-labelledby="createLeaseDropdown" id="lease-templates-dropdown">
+                  </div>
+              </div>
             </div>
           </div>
 
           <!-- Lease List -->
           <div class="user-form-container">
-             <div class="section-header">
-                <h4><i class="fas fa-file-signature"></i> All Leases</h4>
-             </div>
-             <div class="table-filters">
+            <div class="section-header">
+              <h4><i class="fas fa-file-signature"></i> All Leases</h4>
+            </div>
+            <div class="table-filters">
+              <div class="grid-4">
                 <div class="form-group">
-                    <label for="lease-filter-search">Search Leases</label>
-                    <input type="text" id="lease-filter-search" placeholder="Search by entity, type, or status...">
+                  <label for="lease-filter-search">Search Leases</label>
+                  <input
+                    type="text"
+                    id="lease-filter-search"
+                    placeholder="Search by entity, type, or status..."
+                  />
                 </div>
-             </div>
+                <div class="form-group">
+                  <label for="lease-filter-status">Status</label>
+                  <select id="lease-filter-status">
+                    <option value="">All</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Active">Active</option>
+                    <option value="Expired">Expired</option>
+                    <option value="Terminated">Terminated</option>
+                  </select>
+                </div>
+              </div>
+            </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
@@ -2389,22 +2466,33 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody id="lease-management-table-body">
-                </tbody>
+                <tbody id="lease-management-table-body"></tbody>
               </table>
             </div>
-            <div class="table-pagination" id="lease-management-pagination"></div>
+            <div
+              class="table-pagination"
+              id="lease-management-pagination"
+            ></div>
           </div>
 
-           <!-- Lease Details View -->
-          <div id="lease-details-view" class="user-form-container" style="display: none;">
-                <div class="section-header">
-                    <h4><i class="fas fa-file-alt"></i> Lease Details</h4>
-                    <div class="table-actions">
-                         <button class="btn btn-secondary btn-sm" id="close-lease-details-view-btn"><i class="fas fa-times"></i> Close</button>
-                    </div>
-                </div>
-                <div id="lease-details-content"></div>
+          <!-- Lease Details View -->
+          <div
+            id="lease-details-view"
+            class="user-form-container"
+            style="display: none"
+          >
+            <div class="section-header">
+              <h4><i class="fas fa-file-alt"></i> Lease Details</h4>
+              <div class="table-actions">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  id="close-lease-details-view-btn"
+                >
+                  <i class="fas fa-times"></i> Close
+                </button>
+              </div>
+            </div>
+            <div id="lease-details-content"></div>
           </div>
         </section>
 
@@ -2413,44 +2501,66 @@
           <div class="modal-content large">
             <div class="modal-header">
               <h4 id="lease-modal-title">Create New Lease</h4>
-              <button id="close-add-lease-modal-btn" class="close-btn">&times;</button>
+              <button id="close-add-lease-modal-btn" class="close-btn">
+                &times;
+              </button>
             </div>
             <div class="modal-body">
               <form id="add-lease-form" novalidate>
-                 <input type="hidden" id="lease-id" />
-                 <div class="grid-4">
-                    <div class="form-group">
-                        <label for="lease-entity">Entity</label>
-                        <input type="text" id="lease-entity" placeholder="e.g., Maloma Colliery" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-type">Lease Type</label>
-                        <select id="lease-type">
-                            <option value="Land">Land</option>
-                            <option value="Equipment">Equipment</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                     <div class="form-group">
-                        <label for="lease-start-date">Start Date</label>
-                        <input type="date" id="lease-start-date" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="lease-end-date">End Date</label>
-                        <input type="date" id="lease-end-date" />
-                    </div>
-                 </div>
-                 <hr>
-                 <h5>Attach Documents</h5>
-                 <div class="form-group">
-                    <label for="lease-document-upload">Upload Lease Agreement</label>
-                    <input type="file" id="lease-document-upload" />
-                 </div>
+                <input type="hidden" id="lease-id" />
+                <div class="grid-4">
+                  <div class="form-group">
+                    <label for="lease-entity">Entity</label>
+                    <input
+                      type="text"
+                      id="lease-entity"
+                      placeholder="e.g., Maloma Colliery"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="lease-type">Lease Type</label>
+                    <select id="lease-type">
+                      <option value="Land">Land</option>
+                      <option value="Equipment">Equipment</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="lease-start-date">Start Date</label>
+                    <input type="date" id="lease-start-date" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="lease-end-date">End Date</label>
+                    <input type="date" id="lease-end-date" />
+                  </div>
+                </div>
+                <hr />
+                <h5>Attach Documents</h5>
+                <div class="form-group">
+                  <label for="lease-document-upload"
+                    >Upload Lease Agreement</label
+                  >
+                  <input type="file" id="lease-document-upload" />
+                </div>
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" id="cancel-add-lease-btn" class="btn btn-secondary">Cancel</button>
-              <button type="submit" id="save-lease-btn" class="btn btn-success" form="add-lease-form">Save Lease</button>
+              <button
+                type="button"
+                id="cancel-add-lease-btn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                id="save-lease-btn"
+                class="btn btn-success"
+                form="add-lease-form"
+              >
+                Save Lease
+              </button>
             </div>
           </div>
         </div>
@@ -2955,148 +3065,69 @@
               </div>
             </div>
             <div class="tab-content" id="custom-reports">
-              <div class="custom-report-builder">
-                <div class="builder-section">
-                  <h5>
-                    <i class="fas fa-filter" aria-label="Filter icon"></i>
-                    Report Criteria
-                  </h5>
-                  <div class="grid-4">
-                    <div class="form-group">
-                      <label for="report-type">Report Type</label>
-                      <select
-                        id="report-type"
-                        aria-describedby="report-type-validation"
-                      >
-                        <option>Select Report Type</option>
-                        <option>Financial Analysis</option>
-                        <option>Production Analysis</option>
-                        <option>Compliance Tracking</option>
-                        <option>Entity Performance</option>
-                        <option>Audit & Verification</option>
-                        <option>Comparative Analysis</option>
-                      </select>
-                      <div class="validation-error" id="report-type-validation">
-                        Report type is required
+              <form id="custom-report-form">
+                <div class="custom-report-builder">
+                  <div class="builder-section">
+                    <h5>
+                      <i class="fas fa-filter" aria-label="Filter icon"></i>
+                      Report Criteria
+                    </h5>
+                    <div class="grid-4">
+                      <div class="form-group">
+                        <label for="report-type">Report Type</label>
+                        <select id="report-type">
+                          <option>Financial Analysis</option>
+                          <option>Production Analysis</option>
+                          <option>Compliance Tracking</option>
+                        </select>
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="report-period">Period</label>
-                      <select
-                        id="report-period"
-                        aria-describedby="period-validation"
-                      >
-                        <option>Select Period</option>
-                        <option>Monthly</option>
-                        <option>Quarterly</option>
-                        <option>Yearly</option>
-                        <option>Custom Range</option>
-                      </select>
-                      <div class="validation-error" id="period-validation">
-                        Period is required
+                      <div class="form-group">
+                        <label for="report-period">Period</label>
+                        <select id="report-period">
+                          <option>Monthly</option>
+                          <option>Quarterly</option>
+                          <option>Yearly</option>
+                        </select>
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="report-entity">Entity</label>
-                      <select
-                        id="report-entity"
-                        aria-describedby="entity-report-validation"
-                      >
-                        <option>All Entities</option>
-                        <option>Kwalini Quarry</option>
-                        <option>Mbabane Quarry</option>
-                        <option>Sidvokodvo Quarry</option>
-                        <option>Maloma Colliery</option>
-                        <option>Ngwenya Mine</option>
-                        <option>Malolotja Mine</option>
-                      </select>
-                      <div
-                        class="validation-error"
-                        id="entity-report-validation"
-                      >
-                        Entity selection required
+                      <div class="form-group">
+                        <label for="report-entity">Entity</label>
+                        <select id="report-entity">
+                          <option>All Entities</option>
+                          <!-- Populated by JS -->
+                        </select>
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="output-format">Output Format</label>
-                      <select
-                        id="output-format"
-                        aria-describedby="format-validation"
-                      >
-                        <option>PDF</option>
-                        <option>Excel</option>
-                        <option>CSV</option>
-                        <option>HTML</option>
-                      </select>
-                      <div class="validation-error" id="format-validation">
-                        Output format is required
+                      <div class="form-group">
+                        <label for="output-format">Output Format</label>
+                        <select id="output-format">
+                          <option>PDF</option>
+                          <option>Excel</option>
+                          <option>CSV</option>
+                        </select>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="builder-section">
-                  <h5>
-                    <i class="fas fa-chart-bar" aria-label="Metrics icon"></i>
-                    Metrics Selection
-                  </h5>
-                  <div class="metrics-selector">
-                    <div class="checkbox-group">
-                      <label class="checkbox-label">
-                        <input type="checkbox" checked /> Total Revenue
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" checked /> Production Volume
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" /> Collection Rate
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" /> Outstanding Amounts
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" /> Compliance Status
-                      </label>
-                      <label class="checkbox-label">
-                        <input type="checkbox" /> Entity Performance
-                      </label>
-                    </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                      Generate Custom Report
+                    </button>
                   </div>
                 </div>
-                <div class="form-actions">
-                  <button class="btn btn-secondary">Reset</button>
-                  <button class="btn btn-success">Preview Report</button>
-                </div>
-              </div>
+              </form>
             </div>
             <div class="tab-content" id="scheduled-reports">
               <div class="scheduled-reports-header">
-                <button class="btn btn-success">Add Scheduled Report</button>
+                <button
+                  class="btn btn-success"
+                  id="schedule-new-report-btn"
+                >
+                  Schedule New Report
+                </button>
               </div>
-              <div class="scheduled-reports-list">
-                <div class="schedule-item">
-                  <div class="schedule-info">
-                    <h6>Weekly Revenue Report</h6>
-                    <p>Every Monday at 9:00 AM</p>
-                    <span class="status-badge active">Active</span>
-                  </div>
-                  <div class="schedule-actions">
-                    <button class="btn btn-sm btn-secondary">Edit</button>
-                    <button class="btn btn-sm btn-warning">Pause</button>
-                    <button class="btn btn-sm btn-danger">Delete</button>
-                  </div>
-                </div>
-                <div class="schedule-item active">
-                  <div class="schedule-info">
-                    <h6>Monthly Compliance Report</h6>
-                    <p>First day of each month at 8:00 AM</p>
-                    <span class="status-badge active">Active</span>
-                  </div>
-                  <div class="schedule-actions">
-                    <button class="btn btn-sm btn-secondary">Edit</button>
-                    <button class="btn btn-sm btn-warning">Pause</button>
-                    <button class="btn btn-sm btn-danger">Delete</button>
-                  </div>
-                </div>
+              <div
+                class="scheduled-reports-list"
+                id="scheduled-reports-list"
+              >
+                <!-- Scheduled reports will be populated here -->
               </div>
             </div>
             <div class="tab-content" id="audit-trail-reports">

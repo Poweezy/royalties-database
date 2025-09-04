@@ -24,6 +24,7 @@ class LeaseManagementUI {
       },
     });
     this.bindEvents();
+    this.populateLeaseTemplates();
     this.renderLeases();
   }
 
@@ -31,18 +32,27 @@ class LeaseManagementUI {
     this.elements = {
       // Main section
       tableBody: document.getElementById("lease-management-table-body"),
-      tableHeaders: document.querySelectorAll("#lease-management .data-table th[sortable]"),
+      tableHeaders: document.querySelectorAll(
+        "#lease-management .data-table th[sortable]",
+      ),
 
       // Buttons
       addLeaseBtn: document.getElementById("add-lease-btn"),
+      viewTemplatesBtn: document.getElementById("view-lease-templates-btn"),
+      auditTrailBtn: document.getElementById("lease-audit-trail-btn"),
+      createLeaseDropdown: document.getElementById("createLeaseDropdown"),
+      templatesDropdown: document.getElementById("lease-templates-dropdown"),
 
       // Filter
       filterSearchInput: document.getElementById("lease-filter-search"),
+      filterStatusSelect: document.getElementById("lease-filter-status"),
 
       // Details View
       detailsView: document.getElementById("lease-details-view"),
       detailsContent: document.getElementById("lease-details-content"),
-      closeDetailsViewBtn: document.getElementById("close-lease-details-view-btn"),
+      closeDetailsViewBtn: document.getElementById(
+        "close-lease-details-view-btn",
+      ),
 
       // Add/Edit Modal
       addLeaseModal: document.getElementById("add-lease-modal"),
@@ -61,15 +71,68 @@ class LeaseManagementUI {
   }
 
   bindEvents() {
-    this.elements.addLeaseBtn.addEventListener("click", () => this.openAddLeaseModal());
-    this.elements.closeModalBtn.addEventListener("click", () => this.closeAddLeaseModal());
-    this.elements.cancelBtn.addEventListener("click", () => this.closeAddLeaseModal());
-    this.elements.addLeaseForm.addEventListener("submit", (e) => this.handleSaveLease(e));
-    this.elements.closeDetailsViewBtn.addEventListener("click", () => this.closeDetailsView());
-    this.elements.filterSearchInput.addEventListener("keyup", (e) => this.handleFilterChange(e));
+    if (this.elements.addLeaseBtn) {
+      this.elements.addLeaseBtn.addEventListener("click", () =>
+        this.openAddLeaseModal(),
+      );
+    }
+    this.elements.closeModalBtn.addEventListener("click", () =>
+      this.closeAddLeaseModal(),
+    );
+    this.elements.cancelBtn.addEventListener("click", () =>
+      this.closeAddLeaseModal(),
+    );
+    this.elements.addLeaseForm.addEventListener("submit", (e) =>
+      this.handleSaveLease(e),
+    );
+    this.elements.closeDetailsViewBtn.addEventListener("click", () =>
+      this.closeDetailsView(),
+    );
+    this.elements.filterSearchInput.addEventListener("keyup", (e) =>
+      this.handleFilterChange(e),
+    );
+    this.elements.filterStatusSelect.addEventListener("change", (e) =>
+      this.handleFilterChange(e),
+    );
 
-    this.elements.tableHeaders.forEach(header => {
-        header.addEventListener("click", (e) => this.handleSort(e));
+    this.elements.tableHeaders.forEach((header) => {
+      header.addEventListener("click", (e) => this.handleSort(e));
+    });
+
+    this.elements.createLeaseDropdown.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.elements.templatesDropdown.classList.toggle("show");
+    });
+
+    document.body.addEventListener('click', (e) => {
+        if (!e.target.matches('#createLeaseDropdown, #createLeaseDropdown *')) {
+            this.elements.templatesDropdown.classList.remove('show');
+        }
+    });
+  }
+
+  populateLeaseTemplates() {
+    const templates = leaseManagementEnhanced.leaseTemplates;
+    this.elements.templatesDropdown.innerHTML = `
+          <a class="dropdown-item" href="#" data-template="blank">From Scratch</a>
+          <div class="dropdown-divider"></div>
+        `;
+    templates.forEach((template) => {
+      const a = document.createElement("a");
+      a.className = "dropdown-item";
+      a.href = "#";
+      a.textContent = template.name;
+      a.dataset.template = template.id;
+      this.elements.templatesDropdown.appendChild(a);
+    });
+
+    this.elements.templatesDropdown.addEventListener("click", (e) => {
+      if (e.target.classList.contains("dropdown-item")) {
+        e.preventDefault();
+        const templateId = e.target.dataset.template;
+        this.openAddLeaseModal(null, templateId);
+        this.elements.templatesDropdown.classList.remove("show");
+      }
     });
   }
 
@@ -78,14 +141,21 @@ class LeaseManagementUI {
     let leases = [...leaseManagementEnhanced.leases];
 
     // Apply filtering
-    if (this.filterState.searchTerm) {
-        const term = this.filterState.searchTerm.toLowerCase();
-        leases = leases.filter(l =>
-            l.id.toLowerCase().includes(term) ||
-            l.entity.toLowerCase().includes(term) ||
-            l.type.toLowerCase().includes(term) ||
-            l.status.toLowerCase().includes(term)
-        );
+    const searchTerm = this.elements.filterSearchInput.value.toLowerCase();
+    const statusFilter = this.elements.filterStatusSelect.value;
+
+    if (searchTerm) {
+      leases = leases.filter(
+        (l) =>
+          l.id.toLowerCase().includes(searchTerm) ||
+          l.entity.toLowerCase().includes(searchTerm) ||
+          l.type.toLowerCase().includes(searchTerm) ||
+          l.status.toLowerCase().includes(searchTerm),
+      );
+    }
+
+    if (statusFilter) {
+      leases = leases.filter((l) => l.status === statusFilter);
     }
 
     // Apply sorting
@@ -164,21 +234,32 @@ class LeaseManagementUI {
     this.renderLeases();
   }
 
-  openAddLeaseModal(leaseId = null) {
+  openAddLeaseModal(leaseId = null, templateId = null) {
     this.elements.addLeaseForm.reset();
+    this.elements.leaseIdInput.value = "";
 
-    if(leaseId){
-        const lease = leaseManagementEnhanced.leases.find(l => l.id === leaseId);
-        if(lease){
-            this.elements.modalTitle.textContent = "Edit Lease";
-            this.elements.leaseIdInput.value = lease.id;
-            this.elements.entityInput.value = lease.entity;
-            this.elements.typeSelect.value = lease.type;
-            this.elements.startDateInput.value = lease.startDate;
-            this.elements.endDateInput.value = lease.endDate;
-        }
+    if (leaseId) {
+      const lease = leaseManagementEnhanced.leases.find(
+        (l) => l.id === leaseId,
+      );
+      if (lease) {
+        this.elements.modalTitle.textContent = "Edit Lease";
+        this.elements.leaseIdInput.value = lease.id;
+        this.elements.entityInput.value = lease.entity;
+        this.elements.typeSelect.value = lease.type;
+        this.elements.startDateInput.value = lease.startDate;
+        this.elements.endDateInput.value = lease.endDate;
+      }
+    } else if (templateId && templateId !== "blank") {
+      const template = leaseManagementEnhanced.leaseTemplates.find(
+        (t) => t.id === templateId,
+      );
+      if (template) {
+        this.elements.modalTitle.textContent = `New Lease from ${template.name}`;
+        this.elements.typeSelect.value = template.type;
+      }
     } else {
-        this.elements.modalTitle.textContent = "Create New Lease";
+      this.elements.modalTitle.textContent = "Create New Lease";
     }
     this.elements.addLeaseModal.style.display = "block";
   }
