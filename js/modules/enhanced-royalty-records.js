@@ -86,8 +86,50 @@ class EnhancedRoyaltyRecords {
   async init() {
     console.log("Initializing Enhanced Royalty Records...");
     this.cacheDOMElements();
+    this.populateSelects();
     await this.loadTemplates();
     await this.setupNotificationScheduler();
+  }
+
+  populateSelects() {
+    const {
+      entitySelect,
+      mineralSelect,
+      currencySelect,
+      calculationMethodSelect,
+      statusSelect,
+    } = this.elements;
+
+    this.populateSelect(
+      entitySelect,
+      this.validationRules.entity.validEntities,
+    );
+    this.populateSelect(
+      mineralSelect,
+      this.validationRules.mineral.validMinerals,
+    );
+    this.populateSelect(
+      currencySelect,
+      this.currencies,
+    );
+    this.populateSelect(
+      calculationMethodSelect,
+      this.calculationMethods,
+    );
+    this.populateSelect(
+      statusSelect,
+      this.paymentStatuses,
+    );
+  }
+
+  populateSelect(selectElement, options) {
+    if (!selectElement) return;
+    options.forEach((option) => {
+      const opt = document.createElement("option");
+      opt.value = option;
+      opt.textContent = option;
+      selectElement.appendChild(opt);
+    });
   }
 
   cacheDOMElements() {
