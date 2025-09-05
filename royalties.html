@@ -1672,6 +1672,18 @@
                       <i class="fas fa-download" aria-label="Export icon"></i>
                       Export
                     </button>
+                    <button
+                      class="btn btn-primary btn-sm"
+                      id="manage-roles-permissions"
+                      title="Manage roles and permissions"
+                    >
+                      <i
+                        class="fas fa-users-cog"
+                        aria-label="Manage roles icon"
+                      ></i>
+                      Manage Roles
+                    </button>
+
                     <!-- Enhanced Bulk Operations Panel -->
                     <div id="bulk-operations-panel-container">
                       <!-- This will be populated by the BulkOperationsPanel component -->
@@ -2003,64 +2015,80 @@
               <button class="btn btn-success">Record Payment</button>
             </div>
           </div>
-          <div class="user-form-container" id="enhanced-royalty-form">
+          <div class="user-form-container">
             <h4>Record Royalty Payment</h4>
             <div class="grid-4">
               <div class="form-group">
                 <label for="entity">Entity</label>
-                <select id="entity"></select>
+                <select id="entity" aria-describedby="entity-validation">
+                  <option>Select Entity</option>
+                  <option>Kwalini Quarry</option>
+                  <option>Mbabane Quarry</option>
+                  <option>Sidvokodvo Quarry</option>
+                  <option>Maloma Colliery</option>
+                  <option>Ngwenya Mine</option>
+                  <option>Malolotja Mine</option>
+                </select>
+                <div class="validation-error" id="entity-validation">
+                  Entity is required
+                </div>
               </div>
               <div class="form-group">
                 <label for="mineral">Mineral</label>
-                <select id="mineral"></select>
+                <select id="mineral" aria-describedby="mineral-validation">
+                  <option>Select Mineral</option>
+                  <option>Coal</option>
+                  <option>Iron Ore</option>
+                  <option>Green Chert</option>
+                  <option>Gravel</option>
+                  <option>River Sand</option>
+                  <option>Plaster Sand</option>
+                  <option>Quarried Stone</option>
+                </select>
+                <div class="validation-error" id="mineral-validation">
+                  Mineral is required
+                </div>
               </div>
               <div class="form-group">
                 <label for="volume">Volume (m³)</label>
-                <input type="number" id="volume" placeholder="e.g., 1000" />
+                <input
+                  type="number"
+                  id="volume"
+                  placeholder="Volume (m³)"
+                  aria-describedby="volume-validation"
+                />
+                <div class="validation-error" id="volume-validation">
+                  Volume must be a positive number
+                </div>
               </div>
               <div class="form-group">
-                <label for="tariff">Tariff (E/m³)</label>
-                <input type="number" id="tariff" placeholder="e.g., 15.5" />
+                <label for="tariff">Royalty Tariff (E/m³)</label>
+                <input
+                  type="number"
+                  id="tariff"
+                  placeholder="Tariff (E/m³)"
+                  aria-describedby="tariff-validation"
+                />
+                <div class="validation-error" id="tariff-validation">
+                  Tariff must be a positive number
+                </div>
               </div>
               <div class="form-group">
-                <label for="payment-date">Payment Date</label>
-                <input type="date" id="payment-date" />
-              </div>
-              <div class="form-group">
-                <label for="payment-status">Status</label>
-                <select id="payment-status"></select>
-              </div>
-              <div class="form-group">
-                <label for="calculation-method">Calculation Method</label>
-                <select id="calculation-method"></select>
-              </div>
-              <div class="form-group">
-                <label for="currency">Currency</label>
-                <select id="currency"></select>
-              </div>
-              <div class="form-group">
-                <label for="contract">Contract</label>
-                <select id="contract"></select>
-              </div>
-              <div class="form-group">
-                <label for="interest-rate">Interest Rate (%)</label>
-                <input type="number" id="interest-rate" placeholder="e.g., 12" />
-              </div>
-              <div class="form-group">
-                <label for="penalty-rate">Penalty Rate (%)</label>
-                <input type="number" id="penalty-rate" placeholder="e.g., 2" />
-              </div>
-              <div class="form-group">
-                <label for="template-select">Load from Template</label>
-                <select id="template-select"></select>
+                <label for="payment-date">Date</label>
+                <input
+                  type="date"
+                  id="payment-date"
+                  aria-describedby="date-validation"
+                />
+                <div class="validation-error" id="date-validation">
+                  Date is required
+                </div>
               </div>
             </div>
-            <div id="validation-summary" class="validation-summary" style="display: none;"></div>
-            <div id="calculation-preview" class="calculation-preview" style="display: none;"></div>
             <div class="form-actions">
-                <button class="btn btn-success" id="save-enhanced-royalty-btn">Save Royalty</button>
-                <button class="btn btn-info" id="save-as-template-btn">Save as Template</button>
-                <button class="btn btn-primary" id="bulk-create-btn">Bulk Create</button>
+              <button class="btn btn-success" id="save-royalty-btn">
+                Save Royalty
+              </button>
             </div>
           </div>
           <div class="user-form-container">
@@ -2104,25 +2132,25 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody id="royalty-records-tbody"></tbody>
+                <tbody id="royalty-records-tbody-enhanced"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Contract Management -->
+        <!-- Enhanced Contract Management -->
         <section id="contract-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Contract Management</h1>
+              <h1>Enhanced Contract Management</h1>
               <p>Advanced contract authoring, workflow, and analytics</p>
             </div>
             <div class="page-actions">
               <button class="btn btn-info" id="contract-analytics-btn">
                 <i class="fas fa-chart-pie"></i> View Analytics
               </button>
-              <button class="btn btn-primary" id="compare-contracts-btn" disabled>
-                <i class="fas fa-balance-scale"></i> Compare Selected
+              <button class="btn btn-primary" id="compare-contracts-btn">
+                <i class="fas fa-balance-scale"></i> Compare Contracts
               </button>
               <button class="btn btn-success" id="add-contract-btn">
                 <i class="fas fa-plus"></i> Create Contract
@@ -2172,9 +2200,7 @@
                          <button class="btn btn-secondary btn-sm" id="close-details-view-btn"><i class="fas fa-times"></i> Close</button>
                     </div>
                 </div>
-                <div id="contract-details-content">
-                    <!-- Contract details will be populated here -->
-                </div>
+                <div id="contract-details-content"></div>
           </div>
         </section>
 
@@ -2271,97 +2297,31 @@
             </div>
         </div>
 
-        <!-- Contract Comparison Modal -->
-        <div id="contract-comparison-modal" class="modal" style="display: none;">
-            <div class="modal-content large">
-                <div class="modal-header">
-                    <h4>Contract Comparison</h4>
-                    <button id="close-comparison-modal-btn" class="close-btn">&times;</button>
-                </div>
-                <div class="modal-body" id="contract-comparison-content">
-                    <!-- Comparison content will be populated here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Workflow Notes Modal -->
-        <div id="workflow-notes-modal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>Workflow Notes</h4>
-                    <button id="close-workflow-notes-modal-btn" class="close-btn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="workflow-notes-form">
-                        <div class="form-group">
-                            <label for="workflow-notes-input">Notes</label>
-                            <textarea id="workflow-notes-input" class="form-control" rows="5" required></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lease Management -->
+        <!-- Enhanced Lease Management -->
         <section id="lease-management" style="display: none">
           <div class="page-header">
             <div class="page-title">
-              <h1>Lease Management</h1>
+              <h1>Enhanced Lease Management</h1>
               <p>Advanced lease tracking, document management, and alerts</p>
             </div>
             <div class="page-actions">
-              <button class="btn btn-info" id="view-lease-templates-btn">
-                <i class="fas fa-file-alt"></i> View Templates
+              <button class="btn btn-success" id="add-lease-btn">
+                <i class="fas fa-plus"></i> Create Lease
               </button>
-              <button class="btn btn-primary" id="lease-audit-trail-btn">
-                <i class="fas fa-history"></i> Audit Trail
-              </button>
-              <div class="dropdown">
-                <button
-                  class="btn btn-success dropdown-toggle"
-                  type="button"
-                  id="createLeaseDropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-plus"></i> Create Lease
-                </button>
-                <div class="dropdown-menu" aria-labelledby="createLeaseDropdown" id="lease-templates-dropdown">
-                  </div>
-              </div>
             </div>
           </div>
 
           <!-- Lease List -->
           <div class="user-form-container">
-            <div class="section-header">
-              <h4><i class="fas fa-file-signature"></i> All Leases</h4>
-            </div>
-            <div class="table-filters">
-              <div class="grid-4">
+             <div class="section-header">
+                <h4><i class="fas fa-file-signature"></i> All Leases</h4>
+             </div>
+             <div class="table-filters">
                 <div class="form-group">
-                  <label for="lease-filter-search">Search Leases</label>
-                  <input
-                    type="text"
-                    id="lease-filter-search"
-                    placeholder="Search by entity, type, or status..."
-                  />
+                    <label for="lease-filter-search">Search Leases</label>
+                    <input type="text" id="lease-filter-search" placeholder="Search by entity, type, or status...">
                 </div>
-                <div class="form-group">
-                  <label for="lease-filter-status">Status</label>
-                  <select id="lease-filter-status">
-                    <option value="">All</option>
-                    <option value="Draft">Draft</option>
-                    <option value="Active">Active</option>
-                    <option value="Expired">Expired</option>
-                    <option value="Terminated">Terminated</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+             </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
@@ -2375,33 +2335,22 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody id="lease-management-table-body"></tbody>
+                <tbody id="lease-management-table-body">
+                </tbody>
               </table>
             </div>
-            <div
-              class="table-pagination"
-              id="lease-management-pagination"
-            ></div>
+            <div class="table-pagination" id="lease-management-pagination"></div>
           </div>
 
-          <!-- Lease Details View -->
-          <div
-            id="lease-details-view"
-            class="user-form-container"
-            style="display: none"
-          >
-            <div class="section-header">
-              <h4><i class="fas fa-file-alt"></i> Lease Details</h4>
-              <div class="table-actions">
-                <button
-                  class="btn btn-secondary btn-sm"
-                  id="close-lease-details-view-btn"
-                >
-                  <i class="fas fa-times"></i> Close
-                </button>
-              </div>
-            </div>
-            <div id="lease-details-content"></div>
+           <!-- Lease Details View -->
+          <div id="lease-details-view" class="user-form-container" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-file-alt"></i> Lease Details</h4>
+                    <div class="table-actions">
+                         <button class="btn btn-secondary btn-sm" id="close-lease-details-view-btn"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                </div>
+                <div id="lease-details-content"></div>
           </div>
         </section>
 
@@ -4636,6 +4585,40 @@
           </ul>
         </div>
       </div>
+    </div>
+
+    <!-- Contract Comparison Modal -->
+    <div id="contract-comparison-modal" class="modal" style="display: none;">
+      <div class="modal-content large">
+        <div class="modal-header">
+          <h4>Contract Comparison</h4>
+          <button id="close-comparison-modal-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body" id="contract-comparison-content">
+          <!-- Comparison table will be dynamically populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow Notes Modal -->
+    <div id="workflow-notes-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Workflow Action Notes</h4>
+                <button id="close-workflow-notes-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="workflow-notes-form">
+                    <div class="form-group">
+                        <label for="workflow-notes-input">Please provide notes for this action:</label>
+                        <textarea id="workflow-notes-input" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Confirm Action</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Enhanced Communication & Notifications Functionality -->
