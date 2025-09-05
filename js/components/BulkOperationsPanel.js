@@ -26,7 +26,7 @@ export class BulkOperationsPanel {
    */
   getBulkOperationsHTML() {
     return `
-            <div class="bulk-operations-panel" id="bulk-operations-panel">
+            <div class="bulk-operations-panel" id="bulk-operations-panel" style="display: none;">
                 <div class="bulk-operations-header">
                     <h5><i class="fas fa-tasks"></i> Bulk Operations</h5>
                     <span class="selected-count" id="selected-count">0 users selected</span>
@@ -34,20 +34,20 @@ export class BulkOperationsPanel {
                         <i class="fas fa-times"></i> Clear
                     </button>
                 </div>
-                
+
                 <div class="bulk-operations-content">
                     <!-- Status Operations -->
                     <div class="bulk-operation-group">
-                        <h6><i class="fas fa-toggle-on"></i> Status Operations</h6>
-                        <div class="btn-group">
-                            <button class="btn btn-success btn-sm" id="bulk-activate">
-                                <i class="fas fa-check-circle"></i> Activate
-                            </button>
-                            <button class="btn btn-warning btn-sm" id="bulk-deactivate">
-                                <i class="fas fa-pause-circle"></i> Deactivate
-                            </button>
-                            <button class="btn btn-danger btn-sm" id="bulk-lock">
-                                <i class="fas fa-lock"></i> Lock
+                        <h6><i class="fas fa-toggle-on"></i> Change Status</h6>
+                        <div class="status-change-controls">
+                            <select class="form-control form-control-sm" id="bulk-action-status">
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Locked">Locked</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" id="bulk-apply-status-change">
+                                <i class="fas fa-check"></i> Apply
                             </button>
                         </div>
                     </div>
@@ -110,7 +110,7 @@ export class BulkOperationsPanel {
                             <button class="btn btn-secondary btn-sm" id="bulk-import">
                                 <i class="fas fa-upload"></i> Import Users
                             </button>
-                            <button class="btn btn-danger btn-sm" id="bulk-delete">
+                            <button class="btn btn-danger btn-sm" id="bulk-delete-users">
                                 <i class="fas fa-trash"></i> Delete Selected
                             </button>
                         </div>
@@ -154,15 +154,6 @@ export class BulkOperationsPanel {
         case "clear-selection":
           this.clearSelection();
           break;
-        case "bulk-activate":
-          this.bulkActivate();
-          break;
-        case "bulk-deactivate":
-          this.bulkDeactivate();
-          break;
-        case "bulk-lock":
-          this.bulkLock();
-          break;
         case "bulk-assign-role":
           this.bulkAssignRole();
           break;
@@ -180,9 +171,6 @@ export class BulkOperationsPanel {
           break;
         case "bulk-import":
           this.bulkImport();
-          break;
-        case "bulk-delete":
-          this.bulkDelete();
           break;
         case "bulk-force-password-change":
           this.bulkForcePasswordChange();
@@ -220,39 +208,6 @@ export class BulkOperationsPanel {
     this.userManager.clearSelection();
   }
 
-  /**
-   * Bulk activate users
-   */
-  async bulkActivate() {
-    if (!this.confirmAction("activate")) return;
-
-    await this.executeWithProgress(async () => {
-      await this.userManager.bulkActivateUsers();
-    });
-  }
-
-  /**
-   * Bulk deactivate users
-   */
-  async bulkDeactivate() {
-    if (!this.confirmAction("deactivate")) return;
-
-    await this.executeWithProgress(async () => {
-      await this.userManager.bulkDeactivateUsers();
-    });
-  }
-
-  /**
-   * Bulk lock users
-   */
-  async bulkLock() {
-    if (!this.confirmAction("lock")) return;
-
-    await this.executeWithProgress(async () => {
-      const userIds = Array.from(this.selectedUsers);
-      await this.userManager.bulkUpdateUserStatus(userIds, "Locked");
-    });
-  }
 
   /**
    * Bulk assign role
@@ -323,17 +278,6 @@ export class BulkOperationsPanel {
     await this.userManager.bulkImportUsers();
   }
 
-  /**
-   * Bulk delete
-   */
-  async bulkDelete() {
-    if (!this.confirmAction("permanently delete", true)) return;
-
-    await this.executeWithProgress(async () => {
-      const userIds = Array.from(this.selectedUsers);
-      this.userManager.bulkDeleteUsers(userIds);
-    });
-  }
 
   /**
    * Bulk force password change

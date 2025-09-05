@@ -150,7 +150,7 @@ class EnhancedRoyaltyRecords {
       saveBtn: document.getElementById("save-enhanced-royalty-btn"),
       templateBtn: document.getElementById("save-as-template-btn"),
       bulkBtn: document.getElementById("bulk-create-btn"),
-      tableBody: document.getElementById("royalty-records-tbody"),
+      tableBody: document.getElementById("royalty-records-tbody-enhanced"),
       entitySelect: document.getElementById("entity"),
       mineralSelect: document.getElementById("mineral"),
       volumeInput: document.getElementById("volume"),

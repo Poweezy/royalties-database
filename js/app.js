@@ -1403,7 +1403,11 @@ class App {
   }
 
   hideLoadingScreen() {
-    document.getElementById("loading-screen").style.display = "none";
+    // Add a brief delay to ensure the loading animation is visible and to allow for a smooth fade-out transition,
+    // rather than having it disappear instantly upon load.
+    setTimeout(() => {
+        document.getElementById("loading-screen").style.display = "none";
+    }, 150);
   }
 
   showLogin() {

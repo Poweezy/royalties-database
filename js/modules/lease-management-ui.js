@@ -14,8 +14,16 @@ class LeaseManagementUI {
     this.filterState = { searchTerm: '' };
   }
 
+  constructor() {
+    this.elements = {};
+    this.pagination = null;
+    this.sortState = { key: 'startDate', direction: 'desc' };
+    this.filterState = { searchTerm: '' };
+    this._eventsBound = false; // Add a flag to prevent re-binding
+  }
+
   init() {
-    this.cacheDOMElements();
+    // Defer caching and binding to renderLeases to ensure DOM is ready
     this.pagination = new Pagination({
       containerSelector: "#lease-management-pagination",
       itemsPerPage: 5,
@@ -23,7 +31,6 @@ class LeaseManagementUI {
         this.renderLeases(page);
       },
     });
-    this.bindEvents();
     this.renderLeases();
   }
 
@@ -74,6 +81,13 @@ class LeaseManagementUI {
   }
 
   async renderLeases(page = 1) {
+    // Cache elements and bind events only on the first render
+    if (!this._eventsBound) {
+      this.cacheDOMElements();
+      this.bindEvents();
+      this._eventsBound = true;
+    }
+
     await leaseManagementEnhanced.loadLeases();
     let leases = [...leaseManagementEnhanced.leases];
 
