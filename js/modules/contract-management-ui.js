@@ -12,7 +12,6 @@ class ContractManagementUI {
     this.pagination = null;
     this.sortState = { key: 'startDate', direction: 'desc' };
     this.filterState = { searchTerm: '' };
-    this.selectedContracts = new Set();
   }
 
   init() {
@@ -76,7 +75,6 @@ class ContractManagementUI {
   bindEvents() {
     this.elements.addContractBtn.addEventListener("click", () => this.openAddContractModal());
     this.elements.analyticsBtn.addEventListener("click", () => this.showAnalytics());
-    this.elements.compareBtn.addEventListener("click", () => this.showComparisonModal());
     this.elements.closeModalBtn.addEventListener("click", () => this.closeAddContractModal());
     this.elements.cancelBtn.addEventListener("click", () => this.closeAddContractModal());
     this.elements.addContractForm.addEventListener("submit", (e) => this.handleSaveContract(e));
@@ -87,104 +85,6 @@ class ContractManagementUI {
     this.elements.tableHeaders.forEach(header => {
         header.addEventListener("click", (e) => this.handleSort(e));
     });
-
-    this.elements.tableBody.addEventListener("change", (e) => {
-        if (e.target.classList.contains("contract-select")) {
-            this.handleContractSelection(e.target);
-        }
-    });
-  }
-
-  handleContractSelection(checkbox) {
-    const contractId = checkbox.dataset.id;
-    if (checkbox.checked) {
-      this.selectedContracts.add(contractId);
-    } else {
-      this.selectedContracts.delete(contractId);
-    }
-    this.updateCompareButtonState();
-  }
-
-  updateCompareButtonState() {
-    const numSelected = this.selectedContracts.size;
-    this.elements.compareBtn.disabled = numSelected < 2;
-  }
-
-  showComparisonModal() {
-    const comparisonModal = document.getElementById("contract-comparison-modal");
-    const comparisonContent = document.getElementById("contract-comparison-content");
-    const closeBtn = document.getElementById("close-comparison-modal-btn");
-
-    const selectedContractIds = Array.from(this.selectedContracts);
-    const contractsToCompare = contractManagementEnhanced.contracts.filter(c => selectedContractIds.includes(c.id));
-
-    if (contractsToCompare.length < 2) {
-      this.showNotification("Please select at least two contracts to compare.", "warning");
-      return;
-    }
-
-    let comparisonHtml = '<table class="data-table"><thead><tr><th>Attribute</th>';
-    contractsToCompare.forEach(c => {
-      comparisonHtml += `<th>${c.entity} (${c.id})</th>`;
-    });
-    comparisonHtml += '</tr></thead><tbody>';
-
-    const attributes = ["mineral", "status", "startDate", "endDate", "calculationType"];
-    attributes.forEach(attr => {
-      comparisonHtml += `<tr><td><strong>${attr}</strong></td>`;
-      contractsToCompare.forEach(c => {
-        comparisonHtml += `<td>${c[attr] || 'N/A'}</td>`;
-      });
-      comparisonHtml += '</tr>';
-    });
-
-    comparisonHtml += '</tbody></table>';
-    comparisonContent.innerHTML = comparisonHtml;
-
-    comparisonModal.style.display = "block";
-
-    closeBtn.onclick = () => {
-      comparisonModal.style.display = "none";
-    };
-  }
-
-  showWorkflowNotesModal(action, contractId, callback) {
-    const modal = document.getElementById("workflow-notes-modal");
-    const form = document.getElementById("workflow-notes-form");
-    const notesInput = document.getElementById("workflow-notes-input");
-    const closeBtn = document.getElementById("close-workflow-notes-modal-btn");
-
-    modal.style.display = "block";
-    notesInput.value = "";
-
-    const submitHandler = (e) => {
-      e.preventDefault();
-      const notes = notesInput.value;
-      if (notes.trim() === "") {
-        notificationManager.show("Please provide notes for the workflow action.", "warning");
-        return;
-      }
-
-      try {
-        contractManagementEnhanced.advanceWorkflow(contractId, action, notes);
-        notificationManager.show(`Contract workflow advanced to ${action}.`, "success");
-        this.renderContracts();
-        if (callback) {
-          callback();
-        }
-        modal.style.display = "none";
-        form.removeEventListener("submit", submitHandler);
-      } catch (error) {
-        notificationManager.show(`Error: ${error.message}`, "error");
-      }
-    };
-
-    form.addEventListener("submit", submitHandler);
-
-    closeBtn.onclick = () => {
-      modal.style.display = "none";
-      form.removeEventListener("submit", submitHandler);
-    };
   }
 
   renderContracts(page = 1) {
@@ -217,7 +117,7 @@ class ContractManagementUI {
 
     this.elements.tableBody.innerHTML = "";
     if (paginatedContracts.length === 0) {
-      this.elements.tableBody.innerHTML = `<tr><td colspan="9" class="text-center">No contracts match the criteria.</td></tr>`;
+      this.elements.tableBody.innerHTML = `<tr><td colspan="7" class="text-center">No contracts match the criteria.</td></tr>`;
     } else {
         paginatedContracts.forEach(contract => {
             const row = this.createContractRow(contract);
@@ -230,20 +130,13 @@ class ContractManagementUI {
 
   createContractRow(contract) {
     const row = document.createElement("tr");
-    const possibleActions = contractManagementEnhanced.workflowSteps[contract.status] || [];
-    const workflowActionsHtml = possibleActions.length > 0
-        ? `<div class="btn-group">${possibleActions.map(action => `<button class="btn btn-sm btn-secondary workflow-action-btn" data-action="${action}" data-id="${contract.id}">${action}</button>`).join('')}</div>`
-        : 'N/A';
-
     row.innerHTML = `
-      <td><input type="checkbox" class="contract-select" data-id="${contract.id}" /></td>
       <td>${contract.id}</td>
       <td>${contract.entity}</td>
       <td>${contract.mineral}</td>
       <td><span class="status-badge ${contract.status.toLowerCase().replace(/ /g, '-')}">${contract.status}</span></td>
       <td>${new Date(contract.startDate).toLocaleDateString()}</td>
       <td>${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'N/A'}</td>
-      <td>${workflowActionsHtml}</td>
       <td>
         <div class="btn-group">
           <button class="btn btn-sm btn-info view-btn" data-id="${contract.id}" title="View Details"><i class="fas fa-eye"></i></button>
@@ -254,13 +147,6 @@ class ContractManagementUI {
     `;
     row.querySelector('.view-btn').addEventListener('click', (e) => this.showContractDetails(e.currentTarget.dataset.id));
     row.querySelector('.edit-btn').addEventListener('click', (e) => this.openAddContractModal(e.currentTarget.dataset.id));
-    row.querySelectorAll('.workflow-action-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const action = e.currentTarget.dataset.action;
-            const contractId = e.currentTarget.dataset.id;
-            this.showWorkflowNotesModal(action, contractId);
-        });
-    });
     return row;
   }
 
@@ -340,34 +226,19 @@ class ContractManagementUI {
     };
 
     try {
-        let contract;
         if (contractData.id) {
-            contract = await contractManagementEnhanced.updateContract(contractData);
+            await contractManagementEnhanced.updateContract(contractData);
             notificationManager.show("Contract updated successfully!", "success");
         } else {
             const templateId = this.elements.templateSelect.value;
-            contract = contractManagementEnhanced.createContractFromTemplate(templateId, {
+            const newContract = contractManagementEnhanced.createContractFromTemplate(templateId, {
                 entity: contractData.entity,
                 mineral: contractData.mineral,
                 startDate: contractData.startDate,
                 endDate: contractData.endDate,
             });
-            notificationManager.show(`Contract ${contract.id} created successfully!`, "success");
+            notificationManager.show(`Contract ${newContract.id} created successfully!`, "success");
         }
-
-        // Handle document upload
-        const fileInput = this.elements.docUploadInput;
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const documentData = {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-            };
-            contractManagementEnhanced.attachDocument(contract.id, documentData);
-            notificationManager.show(`Document ${file.name} attached to contract ${contract.id}.`, "success");
-        }
-
         this.renderContracts();
         this.closeAddContractModal();
     } catch(error) {
@@ -407,22 +278,6 @@ class ContractManagementUI {
         `;
     }
 
-    let workflowActionsHtml = '';
-    const possibleActions = contractManagementEnhanced.workflowSteps[contract.status] || [];
-    if (possibleActions.length > 0) {
-        workflowActionsHtml = `
-            <div class="workflow-actions">
-                <h5>Workflow Actions</h5>
-                <div class="btn-group">
-                    ${possibleActions.map(action => `<button class="btn btn-sm btn-primary workflow-action-btn" data-action="${action}" data-id="${contract.id}">${action}</button>`).join('')}
-                </div>
-                <div class="form-group mt-2">
-                    <textarea id="workflow-notes" class="form-control" placeholder="Add notes for the action..."></textarea>
-                </div>
-            </div>
-        `;
-    }
-
     this.elements.detailsContent.innerHTML = `
         <div class="grid-2">
             <div>
@@ -437,21 +292,8 @@ class ContractManagementUI {
             </div>
         </div>
         <hr>
-        <div class="grid-2">
-            <div>${workflowHtml}</div>
-            <div>${workflowActionsHtml}</div>
-        </div>
+        ${workflowHtml}
     `;
-
-    this.elements.detailsContent.querySelectorAll('.workflow-action-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const action = e.currentTarget.dataset.action;
-            const contractId = e.currentTarget.dataset.id;
-            this.showWorkflowNotesModal(action, contractId, () => {
-                this.showContractDetails(contractId); // Refresh details view
-            });
-        });
-    });
 
     this.elements.detailsView.style.display = 'block';
   }

@@ -12,13 +12,6 @@ class LeaseManagementUI {
     this.pagination = null;
     this.sortState = { key: 'startDate', direction: 'desc' };
     this.filterState = { searchTerm: '' };
-  }
-
-  constructor() {
-    this.elements = {};
-    this.pagination = null;
-    this.sortState = { key: 'startDate', direction: 'desc' };
-    this.filterState = { searchTerm: '' };
     this._eventsBound = false; // Add a flag to prevent re-binding
   }
 
@@ -81,13 +74,11 @@ class LeaseManagementUI {
   }
 
   async renderLeases(page = 1) {
-    // Cache elements and bind events only on the first render
     if (!this._eventsBound) {
       this.cacheDOMElements();
       this.bindEvents();
       this._eventsBound = true;
     }
-
     await leaseManagementEnhanced.loadLeases();
     let leases = [...leaseManagementEnhanced.leases];
 

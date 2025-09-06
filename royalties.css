@@ -4449,9 +4449,8 @@ nav ul li a span.notification-badge {
   font-weight: bold;
 }
 
-/* Force action buttons in data tables to be visible at all times */
-.data-table .btn-group,
-.data-table .btn-group .btn {
-  opacity: 1 !important;
-  visibility: visible !important;
+/* Make table action buttons permanently visible */
+.data-table .btn-group {
+    opacity: 1;
+    visibility: visible;
 }

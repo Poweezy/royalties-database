@@ -27,7 +27,7 @@ import { contractManagementUI } from "./modules/contract-management-ui.js";
 import { contractManagementEnhanced } from "./modules/contract-management-enhanced.js";
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
-import EnhancedRoyaltyRecords from "./modules/enhanced-royalty-records.js";
+import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
@@ -109,7 +109,7 @@ class App {
     this.contractManagement = contractManagementEnhanced;
     this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
-    this.royaltyRecords = EnhancedRoyaltyRecords;
+    this.royaltyRecords = RoyaltyRecords;
     this.gisDashboard = new GisDashboard(this.state.contracts);
     this.auditLogManager = null; // Will be initialized on auth state
 
@@ -1403,11 +1403,7 @@ class App {
   }
 
   hideLoadingScreen() {
-    // Add a brief delay to ensure the loading animation is visible and to allow for a smooth fade-out transition,
-    // rather than having it disappear instantly upon load.
-    setTimeout(() => {
-        document.getElementById("loading-screen").style.display = "none";
-    }, 150);
+    document.getElementById("loading-screen").style.display = "none";
   }
 
   showLogin() {
