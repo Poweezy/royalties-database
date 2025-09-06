@@ -163,6 +163,7 @@ export class UserManager {
     this.passwordPolicies = new Map();
     this.onboardingTemplates = new Map();
 
+    this.bulkOperationsPanel = new BulkOperationsPanel(this);
     this.userProfileModal = new UserProfileModal(this);
     this.auditLogManager = new AuditLogManager();
     this.securityService = userSecurityService;
@@ -174,7 +175,6 @@ export class UserManager {
    */
   async initializeEnhancedFeatures() {
     try {
-      this.bulkOperationsPanel = new BulkOperationsPanel(this);
       await userSecurityService.init();
       this.setupEventListeners();
       await this.loadPasswordPolicies();
@@ -295,14 +295,16 @@ export class UserManager {
 
       const userId = target.dataset.userId;
 
-      if (target.id === "bulk-delete-users") {
-        this.handleBulkDelete();
-      } else if (target.id === "bulk-apply-status-change") {
-        this.handleBulkStatusChange();
+      if (target.id === "bulk-activate-users") {
+        this.bulkActivateUsers();
+      } else if (target.id === "bulk-deactivate-users") {
+        this.bulkDeactivateUsers();
       } else if (target.id === "bulk-email-users") {
         this.bulkEmailUsers();
-      } else if (target.id === "bulk-export-selected") {
+      } else if (target.id === "bulk-export-users") {
         this.bulkExportUsers();
+      } else if (target.id === "bulk-import-users") {
+        this.bulkImportUsers();
       }
     });
 
@@ -310,16 +312,6 @@ export class UserManager {
     const addUserForm = document.getElementById('add-user-form');
     if (addUserForm) {
       addUserForm.addEventListener('submit', (event) => this.validateAndAddNewUser(event));
-    }
-
-    const viewAuditBtn = document.getElementById("view-audit-btn");
-    if (viewAuditBtn) {
-        viewAuditBtn.addEventListener("click", () => {
-            const auditLogSection = document.querySelector(".user-form-container:has(#audit-log-table)");
-            if (auditLogSection) {
-                auditLogSection.scrollIntoView({ behavior: "smooth" });
-            }
-        });
     }
   }
 
@@ -843,10 +835,17 @@ export class UserManager {
    * Update bulk operations UI
    */
   updateBulkOperationsUI() {
-    console.log(`Updating bulk operations UI. ${this.selectedUsers.size} users selected.`);
-    this.bulkOperationsPanel.updateSelection(this.selectedUsers);
-
+    const bulkContainer = document.getElementById("bulk-actions-container");
     const selectAllCheckbox = document.getElementById("select-all-users");
+
+    if (this.selectedUsers.size > 0) {
+      bulkContainer.style.display = "flex";
+      this.bulkOperationMode = true;
+    } else {
+      bulkContainer.style.display = "none";
+      this.bulkOperationMode = false;
+    }
+
     // Update select all checkbox state
     const totalUsers = document.querySelectorAll(
       'input[name="user-select"]',
@@ -863,38 +862,66 @@ export class UserManager {
     }
   }
 
-  handleBulkDelete() {
-    if (this.selectedUsers.size === 0) {
-      this.showNotification("No users selected for deletion.", "warning");
-      return;
-    }
+  /**
+   * Bulk activate users
+   */
+  async bulkActivateUsers() {
+    if (this.selectedUsers.size === 0) return;
 
-    if (confirm(`Are you sure you want to delete ${this.selectedUsers.size} selected users? This action cannot be undone.`)) {
+    try {
       const userIds = Array.from(this.selectedUsers);
-      this.bulkDeleteUsers(userIds);
+      await this.bulkUpdateUserStatus(userIds, "Active");
+
+      // Log audit event
+      await userSecurityService.logSecurityEvent("bulk_activate", "system", {
+        userIds,
+        count: userIds.length,
+      });
+
       this.clearSelection();
-      this.showNotification(`Successfully deleted ${userIds.length} users.`, "success");
+      this.showNotification(
+        `Successfully activated ${userIds.length} users`,
+        "success",
+      );
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to activate users");
+      this.showNotification("Failed to activate selected users", "error");
     }
   }
 
-  handleBulkStatusChange() {
-    if (this.selectedUsers.size === 0) {
-      this.showNotification("No users selected for status change.", "warning");
+  /**
+   * Bulk deactivate users
+   */
+  async bulkDeactivateUsers() {
+    if (this.selectedUsers.size === 0) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to deactivate ${this.selectedUsers.size} users?`,
+      )
+    ) {
       return;
     }
 
-    const statusSelect = document.getElementById("bulk-action-status");
-    const newStatus = statusSelect.value;
+    try {
+      const userIds = Array.from(this.selectedUsers);
+      await this.bulkUpdateUserStatus(userIds, "Inactive");
 
-    if (!newStatus) {
-      this.showNotification("Please select a status to apply.", "warning");
-      return;
+      // Log audit event
+      await userSecurityService.logSecurityEvent("bulk_deactivate", "system", {
+        userIds,
+        count: userIds.length,
+      });
+
+      this.clearSelection();
+      this.showNotification(
+        `Successfully deactivated ${userIds.length} users`,
+        "success",
+      );
+    } catch (error) {
+      ErrorHandler.handle(error, "Failed to deactivate users");
+      this.showNotification("Failed to deactivate selected users", "error");
     }
-
-    const userIds = Array.from(this.selectedUsers);
-    this.bulkUpdateUserStatus(userIds, newStatus);
-    this.clearSelection();
-    this.showNotification(`Successfully updated status for ${userIds.length} users.`, "success");
   }
 
   /**
