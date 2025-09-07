@@ -178,6 +178,7 @@ class App {
       await Promise.all([
         authService.init(),
         dbService.init(),
+        this.chartManager.initializeCharts(),
       ]);
 
       // Check authentication state
@@ -1647,14 +1648,5 @@ class App {
 
 // Initialize application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.Chart) {
-    const { TimeScale, TimeSeriesScale } = window.Chart;
-    if (TimeScale && TimeSeriesScale) {
-        window.Chart.register(TimeScale, TimeSeriesScale);
-    }
-  }
   window.app = new App();
-  if (window.app.chartManager) {
-    window.app.chartManager.initializeCharts();
-  }
 });

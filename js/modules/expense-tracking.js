@@ -46,13 +46,8 @@ const ExpenseTracking = {
       expenseEntityInput: document.getElementById("expense-entity"),
       filterCategory: document.getElementById("expense-filter-category"),
       filterEntity: document.getElementById("expense-filter-entity"),
-      filterStatus: document.getElementById("expense-filter-status"),
       applyFiltersBtn: document.getElementById("apply-expense-filters"),
       clearFiltersBtn: document.getElementById("clear-expense-filters"),
-      expenseCategoryChart: document.getElementById("expense-category-chart"),
-      expenseEntityChart: document.getElementById("expense-entity-chart"),
-      expenseTrendChart: document.getElementById("expense-trend-chart"),
-      chartToggleButtons: document.querySelectorAll(".chart-controls button[data-chart]"),
     };
 
     if (!this.elements.paginationContainer) {
@@ -86,27 +81,21 @@ const ExpenseTracking = {
     this.elements.clearFiltersBtn.addEventListener("click", () => {
         this.elements.filterCategory.value = "";
         this.elements.filterEntity.value = "";
-        this.elements.filterStatus.value = "";
         this.renderExpenses();
     });
 
-    this.elements.chartToggleButtons.forEach(button => {
-        button.addEventListener("click", (e) => this.toggleChart(e));
+    document.querySelectorAll('.chart-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const chartId = e.target.dataset.chart;
+            document.querySelectorAll('.chart-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            document.getElementById(chartId).style.display = 'block';
+
+            document.querySelectorAll('.chart-toggle-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+        });
     });
-  },
-
-  toggleChart(e) {
-    const selectedChart = e.target.dataset.chart;
-
-    // Toggle button active state
-    this.elements.chartToggleButtons.forEach(button => {
-        button.classList.toggle("active", button.dataset.chart === selectedChart);
-    });
-
-    // Show/hide charts
-    this.elements.expenseCategoryChart.style.display = selectedChart === 'category' ? 'block' : 'none';
-    this.elements.expenseEntityChart.style.display = selectedChart === 'entity' ? 'block' : 'none';
-    this.elements.expenseTrendChart.style.display = selectedChart === 'trend' ? 'block' : 'none';
   },
 
   openModal(expense = null) {
@@ -187,16 +176,12 @@ const ExpenseTracking = {
       // Apply filters
       const categoryFilter = this.elements.filterCategory.value;
       const entityFilter = this.elements.filterEntity.value;
-      const statusFilter = this.elements.filterStatus.value;
 
       if (categoryFilter) {
         expenses = expenses.filter(e => e.category === categoryFilter);
       }
       if (entityFilter) {
         expenses = expenses.filter(e => e.entity === entityFilter);
-      }
-      if (statusFilter) {
-        expenses = expenses.filter(e => e.status === statusFilter);
       }
 
       expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -218,9 +203,7 @@ const ExpenseTracking = {
       this.pagination.render(expenses.length, page);
 
       // Update visualization
-      this.renderExpenseChart(expenses);
-      this.renderExpenseByEntityChart(expenses);
-      this.renderExpenseTrendChart(expenses);
+      this.renderVisualizations(expenses);
       this.updateTotalExpenses(expenses);
 
     } catch (error) {
@@ -229,45 +212,59 @@ const ExpenseTracking = {
     }
   },
 
-  renderExpenseChart(expenses) {
+  renderVisualizations(expenses) {
+    this.renderCategoryChart(expenses);
+    this.renderEntityChart(expenses);
+    this.renderTimeSeriesChart(expenses);
+  },
+
+  renderCategoryChart(expenses) {
     const categoryData = expenses.reduce((acc, expense) => {
         acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
         return acc;
     }, {});
 
+    const totalExpenses = Object.values(categoryData).reduce((sum, amount) => sum + amount, 0);
+
     const chartData = {
         labels: Object.keys(categoryData),
         datasets: [{
             data: Object.values(categoryData),
-            backgroundColor: ['#2563eb', '#dc2626', '#d97706', '#059669', '#7c3aed', '#db2777'],
+            backgroundColor: ['#2563eb', '#dc2626', '#d97706', '#059669'],
         }]
     };
 
-    const chartOptions = {
+    const chartCanvas = document.getElementById('expense-category-chart');
+    const options = {
         plugins: {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        const label = context.label || '';
+                        let label = context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
                         const value = context.parsed;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(2) + '%' : '0%';
-                        return `${label}: E ${value.toFixed(2)} (${percentage})`;
+                        if (value !== null) {
+                            const percentage = ((value / totalExpenses) * 100).toFixed(2);
+                            label += new Intl.NumberFormat('en-SZ', { style: 'currency', currency: 'SZL' }).format(value) + ` (${percentage}%)`;
+                        }
+                        return label;
                     }
                 }
             }
         }
     };
 
-    const chartCanvas = document.getElementById('expense-category-chart');
-    if (window.app.chartManager.getChart('expenseChart')) {
-        window.app.chartManager.updateChart('expenseChart', chartData.labels, chartData.datasets[0].data);
+    const chartId = 'expenseCategoryChart';
+    if (window.app.chartManager.getChart(chartId)) {
+        window.app.chartManager.updateChart(chartId, chartData.labels, chartData.datasets);
     } else {
-        window.app.chartManager.createChart('expenseChart', chartCanvas, 'doughnut', chartData, chartOptions);
+        window.app.chartManager.createChart(chartId, chartCanvas, 'doughnut', chartData, options);
     }
   },
 
-  renderExpenseByEntityChart(expenses) {
+  renderEntityChart(expenses) {
     const entityData = expenses.reduce((acc, expense) => {
         acc[expense.entity] = (acc[expense.entity] || 0) + expense.amount;
         return acc;
@@ -276,83 +273,57 @@ const ExpenseTracking = {
     const chartData = {
         labels: Object.keys(entityData),
         datasets: [{
-            label: 'Expenses by Entity',
+            label: 'Total Expenses',
             data: Object.values(entityData),
-            backgroundColor: ['#1a365d', '#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'],
+            backgroundColor: '#3b82f6',
         }]
     };
 
-    const chartOptions = {
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return 'E ' + value.toLocaleString();
-                    }
-                }
-            }
-        }
-    };
-
-    const chartCanvas = this.elements.expenseEntityChart;
-    if (window.app.chartManager.getChart('expenseEntityChart')) {
-        window.app.chartManager.updateChart('expenseEntityChart', chartData.labels, chartData.datasets[0].data);
+    const chartCanvas = document.getElementById('expense-entity-chart');
+    const chartId = 'expenseEntityChart';
+    if (window.app.chartManager.getChart(chartId)) {
+        window.app.chartManager.updateChart(chartId, chartData.labels, chartData.datasets);
     } else {
-        window.app.chartManager.createChart('expenseEntityChart', chartCanvas, 'bar', chartData, chartOptions);
+        window.app.chartManager.createChart(chartId, chartCanvas, 'bar', chartData);
     }
   },
 
-  renderExpenseTrendChart(expenses) {
-    const sortedExpenses = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const trendData = sortedExpenses.reduce((acc, expense) => {
+  renderTimeSeriesChart(expenses) {
+    const timeSeriesData = expenses.reduce((acc, expense) => {
         const date = new Date(expense.date).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + expense.amount;
         return acc;
     }, {});
 
+    const sortedDates = Object.keys(timeSeriesData).sort((a,b) => new Date(a) - new Date(b));
+
     const chartData = {
-        labels: Object.keys(trendData),
+        labels: sortedDates,
         datasets: [{
-            label: 'Expenses Over Time',
-            data: Object.values(trendData),
-            borderColor: '#059669',
-            backgroundColor: 'rgba(5, 150, 105, 0.2)',
-            fill: true,
-            tension: 0.1
+            label: 'Daily Expenses',
+            data: sortedDates.map(date => timeSeriesData[date]),
+            borderColor: '#10b981',
+            tension: 0.1,
+            fill: false,
         }]
     };
 
-    const chartOptions = {
+    const chartCanvas = document.getElementById('expense-time-series-chart');
+    const chartId = 'expenseTimeSeriesChart';
+    const options = {
         scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return 'E ' + value.toLocaleString();
-                    }
-                }
-            },
             x: {
                 type: 'time',
                 time: {
-                    unit: 'day',
-                    tooltipFormat: 'll'
-                },
-                title: {
-                    display: true,
-                    text: 'Date'
+                    unit: 'day'
                 }
             }
         }
     };
-
-    const chartCanvas = this.elements.expenseTrendChart;
-    if (window.app.chartManager.getChart('expenseTrendChart')) {
-        window.app.chartManager.updateChart('expenseTrendChart', chartData.labels, chartData.datasets[0].data);
+    if (window.app.chartManager.getChart(chartId)) {
+        window.app.chartManager.updateChart(chartId, chartData.labels, chartData.datasets);
     } else {
-        window.app.chartManager.createChart('expenseTrendChart', chartCanvas, 'line', chartData, chartOptions);
+        window.app.chartManager.createChart(chartId, chartCanvas, 'line', chartData, options);
     }
   },
 
