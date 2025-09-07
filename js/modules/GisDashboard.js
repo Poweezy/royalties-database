@@ -142,8 +142,6 @@ export class GisDashboard {
 
     // Add default layers
     this.baseLayers["OpenStreetMap"].addTo(this.map);
-    this.layers.mines.addTo(this.map);
-    this.layers.quarries.addTo(this.map);
     this.layers.markerClusters.addTo(this.map);
 
     // Setup measurement tools
