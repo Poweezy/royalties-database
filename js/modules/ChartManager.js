@@ -1,3 +1,7 @@
+import { Chart, registerables } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+Chart.register(...registerables);
+
 export class ChartManager {
   // Mock data for metric cards to simulate filtering
   #metricData = {
@@ -342,25 +346,20 @@ export class ChartManager {
   }
 
   createChart(chartId, canvas, type, data, options = {}) {
-    if (!canvas || typeof Chart === "undefined") return;
-
-    const ctx = canvas.getContext("2d");
-    this.charts.get(chartId)?.destroy();
-
-    const defaultOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: "top" } },
-    };
-
+    if (this.charts.has(chartId)) {
+      this.charts.get(chartId).destroy();
+    }
+    if (!canvas) {
+        console.error(`Canvas not found for chart: ${chartId}`);
+        return;
+    }
+    const ctx = canvas.getContext('2d');
     const chart = new Chart(ctx, {
-        type: type,
-        data: data,
-        options: { ...defaultOptions, ...options },
+      type: type,
+      data: data,
+      options: options
     });
-
     this.charts.set(chartId, chart);
-    return chart;
   }
 
   showFallbackCharts() {
@@ -419,24 +418,19 @@ export class ChartManager {
    * @param {Array<string>} labels - The new labels for the chart.
    * @param {Array<number>} data - The new data points for the chart.
    */
-  updateChart(chartName, labels, data) {
-    const chart = this.charts.get(chartName);
+  updateChart(chartId, labels, datasets) {
+    const chart = this.charts.get(chartId);
     if (chart) {
       chart.data.labels = labels;
-      chart.data.datasets[0].data = data;
+      chart.data.datasets = Array.isArray(datasets) ? datasets : [datasets];
       chart.update();
     } else {
-      console.warn(`Chart '${chartName}' not found for update.`);
+      console.warn(`Chart '${chartId}' not found for update.`);
     }
   }
 
   getChart(chartId) {
-    if (chartId === "revenue-trends-chart") {
-      return this.charts.get("revenue");
-    } else if (chartId === "production-by-entity-chart") {
-      return this.charts.get("production");
-    }
-    return null;
+    return this.charts.get(chartId) || null;
   }
 
   changeChartType(chartName, newType) {

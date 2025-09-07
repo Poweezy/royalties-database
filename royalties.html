@@ -45,8 +45,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="js/bcrypt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -2477,17 +2475,21 @@
           <div class="charts-grid">
             <div class="analytics-chart card">
                 <div class="chart-header">
-                    <h3><i class="fas fa-chart-pie"></i> Expense Analysis</h3>
-                    <div class="chart-controls">
-                        <button class="btn btn-sm btn-outline-secondary active" data-chart="category">By Category</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-chart="entity">By Entity</button>
-                        <button class="btn btn-sm btn-outline-secondary" data-chart="trend">Trend</button>
-                    </div>
+                    <h3><i class="fas fa-chart-pie"></i> Expense Breakdown by Category</h3>
                 </div>
-                <div class="chart-container">
-                    <canvas id="expense-category-chart"></canvas>
-                    <canvas id="expense-entity-chart" style="display: none;"></canvas>
-                    <canvas id="expense-trend-chart" style="display: none;"></canvas>
+                <div class="chart-controls">
+                  <button class="btn btn-sm chart-toggle-btn active" data-chart="expense-category-chart-container">By Category</button>
+                  <button class="btn btn-sm chart-toggle-btn" data-chart="expense-entity-chart-container">By Entity</button>
+                  <button class="btn btn-sm chart-toggle-btn" data-chart="expense-time-series-chart-container">Over Time</button>
+                </div>
+                <div id="expense-category-chart-container" class="chart-container">
+                  <canvas id="expense-category-chart"></canvas>
+                </div>
+                <div id="expense-entity-chart-container" class="chart-container" style="display: none;">
+                  <canvas id="expense-entity-chart"></canvas>
+                </div>
+                <div id="expense-time-series-chart-container" class="chart-container" style="display: none;">
+                  <canvas id="expense-time-series-chart"></canvas>
                 </div>
             </div>
             <div class="metric-card card">
@@ -2522,15 +2524,6 @@
                     <option value="">All Entities</option>
                      <!-- Options will be populated dynamically -->
                   </select>
-                </div>
-                <div class="form-group">
-                    <label for="expense-filter-status">Status</label>
-                    <select id="expense-filter-status">
-                        <option value="">All</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Rejected">Rejected</option>
-                    </select>
                 </div>
                 <div class="form-group filter-actions">
                   <label>&nbsp;</label>
