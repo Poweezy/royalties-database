@@ -434,7 +434,9 @@
 }
 
 .leaflet-control-layers-toggle::after {
-  content: "☰";
+  content: "\\f5fd"; /* Unicode for fa-layer-group */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900; /* Required for solid icons */
   font-size: 16px;
   color: white;
 }
