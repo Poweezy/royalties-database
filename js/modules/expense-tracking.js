@@ -234,7 +234,7 @@ const ExpenseTracking = {
         }]
     };
 
-    const chartCanvas = document.getElementById('expense-category-chart');
+    const chartCanvas = document.getElementById('expense-category-chart-container').querySelector('canvas');
     const options = {
         plugins: {
             tooltip: {
@@ -279,7 +279,7 @@ const ExpenseTracking = {
         }]
     };
 
-    const chartCanvas = document.getElementById('expense-entity-chart');
+    const chartCanvas = document.getElementById('expense-entity-chart-container').querySelector('canvas');
     const chartId = 'expenseEntityChart';
     if (window.app.chartManager.getChart(chartId)) {
         window.app.chartManager.updateChart(chartId, chartData.labels, chartData.datasets);
@@ -308,7 +308,7 @@ const ExpenseTracking = {
         }]
     };
 
-    const chartCanvas = document.getElementById('expense-time-series-chart');
+    const chartCanvas = document.getElementById('expense-time-series-chart-container').querySelector('canvas');
     const chartId = 'expenseTimeSeriesChart';
     const options = {
         scales: {
