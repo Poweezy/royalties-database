@@ -31,11 +31,6 @@ import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
-import { TimeScale,TimeSeriesScale } from 'chart.js';
-import Chart from 'chart.js/auto';
-
-
-Chart.register(TimeScale, TimeSeriesScale);
 
 class App {
   constructor() {
@@ -1653,5 +1648,9 @@ class App {
 
 // Initialize application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
+  if (window.Chart) {
+    const { TimeScale, TimeSeriesScale } = window.Chart;
+    window.Chart.register(TimeScale, TimeSeriesScale);
+  }
   window.app = new App();
 });
