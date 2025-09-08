@@ -144,18 +144,6 @@ class AuthService {
       }
 
       // Simulate token validation
-      const mockData = {
-        token: this.token,
-        user: this.currentUser || {
-          username: "admin",
-          role: "Administrator",
-          department: "Administration",
-          email: "admin@government.sz",
-          lastLogin: new Date().toISOString(),
-        },
-      };
-
-      this.setAuthenticationState(mockData);
       return true;
     } catch (error) {
       console.error("Token validation error:", error);
