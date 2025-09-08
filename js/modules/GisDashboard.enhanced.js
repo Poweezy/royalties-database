@@ -20,7 +20,7 @@ export class EnhancedGisDashboard {
     this.initializeAnalytics();
   }
 
-  async initializeMap() {
+    async initializeMap() {
     // Enhanced map initialization with multiple base layers
     this.map = new L.Map("gis-map", {
       layers: [
@@ -37,6 +37,30 @@ export class EnhancedGisDashboard {
     this.addMeasurementTools();
     this.addDrawingTools();
     this.addLayerControls();
+
+    // Add control panel
+    const controlPanel = L.control({ position: 'topright' });
+    controlPanel.onAdd = () => {
+      const div = L.DomUtil.create('div', 'control-panel');
+      div.innerHTML = `
+        <button id="layers-btn" class="control-btn" title="Layers"><i class="fas fa-layer-group"></i></button>
+        <button id="draw-btn" class="control-btn" title="Draw"><i class="fas fa-draw-polygon"></i></button>
+        <button id="search-btn" class="control-btn" title="Search"><i class="fas fa-search"></i></button>
+      `;
+      return div;
+    };
+    controlPanel.addTo(this.map);
+
+    // Add event listeners for control panel buttons
+    document.getElementById('layers-btn').addEventListener('click', () => {
+      this.layerControl.toggle();
+    });
+    document.getElementById('draw-btn').addEventListener('click', () => {
+      this.drawControl.toggle();
+    });
+    document.getElementById('search-btn').addEventListener('click', () => {
+      this.searchControl.toggle();
+    });
   }
 
   async setupAdvancedLayers() {

@@ -59,6 +59,7 @@ export class NotificationManager {
     messageSpan.textContent = message;
 
     const closeButton = document.createElement("button");
+    closeButton.className = "btn";
     closeButton.innerHTML = "×";
     closeButton.style.cssText = `
       background: none; border: none; color: ${config.color};

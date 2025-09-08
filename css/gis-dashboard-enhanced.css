@@ -434,7 +434,7 @@
 }
 
 .leaflet-control-layers-toggle::after {
-  content: "\\f5fd"; /* Unicode for fa-layer-group */
+  content: "\f5fd"; /* Unicode for fa-layer-group */
   font-family: "Font Awesome 6 Free";
   font-weight: 900; /* Required for solid icons */
   font-size: 16px;
@@ -489,4 +489,23 @@
     float: right !important;
     margin: 10px !important;
   }
+}
+
+.control-panel {
+  background: white;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.control-btn:hover {
+  color: #337ab7;
 }
