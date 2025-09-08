@@ -175,11 +175,11 @@ class App {
       this.showLoadingScreen();
 
       // Initialize all services in parallel
-      await Promise.all([
-        authService.init(),
-        dbService.init(),
-        this.chartManager.initializeCharts(),
-      ]);
+      const p1 = authService.init().then(() => console.log('authService initialized')).catch(err => { console.error('authService failed', err); throw err; });
+      const p2 = dbService.init().then(() => console.log('dbService initialized')).catch(err => { console.error('dbService failed', err); throw err; });
+      const p3 = this.chartManager.initializeCharts().then(() => console.log('chartManager initialized')).catch(err => { console.error('chartManager failed', err); throw err; });
+
+      await Promise.all([p1, p2, p3]);
 
       // Check authentication state
       if (authService.isAuthenticated) {
