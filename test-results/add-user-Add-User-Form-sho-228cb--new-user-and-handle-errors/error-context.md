@@ -1,0 +1,66 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - heading "Enhanced User Management Test" [level=1] [ref=e3]
+    - table [ref=e5]:
+      - rowgroup [ref=e6]:
+        - row "Username Email Role Status Actions" [ref=e7]:
+          - cell [ref=e8]:
+            - checkbox [ref=e9]
+          - cell "Username" [ref=e10]
+          - cell "Email" [ref=e11]
+          - cell "Role" [ref=e12]
+          - cell "Status" [ref=e13]
+          - cell "Actions" [ref=e14]
+      - rowgroup [ref=e15]:
+        - row "admin admin@example.com Administrator Active  " [ref=e16]:
+          - cell [ref=e17]:
+            - checkbox [ref=e18]
+          - cell "admin" [ref=e19]
+          - cell "admin@example.com" [ref=e20]
+          - cell "Administrator" [ref=e21]
+          - cell "Active" [ref=e22]:
+            - generic [ref=e23]: Active
+          - cell " " [ref=e24]:
+            - generic [ref=e25]:
+              - button "" [ref=e26] [cursor=pointer]:
+                - generic [ref=e27] [cursor=pointer]: 
+              - button "" [ref=e28] [cursor=pointer]:
+                - generic [ref=e29] [cursor=pointer]: 
+    - generic [ref=e30]:
+      - button "Test Bulk Operations" [ref=e31] [cursor=pointer]
+      - button "Test User Profile" [ref=e32] [cursor=pointer]
+      - button "Test Permission Service" [ref=e33] [cursor=pointer]
+      - button "Test Security Service" [ref=e34] [cursor=pointer]
+      - button "Test Password Policies" [ref=e35] [cursor=pointer]
+      - button "Test Add User Form" [ref=e36] [cursor=pointer]
+    - generic [ref=e37]:
+      - heading "Test Results:" [level=3] [ref=e38]
+      - generic [ref=e39]: Ready to test...
+  - generic [ref=e42]:
+    - generic [ref=e44]: No matching HTML proxy module found from C:/Users/Mabutfo Dlamini/Desktop/royalties-database/test-enhanced-features.html?html-proxy&index=0.js
+    - generic [ref=e45]:
+      - text: "at LoadPluginContext.load (file:"
+      - generic [ref=e46] [cursor=pointer]: ///c:/Users/Mabutfo%20Dlamini/Desktop/royalties-database/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:35045:17
+      - text: ") at PluginContainer.load (file:"
+      - generic [ref=e47] [cursor=pointer]: ///c:/Users/Mabutfo%20Dlamini/Desktop/royalties-database/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49067:17
+      - text: ) at process.processTicksAndRejections (node:internal
+      - generic [ref=e48] [cursor=pointer]: /process/task_queues:105:5
+      - text: ") at async loadAndTransform (file:"
+      - generic [ref=e49] [cursor=pointer]: ///c:/Users/Mabutfo%20Dlamini/Desktop/royalties-database/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:51917:22
+      - text: ") at async viteTransformMiddleware (file:"
+      - generic [ref=e50] [cursor=pointer]: ///c:/Users/Mabutfo%20Dlamini/Desktop/royalties-database/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:62105:24
+    - generic [ref=e51]:
+      - text: Click outside, press
+      - generic [ref=e52]: Esc
+      - text: key, or fix the code to dismiss.
+      - text: You can also disable this overlay by setting
+      - code [ref=e53]: server.hmr.overlay
+      - text: to
+      - code [ref=e54]: "false"
+      - text: in
+      - code [ref=e55]: vite.config.js
+      - text: .
+```

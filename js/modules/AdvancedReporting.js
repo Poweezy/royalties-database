@@ -351,7 +351,7 @@ export class AdvancedReporting {
    * Compile report data
    */
   async compileReportData(template, parameters) {
-    const data = {};
+    let data = {};
 
     // Based on template category, compile relevant data
     switch (template.category) {

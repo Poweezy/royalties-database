@@ -1,9 +1,12 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
+import XLSX from "xlsx";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test.describe("Royalty Record Import/Export", () => {
-  const XLSX = require("xlsx");
-  const fs = require("fs");
 
   const testData = [
     { Entity: "Test Mine", Mineral: "Gold", Volume: 100, Tariff: 50, Date: "2025-08-01", Status: "Pending" },

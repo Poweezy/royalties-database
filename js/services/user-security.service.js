@@ -40,14 +40,14 @@ class UserSecurityService {
    */
   setPasswordPolicy(policy) {
     this.passwordPolicyRules = { ...this.passwordPolicyRules, ...policy };
-    if (policies.loginAttempts) {
+    if (policy.loginAttempts) {
       this.maxLoginAttempts =
-        policies.loginAttempts.maxAttempts || this.maxLoginAttempts;
+        policy.loginAttempts.maxAttempts || this.maxLoginAttempts;
       this.lockoutDuration =
-        (policies.loginAttempts.lockoutDuration || 30) * 60 * 1000;
+        (policy.loginAttempts.lockoutDuration || 30) * 60 * 1000;
     }
     // sessionPolicy is not used in this file, but we can add it for future use
-    if (policies.sessionPolicy) {
+    if (policy.sessionPolicy) {
       // No properties to set for sessionPolicy in this file yet
     }
   }

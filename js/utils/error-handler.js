@@ -3,6 +3,21 @@
  */
 
 export class ErrorHandler {
+  // Static method for direct error handling
+  static handle(error, context = {}) {
+    console.error("Error:", error, context);
+    try {
+      const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
+      errors.push({
+        timestamp: new Date().toISOString(),
+        error: error.message || error,
+        context
+      });
+      localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
+    } catch (e) {
+      console.error("Failed to store error log:", e);
+    }
+  }
   constructor(notificationManager) {
     this.notificationManager = notificationManager;
     this.setupGlobalHandlers();

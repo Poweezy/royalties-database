@@ -18,6 +18,12 @@ class DatabaseService {
       offline: "offline",
       settings: "settings",
       passwordPolicies: "passwordPolicies",
+      loginAttempts: "loginAttempts",
+      userSessions: "userSessions", 
+      passwordHistory: "passwordHistory",
+      securityNotifications: "securityNotifications",
+      auditLog: "auditLog",
+      roles: "roles"
     };
   }
 
