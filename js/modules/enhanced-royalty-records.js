@@ -786,13 +786,13 @@ class EnhancedRoyaltyRecords {
   async logStatusChange(record, oldStatus, newStatus) {
     /* Implementation for audit logging */
   }
-  async matchBankRecord(record) {
+  async matchBankRecord(_record) {
     /* Implementation for bank record matching */ return null;
   }
   async reconcilePayment(record, bankRecord) {
     /* Implementation for payment reconciliation */ return false;
   }
-  async createNotification(notification) {
+  async createNotification(_notification) {
     /* Implementation for creating notifications */
   }
   async setupNotificationScheduler() {
