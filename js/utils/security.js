@@ -22,9 +22,10 @@ export const security = {
     input = input.toString().trim();
 
     switch (type) {
-      case "email":
+      case "email": {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(input) ? input : "";
+      }
       case "username":
         return input.replace(/[^a-zA-Z0-9._-]/g, "");
       case "number":

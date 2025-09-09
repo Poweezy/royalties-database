@@ -13,7 +13,7 @@
 
 import { authService } from "./services/auth.service.js";
 import { dbService } from "./services/database.service.js";
-import { security } from "./utils/security.js";
+
 import { ChartManager } from "./modules/ChartManager.js";
 import { FileManager } from "./modules/FileManager.js";
 import { NavigationManager } from "./modules/NavigationManager.js";

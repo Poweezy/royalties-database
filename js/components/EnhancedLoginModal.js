@@ -3,7 +3,7 @@
  */
 
 import { enhancedAuthService } from "../services/auth-enhanced.service.js";
-import { userSecurityService } from "../services/user-security.service.js";
+
 import { deviceFingerprint } from "../utils/device-fingerprint.js";
 import { ErrorHandler } from "../utils/error-handler.js";
 

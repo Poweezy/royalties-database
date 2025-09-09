@@ -810,13 +810,13 @@ class EnhancedRoyaltyRecords {
   onContractChange() {
     /* Implementation for contract change handler */
   }
-  showBulkCreateDialog(event) {
+  showBulkCreateDialog(_event) {
     /* Implementation for bulk create dialog */
   }
   applyFilters() {
     /* Implementation for applying filters */
   }
-  async renderRecords(filter = null) {
+      async renderRecords(_filter = null) {
     /* Implementation for rendering records */
   }
   exportRecords() {

@@ -1,0 +1,37 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "serviceworker": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "globals": {
+    "XLSX": "readonly",
+    "L": "readonly",
+    "html2canvas": "readonly",
+    "showToast": "readonly",
+    "permissionService": "readonly",
+    "userSecurityService": "readonly",
+    "dbService": "readonly",
+    "ErrorHandler": "readonly",
+    "SpatialAnalytics": "readonly"
+  },
+  "rules": {
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.spec.js",
+        "playwright.config.js",
+        "test-gis-simple.js"
+      ],
+      "env": {
+        "node": true
+      }
+    }
+  ]
+}

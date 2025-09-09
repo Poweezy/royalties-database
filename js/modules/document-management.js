@@ -139,6 +139,7 @@ const DocumentManagement = {
       <td>${doc.category}</td>
       <td>${doc.uploadedBy}</td>
       <td>${new Date(doc.uploadDate).toLocaleDateString()}</td>
+      <td>${fileSize} KB</td>
       <td>
         <div class="btn-group">
           <button class="btn btn-sm btn-info download-btn" title="Download Document"><i class="fas fa-download"></i></button>

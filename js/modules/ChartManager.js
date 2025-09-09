@@ -687,7 +687,7 @@ export class ChartManager {
     }
   }
 
-  generateEntityDetailsHTML(entityName) {
+  generateEntityDetailsHTML(_entityName) {
     return `
       <div class="entity-detail-card">
         <h4>Production Details</h4>

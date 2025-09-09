@@ -465,7 +465,7 @@ class ContractManagementEnhanced {
 
     // Compare durations
     const durations = contracts.map((c) => c.terms?.duration).filter(Boolean);
-    const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+    
     const maxDuration = Math.max(...durations);
     const minDuration = Math.min(...durations);
 

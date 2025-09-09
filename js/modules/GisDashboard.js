@@ -1,3 +1,4 @@
+/* global L */
 /**
  * Enhanced GisDashboard.js
  *
@@ -136,7 +137,7 @@ export class GisDashboard {
     this.setupOverlayLayers();
 
     // Add layer control with base layers and overlays
-    const layerControl = L.control
+    const _layerControl = L.control
       .layers(this.baseLayers, this.overlayMaps)
       .addTo(this.map);
 
@@ -363,7 +364,7 @@ export class GisDashboard {
   /**
    * Handle marker click events
    */
-  onMarkerClick(mine, event) {
+  onMarkerClick(mine, _event) {
     // Update coordinate display
     this.updateCoordinateDisplay(mine.lat, mine.lon);
 
@@ -427,14 +428,16 @@ export class GisDashboard {
         fillOpacity: 0.2,
       }).addTo(this.layers.concessions);
 
-      polygon.bindPopup(`
+      polygon.bindPopup(
+        `
                 <div class="concession-popup">
                     <h5>${concession.name}</h5>
                     <p><strong>Type:</strong> ${concession.type}</p>
                     <p><strong>Status:</strong> <span class="status-badge ${concession.status.toLowerCase()}">${concession.status}</span></p>
                     <p><strong>Area:</strong> ${(L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]) / 1000000).toFixed(2)} km²</p>
                 </div>
-            `);
+            `,
+      );
     });
   }
 
@@ -563,7 +566,7 @@ export class GisDashboard {
 
     const measureControl = L.control({ position: "topleft" });
 
-    measureControl.onAdd = (map) => {
+    measureControl.onAdd = (_map) => {
       const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
       div.innerHTML = '<a href="#" title="Measure distances"><i class="fas fa-ruler"></i></a>';
       div.style.backgroundColor = "white";
@@ -594,7 +597,7 @@ export class GisDashboard {
 
     const drawControl = L.control({ position: "topleft" });
 
-    drawControl.onAdd = (map) => {
+    drawControl.onAdd = (_map) => {
       const div = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
       div.innerHTML = '<a href="#" title="Draw a polygon"><i class="fas fa-draw-polygon"></i></a>';
       div.style.backgroundColor = "white";
@@ -621,7 +624,7 @@ export class GisDashboard {
     // Simple geocoder implementation
     const geocoderControl = L.control({ position: "topright" });
 
-    geocoderControl.onAdd = (map) => {
+    geocoderControl.onAdd = (_map) => {
       const div = L.DomUtil.create("div", "geocoder-control");
       div.innerHTML = `
                 <input type="text" id="geocoder-input" placeholder="Search location..." />
@@ -657,7 +660,7 @@ export class GisDashboard {
   setupCoordinateDisplay() {
     const coordDisplay = L.control({ position: "bottomleft" });
 
-    coordDisplay.onAdd = (map) => {
+    coordDisplay.onAdd = (_map) => {
       const div = L.DomUtil.create("div", "coord-display");
       div.innerHTML =
         '<span id="coord-text">Click on map for coordinates</span>';
@@ -684,7 +687,7 @@ export class GisDashboard {
   setupFullscreenControl() {
     const fullscreenControl = L.control({ position: "topleft" });
 
-    fullscreenControl.onAdd = (map) => {
+    fullscreenControl.onAdd = (_map) => {
       const div = L.DomUtil.create(
         "div",
         "leaflet-bar leaflet-control leaflet-control-custom",
@@ -713,7 +716,7 @@ export class GisDashboard {
   setupLocationControl() {
     const locationControl = L.control({ position: "topleft" });
 
-    locationControl.onAdd = (map) => {
+    locationControl.onAdd = (_map) => {
       const div = L.DomUtil.create(
         "div",
         "leaflet-bar leaflet-control leaflet-control-custom",
@@ -742,7 +745,7 @@ export class GisDashboard {
   setupMapExport() {
     const exportControl = L.control({ position: "topleft" });
 
-    exportControl.onAdd = (map) => {
+    exportControl.onAdd = (_map) => {
       const div = L.DomUtil.create(
         "div",
         "leaflet-bar leaflet-control leaflet-control-custom",
@@ -850,7 +853,7 @@ export class GisDashboard {
   addFinishDrawingButton() {
       if(this.finishDrawingControl) return;
       this.finishDrawingControl = L.control({ position: 'topright' });
-      this.finishDrawingControl.onAdd = (map) => {
+      this.finishDrawingControl.onAdd = (_map) => {
           const div = L.DomUtil.create('div', 'leaflet-control-custom finish-drawing-btn');
           div.innerHTML = '<button class="btn btn-primary">Finish Drawing</button>';
           L.DomEvent.on(div, 'click', () => {
@@ -911,9 +914,9 @@ export class GisDashboard {
   }
 
   toggleFullscreen() {
-    const mapContainer = document.getElementById("map");
+    const _mapContainer = document.getElementById("map");
     if (!document.fullscreenElement) {
-      mapContainer.requestFullscreen().then(() => {
+      _mapContainer.requestFullscreen().then(() => {
         setTimeout(() => this.map.invalidateSize(), 100);
       });
     } else {
@@ -951,7 +954,7 @@ export class GisDashboard {
 
   exportMap() {
     // Simple implementation - would use html2canvas or similar in production
-    const mapContainer = document.getElementById("map");
+    const _mapContainer = document.getElementById("map");
     const mapBounds = this.map.getBounds();
     const mapCenter = this.map.getCenter();
     const mapZoom = this.map.getZoom();
@@ -1037,19 +1040,19 @@ export class GisDashboard {
         '<div class="legend-item"><span class="legend-polygon" style="background: rgba(255,107,53,0.3); border: 2px solid #ff6b35;"></span> Mining Concessions</div>',
       );
       labels.push(
-        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(37,99,235,0.1); border: 1px dashed #2563eb;"></span> Administrative Districts</div>',
+        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(37,99,235,0.1); border: 1px dashed #2563eb;"></span> Administrative Districts</div>'
       );
       labels.push(
-        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(22,163,74,0.3); border: 2px solid #16a34a;"></span> Protected Areas</div></div>',
+        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(22,163,74,0.3); border: 2px solid #16a34a;"></span> Protected Areas</div></div>`,
       );
 
       // Infrastructure
       labels.push('<div class="legend-section"><h5>Infrastructure</h5>');
       labels.push(
-        '<div class="legend-item"><span class="legend-line" style="background: #dc2626;"></span> Highways</div>',
+        '<div class="legend-item"><span class="legend-line" style="background: #dc2626;"></span> Highways</div>`,
       );
       labels.push(
-        '<div class="legend-item"><span class="legend-line" style="background: #7c3aed;"></span> Railways</div></div>',
+        '<div class="legend-item"><span class="legend-line" style="background: #7c3aed;"></span> Railways</div></div>`,
       );
 
       div.innerHTML = labels.join("");

@@ -1440,7 +1440,7 @@ export class UserManager {
   /**
    * Validate password against policy
    */
-  async validatePasswordPolicy(password, username, policyName = "default") {
+  async validatePasswordPolicy(password, username, _policyName = "default") {
     try {
       return await userSecurityService.validatePassword(password, username);
     } catch (error) {

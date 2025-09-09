@@ -381,7 +381,9 @@ class DeviceFingerprint {
       try {
         document.createEvent("TouchEvent");
         touchEvent = true;
-      } catch {}
+      } catch {
+        // TouchEvent is not supported
+      }
 
       const touchStart = "ontouchstart" in window;
 
