@@ -5096,17 +5096,25 @@
         updateDashboardMetrics();
 
         // Additional dashboard initialization with sample data
+        let dashboardDataCache = null;
         const initializeDashboardWithData = () => {
+          // Cache data to avoid repetitive DOM manipulation
+          if (dashboardDataCache) {
+            return; // Don't re-populate if data hasn't changed
+          }
+          
           // Populate chart summaries
           const avgMonthly = document.getElementById("avg-monthly");
           const peakMonth = document.getElementById("peak-month");
           const totalProduction = document.getElementById("total-production");
           const topProducer = document.getElementById("top-producer");
 
-          if (avgMonthly) avgMonthly.textContent = "387,500";
-          if (peakMonth) peakMonth.textContent = "December";
-          if (totalProduction) totalProduction.textContent = "240,000";
-          if (topProducer) topProducer.textContent = "Maloma Colliery";
+          if (avgMonthly && avgMonthly.textContent !== "387,500") avgMonthly.textContent = "387,500";
+          if (peakMonth && peakMonth.textContent !== "December") peakMonth.textContent = "December";
+          if (totalProduction && totalProduction.textContent !== "240,000") totalProduction.textContent = "240,000";
+          if (topProducer && topProducer.textContent !== "Maloma Colliery") topProducer.textContent = "Maloma Colliery";
+          
+          dashboardDataCache = true;
 
           // Update mines vs quarries breakdown
           const minesCount = document.getElementById("mines-count");
@@ -5139,11 +5147,28 @@
         // Initialize dashboard with data
         initializeDashboardWithData();
 
-        // Update metrics every 30 seconds to simulate real-time data
-        setInterval(() => {
+        // Update metrics every 5 minutes to reduce memory usage (was 30 seconds)
+        let dashboardInterval = setInterval(() => {
           updateDashboardMetrics();
           initializeDashboardWithData();
-        }, 30000);
+        }, 300000); // 5 minutes instead of 30 seconds
+        
+        // Clear interval when page is hidden/unloaded
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            clearInterval(dashboardInterval);
+          } else {
+            clearInterval(dashboardInterval);
+            dashboardInterval = setInterval(() => {
+              updateDashboardMetrics();
+              initializeDashboardWithData();
+            }, 300000);
+          }
+        });
+        
+        window.addEventListener('beforeunload', () => {
+          clearInterval(dashboardInterval);
+        });
 
         // Add basic form validation for login - handled by main app.js
         // Login functionality is managed by the modular js/app.js

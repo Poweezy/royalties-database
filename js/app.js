@@ -1673,9 +1673,39 @@ class App {
       }
     });
   }
+
+  // Add cleanup method to prevent memory leaks
+  destroy() {
+    // Clean up intervals from modules
+    if (this.chartManager && this.chartManager.destroy) {
+      this.chartManager.destroy();
+    }
+    
+    // Clean up user security service
+    if (this.userSecurityService && this.userSecurityService.stopSessionCleanup) {
+      this.userSecurityService.stopSessionCleanup();
+    }
+    
+    // Clean up any other services with cleanup methods
+    this.state.isDestroyed = true;
+  }
 }
 
 // Initialize application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   window.app = new App();
+});
+
+// Clean up when page unloads to prevent memory leaks
+window.addEventListener("beforeunload", () => {
+  if (window.app && window.app.destroy) {
+    window.app.destroy();
+  }
+});
+
+// Also clean up when page becomes hidden
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && window.app && window.app.destroy) {
+    window.app.destroy();
+  }
 });

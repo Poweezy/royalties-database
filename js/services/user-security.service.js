@@ -531,7 +531,12 @@ class UserSecurityService {
    * Start cleanup routine for expired sessions
    */
   async startSessionCleanup() {
-    setInterval(
+    // Clear existing interval if any
+    if (this.sessionCleanupInterval) {
+      clearInterval(this.sessionCleanupInterval);
+    }
+    
+    this.sessionCleanupInterval = setInterval(
       async () => {
         try {
           await this.cleanupExpiredSessions();
@@ -541,6 +546,16 @@ class UserSecurityService {
       },
       60 * 60 * 1000,
     ); // Run every hour
+  }
+  
+  /**
+   * Stop the session cleanup routine
+   */
+  stopSessionCleanup() {
+    if (this.sessionCleanupInterval) {
+      clearInterval(this.sessionCleanupInterval);
+      this.sessionCleanupInterval = null;
+    }
   }
 
   /**

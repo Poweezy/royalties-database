@@ -483,11 +483,26 @@ export class ChartManager {
   }
 
   toggleAutoRefresh() {
+    // Clear existing interval first
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+    
     if (this.dashboardConfig.autoRefresh) {
+      // Ensure minimum interval of 2 minutes to prevent memory issues
+      const minInterval = 120000; // 2 minutes
+      const interval = Math.max(this.dashboardConfig.refreshInterval || minInterval, minInterval);
+      
       this.refreshInterval = setInterval(() => {
         this.refreshDashboard(false);
-      }, this.dashboardConfig.refreshInterval);
-    } else {
+      }, interval);
+    }
+  }
+  
+  // Add cleanup method
+  destroy() {
+    if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
       this.refreshInterval = null;
     }
