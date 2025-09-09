@@ -39,6 +39,7 @@ import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 import { AdvancedAnalytics } from "./modules/AdvancedAnalytics.js";
+import { AdvancedReporting } from "./modules/AdvancedReporting.js";
 import { ComplianceManager } from "./modules/ComplianceManager.js";
 
 class App {
