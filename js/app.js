@@ -122,6 +122,9 @@ class App {
     this.setupErrorHandling();
     this.#setupSectionChangeListeners();
     this.passwordPolicyManagerInitialized = false;
+    
+    // Initialize services after construction
+    this.initializeServices();
   }
 
   #setupSectionChangeListeners() {

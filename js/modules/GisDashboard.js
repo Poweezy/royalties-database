@@ -202,7 +202,7 @@ export class GisDashboard {
         "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.png",
         {
           attribution:
-            'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> — Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         },
       ),
       Topographic: L.tileLayer(
@@ -434,7 +434,7 @@ export class GisDashboard {
                     <h5>${concession.name}</h5>
                     <p><strong>Type:</strong> ${concession.type}</p>
                     <p><strong>Status:</strong> <span class="status-badge ${concession.status.toLowerCase()}">${concession.status}</span></p>
-                    <p><strong>Area:</strong> ${(L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]) / 1000000).toFixed(2)} km²</p>
+                    <p><strong>Area:</strong> ${(L.GeometryUtil.geodesicArea(polygon.getLatLngs()[0]) / 1000000).toFixed(2)} km&sup2;</p>
                 </div>
             `,
       );
@@ -1043,16 +1043,16 @@ export class GisDashboard {
         '<div class="legend-item"><span class="legend-polygon" style="background: rgba(37,99,235,0.1); border: 1px dashed #2563eb;"></span> Administrative Districts</div>'
       );
       labels.push(
-        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(22,163,74,0.3); border: 2px solid #16a34a;"></span> Protected Areas</div></div>`,
+        '<div class="legend-item"><span class="legend-polygon" style="background: rgba(22,163,74,0.3); border: 2px solid #16a34a;"></span> Protected Areas</div></div>'
       );
 
       // Infrastructure
       labels.push('<div class="legend-section"><h5>Infrastructure</h5>');
       labels.push(
-        '<div class="legend-item"><span class="legend-line" style="background: #dc2626;"></span> Highways</div>`,
+        '<div class="legend-item"><span class="legend-line" style="background: #dc2626;"></span> Highways</div>'
       );
       labels.push(
-        '<div class="legend-item"><span class="legend-line" style="background: #7c3aed;"></span> Railways</div></div>`,
+        '<div class="legend-item"><span class="legend-line" style="background: #7c3aed;"></span> Railways</div></div>'
       );
 
       div.innerHTML = labels.join("");
