@@ -37,10 +37,7 @@ import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
-import { dashboardEnhancedService } from "./services/dashboard-enhanced.service.js";
-import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
-import { CommunicationManager } from "./modules/CommunicationManager.js";
-import { EnhancedDocumentManager } from "./modules/DocumentManager.enhanced.js";
+
 import { AdvancedAnalytics } from "./modules/AdvancedAnalytics.js";
 import { ComplianceManager } from "./modules/ComplianceManager.js";
 
