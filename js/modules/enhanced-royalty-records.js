@@ -133,7 +133,7 @@ class EnhancedRoyaltyRecords {
       this.saveAsTemplate(e),
     );
     this.elements.bulkBtn?.addEventListener("click", (e) =>
-      this.showBulkCreateDialog(e),
+        showBulkCreateDialog(_event) {,
     );
 
     // Real-time validation and calculation
