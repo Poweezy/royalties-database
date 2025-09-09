@@ -13,6 +13,7 @@
 
 import { authService } from "./services/auth.service.js";
 import { dbService } from "./services/database.service.js";
+import { dashboardEnhancedService } from "./services/dashboard-enhanced.service.js";
 
 import { ChartManager } from "./modules/ChartManager.js";
 import { FileManager } from "./modules/FileManager.js";
@@ -20,6 +21,11 @@ import { NavigationManager } from "./modules/NavigationManager.js";
 import { notificationManager } from "./modules/NotificationManager.js";
 import { UserManager } from "./modules/UserManager.js";
 import { ErrorHandler } from "./utils/error-handler.js";
+import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
+import { CommunicationManager } from "./modules/CommunicationManager.js";
+import { EnhancedDocumentManager } from "./modules/DocumentManager.enhanced.js";
+import { EnhancedComplianceManager } from "./modules/ComplianceManager.enhanced.js";
+import { EnhancedSemanticSearch } from "./modules/SemanticSearch.enhanced.js";
 import { leaseManagementUI } from "./modules/lease-management-ui.js";
 import { leaseManagementEnhanced } from "./modules/lease-management-enhanced.js";
 import ExpenseTracking from "./modules/expense-tracking.js";
@@ -31,6 +37,12 @@ import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
+import { dashboardEnhancedService } from "./services/dashboard-enhanced.service.js";
+import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
+import { CommunicationManager } from "./modules/CommunicationManager.js";
+import { EnhancedDocumentManager } from "./modules/DocumentManager.enhanced.js";
+import { AdvancedAnalytics } from "./modules/AdvancedAnalytics.js";
+import { ComplianceManager } from "./modules/ComplianceManager.js";
 
 class App {
   constructor() {
@@ -98,6 +110,14 @@ class App {
     this.errorHandler = new ErrorHandler(notificationManager);
     this.chartManager = new ChartManager();
     this.fileManager = new FileManager();
+    
+    // Enhanced modules
+    this.enhancedRoyaltyCalculator = new EnhancedRoyaltyCalculator();
+    this.communicationManager = new CommunicationManager();
+    this.enhancedDocumentManager = new EnhancedDocumentManager();
+    this.advancedReporting = new AdvancedReporting();
+    this.enhancedComplianceManager = new EnhancedComplianceManager();
+    this.enhancedSemanticSearch = new EnhancedSemanticSearch();
     this.navigationManager = new NavigationManager(this.notificationManager);
     this.userManager = new UserManager();
     this.passwordPolicyManager = new PasswordPolicyManager(this.userManager);
@@ -181,8 +201,16 @@ class App {
       const p1 = authService.init().then(() => console.log('authService initialized')).catch(err => { console.error('authService failed', err); throw err; });
       const p2 = dbService.init().then(() => console.log('dbService initialized')).catch(err => { console.error('dbService failed', err); throw err; });
       const p3 = this.chartManager.initializeCharts().then(() => console.log('chartManager initialized')).catch(err => { console.error('chartManager failed', err); throw err; });
+      
+      // Enhanced services
+      const p4 = dashboardEnhancedService.init().then(() => console.log('dashboardEnhancedService initialized')).catch(err => { console.error('dashboardEnhancedService failed', err); throw err; });
+      const p5 = this.communicationManager.init().then(() => console.log('communicationManager initialized')).catch(err => { console.error('communicationManager failed', err); throw err; });
+      const p6 = this.enhancedDocumentManager.init().then(() => console.log('enhancedDocumentManager initialized')).catch(err => { console.error('enhancedDocumentManager failed', err); throw err; });
+      const p7 = this.advancedReporting.init().then(() => console.log('advancedReporting initialized')).catch(err => { console.error('advancedReporting failed', err); throw err; });
+      const p8 = this.enhancedComplianceManager.init().then(() => console.log('enhancedComplianceManager initialized')).catch(err => { console.error('enhancedComplianceManager failed', err); throw err; });
+      const p9 = this.enhancedSemanticSearch.init().then(() => console.log('enhancedSemanticSearch initialized')).catch(err => { console.error('enhancedSemanticSearch failed', err); throw err; });
 
-      await Promise.all([p1, p2, p3]);
+      await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]);
 
       // Check authentication state
       if (authService.isAuthenticated) {

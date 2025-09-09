@@ -60,10 +60,15 @@
     <script type="module" src="js/utils/error-handler.js"></script>
     <script type="module" src="js/services/database.service.js"></script>
     <script type="module" src="js/services/auth.service.js"></script>
+    <script type="module" src="js/services/dashboard-enhanced.service.js"></script>
     <script type="module" src="js/modules/NotificationManager.js"></script>
     <script type="module" src="js/modules/ChartManager.js"></script>
     <script type="module" src="js/modules/FileManager.js"></script>
     <script type="module" src="js/modules/NavigationManager.js"></script>
+    <script type="module" src="js/modules/enhanced-royalty-calculator.js"></script>
+    <script type="module" src="js/modules/CommunicationManager.js"></script>
+    <script type="module" src="js/modules/DocumentManager.enhanced.js"></script>
+    <script type="module" src="js/modules/EnhancedSearchManager.js"></script>
     <script type="module" src="js/semantic-search.js"></script>
     <script type="module" src="js/modules/UserManager.js"></script>
     <script type="module" src="js/app.js"></script>
@@ -2650,23 +2655,127 @@
           <div class="page-header">
             <div class="page-title">
               <h1>Document Management</h1>
-              <p>Upload, store, and manage all relevant documents.</p>
+              <p>Upload, store, and manage all relevant documents with digital signatures and approval workflows.</p>
             </div>
             <div class="page-actions">
-              <button class="btn btn-success" id="upload-document-btn">
-                Upload Document
-              </button>
+              <div class="btn-group">
+                <button class="btn btn-success" id="upload-document-btn">
+                  <i class="fas fa-upload"></i> Upload Document
+                </button>
+                <button class="btn btn-info" id="bulk-upload-btn">
+                  <i class="fas fa-file-upload"></i> Bulk Upload
+                </button>
+                <button class="btn btn-secondary" id="generate-from-template-btn">
+                  <i class="fas fa-file-contract"></i> Generate from Template
+                </button>
+                <div class="dropdown">
+                  <button class="btn btn-outline dropdown-toggle" id="document-actions-dropdown">
+                    <i class="fas fa-cog"></i> Actions
+                  </button>
+                  <div class="dropdown-menu">
+                    <button class="dropdown-item" id="export-documents-btn">Export Documents List</button>
+                    <button class="dropdown-item" id="document-stats-btn">View Statistics</button>
+                    <button class="dropdown-item" id="approval-dashboard-btn">Approval Dashboard</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- Document Statistics Cards -->
+          <div class="charts-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+            <div class="metric-card card">
+              <div class="card-header">
+                <h3><i class="fas fa-file"></i> Total Documents</h3>
+              </div>
+              <div class="card-body">
+                <p class="metric-value" id="total-documents-count">0</p>
+                <small class="metric-change">Documents in system</small>
+              </div>
+            </div>
+            <div class="metric-card card">
+              <div class="card-header">
+                <h3><i class="fas fa-clock"></i> Pending Approval</h3>
+              </div>
+              <div class="card-body">
+                <p class="metric-value" id="pending-approval-count">0</p>
+                <small class="metric-change">Awaiting approval</small>
+              </div>
+            </div>
+            <div class="metric-card card">
+              <div class="card-header">
+                <h3><i class="fas fa-signature"></i> Digitally Signed</h3>
+              </div>
+              <div class="card-body">
+                <p class="metric-value" id="signed-documents-count">0</p>
+                <small class="metric-change">Signed documents</small>
+              </div>
+            </div>
+            <div class="metric-card card">
+              <div class="card-header">
+                <h3><i class="fas fa-hdd"></i> Storage Used</h3>
+              </div>
+              <div class="card-body">
+                <p class="metric-value" id="storage-used">0 MB</p>
+                <small class="metric-change">Total storage</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search and Filter Panel -->
+          <div class="search-panel">
+            <div class="search-form">
+              <div class="form-group">
+                <input type="text" id="document-search-input" placeholder="Search documents..." class="search-input">
+                <button class="btn btn-primary" id="document-search-btn">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              <div class="filter-group">
+                <select id="document-type-filter">
+                  <option value="">All Types</option>
+                  <option value="contract">Contracts</option>
+                  <option value="license">Licenses</option>
+                  <option value="production_report">Production Reports</option>
+                  <option value="environmental">Environmental</option>
+                  <option value="financial">Financial</option>
+                  <option value="correspondence">Correspondence</option>
+                </select>
+                <select id="document-status-filter">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="pending_review">Pending Review</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="signed">Signed</option>
+                  <option value="archived">Archived</option>
+                </select>
+                <select id="document-category-filter">
+                  <option value="">All Categories</option>
+                  <option value="legal">Legal</option>
+                  <option value="regulatory">Regulatory</option>
+                  <option value="operational">Operational</option>
+                  <option value="compliance">Compliance</option>
+                  <option value="financial">Financial</option>
+                  <option value="communication">Communication</option>
+                </select>
+                <button class="btn btn-secondary" id="clear-filters-btn">Clear Filters</button>
+              </div>
+            </div>
+          </div>
+
           <div class="user-form-container">
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Filename</th>
-                    <th>Category</th>
+                    <th><input type="checkbox" id="select-all-documents"></th>
+                    <th>Document</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Version</th>
                     <th>Uploaded By</th>
-                    <th>Upload Date</th>
+                    <th>Date</th>
                     <th>Size</th>
                     <th>Actions</th>
                   </tr>
@@ -2676,10 +2785,15 @@
                 </tbody>
               </table>
             </div>
-            <div
-              class="table-pagination"
-              id="document-management-pagination"
-            ></div>
+            <div class="table-pagination" id="document-management-pagination"></div>
+          </div>
+
+          <!-- Document Approval Workflow Panel -->
+          <div class="approval-workflow-panel" id="approval-workflow-panel" style="display: none;">
+            <h3>Approval Workflows</h3>
+            <div class="workflow-list" id="workflow-list">
+              <!-- Workflow items will be dynamically inserted -->
+            </div>
           </div>
         </section>
 
