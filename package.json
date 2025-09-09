@@ -2,6 +2,7 @@
   "name": "royalties-database",
   "version": "1.0.0",
   "description": "A web application for managing mining royalties.",
+  "type": "module",
   "main": "js/app.js",
   "scripts": {
     "dev": "vite",
