@@ -17,6 +17,8 @@ export class ComplianceEnhanced {
     this.templates = new Map();
     this.checklistLibrary = new Map();
     this.riskMatrix = new Map();
+    this.monitoringInterval = null;
+    this.reminderInterval = null;
     
     this.initializeRegulations();
     this.initializeTemplates();
@@ -292,12 +294,12 @@ export class ComplianceEnhanced {
    */
   startComplianceMonitoring() {
     // Check compliance status every hour
-    setInterval(() => {
+    this.monitoringInterval = setInterval(() => {
       this.performAutomaticComplianceCheck();
     }, 60 * 60 * 1000); // 1 hour
 
     // Daily reminder check
-    setInterval(() => {
+    this.reminderInterval = setInterval(() => {
       this.checkDueReminders();
     }, 24 * 60 * 60 * 1000); // 24 hours
 
@@ -306,6 +308,32 @@ export class ComplianceEnhanced {
       this.performAutomaticComplianceCheck();
       this.checkDueReminders();
     }, 5000);
+  }
+
+  /**
+   * Cleans up resources to prevent memory leaks.
+   */
+  destroy() {
+    console.log("Destroying ComplianceEnhanced...");
+
+    // Clear intervals
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+    }
+    if (this.reminderInterval) {
+      clearInterval(this.reminderInterval);
+    }
+
+    // Clear data arrays and maps
+    this.complianceRequirements = [];
+    this.regulations = [];
+    this.complianceRecords = [];
+    this.violations = [];
+    this.assessments = [];
+    this.reminders = [];
+    this.templates.clear();
+    this.checklistLibrary.clear();
+    this.riskMatrix.clear();
   }
 
   /**

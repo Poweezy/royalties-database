@@ -1007,6 +1007,16 @@ export class GisDashboard {
     alert(details);
   }
 
+  destroy() {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+    this.mineLocations = [];
+    this.contracts = [];
+    // Nullify other properties if necessary
+  }
+
   addEnhancedLegend() {
     const legend = L.control({ position: "bottomright" });
 

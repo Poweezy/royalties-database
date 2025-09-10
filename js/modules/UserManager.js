@@ -168,6 +168,57 @@ export class UserManager {
     this.auditLogManager = new AuditLogManager();
     this.securityService = userSecurityService;
     this.permissionService = permissionService;
+
+    // To hold references to event listeners for later removal
+    this.boundHandleUserSelection = this.handleUserSelection.bind(this);
+    this.boundHandleSelectAll = this.handleSelectAll.bind(this);
+    this.boundHandleBulkOperations = this.handleBulkOperations.bind(this);
+    this.boundValidateAndAddNewUser = this.validateAndAddNewUser.bind(this);
+  }
+
+  /**
+   * Cleans up resources to prevent memory leaks.
+   */
+  destroy() {
+    console.log("Destroying UserManager...");
+
+    // Remove event listeners
+    document.removeEventListener("change", this.boundHandleUserSelection);
+    document.removeEventListener("change", this.boundHandleSelectAll);
+    document.removeEventListener("click", this.boundHandleBulkOperations);
+    const addUserForm = document.getElementById('add-user-form');
+    if (addUserForm) {
+      addUserForm.removeEventListener('submit', this.boundValidateAndAddNewUser);
+    }
+
+
+    // Destroy child components
+    if (this.pagination) {
+      this.pagination.destroy();
+    }
+    if (this.bulkOperationsPanel && this.bulkOperationsPanel.destroy) {
+      this.bulkOperationsPanel.destroy();
+    }
+    if (this.userProfileModal && this.userProfileModal.destroy) {
+      this.userProfileModal.destroy();
+    }
+
+    // Clear data arrays
+    this.users = [];
+    this.filteredUsers = [];
+    this.selectedUsers.clear();
+    this.userProfiles.clear();
+    this.passwordPolicies.clear();
+    this.onboardingTemplates.clear();
+
+    // Nullify references
+    this.tableBody = null;
+    this.pagination = null;
+    this.bulkOperationsPanel = null;
+    this.userProfileModal = null;
+    this.auditLogManager = null;
+    this.securityService = null;
+    this.permissionService = null;
   }
 
   /**
@@ -280,16 +331,20 @@ export class UserManager {
    */
   setupEventListeners() {
     // Bulk selection
-    document.addEventListener("change", (e) => {
-      if (e.target.name === "user-select") {
-        this.handleUserSelection(e.target);
-      } else if (e.target.id === "select-all-users") {
-        this.handleSelectAll(e.target);
-      }
-    });
+    document.addEventListener("change", this.boundHandleUserSelection);
+    document.addEventListener("change", this.boundHandleSelectAll);
 
     // Bulk operations and other actions
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", this.boundHandleBulkOperations);
+
+    // Add user form submission
+    const addUserForm = document.getElementById('add-user-form');
+    if (addUserForm) {
+      addUserForm.addEventListener('submit', this.boundValidateAndAddNewUser);
+    }
+  }
+
+  handleBulkOperations(e) {
       const target = e.target.closest("button");
       if (!target) return;
 
@@ -306,13 +361,6 @@ export class UserManager {
       } else if (target.id === "bulk-import-users") {
         this.bulkImportUsers();
       }
-    });
-
-    // Add user form submission
-    const addUserForm = document.getElementById('add-user-form');
-    if (addUserForm) {
-      addUserForm.addEventListener('submit', (event) => this.validateAndAddNewUser(event));
-    }
   }
 
   async loadPasswordPolicies() {
@@ -451,9 +499,6 @@ export class UserManager {
       return;
     }
 
-    // Clear existing rows
-    this.tableBody.innerHTML = "";
-
     // Paginate the data
     const startIndex = (page - 1) * this.pagination.itemsPerPage;
     const endIndex = startIndex + this.pagination.itemsPerPage;
@@ -462,15 +507,54 @@ export class UserManager {
     if (userList.length === 0) {
       this.tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem;">No users found.</td></tr>`;
     } else {
-      paginatedUsers.forEach((user) => {
-        const row = this.tableBody.insertRow();
-        row.innerHTML = this.createUserRowHtml(user);
-      });
+      this.syncTable(paginatedUsers);
     }
 
     // Render the pagination controls
     this.pagination.render(userList.length, page);
   }
+
+  syncTable(paginatedUsers) {
+    const existingRows = new Map(
+        Array.from(this.tableBody.querySelectorAll("tr[data-user-id]")).map(row => [
+            row.dataset.userId,
+            row,
+        ]),
+    );
+
+    const usersToRender = new Map(
+        paginatedUsers.map(user => [user.id.toString(), user]),
+    );
+
+    // Remove rows that are no longer in the list
+    for (const [userId, row] of existingRows.entries()) {
+        if (!usersToRender.has(userId)) {
+            row.remove();
+        }
+    }
+
+    // Add or update rows
+    paginatedUsers.forEach((user, index) => {
+        const userId = user.id.toString();
+        const existingRow = existingRows.get(userId);
+        const newHtml = this.createUserRowHtml(user);
+
+        if (existingRow) {
+            // Simple and cheap way to check for changes.
+            if (existingRow.innerHTML.trim() !== newHtml.trim()) {
+                existingRow.innerHTML = newHtml;
+            }
+            // Move to correct position if needed
+            if (this.tableBody.children[index] !== existingRow) {
+                this.tableBody.insertBefore(existingRow, this.tableBody.children[index]);
+            }
+        } else {
+            const newRow = this.tableBody.insertRow(index);
+            newRow.dataset.userId = userId;
+            newRow.innerHTML = newHtml;
+        }
+    });
+}
 
   /**
    * Checks if a username is already taken, excluding a specific user ID.
@@ -610,7 +694,7 @@ export class UserManager {
    * @param {number} userId - The ID of the user to update.
    * @param {object} updatedData - An object containing the new data for the user.
    */
-  updateUser(userId, updatedData) {
+  updateUser(userId, updatedData, isSorting = false) {
     const user = this.getUser(userId);
     if (!user) {
       console.error(`Cannot update user: User with ID ${userId} not found.`);
@@ -619,7 +703,15 @@ export class UserManager {
 
     // Merge the updated data into the existing user object
     Object.assign(user, updatedData);
-    this.renderUsers(this.filteredUsers); // Re-render the currently filtered and paginated view
+
+    if (isSorting) {
+      const row = this.tableBody.querySelector(`tr[data-user-id='${userId}']`);
+      if (row) {
+        row.innerHTML = this.createUserRowHtml(user);
+      }
+    } else {
+      this.renderUsers(this.filteredUsers); // Re-render the currently filtered and paginated view
+    }
   }
 
 
@@ -796,7 +888,9 @@ export class UserManager {
   /**
    * Handle individual user selection
    */
-  handleUserSelection(checkbox) {
+  handleUserSelection(e) {
+    if (e.target.name !== "user-select") return;
+    const checkbox = e.target;
     const userId = parseInt(checkbox.value);
 
     if (checkbox.checked) {
@@ -811,7 +905,9 @@ export class UserManager {
   /**
    * Handle select all users
    */
-  handleSelectAll(checkbox) {
+  handleSelectAll(e) {
+    if (e.target.id !== "select-all-users") return;
+    const checkbox = e.target;
     const userCheckboxes = document.querySelectorAll(
       'input[name="user-select"]',
     );

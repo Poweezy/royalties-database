@@ -21,6 +21,15 @@ export class Pagination {
     this.currentPage = 1;
     this.totalItems = 0;
     this.totalPages = 0;
+    this.boundHandleClick = this.handleClick.bind(this);
+  }
+
+  /**
+   * Cleans up the component by removing event listeners.
+   */
+  destroy() {
+    this.container.removeEventListener("click", this.boundHandleClick);
+    this.container.innerHTML = "";
   }
 
   /**
@@ -134,22 +143,29 @@ export class Pagination {
    * Binds event listeners to the pagination controls.
    */
   bindEvents() {
-    this.container.addEventListener("click", (e) => {
-      const target = e.target;
-      if (target.id === "pagination-prev" && this.currentPage > 1) {
-        this.goToPage(this.currentPage - 1);
-      } else if (
-        target.id === "pagination-next" &&
-        this.currentPage < this.totalPages
-      ) {
-        this.goToPage(this.currentPage + 1);
-      } else if (target.classList.contains("page-btn")) {
-        const page = parseInt(target.dataset.page, 10);
-        if (page !== this.currentPage) {
-          this.goToPage(page);
-        }
+    this.container.removeEventListener("click", this.boundHandleClick);
+    this.container.addEventListener("click", this.boundHandleClick);
+  }
+
+  /**
+   * Handles click events on the pagination container.
+   * @param {Event} e - The click event.
+   */
+  handleClick(e) {
+    const target = e.target;
+    if (target.id === "pagination-prev" && this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    } else if (
+      target.id === "pagination-next" &&
+      this.currentPage < this.totalPages
+    ) {
+      this.goToPage(this.currentPage + 1);
+    } else if (target.classList.contains("page-btn")) {
+      const page = parseInt(target.dataset.page, 10);
+      if (page !== this.currentPage) {
+        this.goToPage(page);
       }
-    });
+    }
   }
 
   /**
