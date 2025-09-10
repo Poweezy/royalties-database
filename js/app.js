@@ -489,7 +489,10 @@ class App {
     document.querySelectorAll("nav a")?.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        this.navigate(e.target.getAttribute("href").substring(1));
+        const href = e.target.getAttribute("href");
+        if (href && href.startsWith("#")) {
+          this.navigate(href.substring(1));
+        }
       });
     });
 
