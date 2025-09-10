@@ -40,7 +40,7 @@ import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 import { AdvancedAnalytics } from "./modules/AdvancedAnalytics.js";
 import { AdvancedReporting } from "./modules/AdvancedReporting.js";
-import { ComplianceManager } from "./modules/ComplianceManager.js";
+import { ComplianceManager } from "./modules/ComplianceManager.enhanced.js";
 
 class App {
   constructor() {
@@ -170,6 +170,7 @@ class App {
         e.message.includes("A listener indicated an asynchronous response")
       ) {
         e.preventDefault();
+        e.stopPropagation();
         return false;
       }
     };
@@ -184,12 +185,13 @@ class App {
           ))
       ) {
         e.preventDefault();
+        e.stopPropagation();
         return false;
       }
     };
 
-    window.addEventListener("error", this.onError);
-    window.addEventListener("unhandledrejection", this.onUnhandledRejection);
+    window.addEventListener("error", this.onError, true);
+    window.addEventListener("unhandledrejection", this.onUnhandledRejection, true);
   }
 
   /**
