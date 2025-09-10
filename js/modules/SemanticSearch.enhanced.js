@@ -19,6 +19,9 @@ export class EnhancedSemanticSearch {
       averageResultsPerQuery: 0
     };
     this.nlpProcessor = new NLPProcessor();
+
+    this.boundDocumentUploaded = this.addToSearchIndex.bind(this);
+    this.boundRoyaltyCalculated = this.updateEntityIndex.bind(this);
   }
 
   /**
@@ -921,13 +924,8 @@ export class EnhancedSemanticSearch {
 
   setupEventListeners() {
     // Listen for data changes that might affect search index
-    window.addEventListener('documentUploaded', (event) => {
-      this.addToSearchIndex(event.detail);
-    });
-
-    window.addEventListener('royaltyCalculated', (event) => {
-      this.updateEntityIndex(event.detail);
-    });
+    window.addEventListener('documentUploaded', this.boundDocumentUploaded);
+    window.addEventListener('royaltyCalculated', this.boundRoyaltyCalculated);
   }
 
   updateEntityIndex(data) {
@@ -939,6 +937,32 @@ export class EnhancedSemanticSearch {
         content: `Royalty calculation for ${data.entity}: ${data.amount}`
       });
     }
+  }
+
+  destroy() {
+    console.log("Destroying EnhancedSemanticSearch...");
+
+    // Clear all in-memory data structures
+    this.searchIndex.clear();
+    this.documents = [];
+    this.searchHistory = [];
+    this.synonyms.clear();
+    this.entityIndex.clear();
+    this.contextualSuggestions = [];
+
+    // Reset analytics
+    this.searchAnalytics = {
+      totalSearches: 0,
+      popularQueries: new Map(),
+      failedSearches: [],
+      averageResultsPerQuery: 0
+    };
+
+    // Remove event listeners
+    window.removeEventListener('documentUploaded', this.boundDocumentUploaded);
+    window.removeEventListener('royaltyCalculated', this.boundRoyaltyCalculated);
+
+    this.initialized = false;
   }
 
   // Getters

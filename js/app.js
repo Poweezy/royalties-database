@@ -1717,6 +1717,22 @@ class App {
     if (this.userSecurityService && this.userSecurityService.stopSessionCleanup) {
       this.userSecurityService.stopSessionCleanup();
     }
+
+    if (this.userManager && this.userManager.destroy) {
+      this.userManager.destroy();
+    }
+
+    if (this.gisDashboard && this.gisDashboard.destroy) {
+      this.gisDashboard.destroy();
+    }
+
+    if (this.enhancedSemanticSearch && this.enhancedSemanticSearch.destroy) {
+      this.enhancedSemanticSearch.destroy();
+    }
+
+    if (this.enhancedComplianceManager && this.enhancedComplianceManager.destroy) {
+      this.enhancedComplianceManager.destroy();
+    }
     
     // Clean up notification manager
     if (this.notificationManager && this.notificationManager.destroy) {
