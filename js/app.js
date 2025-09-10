@@ -40,7 +40,6 @@ import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 import { AdvancedAnalytics } from "./modules/AdvancedAnalytics.js";
 import { AdvancedReporting } from "./modules/AdvancedReporting.js";
-import { ComplianceManager } from "./modules/ComplianceManager.enhanced.js";
 
 class App {
   constructor() {
