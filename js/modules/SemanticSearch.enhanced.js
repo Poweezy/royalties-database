@@ -101,7 +101,7 @@ export class EnhancedSemanticSearch {
     await this.indexRoyaltyRecords();
     await this.indexContracts();
     await this.indexComplianceData();
-    await this.indexDocuments();
+    await this.indexDocumentFiles();
     await this.indexUsers();
     await this.indexReports();
   }
@@ -218,6 +218,66 @@ export class EnhancedSemanticSearch {
     complianceRecords.forEach(record => {
       this.addToSearchIndex(record);
       this.addEntityToIndex(record.entity, record);
+    });
+  }
+
+  /**
+   * Index document files
+   */
+  async indexDocumentFiles() {
+    const sampleDocuments = [
+      {
+        id: 'DOC001',
+        type: 'document_file',
+        title: 'Environmental Impact Assessment',
+        content: 'Environmental impact assessment for mining operations',
+        entity: 'Maloma Colliery'
+      }
+    ];
+
+    sampleDocuments.forEach(doc => {
+      this.addToSearchIndex(doc);
+      this.addEntityToIndex(doc.entity, doc);
+    });
+  }
+
+  /**
+   * Index user data
+   */
+  async indexUsers() {
+    const sampleUsers = [
+      {
+        id: 'USER001',
+        type: 'user',
+        username: 'admin',
+        content: 'System administrator',
+        entity: 'System Admin'
+      }
+    ];
+
+    sampleUsers.forEach(user => {
+      this.addToSearchIndex(user);
+      this.addEntityToIndex(user.entity, user);
+    });
+  }
+
+  /**
+   * Index reports
+   */
+  async indexReports() {
+    const sampleReports = [
+      {
+        id: 'RPT001',
+        type: 'report',
+        title: 'Monthly Production Report',
+        content: 'Monthly production report',
+        entity: 'Maloma Colliery'
+      }
+    ];
+
+    sampleReports.forEach(report => {
+      this.addToSearchIndex(report);
+      this.addEntityToIndex(report.entity, report);
     });
   }
 

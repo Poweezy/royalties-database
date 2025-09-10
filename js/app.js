@@ -201,20 +201,35 @@ class App {
       // Show loading screen
       this.showLoadingScreen();
 
-      // Initialize all services in parallel
-      const p1 = authService.init().then(() => console.log('authService initialized')).catch(err => { console.error('authService failed', err); throw err; });
-      const p2 = dbService.init().then(() => console.log('dbService initialized')).catch(err => { console.error('dbService failed', err); throw err; });
-      const p3 = this.chartManager.initializeCharts().then(() => console.log('chartManager initialized')).catch(err => { console.error('chartManager failed', err); throw err; });
-      
-      // Enhanced services
-      const p4 = dashboardEnhancedService.init().then(() => console.log('dashboardEnhancedService initialized')).catch(err => { console.error('dashboardEnhancedService failed', err); throw err; });
-      const p5 = this.communicationManager.init().then(() => console.log('communicationManager initialized')).catch(err => { console.error('communicationManager failed', err); throw err; });
-      const p6 = this.enhancedDocumentManager.init().then(() => console.log('enhancedDocumentManager initialized')).catch(err => { console.error('enhancedDocumentManager failed', err); throw err; });
-      const p7 = this.advancedReporting.init().then(() => console.log('advancedReporting initialized')).catch(err => { console.error('advancedReporting failed', err); throw err; });
-      const p8 = this.enhancedComplianceManager.init().then(() => console.log('enhancedComplianceManager initialized')).catch(err => { console.error('enhancedComplianceManager failed', err); throw err; });
-      const p9 = this.enhancedSemanticSearch.init().then(() => console.log('enhancedSemanticSearch initialized')).catch(err => { console.error('enhancedSemanticSearch failed', err); throw err; });
+      // Create timeout wrapper for promises
+      const withTimeout = (promise, timeoutMs, serviceName) => {
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(`${serviceName} initialization timed out after ${timeoutMs}ms`)), timeoutMs);
+        });
+        return Promise.race([promise, timeoutPromise]);
+      };
 
-      await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]);
+      // Initialize core services first (critical)
+      const coreServices = [
+        withTimeout(authService.init().then(() => console.log('authService initialized')), 5000, 'authService'),
+        withTimeout(dbService.init().then(() => console.log('dbService initialized')), 5000, 'dbService'),
+        withTimeout(this.initializeChartManager(), 3000, 'chartManager'),
+      ];
+      
+      await Promise.all(coreServices);
+
+      // Initialize enhanced services (non-critical, can fail gracefully)
+      const enhancedServices = [
+        dashboardEnhancedService.init().then(() => console.log('dashboardEnhancedService initialized')).catch(err => console.warn('dashboardEnhancedService failed:', err)),
+        this.communicationManager.init().then(() => console.log('communicationManager initialized')).catch(err => console.warn('communicationManager failed:', err)),
+        this.enhancedDocumentManager.init().then(() => console.log('enhancedDocumentManager initialized')).catch(err => console.warn('enhancedDocumentManager failed:', err)),
+        this.advancedReporting.init().then(() => console.log('advancedReporting initialized')).catch(err => console.warn('advancedReporting failed:', err)),
+        this.enhancedComplianceManager.init().then(() => console.log('enhancedComplianceManager initialized')).catch(err => console.warn('enhancedComplianceManager failed:', err)),
+        this.enhancedSemanticSearch.init().then(() => console.log('enhancedSemanticSearch initialized')).catch(err => console.warn('enhancedSemanticSearch failed:', err)),
+      ];
+
+      // Don't wait for all enhanced services - initialize with available ones
+      await Promise.allSettled(enhancedServices);
 
       // Check authentication state
       if (authService.isAuthenticated) {
@@ -1677,6 +1692,18 @@ class App {
         );
       }
     });
+  }
+
+  // Initialize chart manager with fallback
+  async initializeChartManager() {
+    try {
+      await this.chartManager.initializeCharts();
+      console.log('chartManager initialized');
+    } catch (error) {
+      console.warn('ChartManager failed to initialize, using basic mode:', error);
+      // Initialize with minimal functionality
+      this.chartManager.initialized = true;
+    }
   }
 
   // Add method to manage array sizes

@@ -5147,11 +5147,14 @@
         // Initialize dashboard with data
         initializeDashboardWithData();
 
-        // Update metrics every 5 minutes to reduce memory usage (was 30 seconds)
+        // Update metrics every 10 minutes to further reduce memory usage
         let dashboardInterval = setInterval(() => {
-          updateDashboardMetrics();
-          initializeDashboardWithData();
-        }, 300000); // 5 minutes instead of 30 seconds
+          // Only update if page is visible
+          if (!document.hidden) {
+            updateDashboardMetrics();
+            initializeDashboardWithData();
+          }
+        }, 600000); // 10 minutes instead of 30 seconds
         
         // Clear interval when page is hidden/unloaded
         document.addEventListener('visibilitychange', () => {
