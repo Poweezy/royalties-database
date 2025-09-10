@@ -1,6 +1,7 @@
 export class NotificationManager {
   constructor() {
     this.notifications = new Set();
+    this.timeouts = new Map(); // Track timeouts for cleanup
     this.types = {
       success: {
         bg: "#dcfce7",
@@ -31,6 +32,15 @@ export class NotificationManager {
   }
 
   clearExisting() {
+    // Clear all timeouts first
+    this.notifications.forEach(notification => {
+      const timeoutIds = this.timeouts.get(notification);
+      if (timeoutIds) {
+        timeoutIds.forEach(id => clearTimeout(id));
+        this.timeouts.delete(notification);
+      }
+    });
+    
     document.querySelectorAll(".notification-toast").forEach((n) => n.remove());
     this.notifications.clear();
   }
@@ -78,17 +88,42 @@ export class NotificationManager {
   }
 
   animate(notification, duration) {
-    setTimeout(() => (notification.style.transform = "translateX(0)"), 100);
-
-    setTimeout(() => {
+    const enterTimeout = setTimeout(() => (notification.style.transform = "translateX(0)"), 100);
+    
+    const exitTimeout = setTimeout(() => {
       if (notification.parentElement) {
         notification.style.transform = "translateX(100%)";
-        setTimeout(() => {
-          notification.remove();
-          this.notifications.delete(notification);
+        const removeTimeout = setTimeout(() => {
+          this.removeNotification(notification);
         }, 300);
+        
+        // Store the remove timeout too
+        const timeoutIds = this.timeouts.get(notification) || [];
+        timeoutIds.push(removeTimeout);
+        this.timeouts.set(notification, timeoutIds);
       }
     }, duration);
+
+    // Store timeout IDs for cleanup
+    this.timeouts.set(notification, [enterTimeout, exitTimeout]);
+  }
+  
+  removeNotification(notification) {
+    notification.remove();
+    this.notifications.delete(notification);
+    
+    // Clear associated timeouts
+    const timeoutIds = this.timeouts.get(notification);
+    if (timeoutIds) {
+      timeoutIds.forEach(id => clearTimeout(id));
+      this.timeouts.delete(notification);
+    }
+  }
+  
+  // Add cleanup method
+  destroy() {
+    this.clearExisting();
+    this.timeouts.clear();
   }
 
   success(message, duration) {

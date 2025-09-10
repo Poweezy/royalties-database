@@ -94,6 +94,9 @@ class App {
       ],
       auditLog: [],
       notifications: [],
+      // Add size limits
+      MAX_AUDIT_LOG_SIZE: 5000,
+      MAX_NOTIFICATIONS_SIZE: 100,
       charts: {},
       isLoading: false,
       settings: {
@@ -132,7 +135,6 @@ class App {
     this.auditLogManager = null; // Will be initialized on auth state
 
     // Initialize app
-    this.initializeServices();
     this.idleWarningTimeout = null;
     this.idleLogoutTimeout = null;
     this.setupIdleTimeout();
@@ -141,25 +143,27 @@ class App {
     this.#setupSectionChangeListeners();
     this.passwordPolicyManagerInitialized = false;
     
-    // Initialize services after construction
+    // Initialize services once
     this.initializeServices();
   }
 
   #setupSectionChangeListeners() {
-    window.addEventListener("sectionChanged", (e) => {
+    // Store event handler for cleanup
+    this.onSectionChange = (e) => {
       if (e.detail.sectionId === 'user-management' && !this.passwordPolicyManagerInitialized) {
         this.passwordPolicyManager.init();
         this.passwordPolicyManagerInitialized = true;
       }
-    });
+    };
+    window.addEventListener("sectionChanged", this.onSectionChange);
   }
 
   /**
    * Set up global error handling
    */
   setupErrorHandling() {
-    // Suppress browser extension errors
-    window.addEventListener("error", (e) => {
+    // Store event handlers for cleanup
+    this.onError = (e) => {
       if (
         e.message.includes("Extension context invalidated") ||
         e.message.includes("message channel closed") ||
@@ -168,10 +172,9 @@ class App {
         e.preventDefault();
         return false;
       }
-    });
+    };
 
-    // Suppress unhandled promise rejections from extensions
-    window.addEventListener("unhandledrejection", (e) => {
+    this.onUnhandledRejection = (e) => {
       if (
         e.reason?.message &&
         (e.reason.message.includes("Extension context") ||
@@ -183,7 +186,10 @@ class App {
         e.preventDefault();
         return false;
       }
-    });
+    };
+
+    window.addEventListener("error", this.onError);
+    window.addEventListener("unhandledrejection", this.onUnhandledRejection);
   }
 
   /**
@@ -1673,8 +1679,35 @@ class App {
     });
   }
 
+  // Add method to manage array sizes
+  addAuditLogEntry(entry) {
+    this.state.auditLog.push(entry);
+    if (this.state.auditLog.length > this.state.MAX_AUDIT_LOG_SIZE) {
+      // Keep only the most recent entries
+      this.state.auditLog.splice(0, this.state.auditLog.length - this.state.MAX_AUDIT_LOG_SIZE);
+    }
+  }
+  
+  addNotification(notification) {
+    this.state.notifications.push(notification);
+    if (this.state.notifications.length > this.state.MAX_NOTIFICATIONS_SIZE) {
+      this.state.notifications.splice(0, this.state.notifications.length - this.state.MAX_NOTIFICATIONS_SIZE);
+    }
+  }
+
   // Add cleanup method to prevent memory leaks
   destroy() {
+    // Clean up global event listeners
+    if (this.onSectionChange) {
+      window.removeEventListener("sectionChanged", this.onSectionChange);
+    }
+    if (this.onError) {
+      window.removeEventListener("error", this.onError);
+    }
+    if (this.onUnhandledRejection) {
+      window.removeEventListener("unhandledrejection", this.onUnhandledRejection);
+    }
+    
     // Clean up intervals from modules
     if (this.chartManager && this.chartManager.destroy) {
       this.chartManager.destroy();
@@ -1683,6 +1716,19 @@ class App {
     // Clean up user security service
     if (this.userSecurityService && this.userSecurityService.stopSessionCleanup) {
       this.userSecurityService.stopSessionCleanup();
+    }
+    
+    // Clean up notification manager
+    if (this.notificationManager && this.notificationManager.destroy) {
+      this.notificationManager.destroy();
+    }
+    
+    // Clean up idle timeouts
+    if (this.idleWarningTimeout) {
+      clearTimeout(this.idleWarningTimeout);
+    }
+    if (this.idleLogoutTimeout) {
+      clearTimeout(this.idleLogoutTimeout);
     }
     
     // Clean up any other services with cleanup methods
