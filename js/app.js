@@ -227,9 +227,8 @@ class App {
                 `;
       }
     } finally {
-      if (!hasError) {
-        this.hideLoadingScreen();
-      }
+      // Always hide loading screen to allow login access
+      this.hideLoadingScreen();
     }
   }
 
