@@ -6,7 +6,7 @@
 class DatabaseService {
   constructor() {
     this.dbName = "RoyaltiesDB";
-    this.version = 6; // Incremented version to trigger upgrade
+    this.version = 11; // Updated to be higher than existing version
     this.stores = {
       royalties: "royalties",
       users: "users",
@@ -32,20 +32,75 @@ class DatabaseService {
    */
   async init() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
-
-      request.onerror = (event) => {
-        console.error(`Database error: ${event.target.errorCode}`);
-        reject(event.target.error);
+      let upgradeRejected = false;
+      
+      // Try to detect existing database version first
+      const checkRequest = indexedDB.open(this.dbName);
+      
+      checkRequest.onsuccess = (event) => {
+        const db = event.target.result;
+        const existingVersion = db.version;
+        db.close();
+        
+        // Use the higher of existing version + 1 or our target version
+        if (existingVersion >= this.version) {
+          this.version = existingVersion + 1;
+          console.log(`Database version updated to ${this.version} (existing was ${existingVersion})`);
+        }
+        
+        // Now open with the correct version
+        this._openDatabase(resolve, reject, upgradeRejected);
       };
+      
+      checkRequest.onerror = () => {
+        // If database doesn't exist, use our default version
+        console.log(`New database, using version ${this.version}`);
+        this._openDatabase(resolve, reject, upgradeRejected);
+      };
+    });
+  }
+  
+  /**
+   * Open database with proper version handling
+   */
+  _openDatabase(resolve, reject, upgradeRejected) {
+    const request = indexedDB.open(this.dbName, this.version);
+
+    let timeoutId = null;
+    
+    request.onerror = (event) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      const error = event.target.error;
+      console.error(`Database error: ${error?.code || 'unknown'}`, error);
+      
+      // Handle version error specifically - try opening with existing version
+      if (error?.name === 'VersionError' || error?.message?.includes('version')) {
+        console.warn('Version error detected. Opening with existing database version...');
+        const fallbackRequest = indexedDB.open(this.dbName);
+        fallbackRequest.onsuccess = (e) => {
+          this.db = e.target.result;
+          console.log(`Opened database with existing version: ${this.db.version}`);
+          resolve(this.db);
+        };
+        fallbackRequest.onerror = (e) => {
+          reject(e.target.error);
+        };
+        return;
+      }
+      
+      reject(error);
+    };
 
       request.onsuccess = (event) => {
+        if (timeoutId) clearTimeout(timeoutId);
         this.db = event.target.result;
+        console.log('Database opened successfully');
         resolve(this.db);
       };
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
+        const transaction = event.target.transaction;
 
         const createStore = (storeName, options) => {
           if (!db.objectStoreNames.contains(storeName)) {
@@ -54,29 +109,68 @@ class DatabaseService {
           return null;
         };
 
-        const royaltyStore = createStore(this.stores.royalties, { keyPath: "id", autoIncrement: true });
-        if (royaltyStore) {
-          const royaltyData = [
-            { entity: "Kwalini Quarry", mineral: "Quarried Stone", volume: 1200, tariff: 15.5, royaltyPayment: 18600, paymentDate: "2025-07-15", status: "Paid" },
-            { entity: "Maloma Colliery", mineral: "Coal", volume: 5000, tariff: 25.0, royaltyPayment: 125000, paymentDate: "2025-07-10", status: "Paid" },
-            { entity: "Mbabane Quarry", mineral: "Gravel", volume: 800, tariff: 18.5, royaltyPayment: 14800, paymentDate: "2025-06-20", status: "Overdue" },
-            { entity: "Ngwenya Mine", mineral: "Iron Ore", volume: 2500, tariff: 30.0, royaltyPayment: 75000, paymentDate: "2025-07-05", status: "Paid" },
-            { entity: "Sidvokodvo Quarry", mineral: "Gravel", volume: 1500, tariff: 18.5, royaltyPayment: 27750, paymentDate: "2025-05-15", status: "Overdue" },
-          ];
-          royaltyData.forEach(record => royaltyStore.add(record));
-        }
+        try {
+          const royaltyStore = createStore(this.stores.royalties, { keyPath: "id", autoIncrement: true });
+          if (royaltyStore) {
+            const royaltyData = [
+              { entity: "Kwalini Quarry", mineral: "Quarried Stone", volume: 1200, tariff: 15.5, royaltyPayment: 18600, paymentDate: "2025-07-15", status: "Paid" },
+              { entity: "Maloma Colliery", mineral: "Coal", volume: 5000, tariff: 25.0, royaltyPayment: 125000, paymentDate: "2025-07-10", status: "Paid" },
+              { entity: "Mbabane Quarry", mineral: "Gravel", volume: 800, tariff: 18.5, royaltyPayment: 14800, paymentDate: "2025-06-20", status: "Overdue" },
+              { entity: "Ngwenya Mine", mineral: "Iron Ore", volume: 2500, tariff: 30.0, royaltyPayment: 75000, paymentDate: "2025-07-05", status: "Paid" },
+              { entity: "Sidvokodvo Quarry", mineral: "Gravel", volume: 1500, tariff: 18.5, royaltyPayment: 27750, paymentDate: "2025-05-15", status: "Overdue" },
+            ];
+            royaltyData.forEach(record => royaltyStore.add(record));
+          }
 
-        createStore(this.stores.users, { keyPath: "id" });
-        createStore(this.stores.leases, { keyPath: "id" });
-        createStore(this.stores.expenses, { keyPath: "id" });
-        createStore(this.stores.contracts, { keyPath: "id" });
-        createStore(this.stores["contract-templates"], { keyPath: "id" });
-        createStore(this.stores.documents, { keyPath: "id" });
-        createStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
-        createStore(this.stores.settings, { keyPath: "key" });
-        createStore(this.stores.passwordPolicies, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.users, { keyPath: "id" });
+          createStore(this.stores.leases, { keyPath: "id" });
+          createStore(this.stores.expenses, { keyPath: "id" });
+          createStore(this.stores.contracts, { keyPath: "id" });
+          createStore(this.stores["contract-templates"], { keyPath: "id" });
+          createStore(this.stores.documents, { keyPath: "id" });
+          createStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.settings, { keyPath: "key" });
+          createStore(this.stores.passwordPolicies, { keyPath: "id", autoIncrement: true });
+          
+          // Create missing stores
+          createStore(this.stores.loginAttempts, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.userSessions, { keyPath: "id" });
+          createStore(this.stores.passwordHistory, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.securityNotifications, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.auditLog, { keyPath: "id", autoIncrement: true });
+          createStore(this.stores.roles, { keyPath: "id" });
+        } catch (error) {
+          console.error("Database upgrade error:", error);
+          upgradeRejected = true;
+          transaction.abort();
+          reject(error);
+        }
+        
+        transaction.onerror = (event) => {
+          console.error("Transaction error during upgrade:", event.target.error);
+          if (timeoutId) clearTimeout(timeoutId);
+          if (!upgradeRejected) {
+            upgradeRejected = true;
+            reject(event.target.error);
+          }
+        };
+        
+        transaction.oncomplete = () => {
+          console.log('Database upgrade completed');
+        };
       };
-    });
+      
+      // Add a timeout to prevent infinite hanging
+      timeoutId = setTimeout(() => {
+        if (!this.db) {
+          console.error('Database initialization timeout');
+          // Clear handlers to prevent double rejection
+          request.onerror = null;
+          request.onsuccess = null;
+          request.onupgradeneeded = null;
+          reject(new Error('Database initialization timed out after 10 seconds'));
+        }
+      }, 10000); // 10 second timeout
   }
 
   /**
