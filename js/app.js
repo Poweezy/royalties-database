@@ -262,7 +262,7 @@ class App {
         logger.info('User not authenticated, showing login...');
         this.showLogin();
       }
-      } catch (error) {
+    } catch (error) {
       logger.error('Initialization error', error);
       this.errorHandler.handleError(error);
       const loadingContent = document.querySelector(".loading-content");
@@ -277,7 +277,7 @@ class App {
       clearTimeout(safetyTimeout);
       // Always hide loading screen to allow login access - use multiple methods
       try {
-        this.hideLoadingScreen();
+      this.hideLoadingScreen();
         // Fallback: Direct DOM manipulation
         const loadingScreen = document.getElementById("loading-screen");
         if (loadingScreen) {
@@ -311,51 +311,51 @@ class App {
 
       // Initialize Lease Management (with error handling)
       try {
-        await this.leaseManagement.init();
-        leaseManagementUI.init();
+      await this.leaseManagement.init();
+      leaseManagementUI.init();
       } catch (error) {
         logger.warn('Lease Management initialization failed', error);
       }
 
       // Initialize Contract Management (with error handling)
       try {
-        await this.contractManagement.init();
-        contractManagementUI.init();
+      await this.contractManagement.init();
+      contractManagementUI.init();
       } catch (error) {
         logger.warn('Contract Management initialization failed', error);
       }
 
       // Initialize Reporting (with error handling)
       try {
-        await this.reporting.init();
+      await this.reporting.init();
       } catch (error) {
         logger.warn('Reporting initialization failed', error);
       }
 
       // Initialize Royalty Records (with error handling)
       try {
-        await this.royaltyRecords.init();
+      await this.royaltyRecords.init();
       } catch (error) {
         logger.warn('Royalty Records initialization failed', error);
       }
 
       // Initialize Document Management (with error handling)
       try {
-        await this.documentManagement.init();
+      await this.documentManagement.init();
       } catch (error) {
         logger.warn('Document Management initialization failed', error);
       }
 
       // Initialize Audit Log Manager (with error handling)
       try {
-        this.auditLogManager = new AuditLogManager();
+      this.auditLogManager = new AuditLogManager();
       } catch (error) {
         logger.warn('Audit Log Manager initialization failed', error);
       }
 
       // Initialize Enhanced User Management (with error handling)
       try {
-        await this.userManager.initializeEnhancedFeatures();
+      await this.userManager.initializeEnhancedFeatures();
       } catch (error) {
         logger.warn('Enhanced User Management initialization failed', error);
       }
@@ -1895,11 +1895,11 @@ class App {
 // Check if already initialized to prevent double initialization
 if (!window.app) {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
       if (!window.app) {
-        window.app = new App();
+  window.app = new App();
       }
-    });
+});
   } else {
     // DOM already loaded
     window.app = new App();

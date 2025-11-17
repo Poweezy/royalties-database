@@ -118,7 +118,7 @@
               if (typeof window !== 'undefined' && window.logger) {
                 window.logger.error("ServiceWorker registration failed", err);
               } else if (typeof console !== 'undefined') {
-                console.error("ServiceWorker registration failed:", err);
+              console.error("ServiceWorker registration failed:", err);
               }
             });
         });
@@ -5535,7 +5535,7 @@
         if (typeof window !== 'undefined' && window.logger) {
           window.logger.error("Unhandled promise rejection", e.reason);
         } else if (typeof console !== 'undefined') {
-          console.error("Unhandled promise rejection:", e.reason);
+        console.error("Unhandled promise rejection:", e.reason);
         }
       });
     </script>

@@ -1311,3 +1311,729 @@ button:not([style*="display: none"]) {
   vertical-align: middle !important;
 }
 
+/* ========================================
+   NOTIFICATION CENTER STYLING
+   ======================================== */
+
+/* Notification Filter Buttons - Match other sections */
+.notification-filters {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  align-items: center !important;
+}
+
+.notification-filters .filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.625rem 1.25rem !important;
+  min-height: 44px !important;
+  min-width: 100px !important;
+  border: 2px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  background: var(--background-white, #ffffff) !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.notification-filters .filter-btn:hover {
+  background: var(--primary-color, #1a365d) !important;
+  color: var(--text-inverse, #ffffff) !important;
+  border-color: var(--primary-color, #1a365d) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(26, 54, 93, 0.2) !important;
+}
+
+.notification-filters .filter-btn.active {
+  background: linear-gradient(135deg, var(--primary-color, #1a365d) 0%, var(--primary-dark, #2d5282) 100%) !important;
+  color: var(--text-inverse, #ffffff) !important;
+  border-color: var(--primary-color, #1a365d) !important;
+  box-shadow: 0 4px 12px rgba(26, 54, 93, 0.3) !important;
+  font-weight: 700 !important;
+}
+
+.notification-filters .filter-btn.active:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(26, 54, 93, 0.4) !important;
+}
+
+/* Notification Settings Checkboxes */
+.setting-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.625rem !important;
+  padding: 0.5rem 0.75rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  border-radius: var(--border-radius-sm, 4px) !important;
+  font-size: 0.875rem !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  width: 100% !important;
+}
+
+.setting-label:hover {
+  background: rgba(26, 54, 93, 0.05) !important;
+  color: var(--primary-color, #1a365d) !important;
+}
+
+.setting-label input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  accent-color: var(--primary-color, #1a365d) !important;
+  vertical-align: middle !important;
+}
+
+/* Settings Grid Layout */
+.settings-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 1.5rem !important;
+  padding: 1.5rem 0 !important;
+}
+
+.settings-category {
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+.settings-category:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.settings-category h6 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin: 0 0 1rem 0 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: 2px solid var(--border-color, #e5e7eb) !important;
+}
+
+.settings-category h6 i {
+  color: var(--primary-color, #1a365d) !important;
+}
+
+.setting-item {
+  margin-bottom: 0.75rem !important;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Notification Item Action Buttons */
+.notification-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  margin-top: 0.75rem !important;
+  align-items: center !important;
+}
+
+.notification-actions .btn {
+  min-height: 36px !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.notification-actions .btn-sm {
+  min-height: 36px !important;
+  padding: 0.5rem 0.875rem !important;
+  font-size: 0.8125rem !important;
+  min-width: 100px !important;
+}
+
+/* Ensure section header matches other sections */
+#notifications .section-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 1.5rem !important;
+  padding-bottom: 1rem !important;
+  border-bottom: 2px solid var(--border-color, #e5e7eb) !important;
+}
+
+#notifications .section-header h4 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin: 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary, #1a1a1a) !important;
+}
+
+#notifications .section-header h4 i {
+  color: var(--primary-color, #1a365d) !important;
+}
+
+#notifications .table-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+/* ========================================
+   DOCUMENT MANAGEMENT ALIGNMENT FIXES
+   ======================================== */
+
+/* Page Header Alignment */
+#document-management .page-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 2rem !important;
+  padding-bottom: 1.5rem !important;
+  border-bottom: 2px solid var(--border-color, #e5e7eb) !important;
+}
+
+#document-management .page-title {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+#document-management .page-title h1 {
+  margin: 0 0 0.5rem 0 !important;
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary, #1a1a1a) !important;
+}
+
+#document-management .page-title p {
+  margin: 0 !important;
+  font-size: 0.9375rem !important;
+  color: var(--text-secondary, #64748b) !important;
+  line-height: 1.6 !important;
+}
+
+#document-management .page-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  flex-shrink: 0 !important;
+}
+
+#document-management .page-actions .btn-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  align-items: center !important;
+}
+
+#document-management .page-actions .btn {
+  min-height: 44px !important;
+  padding: 0.75rem 1.5rem !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Statistics Cards Grid Alignment */
+#document-management .charts-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  align-items: stretch !important;
+}
+
+#document-management .metric-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden !important;
+}
+
+#document-management .metric-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+#document-management .metric-card .card-header {
+  padding: 1rem 1.25rem 0.75rem !important;
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+  background: var(--neutral-50, #f8fafc) !important;
+}
+
+#document-management .metric-card .card-header h3 {
+  margin: 0 !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary, #64748b) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+#document-management .metric-card .card-header h3 i {
+  color: var(--primary-color, #1a365d) !important;
+  font-size: 1rem !important;
+}
+
+#document-management .metric-card .card-body {
+  padding: 1.25rem !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+#document-management .metric-card .metric-value {
+  font-size: 1.875rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color, #1a365d) !important;
+  margin: 0 0 0.5rem 0 !important;
+  line-height: 1.2 !important;
+}
+
+#document-management .metric-card .metric-change {
+  font-size: 0.8125rem !important;
+  color: var(--text-secondary, #64748b) !important;
+  margin: 0 !important;
+}
+
+/* Search Panel Alignment */
+#document-management .search-panel {
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+#document-management .search-form {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  align-items: flex-end !important;
+}
+
+#document-management .search-form .form-group {
+  flex: 1 !important;
+  min-width: 250px !important;
+  margin: 0 !important;
+  display: flex !important;
+  gap: 0.5rem !important;
+  align-items: stretch !important;
+}
+
+#document-management .search-form .form-group .search-input {
+  flex: 1 !important;
+  min-width: 200px !important;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  font-size: 0.9375rem !important;
+  height: 44px !important;
+  transition: all 0.3s ease !important;
+}
+
+#document-management .search-form .form-group .search-input:focus {
+  outline: none !important;
+  border-color: var(--primary-color, #1a365d) !important;
+  box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1) !important;
+}
+
+#document-management .search-form .form-group .btn {
+  min-width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* Filter Group Alignment */
+#document-management .search-form .filter-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  align-items: flex-end !important;
+  flex: 2 !important;
+  min-width: 300px !important;
+  margin: 0 !important;
+}
+
+#document-management .search-form .filter-group select {
+  flex: 1 !important;
+  min-width: 150px !important;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  background: var(--background-white, #ffffff) !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  font-size: 0.9375rem !important;
+  height: 44px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a365d' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 1rem center !important;
+  padding-right: 2.5rem !important;
+}
+
+#document-management .search-form .filter-group select:focus {
+  outline: none !important;
+  border-color: var(--primary-color, #1a365d) !important;
+  box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1) !important;
+}
+
+#document-management .search-form .filter-group .btn {
+  min-width: 120px !important;
+  height: 44px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Table Container Alignment */
+#document-management .user-form-container {
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+#document-management .table-container {
+  overflow-x: auto !important;
+  width: 100% !important;
+}
+
+#document-management .data-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 0.9375rem !important;
+}
+
+#document-management .data-table thead {
+  background: linear-gradient(135deg, var(--primary-color, #1a365d) 0%, var(--primary-dark, #2d5282) 100%) !important;
+  color: var(--text-inverse, #ffffff) !important;
+}
+
+#document-management .data-table th {
+  padding: 1rem 1.25rem !important;
+  text-align: left !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+#document-management .data-table th input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+  accent-color: var(--text-inverse, #ffffff) !important;
+}
+
+#document-management .data-table td {
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+  vertical-align: middle !important;
+  color: var(--text-primary, #1a1a1a) !important;
+}
+
+#document-management .data-table tbody tr:hover {
+  background: var(--neutral-50, #f8fafc) !important;
+}
+
+#document-management .data-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Table Action Buttons Alignment */
+#document-management .data-table .btn-group {
+  display: flex !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#document-management .data-table .btn-group .btn {
+  min-height: 36px !important;
+  padding: 0.5rem 0.875rem !important;
+  font-size: 0.8125rem !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Pagination Alignment */
+#document-management .table-pagination {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 1rem 1.25rem !important;
+  background: var(--neutral-50, #f8fafc) !important;
+  border-top: 1px solid var(--border-color, #e5e7eb) !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+}
+
+#document-management .pagination-info {
+  font-size: 0.875rem !important;
+  color: var(--text-secondary, #64748b) !important;
+  white-space: nowrap !important;
+}
+
+#document-management .pagination-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  #document-management .search-form {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  #document-management .search-form .form-group {
+    min-width: 100% !important;
+  }
+  
+  #document-management .search-form .filter-group {
+    min-width: 100% !important;
+  }
+  
+  #document-management .page-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+  
+  #document-management .page-actions .btn-group {
+    width: 100% !important;
+  }
+  
+  #document-management .page-actions .btn {
+    flex: 1 !important;
+  }
+}
+
+/* Dropdown Menu Styling for Document Management */
+#document-management .dropdown {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+#document-management .dropdown .dropdown-toggle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  cursor: pointer !important;
+}
+
+#document-management .dropdown .dropdown-menu {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: auto !important;
+  z-index: 1000 !important;
+  min-width: 200px !important;
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  margin-top: 0.5rem !important;
+  padding: 0.5rem 0 !important;
+  overflow: hidden !important;
+}
+
+#document-management .dropdown.active .dropdown-menu,
+#document-management .dropdown:hover .dropdown-menu {
+  display: block !important;
+}
+
+#document-management .dropdown .dropdown-item {
+  display: block !important;
+  width: 100% !important;
+  padding: 0.75rem 1.25rem !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  font-size: 0.875rem !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+}
+
+#document-management .dropdown .dropdown-item:hover {
+  background: var(--neutral-50, #f8fafc) !important;
+  color: var(--primary-color, #1a365d) !important;
+}
+
+#document-management .dropdown .dropdown-item:active {
+  background: var(--neutral-100, #e2e8f0) !important;
+}
+
+/* Approval Workflow Panel Styling */
+#document-management .approval-workflow-panel {
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  padding: 1.5rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+#document-management .approval-workflow-panel h3 {
+  margin: 0 0 1.5rem 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary, #1a1a1a) !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: 2px solid var(--border-color, #e5e7eb) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+#document-management .workflow-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+#document-management .workflow-item {
+  padding: 1rem 1.25rem !important;
+  background: var(--neutral-50, #f8fafc) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  transition: all 0.3s ease !important;
+}
+
+#document-management .workflow-item:hover {
+  background: var(--background-white, #ffffff) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transform: translateX(4px) !important;
+}
+
+/* Modal Styling for Document Management */
+#upload-document-modal .modal-content {
+  max-width: 600px !important;
+  width: 90% !important;
+}
+
+#upload-document-modal .modal-body .form-group {
+  margin-bottom: 1.5rem !important;
+}
+
+#upload-document-modal .modal-body .form-group label {
+  display: block !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.9375rem !important;
+  color: var(--text-primary, #1a1a1a) !important;
+}
+
+#upload-document-modal .modal-body .form-group input[type="file"],
+#upload-document-modal .modal-body .form-group select {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  font-size: 0.9375rem !important;
+  height: 44px !important;
+  transition: all 0.3s ease !important;
+}
+
+#upload-document-modal .modal-body .form-group input[type="file"]:focus,
+#upload-document-modal .modal-body .form-group select:focus {
+  outline: none !important;
+  border-color: var(--primary-color, #1a365d) !important;
+  box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1) !important;
+}
+
+#upload-document-modal .modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.75rem !important;
+  padding-top: 1.5rem !important;
+  margin-top: 1.5rem !important;
+  border-top: 1px solid var(--border-color, #e5e7eb) !important;
+}
+
+#upload-document-modal .modal-footer .btn {
+  min-height: 44px !important;
+  padding: 0.75rem 1.5rem !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Override inline styles for charts-grid */
+#document-management .charts-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Ensure all buttons in Document Management are properly styled */
+#document-management .btn {
+  opacity: 1 !important;
+  visibility: visible !important;
+  min-height: 44px !important;
+}
+
+#document-management .btn i {
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+/* Ensure card styling is consistent */
+#document-management .card {
+  background: var(--background-white, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+#document-management .card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
