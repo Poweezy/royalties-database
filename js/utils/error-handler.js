@@ -2,10 +2,13 @@
  * Error handling utilities
  */
 
+import { logger } from './logger.js';
+import { config } from './config.js';
+
 export class ErrorHandler {
   // Static method for direct error handling
   static handle(error, context = {}) {
-    console.error("Error:", error, context);
+    logger.error("Error", error, context);
     try {
       const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
       errors.push({
@@ -15,7 +18,7 @@ export class ErrorHandler {
       });
       localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
     } catch (e) {
-      console.error("Failed to store error log:", e);
+      logger.error("Failed to store error log", e);
     }
   }
   constructor(notificationManager) {
@@ -42,7 +45,7 @@ export class ErrorHandler {
    * Handle an error
    */
   handleError(error, context = {}) {
-    console.error("Error:", error);
+    logger.error("Error", error, context);
 
     // Format error message
     const message = this.formatErrorMessage(error);
@@ -92,16 +95,18 @@ export class ErrorHandler {
       },
     };
 
-    // Log to console in development
-    console.error("Error Log:", errorLog);
+    // Log using logger service
+    logger.error("Error Log", errorLog);
 
-    // Store in local storage for debugging
-    try {
-      const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
-      errors.push(errorLog);
-      localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
-    } catch (e) {
-      console.error("Failed to store error log:", e);
+    // Store in local storage for debugging (only in development)
+    if (config.isDevelopment()) {
+      try {
+        const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
+        errors.push(errorLog);
+        localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
+      } catch (e) {
+        logger.error("Failed to store error log", e);
+      }
     }
   }
 
@@ -143,10 +148,23 @@ export class ErrorHandler {
         context: context,
       };
 
-      // TODO: Replace with actual error reporting service
-      console.warn("Error Report:", errorReport);
+      // Report to error reporting service (Sentry integration ready)
+      if (config.isFeatureEnabled('enableErrorReporting') && typeof window !== 'undefined' && window.Sentry) {
+        try {
+          window.Sentry.captureException(error, {
+            contexts: {
+              custom: context,
+            },
+          });
+        } catch (sentryError) {
+          logger.warn('Failed to report to Sentry', sentryError);
+        }
+      } else {
+        // Log error report if no service configured
+        logger.warn("Error Report (no service configured)", errorReport);
+      }
     } catch (e) {
-      console.error("Failed to report error:", e);
+      logger.error("Failed to report error", e);
     }
   }
 

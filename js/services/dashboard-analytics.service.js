@@ -3,11 +3,11 @@
  * Provides comprehensive analytics and insights for royalty management
  */
 import { dbService } from "./database.service.js";
-import { RoyaltyCalculator } from "../modules/RoyaltyCalculator.js";
+import { EnhancedRoyaltyCalculator } from "../modules/enhanced-royalty-calculator.js";
 
 export class DashboardAnalytics {
   constructor() {
-    this.calculator = new RoyaltyCalculator();
+    this.calculator = new EnhancedRoyaltyCalculator();
     this.cache = new Map();
     this.refreshInterval = 300000; // 5 minutes
   }
@@ -137,7 +137,10 @@ export class DashboardAnalytics {
       try {
         await this.generateDashboardMetrics();
       } catch (error) {
-        console.error("Failed to refresh analytics:", error);
+        // Logging handled by logger service if available
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.error("Failed to refresh analytics", error);
+        }
       }
     }, this.refreshInterval);
   }

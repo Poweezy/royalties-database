@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Security Headers -->
+    <!-- Note: X-Frame-Options and frame-ancestors must be set via HTTP headers, not meta tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()" />
+    <!-- CSP: Allow necessary external connections for CDNs, API, and source maps -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob:; connect-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://api.yourdomain.com http://localhost:* ws://localhost:* wss://localhost:*; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
+    
     <title>Mining Royalties Manager</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link
@@ -24,6 +33,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
     />
     <link rel="stylesheet" href="royalties.css" />
+    <link rel="stylesheet" href="css/professional-ui-enhancements.css" />
     <link rel="stylesheet" href="css/user-management-enhanced.css" />
     <link rel="stylesheet" href="css/contract-management-enhanced.css" />
     <link rel="stylesheet" href="css/gis-dashboard-enhanced.css" />
@@ -58,6 +68,9 @@
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module" src="js/utils/error-handler.js"></script>
+    <script type="module" src="js/utils/config.js"></script>
+    <script type="module" src="js/utils/logger.js"></script>
+    <script type="module" src="js/services/api.service.js"></script>
     <script type="module" src="js/services/database.service.js"></script>
     <script type="module" src="js/services/auth.service.js"></script>
     <script type="module" src="js/services/dashboard-enhanced.service.js"></script>
@@ -69,7 +82,6 @@
     <script type="module" src="js/modules/CommunicationManager.js"></script>
     <script type="module" src="js/modules/DocumentManager.enhanced.js"></script>
     <script type="module" src="js/modules/EnhancedSearchManager.js"></script>
-    <script type="module" src="js/semantic-search.js"></script>
     <script type="module" src="js/modules/UserManager.js"></script>
     <script type="module" src="js/app.js"></script>
     <script>
@@ -79,7 +91,12 @@
           navigator.serviceWorker
             .register("js/service-worker.js")
             .then((registration) => {
-              console.log("ServiceWorker registration successful");
+              // Use logger if available
+              if (typeof window !== 'undefined' && window.logger) {
+                window.logger.debug("ServiceWorker registration successful");
+              } else if (typeof console !== 'undefined') {
+                console.debug("ServiceWorker registration successful");
+              }
 
               // Request notification permission
               if ("Notification" in window) {
@@ -97,7 +114,12 @@
               }
             })
             .catch((err) => {
-              console.error("ServiceWorker registration failed:", err);
+              // Use logger if available
+              if (typeof window !== 'undefined' && window.logger) {
+                window.logger.error("ServiceWorker registration failed", err);
+              } else if (typeof console !== 'undefined') {
+                console.error("ServiceWorker registration failed:", err);
+              }
             });
         });
       }
@@ -4756,9 +4778,6 @@
       </main>
     </div>
 
-    <!-- Modern Modular JavaScript -->
-    <script type="module" src="js/app.js"></script>
-
     <!-- Active Entities Modal -->
     <div id="active-entities-modal" class="modal" style="display: none">
       <div class="modal-content">
@@ -5398,7 +5417,12 @@
     <script>
       // Dashboard initialization function
       function initializeDashboardWithData() {
-        console.log("Initializing dashboard with sample data...");
+        // Use logger if available, fallback to console in development
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.debug("Initializing dashboard with sample data...");
+        } else if (typeof console !== 'undefined') {
+          console.debug("Initializing dashboard with sample data...");
+        }
 
         // Update all dashboard metrics
         const metrics = {
@@ -5456,7 +5480,12 @@
           }
         });
 
-        console.log("Dashboard initialized successfully");
+        // Use logger if available, fallback to console in development
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.debug("Dashboard initialized successfully");
+        } else if (typeof console !== 'undefined') {
+          console.debug("Dashboard initialized successfully");
+        }
       }
     </script>
 
@@ -5474,13 +5503,20 @@
           return false;
         }
 
-        console.error("Application error:", {
+        // Use logger if available, otherwise console (for early errors)
+        const errorData = {
           message: e.message,
           filename: e.filename,
           lineno: e.lineno,
           colno: e.colno,
           error: e.error,
-        });
+        };
+        
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.error("Application error", e.error || new Error(e.message), errorData);
+        } else if (typeof console !== 'undefined') {
+          console.error("Application error:", errorData);
+        }
       });
 
       // Unhandled promise rejection handler
@@ -5495,7 +5531,12 @@
           }
         }
 
-        console.error("Unhandled promise rejection:", e.reason);
+        // Use logger if available
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.error("Unhandled promise rejection", e.reason);
+        } else if (typeof console !== 'undefined') {
+          console.error("Unhandled promise rejection:", e.reason);
+        }
       });
     </script>
   </body>

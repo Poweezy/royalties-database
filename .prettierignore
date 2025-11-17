@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Test results
+coverage/
+test-results/
+playwright-report/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+
+# Documentation (optional - uncomment if you want to format markdown)
+# *.md
+

@@ -21,6 +21,8 @@ import { NavigationManager } from "./modules/NavigationManager.js";
 import { notificationManager, showToast } from "./modules/NotificationManager.js";
 import { UserManager } from "./modules/UserManager.js";
 import { ErrorHandler } from "./utils/error-handler.js";
+import { logger } from "./utils/logger.js";
+import { config } from "./utils/config.js";
 import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
 import { CommunicationManager } from "./modules/CommunicationManager.js";
 import { EnhancedDocumentManager } from "./modules/DocumentManager.enhanced.js";
@@ -123,6 +125,10 @@ class App {
 
     // Make chartManager globally available for UI interactions
     window.chartManager = this.chartManager;
+    
+    // Make logger and config globally available for inline scripts and debugging
+    window.logger = logger;
+    window.appConfig = config;
     this.leaseManagement = leaseManagementEnhanced;
     this.expenseTracking = ExpenseTracking;
     this.contractManagement = contractManagementEnhanced;
@@ -200,11 +206,16 @@ class App {
     // Safety timeout to ensure loading screen always hides
     const safetyTimeout = setTimeout(() => {
       if (!loadingScreenHidden) {
-        console.warn('Safety timeout: Forcing loading screen to hide');
+        logger.warn('Safety timeout: Forcing loading screen to hide');
+        const loadingScreen = document.getElementById("loading-screen");
+        if (loadingScreen) {
+          loadingScreen.style.cssText = "display: none !important; visibility: hidden !important; opacity: 0 !important;";
+          loadingScreen.classList.add("hidden");
+        }
         this.hideLoadingScreen();
         loadingScreenHidden = true;
       }
-    }, 15000); // 15 second absolute timeout
+    }, 10000); // 10 second absolute timeout
     
     try {
       // Show loading screen
@@ -219,42 +230,42 @@ class App {
       };
 
       // Initialize core services first (critical)
-      console.log('Initializing core services...');
+      logger.info('Initializing core services...');
       const coreServices = [
-        withTimeout(authService.init().then(() => console.log('authService initialized')), 5000, 'authService'),
-        withTimeout(dbService.init().then(() => console.log('dbService initialized')), 10000, 'dbService'),
+        withTimeout(authService.init().then(() => logger.debug('authService initialized')), 5000, 'authService'),
+        withTimeout(dbService.init().then(() => logger.debug('dbService initialized')), 10000, 'dbService'),
         withTimeout(this.initializeChartManager(), 3000, 'chartManager'),
       ];
       
       await Promise.all(coreServices);
-      console.log('Core services initialized');
+      logger.info('Core services initialized');
 
       // Initialize enhanced services (non-critical, can fail gracefully)
-      console.log('Initializing enhanced services...');
+      logger.info('Initializing enhanced services...');
       const enhancedServices = [
-        dashboardEnhancedService.init().then(() => console.log('dashboardEnhancedService initialized')).catch(err => console.warn('dashboardEnhancedService failed:', err)),
-        this.communicationManager.init().then(() => console.log('communicationManager initialized')).catch(err => console.warn('communicationManager failed:', err)),
-        this.enhancedDocumentManager.init().then(() => console.log('enhancedDocumentManager initialized')).catch(err => console.warn('enhancedDocumentManager failed:', err)),
-        this.advancedReporting.init().then(() => console.log('advancedReporting initialized')).catch(err => console.warn('advancedReporting failed:', err)),
-        this.enhancedComplianceManager.init().then(() => console.log('enhancedComplianceManager initialized')).catch(err => console.warn('enhancedComplianceManager failed:', err)),
-        this.enhancedSemanticSearch.init().then(() => console.log('enhancedSemanticSearch initialized')).catch(err => console.warn('enhancedSemanticSearch failed:', err)),
+        dashboardEnhancedService.init().then(() => logger.debug('dashboardEnhancedService initialized')).catch(err => logger.warn('dashboardEnhancedService failed', err)),
+        this.communicationManager.init().then(() => logger.debug('communicationManager initialized')).catch(err => logger.warn('communicationManager failed', err)),
+        this.enhancedDocumentManager.init().then(() => logger.debug('enhancedDocumentManager initialized')).catch(err => logger.warn('enhancedDocumentManager failed', err)),
+        this.advancedReporting.init().then(() => logger.debug('advancedReporting initialized')).catch(err => logger.warn('advancedReporting failed', err)),
+        this.enhancedComplianceManager.init().then(() => logger.debug('enhancedComplianceManager initialized')).catch(err => logger.warn('enhancedComplianceManager failed', err)),
+        this.enhancedSemanticSearch.init().then(() => logger.debug('enhancedSemanticSearch initialized')).catch(err => logger.warn('enhancedSemanticSearch failed', err)),
       ];
 
       // Don't wait for all enhanced services - initialize with available ones
       await Promise.allSettled(enhancedServices);
-      console.log('Enhanced services initialization completed');
+      logger.info('Enhanced services initialization completed');
 
       // Check authentication state
       if (authService.isAuthenticated) {
-        console.log('User authenticated, initializing authenticated state...');
+        logger.info('User authenticated, initializing authenticated state...');
         await this.initializeAuthenticatedState();
       } else {
-        console.log('User not authenticated, showing login...');
+        logger.info('User not authenticated, showing login...');
         this.showLogin();
       }
     } catch (error) {
       hasError = true;
-      console.error('Initialization error:', error);
+      logger.error('Initialization error', error);
       this.errorHandler.handleError(error);
       const loadingContent = document.querySelector(".loading-content");
       if (loadingContent) {
@@ -266,10 +277,26 @@ class App {
       }
     } finally {
       clearTimeout(safetyTimeout);
-      // Always hide loading screen to allow login access
-      this.hideLoadingScreen();
-      loadingScreenHidden = true;
-      console.log('Initialization complete');
+      // Always hide loading screen to allow login access - use multiple methods
+      try {
+        this.hideLoadingScreen();
+        // Fallback: Direct DOM manipulation
+        const loadingScreen = document.getElementById("loading-screen");
+        if (loadingScreen) {
+          loadingScreen.style.display = "none";
+          loadingScreen.style.visibility = "hidden";
+          loadingScreen.style.opacity = "0";
+        }
+        loadingScreenHidden = true;
+        logger.info('Initialization complete - loading screen hidden');
+      } catch (hideError) {
+        logger.error('Error hiding loading screen', hideError);
+        // Last resort: Force hide via inline style
+        const loadingScreen = document.getElementById("loading-screen");
+        if (loadingScreen) {
+          loadingScreen.style.cssText = "display: none !important; visibility: hidden !important; opacity: 0 !important;";
+        }
+      }
     }
   }
 
@@ -289,7 +316,7 @@ class App {
         await this.leaseManagement.init();
         leaseManagementUI.init();
       } catch (error) {
-        console.warn('Lease Management initialization failed:', error);
+        logger.warn('Lease Management initialization failed', error);
       }
 
       // Initialize Contract Management (with error handling)
@@ -297,42 +324,42 @@ class App {
         await this.contractManagement.init();
         contractManagementUI.init();
       } catch (error) {
-        console.warn('Contract Management initialization failed:', error);
+        logger.warn('Contract Management initialization failed', error);
       }
 
       // Initialize Reporting (with error handling)
       try {
         await this.reporting.init();
       } catch (error) {
-        console.warn('Reporting initialization failed:', error);
+        logger.warn('Reporting initialization failed', error);
       }
 
       // Initialize Royalty Records (with error handling)
       try {
         await this.royaltyRecords.init();
       } catch (error) {
-        console.warn('Royalty Records initialization failed:', error);
+        logger.warn('Royalty Records initialization failed', error);
       }
 
       // Initialize Document Management (with error handling)
       try {
         await this.documentManagement.init();
       } catch (error) {
-        console.warn('Document Management initialization failed:', error);
+        logger.warn('Document Management initialization failed', error);
       }
 
       // Initialize Audit Log Manager (with error handling)
       try {
         this.auditLogManager = new AuditLogManager();
       } catch (error) {
-        console.warn('Audit Log Manager initialization failed:', error);
+        logger.warn('Audit Log Manager initialization failed', error);
       }
 
       // Initialize Enhanced User Management (with error handling)
       try {
         await this.userManager.initializeEnhancedFeatures();
       } catch (error) {
-        console.warn('Enhanced User Management initialization failed:', error);
+        logger.warn('Enhanced User Management initialization failed', error);
       }
 
       // Show dashboard
@@ -341,7 +368,7 @@ class App {
       // Start auto-refresh
       this.startAutoRefresh();
     } catch (error) {
-      console.error('Critical error in initializeAuthenticatedState:', error);
+      logger.error('Critical error in initializeAuthenticatedState', error);
       this.errorHandler.handleError(error);
       // Still show dashboard even if some modules failed
       this.showDashboard();
@@ -379,7 +406,7 @@ class App {
       // Update UI with user info
       this.updateUserInfo();
     } catch (error) {
-      console.error("Load user data error:", error);
+      logger.error("Load user data error", error);
       throw new Error("Failed to load user data");
     }
   }
@@ -1238,7 +1265,7 @@ class App {
   }
 
   handleDashboardFilterChange(metric, period) {
-    console.log(`Dashboard filter changed for ${metric} to ${period}`);
+    logger.debug(`Dashboard filter changed for ${metric} to ${period}`);
     const mockData = {
       2023: {
         totalRoyalties: 850000.0,
@@ -1343,7 +1370,7 @@ class App {
       await authService.login(username, password);
       await this.initializeAuthenticatedState();
     } catch (error) {
-      console.error("[App] Login error caught in handleLogin:", error);
+      logger.error("[App] Login error caught in handleLogin", error);
       this.showError("Invalid username or password");
     } finally {
       loginButton.classList.remove("loading");
@@ -1508,7 +1535,15 @@ class App {
   hideLoadingScreen() {
     const loadingScreen = document.getElementById("loading-screen");
     if (loadingScreen) {
+      // Multiple methods to ensure it's hidden
       loadingScreen.style.display = "none";
+      loadingScreen.style.visibility = "hidden";
+      loadingScreen.style.opacity = "0";
+      loadingScreen.classList.add("hidden");
+      loadingScreen.setAttribute("hidden", "true");
+      logger.debug('Loading screen hidden');
+    } else {
+      logger.warn('Loading screen element not found');
     }
   }
 
@@ -1699,7 +1734,7 @@ class App {
   startAutoRefresh() {
     // This is a placeholder to prevent errors.
     // Auto-refresh logic can be implemented here in the future.
-    console.log("Auto-refresh started (placeholder).");
+    logger.debug("Auto-refresh started (placeholder).");
   }
 
   setupIdleTimeout() {
@@ -1755,9 +1790,9 @@ class App {
   async initializeChartManager() {
     try {
       await this.chartManager.initializeCharts();
-      console.log('chartManager initialized');
+      logger.debug('chartManager initialized');
     } catch (error) {
-      console.warn('ChartManager failed to initialize, using basic mode:', error);
+      logger.warn('ChartManager failed to initialize, using basic mode', error);
       // Initialize with minimal functionality
       this.chartManager.initialized = true;
     }
@@ -1837,9 +1872,19 @@ class App {
 }
 
 // Initialize application when DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
-  window.app = new App();
-});
+// Check if already initialized to prevent double initialization
+if (!window.app) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!window.app) {
+        window.app = new App();
+      }
+    });
+  } else {
+    // DOM already loaded
+    window.app = new App();
+  }
+}
 
 // Clean up when page unloads to prevent memory leaks
 window.addEventListener("beforeunload", () => {

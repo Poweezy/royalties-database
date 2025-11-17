@@ -5,11 +5,14 @@
   "type": "module",
   "main": "js/app.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node scripts/inject-env.js && vite",
+    "build": "node scripts/inject-env.js && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "inject-env": "node scripts/inject-env.js",
+    "setup": "cp .env.example .env && node scripts/inject-env.js",
+    "security-audit": "node scripts/security-audit.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.0",

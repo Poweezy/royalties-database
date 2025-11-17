@@ -25,7 +25,10 @@ export class AdvancedReporting {
     this.setupEventListeners();
     this.initialized = true;
 
-    console.log('Advanced Reporting initialized');
+    // Logging handled by logger service if available
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug('Advanced Reporting initialized');
+    }
   }
 
   /**

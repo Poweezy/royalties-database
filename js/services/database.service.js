@@ -3,6 +3,8 @@
  * Handles local data storage and offline functionality
  */
 
+import { logger } from '../utils/logger.js';
+
 class DatabaseService {
   constructor() {
     this.dbName = "RoyaltiesDB";
@@ -45,7 +47,7 @@ class DatabaseService {
         // Use the higher of existing version + 1 or our target version
         if (existingVersion >= this.version) {
           this.version = existingVersion + 1;
-          console.log(`Database version updated to ${this.version} (existing was ${existingVersion})`);
+          logger.info(`Database version updated to ${this.version} (existing was ${existingVersion})`);
         }
         
         // Now open with the correct version
@@ -54,7 +56,7 @@ class DatabaseService {
       
       checkRequest.onerror = () => {
         // If database doesn't exist, use our default version
-        console.log(`New database, using version ${this.version}`);
+        logger.info(`New database, using version ${this.version}`);
         this._openDatabase(resolve, reject, upgradeRejected);
       };
     });
@@ -71,15 +73,15 @@ class DatabaseService {
     request.onerror = (event) => {
       if (timeoutId) clearTimeout(timeoutId);
       const error = event.target.error;
-      console.error(`Database error: ${error?.code || 'unknown'}`, error);
+      logger.error(`Database error: ${error?.code || 'unknown'}`, error);
       
       // Handle version error specifically - try opening with existing version
       if (error?.name === 'VersionError' || error?.message?.includes('version')) {
-        console.warn('Version error detected. Opening with existing database version...');
+        logger.warn('Version error detected. Opening with existing database version...');
         const fallbackRequest = indexedDB.open(this.dbName);
         fallbackRequest.onsuccess = (e) => {
           this.db = e.target.result;
-          console.log(`Opened database with existing version: ${this.db.version}`);
+          logger.info(`Opened database with existing version: ${this.db.version}`);
           resolve(this.db);
         };
         fallbackRequest.onerror = (e) => {
@@ -94,7 +96,7 @@ class DatabaseService {
       request.onsuccess = (event) => {
         if (timeoutId) clearTimeout(timeoutId);
         this.db = event.target.result;
-        console.log('Database opened successfully');
+        logger.debug('Database opened successfully');
         resolve(this.db);
       };
 
@@ -140,14 +142,14 @@ class DatabaseService {
           createStore(this.stores.auditLog, { keyPath: "id", autoIncrement: true });
           createStore(this.stores.roles, { keyPath: "id" });
         } catch (error) {
-          console.error("Database upgrade error:", error);
+          logger.error("Database upgrade error", error);
           upgradeRejected = true;
           transaction.abort();
           reject(error);
         }
         
         transaction.onerror = (event) => {
-          console.error("Transaction error during upgrade:", event.target.error);
+          logger.error("Transaction error during upgrade", event.target.error);
           if (timeoutId) clearTimeout(timeoutId);
           if (!upgradeRejected) {
             upgradeRejected = true;
@@ -156,14 +158,14 @@ class DatabaseService {
         };
         
         transaction.oncomplete = () => {
-          console.log('Database upgrade completed');
+          logger.debug('Database upgrade completed');
         };
       };
       
       // Add a timeout to prevent infinite hanging
       timeoutId = setTimeout(() => {
         if (!this.db) {
-          console.error('Database initialization timeout');
+          logger.error('Database initialization timeout');
           // Clear handlers to prevent double rejection
           request.onerror = null;
           request.onsuccess = null;
@@ -260,7 +262,7 @@ class DatabaseService {
 
       return true;
     } catch (error) {
-      console.error("Failed to save offline data:", error);
+      logger.error("Failed to save offline data", error);
       throw error;
     }
   }
@@ -272,7 +274,7 @@ class DatabaseService {
     try {
       return await this.getAll(this.stores.settings);
     } catch (error) {
-      console.error("Failed to get settings:", error);
+      logger.error("Failed to get settings", error);
       return [];
     }
   }
@@ -285,7 +287,7 @@ class DatabaseService {
       await this.put(this.stores.settings, { key, value });
       return true;
     } catch (error) {
-      console.error("Failed to update setting:", error);
+      logger.error("Failed to update setting", error);
       throw error;
     }
   }
@@ -307,7 +309,7 @@ class DatabaseService {
         await this.updateSetting(key, value);
       }
     } catch (error) {
-      console.error("Failed to initialize default settings:", error);
+      logger.error("Failed to initialize default settings", error);
     }
   }
 }
