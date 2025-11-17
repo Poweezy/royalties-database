@@ -11,7 +11,12 @@ const ExpenseTracking = {
   pagination: null,
 
   async init() {
-    console.log("Initializing Expense Tracking...");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Initializing Expense Tracking...");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Initializing Expense Tracking...");
+    }
     this.cacheDOMElements();
     this.pagination = new Pagination({
       containerSelector: "#expense-tracking-pagination",
@@ -23,7 +28,12 @@ const ExpenseTracking = {
     this.bindEvents();
     await this.seedInitialData();
     await this.renderExpenses();
-    console.log("Expense Tracking Initialized.");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Expense Tracking Initialized.");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Expense Tracking Initialized.");
+    }
   },
 
   cacheDOMElements() {
@@ -161,7 +171,12 @@ const ExpenseTracking = {
       await this.renderExpenses(1);
       this.closeModal();
     } catch (error) {
-      console.error("Error saving expense:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error saving expense", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error saving expense:", error);
+      }
       showToast("Failed to save expense.", "error");
     }
   },
@@ -207,7 +222,12 @@ const ExpenseTracking = {
       this.updateTotalExpenses(expenses);
 
     } catch (error) {
-      console.error("Error rendering expenses:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error rendering expenses", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error rendering expenses:", error);
+      }
       showToast("Failed to load expenses.", "error");
     }
   },
@@ -388,7 +408,12 @@ const ExpenseTracking = {
         showToast("Expense not found.", "error");
       }
     } catch (error) {
-      console.error("Error fetching expense for editing:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error fetching expense for editing", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error fetching expense for editing:", error);
+      }
       showToast("Failed to fetch expense details.", "error");
     }
   },
@@ -400,7 +425,12 @@ const ExpenseTracking = {
         await this.renderExpenses(1);
         showToast("Expense deleted successfully.", "success");
       } catch (error) {
-        console.error("Error deleting expense:", error);
+        // Use logger if available, fallback to console
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.error("Error deleting expense", error);
+        } else if (typeof console !== 'undefined') {
+          console.error("Error deleting expense:", error);
+        }
         showToast("Failed to delete expense.", "error");
       }
     }

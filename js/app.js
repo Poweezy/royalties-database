@@ -200,7 +200,6 @@ class App {
    * Initialize application services
    */
   async initializeServices() {
-    let hasError = false;
     let loadingScreenHidden = false;
     
     // Safety timeout to ensure loading screen always hides
@@ -263,8 +262,7 @@ class App {
         logger.info('User not authenticated, showing login...');
         this.showLogin();
       }
-    } catch (error) {
-      hasError = true;
+      } catch (error) {
       logger.error('Initialization error', error);
       this.errorHandler.handleError(error);
       const loadingContent = document.querySelector(".loading-content");
@@ -390,7 +388,7 @@ class App {
       const preferences = {
         theme: localStorage.getItem("app_theme") || "light",
         recordsPerPage:
-          parseInt(localStorage.getItem("records_per_page")) || 10,
+          parseInt(localStorage.getItem("records_per_page"), 10) || 10,
         autoSave: localStorage.getItem("auto_save") !== "false",
         notifications: {
           email: true,
@@ -405,6 +403,8 @@ class App {
 
       // Update UI with user info
       this.updateUserInfo();
+      
+      logger.debug("User data loaded successfully");
     } catch (error) {
       logger.error("Load user data error", error);
       throw new Error("Failed to load user data");
@@ -420,9 +420,15 @@ class App {
     const emailEl = document.getElementById("profile-email");
     const departmentEl = document.getElementById("profile-department");
 
-    if (usernameEl) usernameEl.value = this.state.currentUser.username;
-    if (emailEl) emailEl.value = this.state.currentUser.email;
-    if (departmentEl) departmentEl.value = this.state.currentUser.department;
+    if (usernameEl) {
+      usernameEl.value = this.state.currentUser.username;
+    }
+    if (emailEl) {
+      emailEl.value = this.state.currentUser.email;
+    }
+    if (departmentEl) {
+      departmentEl.value = this.state.currentUser.department;
+    }
 
     // Update user display in header if exists
     const userDisplayEl = document.querySelector(".user-display");
@@ -516,14 +522,18 @@ class App {
     // --- Global Action Event Listener ---
     document.body.addEventListener("click", (e) => {
       const target = e.target.closest("[data-action]");
-      if (!target) return;
+      if (!target) {
+        return;
+      }
 
       const action = target.dataset.action;
 
       if (action === "toggle-password") {
         const targetId = target.dataset.target;
         const input = document.querySelector(targetId);
-        if (!input) return;
+        if (!input) {
+          return;
+        }
 
         const icon = target.querySelector("i");
         if (input.type === "password") {
@@ -825,7 +835,9 @@ class App {
     const userTableBody = document.getElementById("users-table-tbody");
     userTableBody?.addEventListener("click", (e) => {
       const targetButton = e.target.closest("button[data-user-id]");
-      if (!targetButton) return;
+      if (!targetButton) {
+        return;
+      }
 
       const userId = parseInt(targetButton.dataset.userId, 10);
 
@@ -1072,7 +1084,9 @@ class App {
 
     dropdownMenu?.addEventListener("click", (e) => {
       const target = e.target.closest("[data-action]");
-      if (!target) return;
+      if (!target) {
+        return;
+      }
 
       const { action, theme, widget } = target.dataset;
 
@@ -1450,10 +1464,8 @@ class App {
 
     // Update active navigation state
     document.querySelectorAll("nav a").forEach((link) => {
-      link.classList.toggle(
-        "active",
-        link.getAttribute("href") === `#${route}`,
-      );
+      const isActive = link.getAttribute("href") === `#${route}`;
+      link.classList.toggle("active", isActive);
     });
 
     if (route === "admin-panel") {
@@ -1463,7 +1475,9 @@ class App {
 
   #renderAdminAuditLog() {
     const auditLogBody = document.getElementById("admin-audit-log-tbody");
-    if (!auditLogBody) return;
+    if (!auditLogBody) {
+      return;
+    }
 
     // In a real app, this would fetch from this.state.auditLog
     const mockLog = [
@@ -1504,7 +1518,9 @@ class App {
   #showActiveEntitiesModal() {
     const modal = document.getElementById("active-entities-modal");
     const list = document.getElementById("active-entities-list");
-    if (!modal || !list) return;
+    if (!modal || !list) {
+      return;
+    }
 
     // In a real application, this data would come from this.state or an API call
     const activeEntities = [
@@ -1648,7 +1664,9 @@ class App {
 
   updateRecentActivity(activities) {
     const container = document.getElementById("recent-activity");
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     container.innerHTML = activities
       .map((activity) => {
@@ -1763,7 +1781,9 @@ class App {
   #setupGlobalActionListeners() {
     document.body.addEventListener("click", (e) => {
       const target = e.target.closest(".btn");
-      if (!target) return;
+      if (!target) {
+        return;
+      }
 
       const unimplementedActions = [
         "#export-report-btn",

@@ -10,7 +10,12 @@ const RoyaltyRecords = {
   _eventsBound: false,
 
   async init() {
-    console.log("Initializing Royalty Records...");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Initializing Royalty Records...");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Initializing Royalty Records...");
+    }
     // Initial render is deferred until the section is shown
   },
 
@@ -66,7 +71,12 @@ const RoyaltyRecords = {
         }
     });
     this._eventsBound = true;
-    console.log("Royalty Records events bound.");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Royalty Records events bound.");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Royalty Records events bound.");
+    }
   },
 
   updateTariffForSelection() {
@@ -99,7 +109,12 @@ const RoyaltyRecords = {
 
   async handleFormSubmit(event) {
     event.preventDefault();
-    console.log("Handling royalty form submission...");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Handling royalty form submission...");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Handling royalty form submission...");
+    }
 
     const formData = {
       entity: this.elements.entitySelect.value,
@@ -133,7 +148,12 @@ const RoyaltyRecords = {
       this.elements.form.reset();
       await this.renderRecords(); // Refresh the table
     } catch (error) {
-      console.error("Error saving royalty record:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error saving royalty record", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error saving royalty record:", error);
+      }
       showToast("Failed to save record. See console for details.", "error");
     }
   },
@@ -141,9 +161,19 @@ const RoyaltyRecords = {
   async renderRecords(filter = null) {
     this.cacheDOMElements();
 
-    console.log("Rendering royalty records...");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Rendering royalty records...");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Rendering royalty records...");
+    }
     if (!this.elements.tableBody) {
-      console.error("Royalty records table body not found. Cannot render.");
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Royalty records table body not found. Cannot render.");
+      } else if (typeof console !== 'undefined') {
+        console.error("Royalty records table body not found. Cannot render.");
+      }
       return;
     }
     this.elements.tableBody.innerHTML = ""; // Clear existing records
@@ -171,7 +201,12 @@ const RoyaltyRecords = {
       const row = this.createRecordRow(record);
       this.elements.tableBody.appendChild(row);
     });
-    console.log("Finished rendering royalty records.");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Finished rendering royalty records.");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Finished rendering royalty records.");
+    }
   },
 
   createRecordRow(record) {
@@ -256,7 +291,12 @@ const RoyaltyRecords = {
           showToast("Could not import any records. Please check the file format.", "error");
         }
       } catch (error) {
-        console.error("Error importing records:", error);
+        // Use logger if available, fallback to console
+        if (typeof window !== 'undefined' && window.logger) {
+          window.logger.error("Error importing records", error);
+        } else if (typeof console !== 'undefined') {
+          console.error("Error importing records:", error);
+        }
         showToast("Failed to import records. See console for details.", "error");
       }
     };

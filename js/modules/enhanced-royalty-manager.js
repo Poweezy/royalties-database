@@ -224,7 +224,12 @@ export class EnhancedRoyaltyManager {
       return calculation;
 
     } catch (error) {
-      console.error('Royalty calculation failed:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Royalty calculation failed', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Royalty calculation failed:', error);
+      }
       throw error;
     }
   }
@@ -347,7 +352,12 @@ export class EnhancedRoyaltyManager {
         this.periodsOverlap(record.reportingPeriod, recordData.reportingPeriod)
       );
     } catch (error) {
-      console.error('Error finding similar records:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Error finding similar records', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Error finding similar records:', error);
+      }
       return [];
     }
   }
@@ -403,7 +413,12 @@ export class EnhancedRoyaltyManager {
       return true;
 
     } catch (error) {
-      console.error('Form submission failed:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Form submission failed', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Form submission failed:', error);
+      }
       notificationManager.show(`Failed to save record: ${error.message}`, 'error');
       return false;
     }
@@ -484,7 +499,12 @@ export class EnhancedRoyaltyManager {
       return savedRecord;
 
     } catch (error) {
-      console.error('Failed to save record:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Failed to save record', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Failed to save record:', error);
+      }
       throw error;
     }
   }
@@ -501,7 +521,12 @@ export class EnhancedRoyaltyManager {
         new Date(contract.endDate || '2099-12-31') > new Date()
       );
     } catch (error) {
-      console.error('Error getting contract details:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Error getting contract details', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Error getting contract details:', error);
+      }
       return null;
     }
   }
@@ -624,7 +649,12 @@ export class EnhancedRoyaltyManager {
       return results;
 
     } catch (error) {
-      console.error('Batch processing failed:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Batch processing failed', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Batch processing failed:', error);
+      }
       throw error;
     }
   }
@@ -705,7 +735,12 @@ export class EnhancedRoyaltyManager {
       return [headers, ...rows].map(row => row.join(',')).join('\n');
 
     } catch (error) {
-      console.error('Export failed:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Export failed', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Export failed:', error);
+      }
       throw error;
     }
   }
@@ -741,7 +776,12 @@ export class EnhancedRoyaltyManager {
       return records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     } catch (error) {
-      console.error('Error filtering records:', error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error('Error filtering records', error);
+      } else if (typeof console !== 'undefined') {
+        console.error('Error filtering records:', error);
+      }
       return [];
     }
   }

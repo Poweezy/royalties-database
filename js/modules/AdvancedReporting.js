@@ -673,7 +673,12 @@ export class AdvancedReporting {
 
   registerScheduledJob(scheduledReport) {
     // Register with job scheduler - placeholder
-    console.log('Scheduled report registered:', scheduledReport.id);
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug('Scheduled report registered', scheduledReport.id);
+    } else if (typeof console !== 'undefined') {
+      console.debug('Scheduled report registered:', scheduledReport.id);
+    }
   }
 
   estimateReportSize(report) {

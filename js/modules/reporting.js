@@ -7,7 +7,12 @@ import { showToast } from "./NotificationManager.js";
 
 const Reporting = {
   async init() {
-    console.log("Reporting module initialized.");
+    // Use logger if available, fallback to console
+    if (typeof window !== 'undefined' && window.logger) {
+      window.logger.debug("Reporting module initialized.");
+    } else if (typeof console !== 'undefined') {
+      console.debug("Reporting module initialized.");
+    }
     this.bindEvents();
   },
 
@@ -131,7 +136,12 @@ const Reporting = {
       XLSX.writeFile(wb, "Royalty_Summary_Report.xlsx");
       showToast("Royalty Summary Report generated successfully.", "success");
     } catch (error) {
-      console.error("Error generating royalty summary report:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error generating royalty summary report", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error generating royalty summary report:", error);
+      }
       showToast("Failed to generate report. See console for details.", "error");
     }
   },
@@ -200,7 +210,12 @@ const Reporting = {
       XLSX.writeFile(wb, "Entity_Performance_Report.xlsx");
       showToast("Entity Performance Report generated successfully.", "success");
     } catch (error) {
-      console.error("Error generating entity performance report:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error generating entity performance report", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error generating entity performance report:", error);
+      }
       showToast("Failed to generate report. See console for details.", "error");
     }
   },
@@ -241,7 +256,12 @@ const Reporting = {
       XLSX.writeFile(wb, "Compliance_Status_Report.xlsx");
       showToast("Compliance Status Report generated successfully.", "success");
     } catch (error) {
-      console.error("Error generating compliance status report:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error generating compliance status report", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error generating compliance status report:", error);
+      }
       showToast("Failed to generate report. See console for details.", "error");
     }
   },
@@ -303,7 +323,12 @@ const Reporting = {
         "success",
       );
     } catch (error) {
-      console.error("Error generating outstanding payments report:", error);
+      // Use logger if available, fallback to console
+      if (typeof window !== 'undefined' && window.logger) {
+        window.logger.error("Error generating outstanding payments report", error);
+      } else if (typeof console !== 'undefined') {
+        console.error("Error generating outstanding payments report:", error);
+      }
       showToast("Failed to generate report. See console for details.", "error");
     }
   },
