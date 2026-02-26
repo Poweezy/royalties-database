@@ -113,11 +113,11 @@ const Reporting = {
         "Date",
         "Status",
       ];
-      const data = [headers];
+      const reportRows = [headers];
 
       // Add data rows
       records.forEach((rec) => {
-        data.push([
+        reportRows.push([
           rec.entity,
           rec.mineral,
           rec.volume,
@@ -129,7 +129,7 @@ const Reporting = {
       });
 
       // Create a new workbook and a worksheet
-      const ws = XLSX.utils.aoa_to_sheet(data);
+      const ws = XLSX.utils.aoa_to_sheet(reportRows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Royalty Summary");
 

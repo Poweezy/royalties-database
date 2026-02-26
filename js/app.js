@@ -31,7 +31,6 @@ import { SearchManager } from "./modules/SearchManager.js";
 import { LeaseManager } from "./modules/LeaseManager.js";
 import ExpenseTracking from "./modules/expense-tracking.js";
 import { ContractManager } from "./modules/ContractManager.js";
-import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
 import RoyaltyRecords from "./modules/royalty-records.js";
 import { GisDashboard } from "./modules/GisDashboard.js";
@@ -114,7 +113,7 @@ class App {
     this.enhancedRoyaltyCalculator = new EnhancedRoyaltyCalculator();
     this.communicationManager = new CommunicationManager();
     this.documentManager = new DocumentManager();
-    this.reportingManager = new ReportingManager();
+    this.reportingManager = Reporting;
     this.complianceManager = new ComplianceManager();
     this.searchManager = new SearchManager();
     this.navigationManager = new NavigationManager(this.notificationManager);
@@ -130,7 +129,6 @@ class App {
     this.leaseManager = new LeaseManager();
     this.expenseTracking = ExpenseTracking;
     this.contractManager = new ContractManager();
-    this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
     this.royaltyRecords = RoyaltyRecords;
     this.gisDashboard = new GisDashboard(this.state.contracts);
@@ -342,7 +340,7 @@ class App {
 
       // Initialize Document Management (with error handling)
       try {
-        await this.documentManagement.init();
+        await this.documentManager.init();
       } catch (error) {
         logger.warn('Document Management initialization failed', error);
       }
@@ -350,6 +348,7 @@ class App {
       // Initialize Audit Log Manager (with error handling)
       try {
         this.auditLogManager = new AuditLogManager();
+        await this.auditLogManager.initialize();
       } catch (error) {
         logger.warn('Audit Log Manager initialization failed', error);
       }
