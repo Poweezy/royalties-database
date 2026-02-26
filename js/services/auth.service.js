@@ -18,21 +18,21 @@ class AuthService {
     this.demoUsers = {
       admin: {
         password:
-          "$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci",
+          "$2a$10$ZdYA0hNx6Hd18t1fr7t0fu6SOVfjmVKedrQluxCYXr42hSVNKFi92", // admin123
         role: "Administrator",
         department: "Administration",
         email: "admin@government.sz",
       },
-      finance: {
+      manager: {
         password:
-          "$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci",
-        role: "Finance Officer",
-        department: "Finance",
-        email: "finance@government.sz",
+          "$2a$10$4yfsoB4fV5IxI9R44p/arejw8EyOpHStbSaxIbqDzJh./hgbj5JMS", // manager123
+        role: "Manager",
+        department: "Operations",
+        email: "manager@government.sz",
       },
       auditor: {
         password:
-          "$2a$10$cyE37fP/7BPpcc5wwiq8wOcAnFeCyMzuBRs/eiFkPRkP275q9y2Ci",
+          "$2a$10$xYv8kqffM0/ScVvQEXWNX.73GUWRK0YCg5YDnxB2HejFWfBcB3/X6", // auditor123
         role: "Auditor",
         department: "Audit & Compliance",
         email: "auditor@government.sz",
@@ -116,11 +116,17 @@ class AuthService {
 
       // Check if API authentication is available
       const useApi = await this.checkApiAvailability();
+      logger.debug('Auth decision', {
+        useApi,
+        env: config.get('env'),
+        demoModeEnabled: config.get('auth.enableDemoMode'),
+        baseUrl: config.get('api.baseUrl')
+      });
 
       if (useApi) {
         try {
           // Try API authentication
-          logger.debug('Attempting API authentication');
+          logger.debug('Attempting API authentication', { username });
           const authData = await apiService.post('/auth/login', {
             username,
             password,
@@ -150,10 +156,11 @@ class AuthService {
         }
       } else {
         // Use demo mode authentication
+        logger.debug('Proceeding with demo authentication', { username });
         return await this.loginDemo(username, password);
       }
     } catch (error) {
-      logger.error("Login error", error);
+      logger.error("Login process failed", error);
       throw error;
     }
   }
@@ -171,6 +178,14 @@ class AuthService {
 
     // Demo authentication
     const user = this.demoUsers[username];
+
+    // Safety check for bcrypt
+    if (!window.bcrypt) {
+      const bcryptError = new Error("Auth error: bcrypt library not loaded. Please ensure js/bcrypt.min.js is correctly imported.");
+      logger.error("Bcrypt dependency missing", bcryptError);
+      throw bcryptError;
+    }
+
     if (!user || !window.bcrypt.compareSync(password, user.password)) {
       throw new Error("Invalid credentials");
     }
@@ -200,7 +215,7 @@ class AuthService {
     this.token = authData.token;
     this.currentUser = authData.user;
     this.isAuthenticated = true;
-    
+
     // Store tokens (in production, consider using httpOnly cookies instead)
     localStorage.setItem("auth_token", this.token);
     if (authData.refreshToken) {
@@ -227,17 +242,17 @@ class AuthService {
     this.isAuthenticated = false;
     this.currentUser = null;
     this.token = null;
-    
+
     // Clear all auth-related storage
     localStorage.removeItem("auth_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user_data");
-    
+
     // Cancel all pending API requests
     if (apiService && typeof apiService.cancelAllRequests === 'function') {
       apiService.cancelAllRequests();
     }
-    
+
     // Reload page
     window.location.reload();
   }

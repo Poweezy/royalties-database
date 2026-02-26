@@ -28,6 +28,6 @@
     "@playwright/test": "^1.55.0",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
-    "vite": "^5.1.4"
+    "vite": "^7.3.1"
   }
 }

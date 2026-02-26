@@ -24,7 +24,7 @@ class Config {
     if (typeof window !== 'undefined' && window.__ENV__) {
       return window.__ENV__.NODE_ENV || 'development';
     }
-    
+
     // Check hostname for environment detection
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
@@ -38,7 +38,7 @@ class Config {
         return 'production';
       }
     }
-    
+
     return 'development';
   }
 
@@ -49,7 +49,7 @@ class Config {
   loadConfig() {
     // Get environment variables from window or process
     const env = typeof window !== 'undefined' && window.__ENV__ ? window.__ENV__ : {};
-    
+
     const config = {
       // Environment
       env: this.env,
@@ -59,8 +59,8 @@ class Config {
 
       // API Configuration
       api: {
-        baseUrl: env.REACT_APP_API_URL || env.VITE_API_URL || 
-                (this.env === 'production' ? '/api' : 'http://localhost:3000/api'),
+        baseUrl: env.REACT_APP_API_URL || env.VITE_API_URL ||
+          (this.env === 'production' ? '/api' : 'http://localhost:3000/api'),
         timeout: parseInt(env.REACT_APP_API_TIMEOUT || env.VITE_API_TIMEOUT || '30000', 10),
         retryAttempts: parseInt(env.REACT_APP_API_RETRY || env.VITE_API_RETRY || '3', 10),
         retryDelay: parseInt(env.REACT_APP_API_RETRY_DELAY || env.VITE_API_RETRY_DELAY || '1000', 10),
@@ -74,7 +74,7 @@ class Config {
         refreshTokenInterval: parseInt(env.REACT_APP_REFRESH_INTERVAL || env.VITE_REFRESH_INTERVAL || '1800000', 10), // 30 min
         enableRememberMe: env.REACT_APP_REMEMBER_ME !== 'false',
         // WARNING: Demo credentials should NEVER be in production
-        enableDemoMode: this.env === 'development' && env.REACT_APP_DEMO_MODE === 'true',
+        enableDemoMode: this.env === 'development' && (env.REACT_APP_DEMO_MODE === 'true' || env.VITE_DEMO_MODE === 'true'),
       },
 
       // Security Configuration
@@ -96,8 +96,8 @@ class Config {
 
       // Logging Configuration
       logging: {
-        level: env.REACT_APP_LOG_LEVEL || env.VITE_LOG_LEVEL || 
-               (this.env === 'production' ? 'error' : 'debug'),
+        level: env.REACT_APP_LOG_LEVEL || env.VITE_LOG_LEVEL ||
+          (this.env === 'production' ? 'error' : 'debug'),
         enableConsole: this.env !== 'production',
         enableRemoteLogging: this.env === 'production',
         remoteLoggingEndpoint: env.REACT_APP_LOG_ENDPOINT || env.VITE_LOG_ENDPOINT || '/api/logs',

@@ -1,0 +1,361 @@
+/**
+ * Corporate Design System
+ * Premium Slate & Gold Aesthetic
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Colors - Slate & Gold Palette */
+    --primary: #0f172a;
+    /* Slate 900 */
+    --primary-light: #1e293b;
+    /* Slate 800 */
+    --primary-lighter: #334155;
+    /* Slate 700 */
+
+    --accent: #b59410;
+    /* Corporate Gold */
+    --accent-light: #d4af37;
+    /* Soft Gold */
+    --accent-subtle: rgba(181, 148, 16, 0.1);
+
+    --secondary: #64748b;
+    /* Slate 500 */
+
+    --surface: #ffffff;
+    --surface-hover: #f8fafc;
+    --surface-muted: #f1f5f9;
+
+    --border: #e2e8f0;
+    --border-strong: #cbd5e0;
+
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+
+    --status-success: #10b981;
+    --status-warning: #f59e0b;
+    --status-error: #ef4444;
+    --status-info: #0ea5e9;
+
+    /* Typography */
+    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Outfit', sans-serif;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Transitions */
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Corporate Reset */
+body {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    background-color: #f8fafc;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--primary);
+    letter-spacing: -0.01em;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Login Screen Modernization */
+.login-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top left, var(--primary), var(--primary-light));
+    position: relative;
+    overflow: hidden;
+}
+
+.login-section::before {
+    content: "";
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
+    opacity: 0.1;
+    animation: slow-rotate 20s linear infinite;
+}
+
+@keyframes slow-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.login-container {
+    background: var(--surface) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-xl) !important;
+    padding: var(--space-xl) !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    position: relative;
+    z-index: 10;
+    border: 1px solid var(--border) !important;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.login-logo {
+    width: 64px !important;
+    height: 64px !important;
+    background: var(--primary) !important;
+    color: var(--accent) !important;
+    border: 2px solid var(--accent) !important;
+    border-radius: var(--radius-md) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 auto var(--space-md) !important;
+}
+
+.login-header h2 {
+    font-size: 1.75rem !important;
+    color: var(--primary) !important;
+    margin-bottom: var(--space-xs) !important;
+}
+
+.login-header p {
+    color: var(--text-muted) !important;
+    font-size: 0.875rem !important;
+}
+
+/* Dashboard Header & Layout */
+.page-header {
+    background: white !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--space-lg) !important;
+    margin-bottom: var(--space-xl) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 1px solid var(--border) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.page-title h1 {
+    font-size: 1.875rem !important;
+    margin-bottom: var(--space-xs) !important;
+}
+
+.page-title p {
+    color: var(--text-muted) !important;
+    font-size: 0.875rem !important;
+}
+
+/* Sidebar Branding */
+.sidebar-header {
+    padding: var(--space-xl) var(--space-lg) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-logo {
+    background: var(--accent) !important;
+    color: var(--primary) !important;
+    border: none !important;
+}
+
+.sidebar-header h2 {
+    color: white !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+}
+
+/* KPI Adjustments */
+.metric-main p {
+    font-size: 2rem !important;
+    color: var(--primary) !important;
+    font-family: var(--font-heading) !important;
+}
+
+.trend-indicator {
+    font-weight: 500 !important;
+}
+
+.trend-positive {
+    color: var(--status-success) !important;
+}
+
+/* Modern Table Refinement */
+.data-table,
+table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 var(--space-xs) !important;
+    background: transparent !important;
+}
+
+.data-table th,
+table th {
+    background: var(--surface-muted) !important;
+    color: var(--primary) !important;
+    text-transform: uppercase;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em;
+    padding: var(--space-md) !important;
+    border: none !important;
+}
+
+.data-table td,
+table td {
+    background: white !important;
+    border-top: 1px solid var(--border) !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding: var(--space-md) !important;
+    color: var(--text-main) !important;
+    transition: var(--transition);
+}
+
+.data-table tr td:first-child,
+table tr td:first-child {
+    border-left: 1px solid var(--border) !important;
+    border-top-left-radius: var(--radius-md) !important;
+    border-bottom-left-radius: var(--radius-md) !important;
+}
+
+.data-table tr td:last-child,
+table tr td:last-child {
+    border-right: 1px solid var(--border) !important;
+    border-top-right-radius: var(--radius-md) !important;
+    border-bottom-right-radius: var(--radius-md) !important;
+}
+
+.data-table tr:hover td {
+    background: var(--surface-hover) !important;
+    border-color: var(--accent-light) !important;
+}
+
+/* Modal Elevation */
+.modal-content {
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl) !important;
+    border: none !important;
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+    background: var(--primary) !important;
+    padding: var(--space-lg) !important;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Micro-animations & Interactive Elements */
+.btn,
+a,
+button {
+    transition: var(--transition) !important;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.notification-badge {
+    background: var(--accent) !important;
+    color: var(--primary) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 10px rgba(181, 148, 16, 0.4);
+}
+
+/* Custom Scrollbar for Corporate Look */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--surface-muted);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: var(--radius-full);
+    border: 3px solid var(--surface-muted);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Dark Mode Overrides for Corporate Theme */
+[data-theme="dark"] {
+    --primary: #020617;
+    --primary-light: #0f172a;
+    --surface: #1e293b;
+    --surface-hover: #334155;
+    --border: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .page-header,
+[data-theme="dark"] .data-table td {
+    background: var(--primary-light) !important;
+}

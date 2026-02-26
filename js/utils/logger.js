@@ -118,7 +118,19 @@ class Logger {
     const prefix = `[${level.toUpperCase()}]`;
 
     if (data !== null) {
-      console.log(`%c${prefix} ${message}`, style, data);
+      console.groupCollapsed(`%c${prefix} ${message}`, style);
+      if (data instanceof Error) {
+        console.error('Error details:', {
+          message: data.message,
+          name: data.name,
+          stack: data.stack,
+          ...(data.status && { status: data.status }),
+          ...(data.data && { data: data.data })
+        });
+      } else {
+        console.log('Data:', data);
+      }
+      console.groupEnd();
     } else {
       console.log(`%c${prefix} ${message}`, style);
     }
@@ -178,7 +190,7 @@ class Logger {
       // Re-add logs to buffer if send failed
       this.logBuffer.unshift(...logsToSend);
       this.logBuffer = this.logBuffer.slice(0, this.maxBufferSize);
-      
+
       // Only log error in development
       if (config.isDevelopment()) {
         console.error('Failed to send logs to remote endpoint:', error);
@@ -196,7 +208,7 @@ class Logger {
 
     const entry = this.createLogEntry('debug', message, data);
     this.logToConsole('debug', message, data);
-    
+
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
     }
@@ -212,7 +224,7 @@ class Logger {
 
     const entry = this.createLogEntry('info', message, data);
     this.logToConsole('info', message, data);
-    
+
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
     }
@@ -228,7 +240,7 @@ class Logger {
 
     const entry = this.createLogEntry('warn', message, data);
     this.logToConsole('warn', message, data);
-    
+
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
     }
@@ -256,7 +268,7 @@ class Logger {
 
     const entry = this.createLogEntry('error', message, errorData, metadata);
     this.logToConsole('error', message, errorData);
-    
+
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
     }
@@ -284,7 +296,7 @@ class Logger {
 
     const entry = this.createLogEntry('fatal', message, errorData, metadata);
     this.logToConsole('fatal', message, errorData);
-    
+
     // Immediately flush buffer for fatal errors
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
@@ -343,7 +355,7 @@ class Logger {
     }, { type: 'performance' });
 
     this.logToConsole('info', `[PERF] ${name}: ${duration}ms`, metadata);
-    
+
     if (this.enableRemoteLogging) {
       this.addToBuffer(entry);
     }
