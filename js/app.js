@@ -13,7 +13,7 @@
 
 import { authService } from "./services/auth.service.js";
 import { dbService } from "./services/database.service.js";
-import { dashboardEnhancedService } from "./services/dashboard-enhanced.service.js";
+import { dashboardService } from "./services/dashboard.service.js";
 
 import { ChartManager } from "./modules/ChartManager.js";
 import { FileManager } from "./modules/FileManager.js";
@@ -25,14 +25,12 @@ import { logger } from "./utils/logger.js";
 import { config } from "./utils/config.js";
 import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
 import { CommunicationManager } from "./modules/CommunicationManager.js";
-import { EnhancedDocumentManager } from "./modules/DocumentManager.enhanced.js";
-import { EnhancedComplianceManager } from "./modules/ComplianceManager.enhanced.js";
-import { EnhancedSemanticSearch } from "./modules/SemanticSearch.enhanced.js";
-import { leaseManagementUI } from "./modules/lease-management-ui.js";
-import { leaseManagementEnhanced } from "./modules/lease-management-enhanced.js";
+import { DocumentManager } from "./modules/DocumentManager.js";
+import { ComplianceManager } from "./modules/ComplianceManager.js";
+import { SearchManager } from "./modules/SearchManager.js";
+import { LeaseManager } from "./modules/LeaseManager.js";
 import ExpenseTracking from "./modules/expense-tracking.js";
-import { contractManagementUI } from "./modules/contract-management-ui.js";
-import { contractManagementEnhanced } from "./modules/contract-management-enhanced.js";
+import { ContractManager } from "./modules/ContractManager.js";
 import DocumentManagement from "./modules/document-management.js";
 import Reporting from "./modules/reporting.js";
 import RoyaltyRecords from "./modules/royalty-records.js";
@@ -40,7 +38,7 @@ import { GisDashboard } from "./modules/GisDashboard.js";
 import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
-import { AdvancedReporting } from "./modules/AdvancedReporting.js";
+import { reportingService } from "./services/reporting.service.js";
 
 class App {
   constructor() {
@@ -111,27 +109,27 @@ class App {
     this.errorHandler = new ErrorHandler(notificationManager);
     this.chartManager = new ChartManager();
     this.fileManager = new FileManager();
-    
+
     // Enhanced modules
     this.enhancedRoyaltyCalculator = new EnhancedRoyaltyCalculator();
     this.communicationManager = new CommunicationManager();
-    this.enhancedDocumentManager = new EnhancedDocumentManager();
-    this.advancedReporting = new AdvancedReporting();
-    this.enhancedComplianceManager = new EnhancedComplianceManager();
-    this.enhancedSemanticSearch = new EnhancedSemanticSearch();
+    this.documentManager = new DocumentManager();
+    this.reportingManager = new ReportingManager();
+    this.complianceManager = new ComplianceManager();
+    this.searchManager = new SearchManager();
     this.navigationManager = new NavigationManager(this.notificationManager);
     this.userManager = new UserManager();
     this.passwordPolicyManager = new PasswordPolicyManager(this.userManager);
 
     // Make chartManager globally available for UI interactions
     window.chartManager = this.chartManager;
-    
+
     // Make logger and config globally available for inline scripts and debugging
     window.logger = logger;
     window.appConfig = config;
-    this.leaseManagement = leaseManagementEnhanced;
+    this.leaseManager = new LeaseManager();
     this.expenseTracking = ExpenseTracking;
-    this.contractManagement = contractManagementEnhanced;
+    this.contractManager = new ContractManager();
     this.documentManagement = DocumentManagement;
     this.reporting = Reporting;
     this.royaltyRecords = RoyaltyRecords;
@@ -146,7 +144,7 @@ class App {
     this.setupErrorHandling();
     this.#setupSectionChangeListeners();
     this.passwordPolicyManagerInitialized = false;
-    
+
     // Initialize services once
     this.initializeServices();
   }
@@ -201,7 +199,7 @@ class App {
    */
   async initializeServices() {
     let loadingScreenHidden = false;
-    
+
     // Safety timeout to ensure loading screen always hides
     const safetyTimeout = setTimeout(() => {
       if (!loadingScreenHidden) {
@@ -215,7 +213,7 @@ class App {
         loadingScreenHidden = true;
       }
     }, 10000); // 10 second absolute timeout
-    
+
     try {
       // Show loading screen
       this.showLoadingScreen();
@@ -235,19 +233,22 @@ class App {
         withTimeout(dbService.init().then(() => logger.debug('dbService initialized')), 10000, 'dbService'),
         withTimeout(this.initializeChartManager(), 3000, 'chartManager'),
       ];
-      
+
       await Promise.all(coreServices);
       logger.info('Core services initialized');
 
       // Initialize enhanced services (non-critical, can fail gracefully)
       logger.info('Initializing enhanced services...');
       const enhancedServices = [
-        dashboardEnhancedService.init().then(() => logger.debug('dashboardEnhancedService initialized')).catch(err => logger.warn('dashboardEnhancedService failed', err)),
+        dashboardService.init().then(() => logger.debug('dashboardService initialized')).catch(err => logger.warn('dashboardService failed', err)),
+        reportingService.init().then(() => logger.debug('reportingService initialized')).catch(err => logger.warn('reportingService failed', err)),
         this.communicationManager.init().then(() => logger.debug('communicationManager initialized')).catch(err => logger.warn('communicationManager failed', err)),
-        this.enhancedDocumentManager.init().then(() => logger.debug('enhancedDocumentManager initialized')).catch(err => logger.warn('enhancedDocumentManager failed', err)),
-        this.advancedReporting.init().then(() => logger.debug('advancedReporting initialized')).catch(err => logger.warn('advancedReporting failed', err)),
-        this.enhancedComplianceManager.init().then(() => logger.debug('enhancedComplianceManager initialized')).catch(err => logger.warn('enhancedComplianceManager failed', err)),
-        this.enhancedSemanticSearch.init().then(() => logger.debug('enhancedSemanticSearch initialized')).catch(err => logger.warn('enhancedSemanticSearch failed', err)),
+        this.contractManager.init().then(() => logger.debug('contractManager initialized')).catch(err => logger.warn('contractManager failed', err)),
+        this.documentManager.init().then(() => logger.debug('documentManager initialized')).catch(err => logger.warn('documentManager failed', err)),
+        this.leaseManager.init().then(() => logger.debug('leaseManager initialized')).catch(err => logger.warn('leaseManager failed', err)),
+        this.reportingManager.init().then(() => logger.debug('reportingManager initialized')).catch(err => logger.warn('reportingManager failed', err)),
+        this.complianceManager.init().then(() => logger.debug('complianceManager initialized')).catch(err => logger.warn('complianceManager failed', err)),
+        this.searchManager.init().then(() => logger.debug('searchManager initialized')).catch(err => logger.warn('searchManager failed', err)),
       ];
 
       // Don't wait for all enhanced services - initialize with available ones
@@ -277,7 +278,7 @@ class App {
       clearTimeout(safetyTimeout);
       // Always hide loading screen to allow login access - use multiple methods
       try {
-      this.hideLoadingScreen();
+        this.hideLoadingScreen();
         // Fallback: Direct DOM manipulation
         const loadingScreen = document.getElementById("loading-screen");
         if (loadingScreen) {
@@ -311,51 +312,51 @@ class App {
 
       // Initialize Lease Management (with error handling)
       try {
-      await this.leaseManagement.init();
-      leaseManagementUI.init();
+        await this.leaseManagement.init();
+        leaseManagementUI.init();
       } catch (error) {
         logger.warn('Lease Management initialization failed', error);
       }
 
       // Initialize Contract Management (with error handling)
       try {
-      await this.contractManagement.init();
-      contractManagementUI.init();
+        await this.contractManagement.init();
+        contractManagementUI.init();
       } catch (error) {
         logger.warn('Contract Management initialization failed', error);
       }
 
       // Initialize Reporting (with error handling)
       try {
-      await this.reporting.init();
+        await this.reporting.init();
       } catch (error) {
         logger.warn('Reporting initialization failed', error);
       }
 
       // Initialize Royalty Records (with error handling)
       try {
-      await this.royaltyRecords.init();
+        await this.royaltyRecords.init();
       } catch (error) {
         logger.warn('Royalty Records initialization failed', error);
       }
 
       // Initialize Document Management (with error handling)
       try {
-      await this.documentManagement.init();
+        await this.documentManagement.init();
       } catch (error) {
         logger.warn('Document Management initialization failed', error);
       }
 
       // Initialize Audit Log Manager (with error handling)
       try {
-      this.auditLogManager = new AuditLogManager();
+        this.auditLogManager = new AuditLogManager();
       } catch (error) {
         logger.warn('Audit Log Manager initialization failed', error);
       }
 
       // Initialize Enhanced User Management (with error handling)
       try {
-      await this.userManager.initializeEnhancedFeatures();
+        await this.userManager.initializeEnhancedFeatures();
       } catch (error) {
         logger.warn('Enhanced User Management initialization failed', error);
       }
@@ -403,7 +404,7 @@ class App {
 
       // Update UI with user info
       this.updateUserInfo();
-      
+
       logger.debug("User data loaded successfully");
     } catch (error) {
       logger.error("Load user data error", error);
@@ -1255,9 +1256,9 @@ class App {
 
     const exportPdfBtn = document.getElementById("export-pdf-btn");
     if (exportPdfBtn) {
-        exportPdfBtn.addEventListener("click", () => {
-            this.fileManager.exportDashboardToPDF();
-        });
+      exportPdfBtn.addEventListener("click", () => {
+        this.fileManager.exportDashboardToPDF();
+      });
     }
 
     // --- Dashboard Card Click Listeners ---
@@ -1826,7 +1827,7 @@ class App {
       this.state.auditLog.splice(0, this.state.auditLog.length - this.state.MAX_AUDIT_LOG_SIZE);
     }
   }
-  
+
   addNotification(notification) {
     this.state.notifications.push(notification);
     if (this.state.notifications.length > this.state.MAX_NOTIFICATIONS_SIZE) {
@@ -1846,12 +1847,12 @@ class App {
     if (this.onUnhandledRejection) {
       window.removeEventListener("unhandledrejection", this.onUnhandledRejection);
     }
-    
+
     // Clean up intervals from modules
     if (this.chartManager && this.chartManager.destroy) {
       this.chartManager.destroy();
     }
-    
+
     // Clean up user security service
     if (this.userSecurityService && this.userSecurityService.stopSessionCleanup) {
       this.userSecurityService.stopSessionCleanup();
@@ -1872,12 +1873,12 @@ class App {
     if (this.enhancedComplianceManager && this.enhancedComplianceManager.destroy) {
       this.enhancedComplianceManager.destroy();
     }
-    
+
     // Clean up notification manager
     if (this.notificationManager && this.notificationManager.destroy) {
       this.notificationManager.destroy();
     }
-    
+
     // Clean up idle timeouts
     if (this.idleWarningTimeout) {
       clearTimeout(this.idleWarningTimeout);
@@ -1885,7 +1886,7 @@ class App {
     if (this.idleLogoutTimeout) {
       clearTimeout(this.idleLogoutTimeout);
     }
-    
+
     // Clean up any other services with cleanup methods
     this.state.isDestroyed = true;
   }
@@ -1895,11 +1896,11 @@ class App {
 // Check if already initialized to prevent double initialization
 if (!window.app) {
   if (document.readyState === "loading") {
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       if (!window.app) {
-  window.app = new App();
+        window.app = new App();
       }
-});
+    });
   } else {
     // DOM already loaded
     window.app = new App();

@@ -123,16 +123,28 @@ export class ErrorHandler {
    * Determine if error should be reported
    */
   shouldReportError(error) {
-    // Don't report network errors
-    if (error.name === "NetworkError") return false;
+    const ignoredErrors = ["NetworkError", "AbortError", "ValidationError", "Extension context invalidated"];
+    return !ignoredErrors.some(name => error.name === name || error.message?.includes(name));
+  }
 
-    // Don't report user cancelation
-    if (error.name === "AbortError") return false;
-
-    // Don't report validation errors
-    if (error.name === "ValidationError") return false;
-
-    return true;
+  /**
+   * Enhanced error handling with context and retry
+   */
+  async handleWithRetry(operation, retryCount = 3, delay = 1000) {
+    let lastError;
+    for (let i = 0; i < retryCount; i++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        logger.warn(`Operation failed (attempt ${i + 1}/${retryCount}): ${error.message}`);
+        if (i < retryCount - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // Exponential backoff
+        }
+      }
+    }
+    this.handleError(lastError, { retryAttempts: retryCount });
+    throw lastError;
   }
 
   /**

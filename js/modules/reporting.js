@@ -2,7 +2,7 @@
  * @module Reporting
  * @description Handles all logic for generating and exporting reports.
  */
-import { dbService } from "../services/database.service.js";
+import { reportingService } from "../services/reporting.service.js";
 import { showToast } from "./NotificationManager.js";
 
 const Reporting = {
@@ -96,7 +96,8 @@ const Reporting = {
   async generateRoyaltySummary() {
     showToast("Generating Royalty Summary Report...", "info");
     try {
-      const records = await dbService.getAll("royalties");
+      const data = await reportingService.gatherReportData();
+      const records = data.royalties;
       if (records.length === 0) {
         showToast("No royalty records to export.", "warning");
         return;

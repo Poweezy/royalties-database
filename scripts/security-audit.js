@@ -11,7 +11,8 @@
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { glob } from 'glob';
+import pkg from 'glob';
+const { glob } = pkg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -119,7 +120,7 @@ async function runAudit() {
   console.log('🔍 Running security audit...\n');
 
   // Get all JavaScript and HTML files
-  const jsFiles = await glob('**/*.{js,html}', {
+  const jsFiles = pkg.sync('**/*.{js,html}', {
     cwd: rootDir,
     ignore: [
       'node_modules/**',
@@ -136,7 +137,7 @@ async function runAudit() {
     const filePath = join(rootDir, file);
     try {
       const content = readFileSync(filePath, 'utf-8');
-      
+
       checkHardcodedCredentials(file, content);
       checkConsoleStatements(file, content);
       checkSecurityHeaders(file, content);
@@ -147,7 +148,7 @@ async function runAudit() {
 
   // Print results
   console.log('📊 Security Audit Results:\n');
-  
+
   if (issues.critical.length > 0) {
     console.log('🔴 CRITICAL ISSUES:');
     issues.critical.forEach(issue => {
@@ -181,7 +182,7 @@ async function runAudit() {
   }
 
   const totalIssues = issues.critical.length + issues.high.length + issues.medium.length + issues.low.length;
-  
+
   if (totalIssues === 0) {
     console.log('✅ No security issues found!\n');
     process.exit(0);
@@ -191,7 +192,7 @@ async function runAudit() {
     console.log(`   High: ${issues.high.length}`);
     console.log(`   Medium: ${issues.medium.length}`);
     console.log(`   Low: ${issues.low.length}\n`);
-    
+
     // Exit with error if critical issues found
     if (issues.critical.length > 0 || issues.high.length > 0) {
       console.log('❌ Security audit failed. Please fix critical and high priority issues.\n');

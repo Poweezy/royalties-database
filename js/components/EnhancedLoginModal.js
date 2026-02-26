@@ -2,7 +2,7 @@
  * Enhanced Login Modal Component with 2FA, Security Features, and Advanced Authentication
  */
 
-import { enhancedAuthService } from "../services/auth-enhanced.service.js";
+import { authService } from "../services/auth.service.js";
 
 import { deviceFingerprint } from "../utils/device-fingerprint.js";
 import { ErrorHandler } from "../utils/error-handler.js";
@@ -770,7 +770,7 @@ class EnhancedLoginModal {
 
       this.showLoading("Signing in...");
 
-      const result = await enhancedAuthService.login(
+      const result = await authService.login(
         username,
         password,
         null,
@@ -808,7 +808,7 @@ class EnhancedLoginModal {
 
       this.showLoading("Verifying code...");
 
-      const result = await enhancedAuthService.login(
+      const result = await authService.login(
         this.loginData.username,
         this.loginData.password,
         totpCode,
@@ -843,7 +843,7 @@ class EnhancedLoginModal {
 
       this.showLoading("Verifying backup code...");
 
-      const result = await enhancedAuthService.login(
+      const result = await authService.login(
         this.loginData.username,
         this.loginData.password,
         backupCode,
@@ -878,7 +878,7 @@ class EnhancedLoginModal {
 
       this.showLoading("Enabling 2FA...");
 
-      const result = await enhancedAuthService.enable2FA(
+      const result = await authService.enable2FA(
         this.loginData.username,
         totpCode,
       );
@@ -910,7 +910,7 @@ class EnhancedLoginModal {
 
       this.showLoading("Sending reset link...");
 
-      const token = await enhancedAuthService.generatePasswordResetToken(
+      const token = await authService.generatePasswordResetToken(
         username,
         email,
       );
