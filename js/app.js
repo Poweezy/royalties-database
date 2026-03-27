@@ -38,6 +38,7 @@ import { AuditLogManager } from "./modules/AuditLogManager.js";
 import { PasswordPolicyManager } from "./modules/PasswordPolicyManager.js";
 
 import { reportingService } from "./services/reporting.service.js";
+import { QuickSearch } from "./components/QuickSearch.js";
 
 class App {
   constructor() {
@@ -119,6 +120,7 @@ class App {
     this.navigationManager = new NavigationManager(this.notificationManager);
     this.userManager = new UserManager();
     this.passwordPolicyManager = new PasswordPolicyManager(this.userManager);
+    this.quickSearch = new QuickSearch();
 
     // Make chartManager globally available for UI interactions
     window.chartManager = this.chartManager;
@@ -247,6 +249,7 @@ class App {
         this.reportingManager.init().then(() => logger.debug('reportingManager initialized')).catch(err => logger.warn('reportingManager failed', err)),
         this.complianceManager.init().then(() => logger.debug('complianceManager initialized')).catch(err => logger.warn('complianceManager failed', err)),
         this.searchManager.init().then(() => logger.debug('searchManager initialized')).catch(err => logger.warn('searchManager failed', err)),
+        this.quickSearch.init().then(() => logger.debug('quickSearch initialized')).catch(err => logger.warn('quickSearch failed', err)),
       ];
 
       // Don't wait for all enhanced services - initialize with available ones

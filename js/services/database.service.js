@@ -8,7 +8,7 @@ import { logger } from '../utils/logger.js';
 class DatabaseService {
   constructor() {
     this.dbName = "RoyaltiesDB";
-    this.version = 11; // Updated to be higher than existing version
+    this.version = 12; // Version bump for migration test
     this.stores = {
       royalties: "royalties",
       users: "users",
@@ -27,6 +27,64 @@ class DatabaseService {
       auditLog: "auditLog",
       roles: "roles"
     };
+
+    // Define migrations
+    this.migrations = {
+      1: (db) => {
+        db.createObjectStore(this.stores.royalties, { keyPath: "id", autoIncrement: true });
+        db.createObjectStore(this.stores.users, { keyPath: "id" });
+      },
+      2: (db) => {
+        db.createObjectStore(this.stores.leases, { keyPath: "id" });
+        db.createObjectStore(this.stores.expenses, { keyPath: "id" });
+      },
+      3: (db) => {
+        db.createObjectStore(this.stores.contracts, { keyPath: "id" });
+        db.createObjectStore(this.stores["contract-templates"], { keyPath: "id" });
+      },
+      4: (db) => {
+        db.createObjectStore(this.stores.documents, { keyPath: "id" });
+      },
+      5: (db) => {
+        db.createObjectStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
+      },
+      6: (db) => {
+        db.createObjectStore(this.stores.settings, { keyPath: "key" });
+      },
+      7: (db) => {
+        db.createObjectStore(this.stores.passwordPolicies, { keyPath: "id", autoIncrement: true });
+      },
+      8: (db) => {
+        db.createObjectStore(this.stores.loginAttempts, { keyPath: "id", autoIncrement: true });
+        db.createObjectStore(this.stores.userSessions, { keyPath: "id" });
+      },
+      9: (db) => {
+        db.createObjectStore(this.stores.passwordHistory, { keyPath: "id", autoIncrement: true });
+      },
+      10: (db) => {
+        db.createObjectStore(this.stores.securityNotifications, { keyPath: "id", autoIncrement: true });
+      },
+      11: (db) => {
+        db.createObjectStore(this.stores.auditLog, { keyPath: "id", autoIncrement: true });
+        db.createObjectStore(this.stores.roles, { keyPath: "id" });
+      },
+      12: (db, transaction) => {
+        // Example of data migration or index creation in v12
+        if (db.objectStoreNames.contains(this.stores.auditLog)) {
+          const store = transaction.objectStore(this.stores.auditLog);
+          store.createIndex("by_timestamp", "timestamp");
+        }
+      }
+    };
+  }
+
+  runMigrations(db, transaction, oldVersion, newVersion) {
+    for (let v = oldVersion + 1; v <= newVersion; v++) {
+      if (this.migrations[v]) {
+        logger.info(`Running migration for version ${v}`);
+        this.migrations[v](db, transaction);
+      }
+    }
   }
 
   /**
@@ -103,50 +161,20 @@ class DatabaseService {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
         const transaction = event.target.transaction;
+        const oldVersion = event.oldVersion;
+        const newVersion = event.newVersion;
 
-        const createStore = (storeName, options) => {
-          if (!db.objectStoreNames.contains(storeName)) {
-            return db.createObjectStore(storeName, options);
-          }
-          return null;
-        };
+        logger.info(`Upgrading database from version ${oldVersion} to ${newVersion}`);
 
         try {
-          const royaltyStore = createStore(this.stores.royalties, { keyPath: "id", autoIncrement: true });
-          if (royaltyStore) {
-            const royaltyData = [
-              { entity: "Kwalini Quarry", mineral: "Quarried Stone", volume: 1200, tariff: 15.5, royaltyPayment: 18600, paymentDate: "2025-07-15", status: "Paid" },
-              { entity: "Maloma Colliery", mineral: "Coal", volume: 5000, tariff: 25.0, royaltyPayment: 125000, paymentDate: "2025-07-10", status: "Paid" },
-              { entity: "Mbabane Quarry", mineral: "Gravel", volume: 800, tariff: 18.5, royaltyPayment: 14800, paymentDate: "2025-06-20", status: "Overdue" },
-              { entity: "Ngwenya Mine", mineral: "Iron Ore", volume: 2500, tariff: 30.0, royaltyPayment: 75000, paymentDate: "2025-07-05", status: "Paid" },
-              { entity: "Sidvokodvo Quarry", mineral: "Gravel", volume: 1500, tariff: 18.5, royaltyPayment: 27750, paymentDate: "2025-05-15", status: "Overdue" },
-            ];
-            royaltyData.forEach(record => royaltyStore.add(record));
-          }
-
-          createStore(this.stores.users, { keyPath: "id" });
-          createStore(this.stores.leases, { keyPath: "id" });
-          createStore(this.stores.expenses, { keyPath: "id" });
-          createStore(this.stores.contracts, { keyPath: "id" });
-          createStore(this.stores["contract-templates"], { keyPath: "id" });
-          createStore(this.stores.documents, { keyPath: "id" });
-          createStore(this.stores.offline, { keyPath: "id", autoIncrement: true });
-          createStore(this.stores.settings, { keyPath: "key" });
-          createStore(this.stores.passwordPolicies, { keyPath: "id", autoIncrement: true });
-          
-          // Create missing stores
-          createStore(this.stores.loginAttempts, { keyPath: "id", autoIncrement: true });
-          createStore(this.stores.userSessions, { keyPath: "id" });
-          createStore(this.stores.passwordHistory, { keyPath: "id", autoIncrement: true });
-          createStore(this.stores.securityNotifications, { keyPath: "id", autoIncrement: true });
-          createStore(this.stores.auditLog, { keyPath: "id", autoIncrement: true });
-          createStore(this.stores.roles, { keyPath: "id" });
+          this.runMigrations(db, transaction, oldVersion, newVersion);
         } catch (error) {
           logger.error("Database upgrade error", error);
           upgradeRejected = true;
           transaction.abort();
           reject(error);
         }
+// ... rest of event handlers ...
         
         transaction.onerror = (event) => {
           logger.error("Transaction error during upgrade", event.target.error);

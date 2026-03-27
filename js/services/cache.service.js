@@ -66,6 +66,111 @@ class CacheService {
     }
 
     /**
+     * Set an encrypted value in cache
+     */
+    async setEncrypted(key, value, ttl = this.defaultTTL) {
+        try {
+            const data = JSON.stringify({ value, expiry: Date.now() + ttl });
+            const encryptedData = await this.encrypt(data);
+            localStorage.setItem(`${this.prefix}${key}_enc`, encryptedData);
+            return true;
+        } catch (error) {
+            logger.error(`Failed to set encrypted cache for key: ${key}`, error);
+            return false;
+        }
+    }
+
+    /**
+     * Get an encrypted value from cache
+     */
+    async getEncrypted(key) {
+        try {
+            const encryptedData = localStorage.getItem(`${this.prefix}${key}_enc`);
+            if (!encryptedData) return null;
+
+            const decryptedData = await this.decrypt(encryptedData);
+            const item = JSON.parse(decryptedData);
+
+            if (Date.now() > item.expiry) {
+                localStorage.removeItem(`${this.prefix}${key}_enc`);
+                return null;
+            }
+            return item.value;
+        } catch (error) {
+            logger.error(`Failed to get encrypted cache for key: ${key}`, error);
+            return null;
+        }
+    }
+
+    // Helper for encryption (AES-GCM)
+    async encrypt(text) {
+        const key = await this.getEncryptionKey();
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encoded = new TextEncoder().encode(text);
+        
+        const ciphertext = await crypto.subtle.encrypt(
+            { name: "AES-GCM", iv },
+            key,
+            encoded
+        );
+
+        // Combine IV and Ciphertext for storage
+        const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+        combined.set(iv);
+        combined.set(new Uint8Array(ciphertext), iv.length);
+        
+        return btoa(String.fromCharCode(...combined));
+    }
+
+    // Helper for decryption
+    async decrypt(encodedCombined) {
+        const key = await this.getEncryptionKey();
+        const combined = new Uint8Array(atob(encodedCombined).split("").map(c => c.charCodeAt(0)));
+        
+        const iv = combined.slice(0, 12);
+        const ciphertext = combined.slice(12);
+
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv },
+            key,
+            ciphertext
+        );
+
+        return new TextDecoder().decode(decrypted);
+    }
+
+    async getEncryptionKey() {
+        if (this.cachedKey) return this.cachedKey;
+        
+        // In a real app, this would be derived from user session or a hardware key.
+        // For this demo, we'll use a stable seed.
+        const seed = "royalties-secure-cache-salt";
+        const encoder = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+            "raw", 
+            encoder.encode(seed), 
+            { name: "PBKDF2" }, 
+            false, 
+            ["deriveKey"]
+        );
+
+        this.cachedKey = await crypto.subtle.deriveKey(
+            {
+                name: "PBKDF2",
+                salt: encoder.encode("static-salt"),
+                iterations: 100000,
+                hash: "SHA-256"
+            },
+            keyMaterial,
+            { name: "AES-GCM", length: 256 },
+            true,
+            ["encrypt", "decrypt"]
+        );
+        
+        return this.cachedKey;
+    }
+
+    /**
      * Get or set cache (convenience method)
      */
     async getOrSet(key, fetchFn, ttl = this.defaultTTL) {

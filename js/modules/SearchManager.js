@@ -90,14 +90,67 @@ export class SearchManager {
     }
 
     matchToken(token, resultsMap, weight) {
+        // Direct matches in index
         if (this.searchIndex.has(token)) {
             this.searchIndex.get(token).forEach(match => {
-                const key = `${match.type}_${match.id}`;
-                if (!resultsMap.has(key)) {
-                    resultsMap.set(key, { ...match, score: 0 });
-                }
-                resultsMap.get(key).score += weight;
+                this.updateScore(match, resultsMap, weight);
             });
         }
+
+        // Fuzzy matches (Levenshtein distance)
+        const FUZZY_THRESHOLD = 0.7; // Minimum similarity percentage
+        for (const [key, matches] of this.searchIndex.entries()) {
+            if (key === token) continue; // Already handled
+
+            const similarity = this.calculateSimilarity(token, key);
+            if (similarity >= FUZZY_THRESHOLD) {
+                matches.forEach(match => {
+                    this.updateScore(match, resultsMap, weight * similarity * 0.8);
+                });
+            }
+        }
+    }
+
+    updateScore(match, resultsMap, score) {
+        const key = `${match.type}_${match.id}`;
+        if (!resultsMap.has(key)) {
+            resultsMap.set(key, { ...match, score: 0 });
+        }
+        resultsMap.get(key).score += score;
+    }
+
+    calculateSimilarity(s1, s2) {
+        let longer = s1;
+        let shorter = s2;
+        if (s1.length < s2.length) {
+            longer = s2;
+            shorter = s1;
+        }
+        const longerLength = longer.length;
+        if (longerLength === 0) return 1.0;
+
+        const editDistance = this.levenshteinDistance(longer, shorter);
+        return (longerLength - editDistance) / longerLength;
+    }
+
+    levenshteinDistance(s1, s2) {
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let lastValue = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i === 0) {
+                    costs[j] = j;
+                } else if (j > 0) {
+                    let newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    }
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+            }
+            if (i > 0) costs[s2.length] = lastValue;
+        }
+        return costs[s2.length];
     }
 }

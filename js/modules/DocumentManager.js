@@ -119,49 +119,91 @@ export class DocumentManager {
 
     openModal() {
         this.elements.uploadDocumentForm.reset();
+        delete this.elements.uploadDocumentForm.dataset.versionOf;
+        const title = this.elements.uploadDocumentModal.querySelector("h4");
+        if (title) title.textContent = "Upload Document";
         this.elements.uploadDocumentModal.style.display = "block";
     }
 
     closeModal() {
         this.elements.uploadDocumentModal.style.display = "none";
         this.elements.uploadDocumentForm.reset();
+        delete this.elements.uploadDocumentForm.dataset.versionOf;
     }
 
     async handleFormSubmit(event) {
         event.preventDefault();
         const file = this.elements.documentFile.files[0];
         const category = this.elements.documentCategory.value;
+        const existingId = this.elements.uploadDocumentForm.dataset.versionOf;
 
         if (!file || !category) {
             showToast("Please select a file and a category.", "error");
             return;
         }
 
-        const docType = this.documentTypes.find(t => t.id === category || t.name === category);
-
         try {
-            const docData = {
-                id: `DOC-${Date.now()}`,
-                filename: security.sanitizeInput(file.name),
-                category: security.sanitizeInput(category),
-                uploadDate: new Date().toISOString(),
-                size: file.size,
-                type: file.type,
-                uploadedBy: authService.getCurrentUser()?.username || "admin",
-                status: docType?.requiresApproval ? 'Pending Review' : 'Active',
-                version: 1
-            };
-
-            await dbService.add("documents", docData);
-            await auditService.log('Document Uploaded', 'Data', { id: docData.id, name: docData.filename, category: docData.category });
+            if (existingId) {
+                await this.uploadNewVersion(existingId, file);
+            } else {
+                await this.uploadNewDocument(file, category);
+            }
 
             await this.refreshDocuments();
             this.closeModal();
-            showToast("Document uploaded successfully!", "success");
         } catch (error) {
-            logger.error("Error uploading document", error);
+            logger.error("Error handling document upload", error);
             showToast("Failed to upload document.", "error");
         }
+    }
+
+    async uploadNewDocument(file, category) {
+        const docType = this.documentTypes.find(t => t.id === category || t.name === category);
+        const docData = {
+            id: `DOC-${Date.now()}`,
+            filename: security.sanitizeInput(file.name),
+            category: security.sanitizeInput(category),
+            uploadDate: new Date().toISOString(),
+            size: file.size,
+            type: file.type,
+            uploadedBy: authService.getCurrentUser()?.username || "admin",
+            status: docType?.requiresApproval ? 'Pending Review' : 'Active',
+            version: 1,
+            history: []
+        };
+
+        await dbService.add("documents", docData);
+        await auditService.log('Document Uploaded', 'Data', { id: docData.id, name: docData.filename });
+        showToast("Document uploaded successfully!", "success");
+    }
+
+    async uploadNewVersion(docId, file) {
+        const doc = await dbService.getById("documents", docId);
+        if (!doc) throw new Error("Original document not found");
+
+        // Save current version to history
+        const versionEntry = {
+            version: doc.version,
+            filename: doc.filename,
+            uploadDate: doc.uploadDate,
+            uploadedBy: doc.uploadedBy,
+            size: doc.size
+        };
+
+        doc.history = doc.history || [];
+        doc.history.push(versionEntry);
+
+        // Update main entry with new file data
+        doc.version += 1;
+        doc.filename = security.sanitizeInput(file.name);
+        doc.uploadDate = new Date().toISOString();
+        doc.size = file.size;
+        doc.type = file.type;
+        doc.uploadedBy = authService.getCurrentUser()?.username || "admin";
+
+        await dbService.put("documents", doc);
+        await auditService.log('Document Version Updated', 'Data', { id: doc.id, newVersion: doc.version });
+        showToast(`Updated to version ${doc.version}!`, "success");
     }
 
     async refreshDocuments() {
@@ -195,22 +237,65 @@ export class DocumentManager {
         const fileSize = (doc.size / 1024).toFixed(2);
 
         row.innerHTML = `
-      <td><i class="fas fa-file-alt"></i> ${doc.filename}</td>
+      <td>
+        <div class="doc-title-cell">
+            <i class="fas fa-file-alt"></i> 
+            <span>${doc.filename}</span>
+            ${doc.version > 1 ? `<span class="version-badge">v${doc.version}</span>` : ''}
+        </div>
+      </td>
       <td>${doc.category}</td>
       <td>${doc.uploadedBy}</td>
       <td>${new Date(doc.uploadDate).toLocaleDateString()}</td>
       <td><span class="badge ${this.getStatusBadgeClass(doc.status)}">${doc.status || 'Active'}</span></td>
       <td>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-info download-btn" title="Download"><i class="fas fa-download"></i></button>
-          <button class="btn btn-sm btn-danger delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+        <div class="row-actions">
+          <button class="action-btn preview-btn" title="Preview"><i class="fas fa-eye"></i></button>
+          <button class="action-btn version-btn" title="Upload New Version"><i class="fas fa-history"></i></button>
+          <button class="action-btn download-btn" title="Download"><i class="fas fa-download"></i></button>
+          <button class="action-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     `;
 
+        row.querySelector(".preview-btn").addEventListener("click", () => this.handlePreviewDocument(doc.id));
+        row.querySelector(".version-btn").addEventListener("click", () => this.handleNewVersion(doc.id));
         row.querySelector(".download-btn").addEventListener("click", () => this.handleDownloadDocument(doc.id));
         row.querySelector(".delete-btn").addEventListener("click", () => this.handleDeleteDocument(doc.id));
         return row;
+    }
+
+    handleNewVersion(docId) {
+        const title = this.elements.uploadDocumentModal.querySelector("h4");
+        if (title) title.textContent = "Upload New Version";
+        this.elements.uploadDocumentForm.dataset.versionOf = docId;
+        this.elements.uploadDocumentModal.style.display = "block";
+    }
+
+    async handlePreviewDocument(docId) {
+        const doc = this.documents.find(d => d.id === docId);
+        if (!doc) return;
+
+        const previewModal = document.createElement("div");
+        previewModal.className = "preview-overlay blur-bg";
+        previewModal.innerHTML = `
+            <div class="preview-container glass">
+                <div class="preview-header">
+                    <h3>Preview: ${doc.filename}</h3>
+                    <button class="close-preview"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-placeholder">
+                        <i class="fas fa-file-pdf fa-4x"></i>
+                        <p>Document Preview is active for ${doc.category}</p>
+                        <p class="text-muted">Version ${doc.version} - ${ (doc.size/1024).toFixed(2) } KB</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(previewModal);
+        previewModal.querySelector(".close-preview").addEventListener("click", () => previewModal.remove());
     }
 
     getStatusBadgeClass(status) {
