@@ -46,10 +46,12 @@
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: translate(-50%, -50%) scale(1.2);
   }
+
   100% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
@@ -58,9 +60,16 @@
 
 .enhanced-kpi {
   position: relative;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid var(--border-color-light);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.enhanced-kpi:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-light);
 }
 
 .metric-main {
@@ -178,19 +187,24 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-  background-color: white;
-  margin: 5% auto;
+  background-color: var(--surface);
+  margin: 0;
   padding: 0;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-2xl);
-  width: 80%;
-  max-width: 600px;
-  animation: modalSlideIn 0.3s ease-out;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 90%;
+  max-width: 650px;
+  animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes modalSlideIn {
@@ -198,6 +212,7 @@
     opacity: 0;
     transform: translateY(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -359,30 +374,22 @@
   --shadow-success: 0 8px 32px rgba(56, 161, 105, 0.2);
   --shadow-warning: 0 8px 32px rgba(214, 158, 46, 0.2);
   --shadow-danger: 0 8px 32px rgba(229, 62, 62, 0.2);
-  --gradient-primary: linear-gradient(
-    135deg,
-    #1a365d 0%,
-    #2d5282 50%,
-    #3182ce 100%
-  );
-  --gradient-accent: linear-gradient(
-    135deg,
-    #d4af37 0%,
-    #e6c659 50%,
-    #f6e05e 100%
-  );
-  --gradient-card: linear-gradient(
-    145deg,
-    #ffffff 0%,
-    #f7fafc 50%,
-    #edf2f7 100%
-  );
+  --gradient-primary: linear-gradient(135deg,
+      #1a365d 0%,
+      #2d5282 50%,
+      #3182ce 100%);
+  --gradient-accent: linear-gradient(135deg,
+      #d4af37 0%,
+      #e6c659 50%,
+      #f6e05e 100%);
+  --gradient-card: linear-gradient(145deg,
+      #ffffff 0%,
+      #f7fafc 50%,
+      #edf2f7 100%);
   --gradient-corporate: linear-gradient(135deg, #1a365d 0%, #d4af37 100%);
-  --gradient-glass: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
+  --gradient-glass: linear-gradient(145deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.1) 100%);
   --gradient-success: linear-gradient(135deg, #38a169 0%, #68d391 100%);
   --gradient-warning: linear-gradient(135deg, #d69e2e 0%, #f6e05e 100%);
   --gradient-danger: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%);
@@ -427,7 +434,8 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: #f0f2f5; /* A typical dashboard background color */
+  background: #f0f2f5;
+  /* A typical dashboard background color */
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 14px;
@@ -501,7 +509,8 @@ body {
 
 .sidebar {
   width: 280px;
-  background: var(--neutral-800); /* Dark blue-grey */
+  background: var(--neutral-800);
+  /* Dark blue-grey */
   border-right: 1px solid var(--neutral-900);
   position: fixed;
   height: 100vh;
@@ -514,7 +523,7 @@ body {
   scrollbar-color: var(--neutral-600) var(--neutral-800);
 }
 
-.sidebar > * {
+.sidebar>* {
   position: relative;
   z-index: 1;
 }
@@ -635,7 +644,8 @@ nav ul li a.active {
 
 nav ul li a i {
   font-size: 1.1rem;
-  width: 20px; /* Align icons */
+  width: 20px;
+  /* Align icons */
   text-align: center;
 }
 
@@ -699,22 +709,27 @@ nav ul li a span.notification-badge {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
 @keyframes mesh-float {
+
   0%,
   100% {
     transform: translateY(0px) skew(0deg);
   }
+
   33% {
     transform: translateY(-20px) skew(5deg);
   }
+
   66% {
     transform: translateY(10px) skew(-5deg);
   }
@@ -744,6 +759,7 @@ nav ul li a span.notification-badge {
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -796,17 +812,20 @@ nav ul li a span.notification-badge {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     transform: scale(1);
     box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
   }
+
   50% {
     transform: scale(1.1);
     box-shadow: 0 0 50px rgba(212, 175, 55, 0.8);
@@ -814,11 +833,13 @@ nav ul li a span.notification-badge {
 }
 
 @keyframes inner-pulse {
+
   0%,
   100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
+
   50% {
     transform: translate(-50%, -50%) scale(1.5);
     opacity: 0.7;
@@ -860,20 +881,20 @@ nav ul li a span.notification-badge {
   left: 10%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(
-    circle,
-    rgba(212, 175, 55, 0.1) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      rgba(212, 175, 55, 0.1) 0%,
+      transparent 70%);
   border-radius: 50%;
   animation: float-1 6s ease-in-out infinite;
 }
 
 @keyframes float-1 {
+
   0%,
   100% {
     transform: translateY(0px) translateX(0px);
   }
+
   50% {
     transform: translateY(-20px) translateX(10px);
   }
@@ -900,6 +921,7 @@ nav ul li a span.notification-badge {
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -911,6 +933,7 @@ nav ul li a span.notification-badge {
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -929,7 +952,7 @@ nav ul li a span.notification-badge {
   pointer-events: none;
 }
 
-.login-container > * {
+.login-container>* {
   position: relative;
   z-index: 1;
 }
@@ -959,10 +982,12 @@ nav ul li a span.notification-badge {
 }
 
 @keyframes logo-float {
+
   0%,
   100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   50% {
     transform: translateY(-10px) rotate(3deg);
   }
@@ -975,12 +1000,10 @@ nav ul li a span.notification-badge {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.2) 50%,
-    transparent 70%
-  );
+  background: linear-gradient(45deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 70%);
   animation: shine 3s infinite;
 }
 
@@ -988,6 +1011,7 @@ nav ul li a span.notification-badge {
   0% {
     transform: rotate(45deg) translateX(-100%);
   }
+
   100% {
     transform: rotate(45deg) translateX(100%);
   }
@@ -1079,7 +1103,7 @@ nav ul li a span.notification-badge {
   transform: translateY(-2px);
 }
 
-.login-form input:focus + i,
+.login-form input:focus+i,
 .login-form .input-group:focus-within i {
   color: var(--primary-color);
   transform: translateY(-50%) scale(1.1);
@@ -1187,19 +1211,23 @@ nav ul li a span.notification-badge {
 /* Page Header */
 .page-header {
   background: transparent;
-  padding: 0 0 1.5rem 0; /* Remove side padding, reduce bottom padding */
+  padding: 0 0 1.5rem 0;
+  /* Remove side padding, reduce bottom padding */
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
-  border-bottom: 1px solid var(--border-color); /* Add a simple bottom border */
+  border-bottom: 1px solid var(--border-color);
+  /* Add a simple bottom border */
 }
 
 .page-title h1 {
-  font-size: 1.75rem; /* Slightly smaller */
-  font-weight: var(--font-weight-semibold); /* Less bold */
+  font-size: 1.75rem;
+  /* Slightly smaller */
+  font-weight: var(--font-weight-semibold);
+  /* Less bold */
   color: var(--text-primary);
 }
 
@@ -1223,14 +1251,18 @@ nav ul li a span.notification-badge {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem; /* Slightly reduced padding for better proportion */
-  min-height: 2.5rem; /* Ensure consistent height */
-  min-width: 2.5rem; /* Minimum width for icon-only buttons */
+  padding: 0.625rem 1.25rem;
+  /* Slightly reduced padding for better proportion */
+  min-height: 2.5rem;
+  /* Ensure consistent height */
+  min-width: 2.5rem;
+  /* Minimum width for icon-only buttons */
   border: 2px solid transparent;
   border-radius: var(--border-radius);
   font-weight: var(--font-weight-semibold);
   font-size: 0.875rem;
-  line-height: 1.25; /* Better line height for text alignment */
+  line-height: 1.25;
+  /* Better line height for text alignment */
   cursor: pointer;
   transition: var(--transition);
   text-decoration: none;
@@ -1250,12 +1282,10 @@ nav ul li a span.notification-badge {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transition: left 0.5s ease;
 }
 
@@ -1436,6 +1466,7 @@ nav ul li a span.notification-badge {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -1460,7 +1491,8 @@ nav ul li a span.notification-badge {
   display: flex;
   flex-direction: column;
   transition: var(--transition);
-  overflow: hidden; /* Ensures child elements respect border radius */
+  overflow: hidden;
+  /* Ensures child elements respect border radius */
 }
 
 .card:hover {
@@ -1864,11 +1896,9 @@ nav ul li a span.notification-badge {
 .password-strength-meter {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--neutral-50) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-50) 0%,
+      var(--background-white) 100%);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
 }
@@ -1889,12 +1919,10 @@ nav ul li a span.notification-badge {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    var(--danger-color) 0%,
-    var(--warning-color) 50%,
-    var(--success-color) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--danger-color) 0%,
+      var(--warning-color) 50%,
+      var(--success-color) 100%);
   opacity: 0.3;
 }
 
@@ -1937,11 +1965,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table th {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color) 0%,
-    var(--primary-dark) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-color) 0%,
+      var(--primary-dark) 100%);
   color: var(--text-inverse);
   font-weight: 600;
   text-transform: uppercase;
@@ -1959,11 +1985,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table th[sortable]:hover {
-  background: linear-gradient(
-    135deg,
-    var(--primary-dark) 0%,
-    var(--primary-color) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-dark) 0%,
+      var(--primary-color) 100%);
 }
 
 .data-table th[sortable] i {
@@ -1994,11 +2018,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table tbody tr:hover {
-  background: linear-gradient(
-    135deg,
-    var(--neutral-100) 0%,
-    var(--background-light) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-100) 0%,
+      var(--background-light) 100%);
   transform: translateX(2px);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
 }
@@ -2008,11 +2030,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table tbody tr:nth-child(even):hover {
-  background: linear-gradient(
-    135deg,
-    var(--neutral-100) 0%,
-    var(--background-light) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-100) 0%,
+      var(--background-light) 100%);
 }
 
 .data-table td {
@@ -2043,12 +2063,10 @@ nav ul li a span.notification-badge {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -2057,33 +2075,27 @@ nav ul li a span.notification-badge {
 }
 
 .status-badge.active {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 2px solid rgba(16, 185, 129, 0.3);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .status-badge.inactive {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 2px solid rgba(107, 114, 128, 0.3);
 }
 
 .status-badge.locked,
 .status-badge.expired {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 2px solid rgba(239, 68, 68, 0.3);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
@@ -2091,11 +2103,9 @@ nav ul li a span.notification-badge {
 
 .status-badge.warning,
 .status-badge.pending {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 2px solid rgba(245, 158, 11, 0.3);
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
@@ -2229,22 +2239,18 @@ nav ul li a span.notification-badge {
 .form-group select.field-valid {
   border-color: var(--success-color);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 .form-group input.field-invalid,
 .form-group select.field-invalid {
   border-color: var(--danger-color);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 /* Loading State for Buttons */
@@ -2273,11 +2279,9 @@ nav ul li a span.notification-badge {
 .password-strength-meter {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--neutral-50) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-50) 0%,
+      var(--background-white) 100%);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
 }
@@ -2298,12 +2302,10 @@ nav ul li a span.notification-badge {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    var(--danger-color) 0%,
-    var(--warning-color) 50%,
-    var(--success-color) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--danger-color) 0%,
+      var(--warning-color) 50%,
+      var(--success-color) 100%);
   opacity: 0.3;
 }
 
@@ -2454,12 +2456,10 @@ nav ul li a span.notification-badge {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -2471,33 +2471,27 @@ nav ul li a span.notification-badge {
 
 /* Status Badge Variants */
 .status-badge.active {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .status-badge.inactive {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .status-badge.locked,
 .status-badge.expired {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
@@ -2505,11 +2499,9 @@ nav ul li a span.notification-badge {
 
 .status-badge.warning,
 .status-badge.pending {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
@@ -2517,51 +2509,41 @@ nav ul li a span.notification-badge {
 
 /* Role Badge Variants */
 .role-badge.administrator {
-  background: linear-gradient(
-    135deg,
-    rgba(147, 51, 234, 0.2) 0%,
-    rgba(147, 51, 234, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(147, 51, 234, 0.2) 0%,
+      rgba(147, 51, 234, 0.1) 100%);
   color: #7c3aed;
   border: 1px solid rgba(147, 51, 234, 0.3);
 }
 
 .role-badge.editor {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.2) 0%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.2) 0%,
+      rgba(59, 130, 246, 0.1) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .role-badge.viewer {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .role-badge.auditor {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .role-badge.finance {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
@@ -2569,53 +2551,43 @@ nav ul li a span.notification-badge {
 /* Action Badge Variants */
 .action-badge.login,
 .action-badge.logout {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    rgba(59, 130, 246, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(59, 130, 246, 0.05) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .action-badge.create-user,
 .action-badge.modify-user {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.1) 0%,
-    rgba(16, 185, 129, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.1) 0%,
+      rgba(16, 185, 129, 0.05) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .action-badge.delete-user {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.1) 0%,
-    rgba(239, 68, 68, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.1) 0%,
+      rgba(239, 68, 68, 0.05) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .action-badge.failed-login {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.4);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 .action-badge.data-access {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.1) 0%,
-    rgba(107, 114, 128, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.1) 0%,
+      rgba(107, 114, 128, 0.05) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
@@ -2629,11 +2601,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table th[sortable]:hover {
-  background: linear-gradient(
-    135deg,
-    var(--primary-dark) 0%,
-    var(--primary-color) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-dark) 0%,
+      var(--primary-color) 100%);
 }
 
 .data-table th[sortable] i {
@@ -2786,22 +2756,18 @@ nav ul li a span.notification-badge {
 .form-group select.field-valid {
   border-color: var(--success-color);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 .form-group input.field-invalid,
 .form-group select.field-invalid {
   border-color: var(--danger-color);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 /* Loading State for Buttons */
@@ -2830,11 +2796,9 @@ nav ul li a span.notification-badge {
 .password-strength-meter {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--neutral-50) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-50) 0%,
+      var(--background-white) 100%);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
 }
@@ -2855,12 +2819,10 @@ nav ul li a span.notification-badge {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    var(--danger-color) 0%,
-    var(--warning-color) 50%,
-    var(--success-color) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--danger-color) 0%,
+      var(--warning-color) 50%,
+      var(--success-color) 100%);
   opacity: 0.3;
 }
 
@@ -3011,12 +2973,10 @@ nav ul li a span.notification-badge {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -3028,33 +2988,27 @@ nav ul li a span.notification-badge {
 
 /* Status Badge Variants */
 .status-badge.active {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .status-badge.inactive {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .status-badge.locked,
 .status-badge.expired {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
@@ -3062,11 +3016,9 @@ nav ul li a span.notification-badge {
 
 .status-badge.warning,
 .status-badge.pending {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
@@ -3074,51 +3026,41 @@ nav ul li a span.notification-badge {
 
 /* Role Badge Variants */
 .role-badge.administrator {
-  background: linear-gradient(
-    135deg,
-    rgba(147, 51, 234, 0.2) 0%,
-    rgba(147, 51, 234, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(147, 51, 234, 0.2) 0%,
+      rgba(147, 51, 234, 0.1) 100%);
   color: #7c3aed;
   border: 1px solid rgba(147, 51, 234, 0.3);
 }
 
 .role-badge.editor {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.2) 0%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.2) 0%,
+      rgba(59, 130, 246, 0.1) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .role-badge.viewer {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .role-badge.auditor {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .role-badge.finance {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
@@ -3126,53 +3068,43 @@ nav ul li a span.notification-badge {
 /* Action Badge Variants */
 .action-badge.login,
 .action-badge.logout {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    rgba(59, 130, 246, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(59, 130, 246, 0.05) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .action-badge.create-user,
 .action-badge.modify-user {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.1) 0%,
-    rgba(16, 185, 129, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.1) 0%,
+      rgba(16, 185, 129, 0.05) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .action-badge.delete-user {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.1) 0%,
-    rgba(239, 68, 68, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.1) 0%,
+      rgba(239, 68, 68, 0.05) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .action-badge.failed-login {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.4);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 .action-badge.data-access {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.1) 0%,
-    rgba(107, 114, 128, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.1) 0%,
+      rgba(107, 114, 128, 0.05) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
@@ -3186,11 +3118,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table th[sortable]:hover {
-  background: linear-gradient(
-    135deg,
-    var(--primary-dark) 0%,
-    var(--primary-color) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-dark) 0%,
+      var(--primary-color) 100%);
 }
 
 .data-table th[sortable] i {
@@ -3343,22 +3273,18 @@ nav ul li a span.notification-badge {
 .form-group select.field-valid {
   border-color: var(--success-color);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 .form-group input.field-invalid,
 .form-group select.field-invalid {
   border-color: var(--danger-color);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 /* Loading State for Buttons */
@@ -3387,11 +3313,9 @@ nav ul li a span.notification-badge {
 .password-strength-meter {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--neutral-50) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-50) 0%,
+      var(--background-white) 100%);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
 }
@@ -3412,12 +3336,10 @@ nav ul li a span.notification-badge {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    var(--danger-color) 0%,
-    var(--warning-color) 50%,
-    var(--success-color) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--danger-color) 0%,
+      var(--warning-color) 50%,
+      var(--success-color) 100%);
   opacity: 0.3;
 }
 
@@ -3568,12 +3490,10 @@ nav ul li a span.notification-badge {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -3585,33 +3505,27 @@ nav ul li a span.notification-badge {
 
 /* Status Badge Variants */
 .status-badge.active {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 .status-badge.inactive {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .status-badge.locked,
 .status-badge.expired {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
@@ -3619,11 +3533,9 @@ nav ul li a span.notification-badge {
 
 .status-badge.warning,
 .status-badge.pending {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
@@ -3631,51 +3543,41 @@ nav ul li a span.notification-badge {
 
 /* Role Badge Variants */
 .role-badge.administrator {
-  background: linear-gradient(
-    135deg,
-    rgba(147, 51, 234, 0.2) 0%,
-    rgba(147, 51, 234, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(147, 51, 234, 0.2) 0%,
+      rgba(147, 51, 234, 0.1) 100%);
   color: #7c3aed;
   border: 1px solid rgba(147, 51, 234, 0.3);
 }
 
 .role-badge.editor {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.2) 0%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.2) 0%,
+      rgba(59, 130, 246, 0.1) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .role-badge.viewer {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.2) 0%,
-    rgba(107, 114, 128, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.2) 0%,
+      rgba(107, 114, 128, 0.1) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
 .role-badge.auditor {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
   color: var(--warning-color);
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .role-badge.finance {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(16, 185, 129, 0.1) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
@@ -3683,53 +3585,43 @@ nav ul li a span.notification-badge {
 /* Action Badge Variants */
 .action-badge.login,
 .action-badge.logout {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    rgba(59, 130, 246, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(59, 130, 246, 0.05) 100%);
   color: var(--info-color);
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .action-badge.create-user,
 .action-badge.modify-user {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.1) 0%,
-    rgba(16, 185, 129, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.1) 0%,
+      rgba(16, 185, 129, 0.05) 100%);
   color: var(--success-color);
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .action-badge.delete-user {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.1) 0%,
-    rgba(239, 68, 68, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.1) 0%,
+      rgba(239, 68, 68, 0.05) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .action-badge.failed-login {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2) 0%,
-    rgba(239, 68, 68, 0.1) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.2) 0%,
+      rgba(239, 68, 68, 0.1) 100%);
   color: var(--danger-color);
   border: 1px solid rgba(239, 68, 68, 0.4);
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 .action-badge.data-access {
-  background: linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.1) 0%,
-    rgba(107, 114, 128, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(107, 114, 128, 0.1) 0%,
+      rgba(107, 114, 128, 0.05) 100%);
   color: var(--neutral-600);
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
@@ -3743,11 +3635,9 @@ nav ul li a span.notification-badge {
 }
 
 .data-table th[sortable]:hover {
-  background: linear-gradient(
-    135deg,
-    var(--primary-dark) 0%,
-    var(--primary-color) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary-dark) 0%,
+      var(--primary-color) 100%);
 }
 
 .data-table th[sortable] i {
@@ -3900,22 +3790,18 @@ nav ul li a span.notification-badge {
 .form-group select.field-valid {
   border-color: var(--success-color);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 .form-group input.field-invalid,
 .form-group select.field-invalid {
   border-color: var(--danger-color);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.02) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(239, 68, 68, 0.02) 0%,
+      var(--background-white) 100%);
 }
 
 /* Loading State for Buttons */
@@ -3944,11 +3830,9 @@ nav ul li a span.notification-badge {
 .password-strength-meter {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--neutral-50) 0%,
-    var(--background-white) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--neutral-50) 0%,
+      var(--background-white) 100%);
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
 }
@@ -3969,12 +3853,10 @@ nav ul li a span.notification-badge {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    var(--danger-color) 0%,
-    var(--warning-color) 50%,
-    var(--success-color) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--danger-color) 0%,
+      var(--warning-color) 50%,
+      var(--success-color) 100%);
   opacity: 0.3;
 }
 
@@ -4009,6 +3891,7 @@ nav ul li a span.notification-badge {
   font-weight: 600;
   text-align: center;
 }
+
 /* ===== SEMANTIC SEARCH STYLES ===== */
 /* Removed empty #semantic-search ruleset */
 
@@ -4052,7 +3935,8 @@ nav ul li a span.notification-badge {
   padding: 0.5rem 0.75rem;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
-  min-height: 42px; /* Consistent height */
+  min-height: 42px;
+  /* Consistent height */
 }
 
 .search-input-box:focus-within {
@@ -4063,14 +3947,16 @@ nav ul li a span.notification-badge {
 .search-input-box i {
   color: var(--text-muted);
   margin-right: 0.75rem;
-  font-size: 0.9rem; /* Smaller, more proportional icon */
+  font-size: 0.9rem;
+  /* Smaller, more proportional icon */
 }
 
 .search-input-box input {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 0.9rem; /* Consistent with form inputs */
+  font-size: 0.9rem;
+  /* Consistent with form inputs */
   color: var(--text-primary);
   background: transparent;
   line-height: 1.4;
@@ -4083,10 +3969,12 @@ nav ul li a span.notification-badge {
 
 .search-input-box .btn {
   margin-left: 0.5rem;
-  padding: 0.375rem 0.75rem; /* Smaller button padding */
+  padding: 0.375rem 0.75rem;
+  /* Smaller button padding */
   font-size: 0.875rem;
   min-height: auto;
-  height: 32px; /* Fixed button height */
+  height: 32px;
+  /* Fixed button height */
 }
 
 .search-filters {
@@ -4107,10 +3995,12 @@ nav ul li a span.notification-badge {
 
 .filter-group label {
   display: block;
-  font-weight: 500; /* Less bold */
+  font-weight: 500;
+  /* Less bold */
   color: var(--text-primary);
   margin-bottom: 0.5rem;
-  font-size: 0.875rem; /* Consistent label size */
+  font-size: 0.875rem;
+  /* Consistent label size */
 }
 
 .filter-checkboxes {
@@ -4123,8 +4013,10 @@ nav ul li a span.notification-badge {
 .filter-checkboxes label {
   display: flex;
   align-items: center;
-  font-weight: 400; /* Normal weight for checkbox labels */
-  font-size: 0.85rem; /* Smaller checkbox labels */
+  font-weight: 400;
+  /* Normal weight for checkbox labels */
+  font-size: 0.85rem;
+  /* Smaller checkbox labels */
   margin-bottom: 0.25rem;
   cursor: pointer;
   color: var(--text-secondary);
@@ -4143,8 +4035,10 @@ nav ul li a span.notification-badge {
   border-radius: var(--border-radius-sm);
   background: var(--background-white);
   color: var(--text-primary);
-  font-size: 0.875rem; /* Consistent select size */
-  height: 38px; /* Fixed select height */
+  font-size: 0.875rem;
+  /* Consistent select size */
+  height: 38px;
+  /* Fixed select height */
 }
 
 .search-actions {
@@ -4155,9 +4049,11 @@ nav ul li a span.notification-badge {
 }
 
 .search-actions .btn {
-  padding: 0.375rem 0.75rem; /* Consistent button padding */
+  padding: 0.375rem 0.75rem;
+  /* Consistent button padding */
   font-size: 0.875rem;
-  height: 36px; /* Fixed action button height */
+  height: 36px;
+  /* Fixed action button height */
   min-width: 80px;
 }
 
@@ -4178,14 +4074,16 @@ nav ul li a span.notification-badge {
 .results-header h3 {
   margin: 0 0 0.25rem 0;
   color: var(--text-primary);
-  font-size: 1.125rem; /* Smaller results title */
+  font-size: 1.125rem;
+  /* Smaller results title */
   font-weight: 600;
 }
 
 .results-header p {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.85rem; /* Smaller summary text */
+  font-size: 0.85rem;
+  /* Smaller summary text */
 }
 
 /* Results will be populated dynamically */
@@ -4201,13 +4099,15 @@ nav ul li a span.notification-badge {
 }
 
 .results-list .card h5 {
-  font-size: 1rem; /* Smaller result titles */
+  font-size: 1rem;
+  /* Smaller result titles */
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .results-list .card p {
-  font-size: 0.875rem; /* Consistent description text */
+  font-size: 0.875rem;
+  /* Consistent description text */
   line-height: 1.4;
   margin-bottom: 0.75rem;
 }
@@ -4235,7 +4135,8 @@ nav ul li a span.notification-badge {
 }
 
 .no-results i {
-  font-size: 2.5rem; /* Smaller no-results icon */
+  font-size: 2.5rem;
+  /* Smaller no-results icon */
   margin-bottom: 1rem;
   color: var(--neutral-400);
 }
@@ -4243,7 +4144,8 @@ nav ul li a span.notification-badge {
 .no-results h4 {
   margin: 0 0 0.5rem 0;
   color: var(--text-secondary);
-  font-size: 1.125rem; /* Consistent heading size */
+  font-size: 1.125rem;
+  /* Consistent heading size */
   font-weight: 500;
 }
 
@@ -4256,7 +4158,8 @@ nav ul li a span.notification-badge {
 #semantic-search .page-actions .btn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  height: 38px; /* Consistent page action button height */
+  height: 38px;
+  /* Consistent page action button height */
 }
 
 /* Responsive adjustments */
@@ -4298,15 +4201,22 @@ nav ul li a span.notification-badge {
 /* =================================== */
 
 .modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1050; /* Sit on top */
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 1050;
+  /* Sit on top */
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  overflow: auto;
+  /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Black w/ opacity */
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -4314,6 +4224,7 @@ nav ul li a span.notification-badge {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -4321,7 +4232,8 @@ nav ul li a span.notification-badge {
 
 .modal-content {
   background-color: #fefefe;
-  margin: 10% auto; /* 10% from the top and centered */
+  margin: 10% auto;
+  /* 10% from the top and centered */
   padding: 2rem;
   border: 1px solid #888;
   width: 80%;
@@ -4337,6 +4249,7 @@ nav ul li a span.notification-badge {
     transform: translateY(-50px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -4416,7 +4329,8 @@ nav ul li a span.notification-badge {
 }
 
 .filter-actions .form-group label {
-  display: none; /* The label is just for spacing, hide it */
+  display: none;
+  /* The label is just for spacing, hide it */
 }
 
 .filter-actions .form-group .btn {
@@ -4475,6 +4389,6 @@ nav ul li a span.notification-badge {
 
 /* Make table action buttons permanently visible */
 .data-table .btn-group {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }

@@ -64,6 +64,17 @@
 
     /* Transitions */
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Legacy Aliases for Harmony */
+    --primary-color: var(--primary);
+    --secondary-color: var(--secondary);
+    --success-color: var(--status-success);
+    --warning-color: var(--status-warning);
+    --danger-color: var(--status-error);
+    --info-color: var(--status-info);
+    --bg-light: var(--surface-muted);
+    --border-color: var(--border);
+    --border-color-light: var(--border);
 }
 
 /* Global Corporate Reset */
@@ -86,19 +97,41 @@ h6 {
     letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Utilities */
 .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
 .glass-dark {
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.bg-pattern {
+    background-color: #f8fafc;
+    background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+}
+
+.premium-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.premium-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-light);
+    transform: translateY(-2px);
 }
 
 /* Login Screen Modernization */
@@ -199,21 +232,53 @@ h6 {
 }
 
 /* Sidebar Branding */
+.sidebar {
+    background: var(--primary) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
 .sidebar-header {
     padding: var(--space-xl) var(--space-lg) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
 }
 
 .sidebar-logo {
-    background: var(--accent) !important;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
     color: var(--primary) !important;
     border: none !important;
+    box-shadow: 0 0 20px rgba(181, 148, 16, 0.3);
 }
 
 .sidebar-header h2 {
     color: white !important;
     font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
+}
+
+.sidebar-nav a {
+    padding: 0.875rem 1.5rem !important;
+    color: var(--secondary) !important;
+    border-left: 3px solid transparent !important;
     font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+.sidebar-nav a:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-inverse) !important;
+}
+
+.sidebar-nav a.active {
+    background: rgba(181, 148, 16, 0.1) !important;
+    color: var(--accent-light) !important;
+    border-left-color: var(--accent) !important;
 }
 
 /* KPI Adjustments */
