@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- CSP aligned with the hardened policy in royalties.html (no 'unsafe-eval'). -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; base-uri 'self'; form-action 'self';" />
+
     <title>Test Enhanced User Management</title>
     <link rel="stylesheet" href="royalties.css" />
     <link rel="stylesheet" href="css/user-management-enhanced.css" />

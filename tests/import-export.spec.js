@@ -34,11 +34,52 @@ test.describe("Royalty Record Import/Export", () => {
     await page.reload();
     await page.waitForSelector("#login-form", { state: "visible" });
     await page.fill("#username", "admin");
-    await page.fill("#password", "demo123");
+    await page.fill("#password", "admin123");
     await page.click('button[type="submit"]');
     await page.waitForSelector("#app-container", { state: "visible" });
     await page.click('a[href="#royalty-records"]');
     await page.waitForSelector("#royalty-records-tbody", { state: "visible" });
+
+    // Seed royalty records through the app's own IndexedDB store so the
+    // export test has data and the import count math is stable (fresh DBs
+    // are honestly empty — see APPLICATION_REVIEW.md §8).
+    await page.evaluate(async () => {
+      const db = await new Promise((resolve, reject) => {
+        const req = indexedDB.open("RoyaltiesDB");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      const store = db
+        .transaction("royalties", "readwrite")
+        .objectStore("royalties");
+      store.put({
+        id: "SEED-R-1",
+        entity: "Maloma Colliery",
+        mineral: "Coal",
+        volume: 1000,
+        tariff: 12.5,
+        royaltyPayment: 12500,
+        paymentDate: "2025-07-15",
+        status: "Paid",
+      });
+      store.put({
+        id: "SEED-R-2",
+        entity: "Mhlume Sugar Estates",
+        mineral: "Sugar",
+        volume: 2000,
+        tariff: 8,
+        royaltyPayment: 16000,
+        paymentDate: "2025-07-20",
+        status: "Pending",
+      });
+      await new Promise((resolve) => {
+        store.transaction.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+      });
+      await window.app.royaltyRecords.renderRecords();
+    });
   });
 
   test("should export royalty records to an Excel file", async ({ page }) => {
@@ -81,9 +122,8 @@ test.describe("Royalty Record Import/Export", () => {
 
   test.afterEach(async ({ page }) => {
     await page.evaluate(() => {
-      if (window.app && window.app.leaseManagement) {
-        window.app.leaseManagement.stopMonitoring();
-      }
+      // Updated for D1 fix: the property is leaseManager (was leaseManagement).
+      window.app?.leaseManager?.stopMonitoring?.();
     });
   });
 
@@ -94,3 +134,4 @@ test.describe("Royalty Record Import/Export", () => {
     }
   });
 });
+

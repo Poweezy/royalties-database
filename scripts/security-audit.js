@@ -8,11 +8,10 @@
  * - Insecure configurations
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import pkg from 'glob';
-const { glob } = pkg;
+// D3: dependency-free file discovery (glob is not installed)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -119,18 +118,16 @@ function getLineNumber(content, match) {
 async function runAudit() {
   console.log('🔍 Running security audit...\n');
 
-  // Get all JavaScript and HTML files
-  const jsFiles = pkg.sync('**/*.{js,html}', {
-    cwd: rootDir,
-    ignore: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      'coverage/**',
-      '*.min.js',
-      'vendor/**',
-      '.git/**',
-    ],
+  // Get all JavaScript and HTML files (dependency-free, D3)
+  const ignoredDirs = ['node_modules', 'dist', 'build', 'coverage', 'vendor', '.git'];
+  const allFiles = readdirSync(rootDir, { recursive: true });
+  const jsFiles = allFiles.filter((file) => {
+    const normalized = file.replace(/\\/g, '/');
+    if (!/\.(js|html)$/.test(normalized) || /\.min\.js$/.test(normalized)) {
+      return false;
+    }
+    const topDir = normalized.split('/')[0];
+    return !ignoredDirs.includes(topDir);
   });
 
   for (const file of jsFiles) {

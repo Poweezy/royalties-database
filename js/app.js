@@ -21,6 +21,7 @@ import { NavigationManager } from "./modules/NavigationManager.js";
 import { notificationManager, showToast } from "./modules/NotificationManager.js";
 import { UserManager } from "./modules/UserManager.js";
 import { ErrorHandler } from "./utils/error-handler.js";
+import { security } from "./utils/security.js";
 import { logger } from "./utils/logger.js";
 import { config } from "./utils/config.js";
 import { EnhancedRoyaltyCalculator } from "./modules/enhanced-royalty-calculator.js";
@@ -133,7 +134,14 @@ class App {
     this.contractManager = new ContractManager();
     this.reporting = Reporting;
     this.royaltyRecords = RoyaltyRecords;
-    this.gisDashboard = new GisDashboard(this.state.contracts);
+    // Critical fix: a missing/failing CDN dependency (e.g. Leaflet blocked by
+    // CSP or offline) must not kill the entire app boot — degrade gracefully.
+    try {
+      this.gisDashboard = new GisDashboard(this.state.contracts);
+    } catch (error) {
+      logger.error('GisDashboard unavailable — GIS features disabled', error);
+      this.gisDashboard = null;
+    }
     this.auditLogManager = null; // Will be initialized on auth state
 
     // Initialize app
@@ -269,9 +277,10 @@ class App {
       this.errorHandler.handleError(error);
       const loadingContent = document.querySelector(".loading-content");
       if (loadingContent) {
+        // H1: escape dynamic error messages before rendering
         loadingContent.innerHTML = `
                     <p style="color: white; font-weight: bold;">Application failed to start.</p>
-                    <p style="color: white;">Error: ${error.message || 'Unknown error'}</p>
+                    <p style="color: white;">Error: ${security.escapeHtml(error.message || "Unknown error")}</p>
                     <p style="color: white;">Please try refreshing the page.</p>
                 `;
       }
@@ -312,17 +321,19 @@ class App {
       await this.initializeDashboard();
 
       // Initialize Lease Management (with error handling)
+      // D1: fixed property names — this.leaseManagement/leaseManagementUI did
+      // not exist, so Lease Management never initialized.
       try {
-        await this.leaseManagement.init();
-        leaseManagementUI.init();
+        await this.leaseManager.init();
       } catch (error) {
         logger.warn('Lease Management initialization failed', error);
       }
 
       // Initialize Contract Management (with error handling)
+      // D1: fixed property names — this.contractManagement/contractManagementUI
+      // did not exist, so Contract Management never initialized.
       try {
-        await this.contractManagement.init();
-        contractManagementUI.init();
+        await this.contractManager.init();
       } catch (error) {
         logger.warn('Contract Management initialization failed', error);
       }
@@ -919,6 +930,13 @@ class App {
       this.userManager.exportUsers();
     });
 
+    // U2: the header "Export Report" button was a dead end; wire it to the
+    // same real export flow as #export-users.
+    const exportReportBtn = document.getElementById("export-report-btn");
+    exportReportBtn?.addEventListener("click", () => {
+      this.userManager.exportUsers();
+    });
+
     // --- Table Action Listeners ---
     const refreshBtn = document.getElementById("refresh-users");
     refreshBtn?.addEventListener("click", () => this.userManager.renderUsers());
@@ -1458,7 +1476,12 @@ class App {
     }
 
     if (route === "gis-dashboard") {
-      this.gisDashboard.init();
+      // Guard: GIS dashboard may be null if its dependencies failed to load.
+      if (this.gisDashboard) {
+        this.gisDashboard.init();
+      } else {
+        logger.warn('GIS dashboard unavailable (dependency failed to load)');
+      }
     }
 
     if (route === "communication") {
@@ -1770,39 +1793,70 @@ class App {
     clearTimeout(this.idleWarningTimeout);
     clearTimeout(this.idleLogoutTimeout);
 
+    // U1/D4: idle window is now configurable (config.auth.idleTimeout,
+    // env-overridable) instead of a hard-coded 40s warning / 50s logout.
+    // authService.logout() reloads the page, returning the user to the login
+    // screen, so no extra routing is needed here.
+    const idleTimeoutMs =
+      Number(window.appConfig?.auth?.idleTimeout) || 15 * 60 * 1000;
+    const warningLeadTimeMs = 60 * 1000; // Warn 1 minute before logout
+    const idleWarningDelay = Math.max(
+      idleTimeoutMs - warningLeadTimeMs,
+      30 * 1000,
+    );
+
     this.idleWarningTimeout = setTimeout(() => {
       this.notificationManager.warning(
-        "You have been idle for a while. You will be logged out in 10 seconds.",
-        10000,
+        "You have been idle. For your security, you will be logged out in 1 minute.",
+        warningLeadTimeMs,
       );
       this.idleLogoutTimeout = setTimeout(() => {
         authService.logout();
-      }, 10000);
-    }, 40000);
+      }, warningLeadTimeMs);
+    }, idleWarningDelay);
   }
 
   #setupGlobalActionListeners() {
+    // U2: unimplemented actions are disabled up front (with a tooltip) instead
+    // of remaining clickable dead ends. Implemented actions (#refresh-dashboard,
+    // handled by ChartManager, and #export-report-btn, wired below) are not
+    // blocked.
+    const unimplementedActions = [
+      "#view-audit-btn",
+      "#add-royalty-record",
+      "#compliance-details",
+      "#notifications-btn",
+      "#audit-dashboard .btn-primary",
+      "#reporting-analytics .page-actions .btn",
+    ];
+
+    const disableUnimplemented = () => {
+      unimplementedActions.forEach((selector) => {
+        document.querySelectorAll(selector).forEach((btn) => {
+          if (btn.disabled) {
+            return;
+          }
+          btn.disabled = true;
+          btn.setAttribute("aria-disabled", "true");
+          btn.title = "Coming soon — this feature is not yet implemented";
+        });
+      });
+    };
+    disableUnimplemented();
+
     document.body.addEventListener("click", (e) => {
       const target = e.target.closest(".btn");
       if (!target) {
         return;
       }
 
-      const unimplementedActions = [
-        "#export-report-btn",
-        "#view-audit-btn",
-        "#add-royalty-record",
-        "#compliance-details",
-        "#notifications-btn",
-        "#refresh-dashboard",
-        "#audit-dashboard .btn-primary",
-        "#reporting-analytics .page-actions .btn",
-      ];
-
+      // Safety net: if an unimplemented button was clicked before the
+      // up-front disable ran, disable it now and explain why.
       if (unimplementedActions.some((selector) => target.matches(selector))) {
         e.preventDefault();
+        disableUnimplemented();
         this.notificationManager.show(
-          "This feature is not yet implemented.",
+          "This feature is not yet implemented. The button has been disabled.",
           "info",
         );
       }

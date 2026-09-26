@@ -524,7 +524,8 @@ class UserSecurityService {
    * Generate unique session ID
    */
   generateSessionId() {
-    return "sess_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    // M1: secure randomness instead of Math.random + substr.
+    return "sess_" + crypto.randomUUID();
   }
 
   /**

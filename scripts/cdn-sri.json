@@ -1,0 +1,46 @@
+{
+  "leaflet.js": {
+    "url": "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "hash": "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  },
+  "markercluster.js": {
+    "url": "https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js",
+    "hash": "sha256-WL6HHfYfbFEkZOFdsJQeY7lJG/E5airjvqbznghUzRw="
+  },
+  "MarkerCluster.css": {
+    "url": "https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css",
+    "hash": "sha256-+bdWuWOXMFkX0v9Cvr3OWClPiYefDQz9GGZP/7xZxdc="
+  },
+  "MarkerCluster.Default.css": {
+    "url": "https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css",
+    "hash": "sha256-LWhzWaQGZRsWFrrJxg+6Zn8TT84k0/trtiHBc6qcGpY="
+  },
+  "leaflet.draw.js": {
+    "url": "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js",
+    "hash": "sha256-siofc4Uwjlra3YWkwthOn8Uj69cNN4aMug/iOHNiRgs="
+  },
+  "leaflet.draw.css": {
+    "url": "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css",
+    "hash": "sha256-XzD3RpaHPv7lzX9qt+2n1j5cWj48O24KsgaGYpKN8x8="
+  },
+  "leaflet.geometryutil.js": {
+    "url": "https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.1/src/leaflet.geometryutil.js",
+    "hash": "sha256-VUXwdDXIHQTH5HEZAwGjtLS0IqZxpmb6negSQ2MlumU="
+  },
+  "xlsx.full.min.js": {
+    "url": "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+    "hash": "sha256-yVBhl8r4CaB1tt7h2g02+xnacVj/6KiOewyWxdhiPJk="
+  },
+  "jspdf.umd.min.js": {
+    "url": "https://unpkg.com/jspdf@4.2.1/dist/jspdf.umd.min.js",
+    "hash": "sha256-5lUfzcMvCdaFOyxRJtGNAdlEfg2mGKQaEevu4PbCDVQ="
+  },
+  "html2canvas.min.js": {
+    "url": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+    "hash": "sha256-6H5VB5QyLldKH9oMFUmjxw2uWpPZETQXpCkBaDjquMs="
+  },
+  "fontawesome.all.min.css": {
+    "url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+    "hash": "sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8="
+  }
+}

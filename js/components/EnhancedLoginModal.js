@@ -48,7 +48,7 @@ class EnhancedLoginModal {
                 <div class="modal-content enhanced-login-modal">
                     <div class="modal-header">
                         <h2 id="loginModalTitle">Secure Login</h2>
-                        <span class="close" id="closeEnhancedLogin">&times;</span>
+                        <button type="button" class="close" id="closeEnhancedLogin" aria-label="Close">&times;</button>
                     </div>
                     
                     <div class="modal-body">

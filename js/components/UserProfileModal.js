@@ -65,7 +65,7 @@ export class UserProfileModal {
                             <span class="status-badge ${this.currentUser.status.toLowerCase()}">${this.currentUser.status}</span>
                         </div>
                     </div>
-                    <span class="close">&times;</span>
+                    <button type="button" class="close" aria-label="Close">&times;</button>
                 </div>
                 
                 <div class="modal-body">
@@ -874,9 +874,13 @@ export class UserProfileModal {
   generateTemporaryPassword() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    // M1: cryptographically secure randomness for generated passwords
+    // (was Math.random — predictable and unsuitable for credentials).
+    const values = new Uint32Array(12);
+    crypto.getRandomValues(values);
     let password = "";
     for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+      password += chars.charAt(values[i] % chars.length);
     }
     return password;
   }

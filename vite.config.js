@@ -14,7 +14,11 @@ export default defineConfig({
     open: true,
     cors: true,
     headers: {
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://*; connect-src 'self' https://*;",
+      // CSP is intentionally NOT set here: the dev-server header previously
+      // diverged from the page's meta CSP (blocked unpkg.com/cdnjs.cloudflare.com
+      // scripts, which broke Leaflet and killed the entire app boot — see
+      // APPLICATION_REVIEW.md §8). royalties.html's meta CSP is the single
+      // source of truth and is stricter.
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
@@ -59,10 +63,9 @@ export default defineConfig({
       'html2canvas',
     ],
   },
-  define: {
-    // Inject environment variables at build time
-    'process.env': process.env,
-  },
+  // M4: 'process.env' injection removed — nothing in the browser bundle reads
+  // process.env (config.js uses window.__ENV__), and exposing the entire
+  // process.env object to client code leaks all environment variables.
 });
 
 

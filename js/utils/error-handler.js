@@ -6,20 +6,43 @@ import { logger } from './logger.js';
 import { config } from './config.js';
 
 export class ErrorHandler {
-  // Static method for direct error handling
-  static handle(error, context = {}) {
-    logger.error("Error", error, context);
+  /**
+   * Normalize any thrown value into an Error-shaped log payload (M2).
+   */
+  static _toShape(error) {
+    if (error instanceof Error) {
+      return { name: error.name, message: error.message, stack: error.stack };
+    }
+    return { name: "NonError", message: String(error), stack: undefined };
+  }
+
+  /**
+   * Persist an error entry to localStorage — development only (M2).
+   * Single implementation shared by the static and instance paths so both
+   * write the same shape under the same key, and neither leaks stack traces
+   * into storage in production.
+   */
+  static _persist(shape, context) {
+    if (!config.isDevelopment()) {
+      return;
+    }
     try {
       const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
       errors.push({
         timestamp: new Date().toISOString(),
-        error: error.message || error,
-        context
+        error: shape,
+        context,
       });
       localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
     } catch (e) {
       logger.error("Failed to store error log", e);
     }
+  }
+
+  // Static method for direct error handling
+  static handle(error, context = {}) {
+    logger.error("Error", error, context);
+    ErrorHandler._persist(ErrorHandler._toShape(error), context);
   }
   constructor(notificationManager) {
     this.notificationManager = notificationManager;
@@ -83,11 +106,7 @@ export class ErrorHandler {
   logError(error, context) {
     const errorLog = {
       timestamp: new Date().toISOString(),
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      },
+      error: ErrorHandler._toShape(error),
       context: {
         url: window.location.href,
         userAgent: navigator.userAgent,
@@ -98,16 +117,9 @@ export class ErrorHandler {
     // Log using logger service
     logger.error("Error Log", errorLog);
 
-    // Store in local storage for debugging (only in development)
-    if (config.isDevelopment()) {
-      try {
-        const errors = JSON.parse(localStorage.getItem("error_logs") || "[]");
-        errors.push(errorLog);
-        localStorage.setItem("error_logs", JSON.stringify(errors.slice(-100)));
-      } catch (e) {
-        logger.error("Failed to store error log", e);
-      }
-    }
+    // Store in local storage for debugging (only in development) — M2: shared
+    // implementation, same shape as the static path.
+    ErrorHandler._persist(errorLog.error, errorLog.context);
   }
 
   /**

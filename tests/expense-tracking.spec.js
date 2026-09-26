@@ -10,7 +10,7 @@ test.describe("Expense Tracking", () => {
     await page.reload();
     await page.waitForSelector("#login-form", { state: "visible" });
     await page.fill("#username", "admin");
-    await page.fill("#password", "demo123");
+    await page.fill("#password", "admin123");
     await page.click('button[type="submit"]');
     await page.waitForSelector("#app-container", { state: "visible" });
     await page.click('a[href="#expense-tracking"]');
@@ -97,3 +97,4 @@ test.describe("Expense Tracking", () => {
     expect(boundingBox.height).toBeGreaterThan(0);
   });
 });
+

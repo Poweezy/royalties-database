@@ -71,6 +71,8 @@ class Config {
         tokenStorageKey: 'auth_token',
         userStorageKey: 'user_data',
         sessionTimeout: parseInt(env.REACT_APP_SESSION_TIMEOUT || env.VITE_SESSION_TIMEOUT || '3600000', 10), // 1 hour
+        // U1/D4: idle logout window (was hard-coded at 40s/50s in app.js)
+        idleTimeout: parseInt(env.REACT_APP_IDLE_TIMEOUT || env.VITE_IDLE_TIMEOUT || '900000', 10), // 15 min
         refreshTokenInterval: parseInt(env.REACT_APP_REFRESH_INTERVAL || env.VITE_REFRESH_INTERVAL || '1800000', 10), // 30 min
         enableRememberMe: env.REACT_APP_REMEMBER_ME !== 'false',
         // WARNING: Demo credentials should NEVER be in production

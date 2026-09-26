@@ -7,6 +7,7 @@ import { security } from "../utils/security.js";
 import { logger } from "../utils/logger.js";
 import { config } from "../utils/config.js";
 import { apiService } from "./api.service.js";
+import { dbService } from "./database.service.js";
 import { auditService } from "./audit.service.js";
 
 class AuthService {
@@ -38,30 +39,36 @@ class AuthService {
       twoFactorEnabled: false,
     };
 
-    // Demo credentials
-    this.demoUsers = {
+    // C2: demo credentials are only constructed in development — they must
+    // never ship in a production bundle. loginDemo() also throws in production.
+    this.demoUsers = config.isDevelopment()
+      ? {
       admin: {
+        // C2: bcrypt hash only — the plaintext hint was removed from the
+        // comment. Demo credentials are gated behind isDevelopment() and must
+        // never ship in a production bundle (see APPLICATION_REVIEW.md §6).
         password:
-          "$2a$10$ZdYA0hNx6Hd18t1fr7t0fu6SOVfjmVKedrQluxCYXr42hSVNKFi92", // admin123
+          "$2a$10$ZdYA0hNx6Hd18t1fr7t0fu6SOVfjmVKedrQluxCYXr42hSVNKFi92",
         role: "Administrator",
         department: "Administration",
         email: "admin@government.sz",
       },
       manager: {
         password:
-          "$2a$10$4yfsoB4fV5IxI9R44p/arejw8EyOpHStbSaxIbqDzJh./hgbj5JMS", // manager123
+          "$2a$10$4yfsoB4fV5IxI9R44p/arejw8EyOpHStbSaxIbqDzJh./hgbj5JMS",
         role: "Manager",
         department: "Operations",
         email: "manager@government.sz",
       },
       auditor: {
         password:
-          "$2a$10$xYv8kqffM0/ScVvQEXWNX.73GUWRK0YCg5YDnxB2HejFWfBcB3/X6", // auditor123
+          "$2a$10$xYv8kqffM0/ScVvQEXWNX.73GUWRK0YCg5YDnxB2HejFWfBcB3/X6",
         role: "Auditor",
         department: "Audit & Compliance",
         email: "auditor@government.sz",
       },
-    };
+    }
+      : {};
   }
 
   /**
@@ -234,17 +241,17 @@ class AuthService {
         } catch (apiError) {
           // If API fails in development, fallback to demo mode
           if (config.isDevelopment()) {
-            logger.warn('API authentication failed, falling back to demo mode', apiError);
-            loginResult = await this.loginDemo(username, password);
+            logger.warn('API authentication failed, falling back to local auth', apiError);
+            loginResult = await this.authenticateLocal(username, password);
           } else {
             this.recordFailedAttempt(username);
             throw apiError;
           }
         }
       } else {
-        // Use demo mode authentication
-        logger.debug('Proceeding with demo authentication', { username });
-        loginResult = await this.loginDemo(username, password);
+        // Use local authentication (demo users + locally created users)
+        logger.debug('Proceeding with local authentication', { username });
+        loginResult = await this.authenticateLocal(username, password);
       }
 
       if (loginResult) {
@@ -312,7 +319,8 @@ class AuthService {
     }
 
     const authData = {
-      token: "demo_token_" + Math.random().toString(36).substr(2),
+      // M1: secure randomness instead of Math.random + substr.
+      token: "demo_token_" + crypto.randomUUID(),
       user: {
         username,
         role: user.role,
@@ -324,6 +332,76 @@ class AuthService {
 
     this.setAuthenticationState(authData);
     logger.debug('Demo authentication successful', { username });
+    return true;
+  }
+
+  /**
+   * Local authentication for accounts created through the user form.
+   *
+   * H2: form-created users previously had no usable credentials path. Checks
+   * demo users first (development only), then locally created users with a
+   * stored bcrypt passwordHash from the IndexedDB users store.
+   * @private
+   */
+  async authenticateLocal(username, password) {
+    // Demo users (development only) — sets state internally on success.
+    if (await this.loginDemo(username, password)) {
+      return true;
+    }
+
+    if (config.isProduction()) {
+      // Client-side credentials are not an enforcement boundary (C1); local
+      // accounts are a development affordance only.
+      return false;
+    }
+
+    if (!window.bcrypt) {
+      logger.error(
+        "Auth error: bcrypt library not loaded.",
+        new Error("bcrypt missing"),
+      );
+      return false;
+    }
+
+    // Locally created users (UserManager form) persist a passwordHash.
+    let localUser = null;
+    try {
+      const all = await dbService.getAll("users");
+      localUser = (all || []).find(
+        (u) => u.username === username && u.passwordHash,
+      );
+    } catch (error) {
+      logger.warn("Local user lookup failed", error);
+      return false;
+    }
+
+    if (!localUser || !localUser.passwordHash) {
+      return false;
+    }
+
+    if (!window.bcrypt.compareSync(password, localUser.passwordHash)) {
+      return false;
+    }
+
+    const authData = {
+      token:
+        "local_token_" +
+        (typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : crypto.getRandomValues(new Uint32Array(4)).join("-")),
+      user: {
+        username: localUser.username,
+        role: localUser.role,
+        department: localUser.department,
+        email: localUser.email,
+        lastLogin: new Date().toISOString(),
+      },
+    };
+
+    this.setAuthenticationState(authData);
+    logger.debug("Local authentication successful", {
+      username: localUser.username,
+    });
     return true;
   }
 
@@ -349,7 +427,11 @@ class AuthService {
   async logout() {
     const username = this.currentUser?.username;
 
-    if (this.token && !this.token.startsWith('demo_token_')) {
+    // H2: local_token_ prefix added for locally created users.
+    if (
+      this.token &&
+      !["demo_token_", "local_token_"].some((p) => this.token.startsWith(p))
+    ) {
       try {
         await apiService.post('/auth/logout', {});
       } catch (error) {
@@ -415,7 +497,8 @@ class AuthService {
    * Session Management
    */
   createSession(username, rememberMe = false) {
-    const sessionId = "sess_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    // M1: secure randomness instead of Math.random + substr.
+    const sessionId = "sess_" + crypto.randomUUID();
     const now = Date.now();
 
     const session = {
@@ -522,12 +605,16 @@ class AuthService {
   async generatePasswordResetToken(username, email) {
     // In a real app, this would call the API
     logger.info('Password reset requested', { username, email });
-    const token = Math.random().toString(36).substr(2, 12).toUpperCase();
+
+    // C4: reset tokens must never be logged; use secure randomness (M1).
+    const token = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
 
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    logger.debug('Generated reset token', { token });
     return token;
   }
 
@@ -538,7 +625,8 @@ class AuthService {
   }
 
   generateTempToken() {
-    return "temp_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    // M1: secure randomness instead of Math.random + substr.
+    return "temp_" + crypto.randomUUID();
   }
 
   storePendingAuth(tempToken, username) {

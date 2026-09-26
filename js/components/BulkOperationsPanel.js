@@ -3,6 +3,8 @@
  * Provides UI for bulk user operations
  */
 
+import { permissionService } from "../services/permission.service.js";
+
 export class BulkOperationsPanel {
   constructor(userManager) {
     this.userManager = userManager;
@@ -440,7 +442,7 @@ export class BulkOperationsPanel {
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Send Bulk Notification</h3>
-                    <span class="close">&times;</span>
+                    <button type="button" class="close" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">

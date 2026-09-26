@@ -42,15 +42,20 @@ class AuditService {
         };
 
         try {
+            // Store name must match the IndexedDB schema ("auditLog", created
+            // in migration 11) — the previous "auditLogs" caused NotFoundError
+            // on every audit write. Use dbService.stores as the single source.
+            const auditStore = dbService.stores.auditLog;
+
             // Get last hash for the chain
-            const logs = await dbService.getAll("auditLogs");
+            const logs = await dbService.getAll(auditStore);
             const lastLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
             const previousHash = lastLog ? lastLog.hash : 'initial-seed';
 
             // Calculate current hash
             event.hash = await this.calculateHash(event, previousHash);
 
-            await dbService.add("auditLogs", event);
+            await dbService.add(auditStore, event);
             logger.debug(`Audit: ${action} by ${user}`, event);
 
             window.dispatchEvent(new CustomEvent('audit_log_added', { detail: event }));
@@ -68,7 +73,7 @@ class AuditService {
     }
 
     async verifyIntegrity() {
-        const logs = await dbService.getAll("auditLogs");
+        const logs = await dbService.getAll(dbService.stores.auditLog);
         logs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
         let previousHash = 'initial-seed';
@@ -90,7 +95,7 @@ class AuditService {
     }
 
     async getLogs(filters = {}) {
-        let logs = await dbService.getAll("auditLogs");
+        let logs = await dbService.getAll(dbService.stores.auditLog);
 // ... rest of search logic ...
 
         if (filters.user) {

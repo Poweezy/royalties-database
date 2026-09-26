@@ -175,16 +175,21 @@ async function syncRecord(record) {
 }
 
 // IndexedDB setup for offline data
+// H3: open without an explicit version — the app migrates RoyaltiesDB to
+// higher versions (database.service.js), and opening at v1 throws a
+// VersionError once migrated, which silently broke offline sync.
 function openDatabase() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("RoyaltiesDB", 1);
+    const request = indexedDB.open("RoyaltiesDB");
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      db.createObjectStore("offline", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("offline")) {
+        db.createObjectStore("offline", { keyPath: "id", autoIncrement: true });
+      }
     };
   });
 }

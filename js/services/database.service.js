@@ -93,30 +93,16 @@ class DatabaseService {
   async init() {
     return new Promise((resolve, reject) => {
       let upgradeRejected = false;
-      
-      // Try to detect existing database version first
-      const checkRequest = indexedDB.open(this.dbName);
-      
-      checkRequest.onsuccess = (event) => {
-        const db = event.target.result;
-        const existingVersion = db.version;
-        db.close();
-        
-        // Use the higher of existing version + 1 or our target version
-        if (existingVersion >= this.version) {
-          this.version = existingVersion + 1;
-          logger.info(`Database version updated to ${this.version} (existing was ${existingVersion})`);
-        }
-        
-        // Now open with the correct version
-        this._openDatabase(resolve, reject, upgradeRejected);
-      };
-      
-      checkRequest.onerror = () => {
-        // If database doesn't exist, use our default version
-        logger.info(`New database, using version ${this.version}`);
-        this._openDatabase(resolve, reject, upgradeRejected);
-      };
+
+      // Critical fix: the previous version-detection pre-open
+      // (`indexedDB.open(name)` without a version) CREATED an empty v1
+      // database on fresh installs, so the subsequent upgrade started at
+      // oldVersion=1 and skipped migration 1 — the `royalties` and `users`
+      // stores were never created. Opening directly with the target version
+      // runs migrations from oldVersion=0 and creates every store.
+      // Existing databases at a higher version are still handled by the
+      // VersionError fallback in _openDatabase().
+      this._openDatabase(resolve, reject, upgradeRejected);
     });
   }
   

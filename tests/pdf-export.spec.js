@@ -10,16 +10,15 @@ test.describe("Dashboard PDF Export", () => {
     await page.reload();
     await page.waitForSelector("#login-form", { state: "visible" });
     await page.fill("#username", "admin");
-    await page.fill("#password", "demo123");
+    await page.fill("#password", "admin123");
     await page.click('button[type="submit"]');
     await page.waitForSelector("#app-container", { state: "visible" });
   });
 
   test.afterEach(async ({ page }) => {
     await page.evaluate(() => {
-      if (window.app && window.app.leaseManagement) {
-        window.app.leaseManagement.stopMonitoring();
-      }
+      // Updated for D1 fix: the property is leaseManager (was leaseManagement).
+      window.app?.leaseManager?.stopMonitoring?.();
     });
   });
 
@@ -33,3 +32,4 @@ test.describe("Dashboard PDF Export", () => {
     expect(fileName).toBe("dashboard-export.pdf");
   });
 });
+

@@ -16,7 +16,7 @@ test.describe("Dashboard Navigation", () => {
     await page.reload();
     await page.waitForSelector("#login-form", { state: "visible" });
     await page.fill("#username", "admin");
-    await page.fill("#password", "demo123");
+    await page.fill("#password", "admin123");
     await page.click('button[type="submit"]');
 
     await page.waitForSelector("#app-container", { state: "visible" });
@@ -24,7 +24,8 @@ test.describe("Dashboard Navigation", () => {
 
   test.afterEach(async ({ page }) => {
     await page.evaluate(() => {
-      window.app.leaseManagement.stopMonitoring();
+      // Updated for D1 fix: the property is leaseManager (was leaseManagement).
+      window.app.leaseManager?.stopMonitoring?.();
     });
   });
 
@@ -55,10 +56,12 @@ test.describe("Dashboard Navigation", () => {
   });
 
   test("should display the correct total royalties on the dashboard", async ({ page }) => {
-    const expectedTotal = "E 261,150.00";
+    // The dashboard is data-driven: with an empty IndexedDB the honest total is E 0.00.
+    const expectedTotal = "E 0.00";
     const totalRoyaltiesElement = await page.locator("#total-royalties");
     await expect(totalRoyaltiesElement).toHaveText(expectedTotal, {
       timeout: 10000,
     });
   });
 });
+

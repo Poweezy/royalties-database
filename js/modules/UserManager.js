@@ -4,6 +4,7 @@ import { permissionService } from "../services/permission.service.js";
 import { dbService } from "../services/database.service.js";
 import { ErrorHandler } from "../utils/error-handler.js";
 import { security } from "../utils/security.js";
+import { logger } from "../utils/logger.js";
 import { BulkOperationsPanel } from "../components/BulkOperationsPanel.js";
 import { UserProfileModal } from "../components/UserProfileModal.js";
 import { AuditLogManager } from "./AuditLogManager.js";
@@ -598,9 +599,20 @@ export class UserManager {
     // --- Validation ---
     const validationErrors = [];
 
+    // H5: sanitize inputs by type at the entry point (security.sanitizeInput).
+    const rawEmail = userData.email;
+    userData.username = security.sanitizeInput(userData.username, "username");
+    userData.email = security.sanitizeInput(userData.email, "email");
+    userData.department = (userData.department || "").trim();
+
     // Required fields
-    if (!userData.username || !userData.email || !userData.role || !userData.department || !password) {
+    if (!userData.username || !rawEmail || !userData.role || !userData.department || !password) {
       validationErrors.push("All fields are required.");
+    }
+
+    // Email format (H5): raw email provided but sanitized to empty → invalid format
+    if (rawEmail && !userData.email) {
+      validationErrors.push("Please enter a valid email address.");
     }
 
     // Username and Email uniqueness
@@ -626,7 +638,7 @@ export class UserManager {
     errorContainer.innerHTML = '';
 
     if (validationErrors.length > 0) {
-        errorContainer.innerHTML = validationErrors.map(error => `<li>${error}</li>`).join('');
+        errorContainer.innerHTML = validationErrors.map(error => `<li>${security.escapeHtml(error)}</li>`).join('');
         errorContainer.style.display = 'block';
         return;
     }
@@ -646,6 +658,20 @@ export class UserManager {
     const newId =
       this.users.length > 0 ? Math.max(...this.users.map((u) => u.id)) + 1 : 1;
 
+    // H2: persist hashed credentials so form-created users can actually log
+    // in (previously the password was discarded entirely).
+    let passwordHash = null;
+    if (userData["new-password"]) {
+      if (!window.bcrypt) {
+        logger.error(
+          "Cannot store credentials — bcrypt library not loaded",
+          new Error("bcrypt missing"),
+        );
+      } else {
+        passwordHash = window.bcrypt.hashSync(userData["new-password"], 10);
+      }
+    }
+
     const newUser = {
       id: newId,
       username: userData.username,
@@ -655,11 +681,25 @@ export class UserManager {
       status: "Active", // Default status
       lastLogin: "Never",
       created: new Date().toISOString().split("T")[0], // Today's date
-      twoFactorEnabled: userData.forcePasswordChange || false, // Example logic
+      // H2: fixed copy/paste bug — was conflated with forcePasswordChange.
+      // 2FA is opt-in and enabled through the security settings flow.
+      twoFactorEnabled: false,
+      ...(passwordHash ? { passwordHash } : {}),
     };
 
     this.users.push(newUser);
     await dbService.add("users", newUser);
+
+    // H2: record the initial password in history (method previously never
+    // wired into user creation).
+    if (passwordHash) {
+      try {
+        await userSecurityService.storePasswordHistory(newUser.username, passwordHash);
+      } catch (error) {
+        logger.warn("Password history not recorded for new user", error);
+      }
+    }
+
     this.renderUsers(this.users, 1);
     this.showNotification("User added successfully", "success");
   }
@@ -1095,7 +1135,7 @@ export class UserManager {
       <div class="modal-content">
         <div class="modal-header">
           <h3>Send Bulk Email</h3>
-          <span class="close">&times;</span>
+          <button type="button" class="close" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group">

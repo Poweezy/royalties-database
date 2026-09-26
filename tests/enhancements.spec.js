@@ -5,10 +5,48 @@ test.describe('Enhanced Features Verification', () => {
     // Assuming the dev server is running on localhost:5173
     // If not, we'd need to start it, but usually Playwright config handles this.
     await page.goto('http://localhost:5173/royalties.html');
-    await page.waitForSelector('#loading-screen', { state: 'hidden' });
+    // The app shows the login form after the loading screen hides; sections
+    // and the nav live inside the hidden #app-container, so we must log in
+    // before interacting with them (matches the other specs' pattern).
+    await page.waitForSelector('#login-form', { state: 'visible' });
+    await page.fill('#username', 'admin');
+    await page.fill('#password', 'admin123');
+    await page.click('button[type="submit"]');
+    await page.waitForSelector('#app-container', { state: 'visible' });
   });
 
   test('Fuzzy Search and QuickSearch (Ctrl+K)', async ({ page }) => {
+    // Seed a contract through IndexedDB and rebuild both search indexes so
+    // the fuzzy search has data to match (fresh DBs are honestly empty —
+    // see APPLICATION_REVIEW.md §8).
+    await page.evaluate(async () => {
+      const db = await new Promise((resolve, reject) => {
+        const req = indexedDB.open("RoyaltiesDB");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      const store = db
+        .transaction("contracts", "readwrite")
+        .objectStore("contracts");
+      store.put({
+        id: "SEED-C-1",
+        name: "Maloma Colliery",
+        entity: "Maloma Colliery",
+        mineral: "Coal",
+        calculationType: "fixed",
+        calculationParams: { rate: 10 },
+        status: "Active",
+      });
+      await new Promise((resolve) => {
+        store.transaction.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+      });
+      await window.app.searchManager.rebuildIndex();
+      await window.app.quickSearch.searchManager.rebuildIndex();
+    });
+
     // Open QuickSearch with Ctrl+K
     await page.keyboard.press('Control+k');
     const modal = page.locator('#quick-search-modal');
@@ -28,6 +66,38 @@ test.describe('Enhanced Features Verification', () => {
   });
 
   test('Document Versioning UI', async ({ page }) => {
+    // Seed a document so the table has rows with version actions (fresh
+    // DBs are honestly empty — see APPLICATION_REVIEW.md §8).
+    await page.evaluate(async () => {
+      const db = await new Promise((resolve, reject) => {
+        const req = indexedDB.open("RoyaltiesDB");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      const store = db
+        .transaction("documents", "readwrite")
+        .objectStore("documents");
+      store.put({
+        id: "DOC-SEED-1",
+        filename: "Maloma_Lease_Agreement.pdf",
+        category: "Lease Agreement",
+        uploadDate: new Date().toISOString(),
+        size: 2048,
+        type: "application/pdf",
+        uploadedBy: "admin",
+        status: "Active",
+        version: 1,
+        history: [],
+      });
+      await new Promise((resolve) => {
+        store.transaction.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+      });
+      await window.app.documentManager.refreshDocuments();
+    });
+
     // Navigate to Document Management
     await page.click('nav a[href="#document-management"]');
     await page.waitForSelector('#document-management-table-body');
@@ -50,3 +120,4 @@ test.describe('Enhanced Features Verification', () => {
     expect(isAuditServiceDefined).toBe(true);
   });
 });
+

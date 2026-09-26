@@ -16,3 +16,4 @@ test.describe("Add User Form", () => {
     expect(resultsContent).toContain("✓ Form correctly rejected weak password");
   });
 });
+
