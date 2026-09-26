@@ -410,10 +410,39 @@ The 77 Mediums are dominated by "Missing X-Frame-Options header" on static pages
 
 ### 9.3 What remains (next sprint)
 
-- **D2** — extract the remaining inline `<script>` blocks from `royalties.html` into modules (unlocks nonce-based CSP and removes the `'unsafe-inline'` need entirely — the last big CSP step, C3 completion).
 - **U7 (full)** — modal focus traps + focus restore, `aria-live` toasts.
 - **U4** — consolidate the 8 CSS layers into the design system.
 - **Triage the 77 Medium audit findings** (X-Frame-Options on static pages, etc.).
 - **Launch blockers (unchanged)** — C1 server-side auth + C5 server-side rate limiting, real TOTP (C4 full), remove demo credentials from the client bundle entirely.
 
+
+---
+
+## 10. Sprint 3 — D2 Inline-Script Extraction & C3 CSP Completion (2026-09-26)
+
+### 10.1 What was done
+
+1. **D2 — inline script extraction (complete):** all 6 remaining inline `<script>` blocks (~700 lines of inline JS) were extracted from `royalties.html` into ES6 modules:
+   - `js/bootstrap/bcrypt-alias.js` — bcrypt UMD aliasing
+   - `js/bootstrap/register-service-worker.js` — SW registration (waits for `load`)
+   - `js/bootstrap/communication-hub.js` — communication hub, notifications, compliance check, tabs
+   - `js/bootstrap/dashboard-init.js` — dashboard data initialization
+   - `js/bootstrap/global-error-handler.js` — global error handlers
+   - `js/legacy/nomodule-fallback.js` — the legacy bundle, still served to legacy browsers via `<script nomodule src>` (previously 16KB of inline stale mock data)
+   - The comments-only block was deleted.
+2. **H1 (completion) — notification template:** the one inline event handler (`onclick="this.parentElement.remove()"`) was removed and the notification is now DOM-built; the unescaped `${message}` XSS sink in the same template was fixed at the same time.
+3. **C3 (complete) — hash-based `script-src`:** `'unsafe-inline'` dropped from script-src and replaced with the import map's sha256 hash (canonical tool: `scripts/csp-hashes.mjs`); `scripts/inject-env.js` was rewritten to emit an **external, git-ignored `env.js`** instead of a variable-content inline `__ENV__` block (which the strict CSP would have blocked and which dirtied the git tree); `dev`/`build` npm scripts now chain `node scripts/inject-env.js` so `env.js` always exists before serving.
+4. **Pre-existing bug fix in `inject-env.js`:** the direct-run guard (`import.meta.url === \`file://${process.argv[1]}\``) never matched on Windows (`file:///C:/...` vs `file://C:\...`), so `main()` never ran and env vars were never injected — fixed with `pathToFileURL(process.argv[1]).href`.
+
+### 10.2 Validation results
+
+- **Boot check under the strict CSP** (Chromium headless): **0 page errors, 0 CSP violations** — the hash-allowed import map is honored, the login form renders, `bcrypt` is ready, the service worker registers, and all services initialize.
+- **Playwright: 18/18 passed** (1.4m) after the extraction — add-user 1/1, dashboard_navigation 3/3, enhancements 3/3, expense-tracking 5/5, forgot_password 1/1, gis_dashboard 2/2, import-export 2/2, pdf-export 1/1.
+
+### 10.3 CSP posture after this sprint
+
+- `script-src 'self' 'sha256-<importmap>' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com` — **no `'unsafe-inline'`, no `'unsafe-eval'`**: injected inline script execution is now fully blocked.
+- `style-src` keeps `'unsafe-inline'` (page style attributes); moving styles to external sheets would allow dropping it (see U4).
+- `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` unchanged.
+- Remaining CSP gaps are acceptable/documented: `img-src https:` wildcard (map tiles from tile providers), unpkg/cdnjs pinned by SRI.
 
