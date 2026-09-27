@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Setup (First Time)
+## Setup (First Time)
 
 ```bash
 # 1. Install dependencies
@@ -27,7 +27,7 @@ Open browser: `http://localhost:5173`
 
 ---
 
-## 🔑 Demo Login Credentials
+## Demo Login Credentials
 
 **Admin User:**
 - Username: `admin`
@@ -43,7 +43,7 @@ Open browser: `http://localhost:5173`
 
 ---
 
-## 📝 Common Commands
+## Common Commands
 
 ```bash
 # Development
@@ -65,7 +65,7 @@ npm run preview          # Preview production build
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Application won't start
 1. Check Node.js version: `node --version` (needs 18+)
@@ -82,7 +82,7 @@ npm run preview          # Preview production build
 
 ---
 
-## 📚 Next Steps
+## Next Steps
 
 - Read `README.md` for full documentation
 - Check `DEVELOPER_GUIDE.md` for development guidelines

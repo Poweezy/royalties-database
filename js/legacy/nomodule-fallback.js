@@ -1,6 +1,6 @@
-// Extracted from royalties.html inline script (D2 inline-script extraction).
-// Legacy glue script: classic script on purpose (same parse-time execution
-// order as the original inline block) — see APPLICATION_REVIEW.md.
+// Shared bootstrap glue. Loaded as a classic script on purpose: these
+// handlers must run at the same point in the parse order as the original
+// page inline scripts they replaced.
 
 console.warn(
       "This browser does not support ES6 modules. Please upgrade to a modern browser.",
@@ -355,7 +355,7 @@ console.warn(
             <div style="padding: 2rem; text-align: center; background: #f8fafc; border-radius: 8px;">
               <i class="fas fa-chart-pie" style="font-size: 2rem; color: #64748b; margin-bottom: 1rem;"></i>
               <h4 style="color: #334155; margin: 0.5rem 0;">Production Overview</h4>
-              <p style="color: #64748b; margin: 0.5rem 0;">Total Volume: <strong>240,000 m�</strong></p>
+              <p style="color: #64748b; margin: 0.5rem 0;">Total Volume: <strong>240,000 m³</strong></p>
               <p style="color: #64748b; margin: 0;">Top Producer: <strong>Maloma Colliery</strong></p>
             </div>
           `;

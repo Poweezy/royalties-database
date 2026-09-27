@@ -92,15 +92,15 @@ function main() {
   const envPath = join(rootDir, '.env');
   const envExamplePath = join(rootDir, '.env.example');
 
-  console.log('🔧 Generating env.js from environment variables...');
+  console.log('Generating env.js from environment variables...');
 
   // Load environment variables
   const env = loadEnvFile(envPath);
 
   // If .env doesn't exist, check .env.example
   if (Object.keys(env).length === 0 && existsSync(envExamplePath)) {
-    console.warn('⚠️  .env file not found, using .env.example as reference');
-    console.warn('⚠️  Please create a .env file based on .env.example');
+    console.warn('.env file not found, using .env.example as reference');
+    console.warn('Please create a .env file based on .env.example');
   }
 
   // Always include NODE_ENV
@@ -110,10 +110,10 @@ function main() {
 
   // Write the external env.js (loaded by royalties.html before module scripts)
   if (writeEnvJs(join(rootDir, 'env.js'), env)) {
-    console.log('✅ env.js generated successfully');
-    console.log(`📝 Loaded ${Object.keys(env).length} environment variables`);
+    console.log('env.js generated successfully');
+    console.log(`Loaded ${Object.keys(env).length} environment variables`);
   } else {
-    console.error('❌ Failed to generate env.js');
+    console.error('Failed to generate env.js');
     process.exit(1);
   }
 }

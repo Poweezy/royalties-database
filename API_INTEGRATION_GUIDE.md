@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 The application includes a production-ready API service layer (`js/services/api.service.js`) that provides:
 
@@ -16,7 +16,7 @@ The application includes a production-ready API service layer (`js/services/api.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Import the API Service
 
@@ -61,7 +61,7 @@ await apiService.delete('/users/123');
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 ### Automatic Token Management
 
@@ -87,7 +87,7 @@ if (refreshed) {
 
 ---
 
-## 📡 API Methods
+## API Methods
 
 ### GET Request
 
@@ -169,7 +169,7 @@ const result = await apiService.upload('/documents/upload', formData);
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Timeout
 
@@ -202,7 +202,7 @@ Retry behavior:
 
 ---
 
-## 🔄 Request Cancellation
+## Request Cancellation
 
 ### Cancel Single Request
 
@@ -224,7 +224,7 @@ apiService.cancelAllRequests();
 
 ---
 
-## 🛡️ Error Handling
+## Error Handling
 
 ### Automatic Error Handling
 
@@ -258,7 +258,7 @@ try {
 
 ---
 
-## 🔌 Backend API Requirements
+## Backend API Requirements
 
 ### Authentication Endpoints
 
@@ -329,7 +329,7 @@ Delete royalty record
 
 ---
 
-## 🔄 Migrating from IndexedDB to API
+## Migrating from IndexedDB to API
 
 ### Step 1: Update Service to Use API
 
@@ -374,7 +374,7 @@ window.addEventListener('online', async () => {
 
 ---
 
-## 📝 Example: Complete Service Migration
+## Example: Complete Service Migration
 
 ### Before (IndexedDB Only)
 
@@ -449,7 +449,7 @@ class RoyaltyService {
 
 ---
 
-## 🧪 Testing API Integration
+## Testing API Integration
 
 ### Mock API Service for Testing
 
@@ -477,7 +477,7 @@ test('fetches royalties', async () => {
 
 ---
 
-## 🔒 Security Best Practices
+## Security Best Practices
 
 1. **Always use HTTPS** in production
 2. **Validate tokens** on backend
@@ -489,7 +489,7 @@ test('fetches royalties', async () => {
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - `SECURITY_GUIDELINES.md` - Security best practices
 - `BUILD_DEPLOYMENT.md` - Deployment configuration

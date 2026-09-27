@@ -893,7 +893,7 @@ export class UserProfileModal {
   generateTemporaryPassword() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    // M1: cryptographically secure randomness for generated passwords
+    // Cryptographically secure randomness for generated passwords
     // (was Math.random — predictable and unsuitable for credentials).
     const values = new Uint32Array(12);
     crypto.getRandomValues(values);

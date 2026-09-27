@@ -94,7 +94,7 @@ class DatabaseService {
     return new Promise((resolve, reject) => {
       let upgradeRejected = false;
 
-      // Critical fix: the previous version-detection pre-open
+      // the previous version-detection pre-open
       // (`indexedDB.open(name)` without a version) CREATED an empty v1
       // database on fresh installs, so the subsequent upgrade started at
       // oldVersion=1 and skipped migration 1 — the `royalties` and `users`

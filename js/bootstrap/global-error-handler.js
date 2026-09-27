@@ -1,6 +1,6 @@
-// Extracted from royalties.html inline script (D2 inline-script extraction).
-// Legacy glue script: classic script on purpose (same parse-time execution
-// order as the original inline block) — see APPLICATION_REVIEW.md.
+// Shared bootstrap glue. Loaded as a classic script on purpose: these
+// handlers must run at the same point in the parse order as the original
+// page inline scripts they replaced.
 
 // Global error handler for better debugging
     window.addEventListener("error", function (e) {

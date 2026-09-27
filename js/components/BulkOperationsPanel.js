@@ -480,7 +480,7 @@ export class BulkOperationsPanel {
     document.body.appendChild(modal);
     modal.style.display = "block";
 
-    // U7: trap focus inside the modal while open; release on close
+    // Trap focus inside the modal while open; release on close
     let releaseTrap = null;
     const closeModal = () => {
       if (releaseTrap) {

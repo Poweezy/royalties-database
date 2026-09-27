@@ -32,7 +32,9 @@ test("Forgot Password functionality", async ({ page }) => {
   // Also, check for the success notification
   const notification = await page.locator(".notification-success");
   await expect(notification).toBeVisible();
-  await expect(notification.locator("span").nth(1)).toHaveText(
+  // Assert on the notification's text rather than a specific span index so
+  // the test stays valid if the toast markup (icon element, etc.) changes.
+  await expect(notification).toContainText(
     "If an account with that email exists, a password reset link has been sent.",
   );
 });

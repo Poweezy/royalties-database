@@ -2,7 +2,7 @@
 
 A comprehensive royalty management system for the Eswatini mining sector.
 
-## 🚀 Features
+## Features
 
 - **User Authentication & Management**: Secure role-based access control
 - **Royalty Records Management**: Track and manage mining royalties
@@ -14,13 +14,13 @@ A comprehensive royalty management system for the Eswatini mining sector.
 - **Expense Tracking**: JIB and expense management
 - **Audit Trail**: Complete activity logging
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js 18+ and npm
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - HTTP server (for local development with ES6 modules)
 
-## 🛠️ Setup & Installation
+## Setup & Installation
 
 ### 1. Clone the Repository
 
@@ -74,7 +74,7 @@ Open your browser and navigate to:
 - Vite: `http://localhost:5173`
 - Python/Node server: `http://localhost:8000/royalties.html`
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -119,7 +119,7 @@ if (config.isFeatureEnabled('enableOfflineMode')) {
 }
 ```
 
-## 📝 Logging
+## Logging
 
 The application uses a production-ready logging service:
 
@@ -147,7 +147,7 @@ logger.performance('Operation name', durationMs, metadata);
 
 Log levels are configured via `VITE_LOG_LEVEL` environment variable.
 
-## 🔐 Security
+## Security
 
 ### Development Mode
 
@@ -165,7 +165,7 @@ Log levels are configured via `VITE_LOG_LEVEL` environment variable.
 4. **Enable error reporting**: Configure Sentry or similar service
 5. **Review security settings**: Check all `VITE_*` security variables
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 
@@ -190,7 +190,7 @@ npx playwright test forgot_password.spec.js
 - ✅ PDF export
 - ✅ Forgot password flow
 
-## 📦 Build & Deployment
+## Build & Deployment
 
 ### Build for Production
 
@@ -209,7 +209,7 @@ This will:
 npm run preview
 ```
 
-## 📚 Project Structure
+## Project Structure
 
 ```
 royalties-database/
@@ -242,7 +242,7 @@ royalties-database/
 └── README.md
 ```
 
-## 🔄 Development Workflow
+## Development Workflow
 
 1. **Make changes** to code
 2. **Test locally** with `npm run dev`
@@ -250,7 +250,7 @@ royalties-database/
 4. **Commit changes** (ensure `.env` is in `.gitignore`)
 5. **Build for production** with `npm run build`
 
-## 📖 Documentation
+## Documentation
 
 - `PRODUCTION_READINESS_TODO.md` - Complete production readiness checklist
 - `IMPLEMENTATION_STATUS.md` - Current implementation status
@@ -258,7 +258,7 @@ royalties-database/
 - `ENHANCED-FEATURES.md` - Enhanced features documentation
 - `ENHANCED-USER-MANAGEMENT.md` - User management features
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Application won't start
 
@@ -279,18 +279,18 @@ royalties-database/
 2. Check file paths are correct
 3. Verify all module exports match imports
 
-## 🤝 Contributing
+## Contributing
 
 1. Follow code style guidelines in `AGENTS.md`
 2. Write tests for new features
 3. Update documentation as needed
 4. Run linter before committing: `npm run lint`
 
-## 📄 License
+## License
 
 [Add your license information here]
 
-## 📞 Support
+## Support
 
 For support, email: support@government.sz
 

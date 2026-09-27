@@ -717,7 +717,7 @@ class EnhancedLoginModal {
     this.currentStep = "login";
     this.showStep("login");
     document.getElementById("enhancedLoginModal").style.display = "block";
-    // U7: trap focus in the modal and close on Escape; focus is restored on hide.
+    // Trap focus in the modal and close on Escape; focus is restored on hide.
     this.releaseFocusTrap = trapFocus(
       document.getElementById("enhancedLoginModal"),
       { onEscape: () => this.hide() },
@@ -731,7 +731,7 @@ class EnhancedLoginModal {
   hide() {
     this.isVisible = false;
     document.getElementById("enhancedLoginModal").style.display = "none";
-    // U7: release the focus trap (restores focus to the trigger element).
+    // Release the focus trap (restores focus to the trigger element).
     if (this.releaseFocusTrap) {
       this.releaseFocusTrap();
       this.releaseFocusTrap = null;
@@ -1134,7 +1134,7 @@ class EnhancedLoginModal {
     };
 
     const container = document.getElementById("securityNotifications");
-    // U7: announce notifications to assistive technology.
+    // Announce notifications to assistive technology.
     container.setAttribute("role", "status");
     container.setAttribute("aria-live", "polite");
 
@@ -1142,7 +1142,7 @@ class EnhancedLoginModal {
     notification.className = `security-notification ${type}`;
     notification.setAttribute("role", "status");
 
-    // H1: build DOM instead of interpolating into innerHTML (XSS sink).
+    // Build DOM instead of interpolating into innerHTML (XSS sink).
     const icon = document.createElement("i");
     icon.className = `fas ${icons[type] || icons.info}`;
     const text = document.createElement("span");

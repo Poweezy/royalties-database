@@ -181,7 +181,7 @@ async function syncRecord(record) {
 }
 
 // IndexedDB setup for offline data
-// H3: open without an explicit version — the app migrates RoyaltiesDB to
+// Open without an explicit version — the app migrates RoyaltiesDB to
 // higher versions (database.service.js), and opening at v1 throws a
 // VersionError once migrated, which silently broke offline sync.
 function openDatabase() {

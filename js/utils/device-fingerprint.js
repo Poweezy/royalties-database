@@ -217,10 +217,10 @@ class DeviceFingerprint {
       // Draw text with different fonts
       ctx.textBaseline = "top";
       ctx.font = "14px Arial";
-      ctx.fillText("Device fingerprint test 🔒", 2, 2);
+      ctx.fillText("Device fingerprint test", 2, 2);
 
       ctx.font = "11px Times";
-      ctx.fillText("Device fingerprint test 🔒", 4, 17);
+      ctx.fillText("Device fingerprint test", 4, 17);
 
       return canvas.toDataURL();
     } catch {

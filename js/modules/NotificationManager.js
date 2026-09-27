@@ -7,23 +7,33 @@ export class NotificationManager {
         bg: "#dcfce7",
         border: "#bbf7d0",
         color: "#166534",
-        icon: "✅",
+        icon: "fa-check-circle",
       },
-      error: { bg: "#fef2f2", border: "#fecaca", color: "#dc2626", icon: "❌" },
+      error: {
+        bg: "#fef2f2",
+        border: "#fecaca",
+        color: "#dc2626",
+        icon: "fa-times-circle",
+      },
       warning: {
         bg: "#fef3c7",
         border: "#fde68a",
         color: "#92400e",
-        icon: "⚠️",
+        icon: "fa-exclamation-triangle",
       },
-      info: { bg: "#dbeafe", border: "#93c5fd", color: "#1e40af", icon: "ℹ️" },
+      info: {
+        bg: "#dbeafe",
+        border: "#93c5fd",
+        color: "#1e40af",
+        icon: "fa-info-circle",
+      },
     };
   }
 
   show(message, type = "info", duration = 5000) {
     this.clearExisting();
 
-    // U7: mirror the message into a persistent aria-live region so screen
+    // Mirror the message into a persistent aria-live region so screen
     // readers announce toasts (dynamically inserted regions alone are missed).
     this.ensureLiveRegion().textContent = message;
 
@@ -85,9 +95,10 @@ export class NotificationManager {
       transform: translateX(100%); transition: transform 0.3s ease;
     `;
 
-    const iconSpan = document.createElement("span");
-    iconSpan.style.fontSize = "1.2rem";
-    iconSpan.textContent = config.icon;
+    const iconEl = document.createElement("i");
+    iconEl.className = `fas ${config.icon}`;
+    iconEl.setAttribute("aria-hidden", "true");
+    iconEl.style.fontSize = "1.2rem";
 
     const messageSpan = document.createElement("span");
     messageSpan.textContent = message;
@@ -106,7 +117,7 @@ export class NotificationManager {
       this.notifications.delete(notification);
     };
 
-    notification.appendChild(iconSpan);
+    notification.appendChild(iconEl);
     notification.appendChild(messageSpan);
     notification.appendChild(closeButton);
 
@@ -163,11 +174,6 @@ export class NotificationManager {
   }
   info(message, duration) {
     return this.show(message, "info", duration);
-  }
-
-  destroy() {
-    this.clearExisting();
-    this.notifications.clear();
   }
 }
 

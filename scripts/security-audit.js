@@ -11,7 +11,7 @@
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-// D3: dependency-free file discovery (glob is not installed)
+// Dependency-free recursive file discovery (no external dependencies)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -116,7 +116,7 @@ function getLineNumber(content, match) {
  * Run security audit
  */
 async function runAudit() {
-  console.log('🔍 Running security audit...\n');
+  console.log('Running security audit...\n');
 
   // Get all JavaScript and HTML files (dependency-free, D3)
   const ignoredDirs = ['node_modules', 'dist', 'build', 'coverage', 'vendor', '.git'];

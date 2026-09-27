@@ -39,14 +39,14 @@ class AuthService {
       twoFactorEnabled: false,
     };
 
-    // C2: demo credentials are only constructed in development — they must
+    // Demo credentials are only constructed in development — they must
     // never ship in a production bundle. loginDemo() also throws in production.
     this.demoUsers = config.isDevelopment()
       ? {
       admin: {
-        // C2: bcrypt hash only — the plaintext hint was removed from the
+        // Bcrypt hash only — the plaintext hint was removed from the
         // comment. Demo credentials are gated behind isDevelopment() and must
-        // never ship in a production bundle (see APPLICATION_REVIEW.md §6).
+        // never ship in a production bundle.
         password:
           "$2a$10$ZdYA0hNx6Hd18t1fr7t0fu6SOVfjmVKedrQluxCYXr42hSVNKFi92",
         role: "Administrator",
@@ -319,7 +319,7 @@ class AuthService {
     }
 
     const authData = {
-      // M1: secure randomness instead of Math.random + substr.
+      // Secure randomness instead of Math.random + substr.
       token: "demo_token_" + crypto.randomUUID(),
       user: {
         username,
@@ -427,7 +427,7 @@ class AuthService {
   async logout() {
     const username = this.currentUser?.username;
 
-    // H2: local_token_ prefix added for locally created users.
+    // Local_token_ prefix added for locally created users.
     if (
       this.token &&
       !["demo_token_", "local_token_"].some((p) => this.token.startsWith(p))
@@ -497,7 +497,7 @@ class AuthService {
    * Session Management
    */
   createSession(username, rememberMe = false) {
-    // M1: secure randomness instead of Math.random + substr.
+    // Secure randomness instead of Math.random + substr.
     const sessionId = "sess_" + crypto.randomUUID();
     const now = Date.now();
 
@@ -606,7 +606,7 @@ class AuthService {
     // In a real app, this would call the API
     logger.info('Password reset requested', { username, email });
 
-    // C4: reset tokens must never be logged; use secure randomness (M1).
+    // Reset tokens must never be logged; use secure randomness (M1).
     const token = Array.from(crypto.getRandomValues(new Uint8Array(8)))
       .map((byte) => byte.toString(16).padStart(2, "0"))
       .join("")
@@ -625,7 +625,7 @@ class AuthService {
   }
 
   generateTempToken() {
-    // M1: secure randomness instead of Math.random + substr.
+    // Secure randomness instead of Math.random + substr.
     return "temp_" + crypto.randomUUID();
   }
 

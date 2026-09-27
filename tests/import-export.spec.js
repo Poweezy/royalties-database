@@ -42,7 +42,7 @@ test.describe("Royalty Record Import/Export", () => {
 
     // Seed royalty records through the app's own IndexedDB store so the
     // export test has data and the import count math is stable (fresh DBs
-    // are honestly empty — see APPLICATION_REVIEW.md §8).
+    // databases start empty).
     await page.evaluate(async () => {
       const db = await new Promise((resolve, reject) => {
         const req = indexedDB.open("RoyaltiesDB");

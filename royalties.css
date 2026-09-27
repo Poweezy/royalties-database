@@ -1744,7 +1744,9 @@ nav ul li a span.notification-badge {
 }
 
 .user-form-container h4::before {
-  content: "👥";
+  content: "\f500";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
   font-size: 1.5rem;
 }
 

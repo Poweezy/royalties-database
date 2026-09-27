@@ -600,7 +600,7 @@ export class UserManager {
     // --- Validation ---
     const validationErrors = [];
 
-    // H5: sanitize inputs by type at the entry point (security.sanitizeInput).
+    // Sanitize inputs by type at the entry point (security.sanitizeInput).
     const rawEmail = userData.email;
     userData.username = security.sanitizeInput(userData.username, "username");
     userData.email = security.sanitizeInput(userData.email, "email");
@@ -611,7 +611,8 @@ export class UserManager {
       validationErrors.push("All fields are required.");
     }
 
-    // Email format (H5): raw email provided but sanitized to empty → invalid format
+    // Email format: the sanitizer drops malformed addresses, so a raw email
+    // that becomes empty after sanitizing indicates an invalid format.
     if (rawEmail && !userData.email) {
       validationErrors.push("Please enter a valid email address.");
     }
@@ -659,7 +660,7 @@ export class UserManager {
     const newId =
       this.users.length > 0 ? Math.max(...this.users.map((u) => u.id)) + 1 : 1;
 
-    // H2: persist hashed credentials so form-created users can actually log
+    // Persist hashed credentials so form-created users can actually log
     // in (previously the password was discarded entirely).
     let passwordHash = null;
     if (userData["new-password"]) {
@@ -682,8 +683,8 @@ export class UserManager {
       status: "Active", // Default status
       lastLogin: "Never",
       created: new Date().toISOString().split("T")[0], // Today's date
-      // H2: fixed copy/paste bug — was conflated with forcePasswordChange.
-      // 2FA is opt-in and enabled through the security settings flow.
+      // Two-factor authentication is opt-in; users enable it through the
+      // security settings flow rather than at account creation.
       twoFactorEnabled: false,
       ...(passwordHash ? { passwordHash } : {}),
     };
@@ -691,7 +692,7 @@ export class UserManager {
     this.users.push(newUser);
     await dbService.add("users", newUser);
 
-    // H2: record the initial password in history (method previously never
+    // Record the initial password in history (method previously never
     // wired into user creation).
     if (passwordHash) {
       try {
@@ -1166,7 +1167,7 @@ export class UserManager {
       </div>
     `;
 
-    // U7: trap focus inside the modal while open; release on close
+    // Trap focus inside the modal while open; release on close
     let releaseTrap = null;
     const closeModal = () => {
       if (releaseTrap) {
@@ -1454,7 +1455,7 @@ export class UserManager {
     const notification = document.createElement("div");
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    // U7: announce to assistive technology.
+    // Announce to assistive technology.
     notification.setAttribute("role", "status");
     notification.setAttribute("aria-live", "polite");
 

@@ -1,6 +1,6 @@
-// Extracted from royalties.html inline script (D2 inline-script extraction).
-// Legacy glue script: classic script on purpose (same parse-time execution
-// order as the original inline block) — see APPLICATION_REVIEW.md.
+// Shared bootstrap glue. Loaded as a classic script on purpose: these
+// handlers must run at the same point in the parse order as the original
+// page inline scripts they replaced.
 
 // Enhanced Communication Hub Functionality
     document.addEventListener("DOMContentLoaded", function () {
@@ -27,7 +27,7 @@
           const content = document.getElementById("message-content")?.value;
 
           if (recipients && subject && content) {
-            // U6: recipients is a comma/semicolon-separated string — count
+            // Recipients is a comma/semicolon-separated string — count
             // entries, not characters.
             const recipientCount = recipients
               .split(/[,;]+/)
@@ -73,8 +73,8 @@
           this.disabled = true;
 
           setTimeout(() => {
-            // U3: this is a placeholder simulation — label it honestly so
-            // users are not misled into thinking real checks ran.
+            // Placeholder simulation — the message makes clear that no real
+            // checks have run.
             showNotification(
               "Demo: compliance check simulated — no checks were performed.",
               "info",
@@ -101,8 +101,8 @@
       }
 
       // Update compliance metrics
-      // U3: demo placeholder — hardcoded values kept so the panel renders,
-      // pending wiring to ComplianceManager (see APPLICATION_REVIEW.md).
+      // Demo placeholder: hardcoded values keep the panel rendering until the
+      // ComplianceManager wiring lands.
       function updateComplianceMetrics() {
         const overallCompliance = document.getElementById(
           "overall-compliance-rate",
@@ -223,7 +223,7 @@
         closeButton.setAttribute("aria-label", "Close notification");
         closeButton.style.cssText =
           "background: none; border: none; cursor: pointer; margin-left: auto;";
-        closeButton.textContent = "�";
+        closeButton.textContent = "×";
         closeButton.addEventListener("click", () => notification.remove());
         notification.append(iconSpan, messageSpan, closeButton);
 

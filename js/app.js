@@ -134,8 +134,8 @@ class App {
     this.contractManager = new ContractManager();
     this.reporting = Reporting;
     this.royaltyRecords = RoyaltyRecords;
-    // Critical fix: a missing/failing CDN dependency (e.g. Leaflet blocked by
-    // CSP or offline) must not kill the entire app boot — degrade gracefully.
+    // A failing CDN dependency (e.g. Leaflet unavailable) must not take down
+    // the whole application — degrade gracefully and continue booting.
     try {
       this.gisDashboard = new GisDashboard(this.state.contracts);
     } catch (error) {
@@ -277,7 +277,7 @@ class App {
       this.errorHandler.handleError(error);
       const loadingContent = document.querySelector(".loading-content");
       if (loadingContent) {
-        // H1: escape dynamic error messages before rendering
+        // Escape dynamic error content before rendering it to the page.
         loadingContent.innerHTML = `
                     <p style="color: white; font-weight: bold;">Application failed to start.</p>
                     <p style="color: white;">Error: ${security.escapeHtml(error.message || "Unknown error")}</p>
@@ -321,8 +321,6 @@ class App {
       await this.initializeDashboard();
 
       // Initialize Lease Management (with error handling)
-      // D1: fixed property names — this.leaseManagement/leaseManagementUI did
-      // not exist, so Lease Management never initialized.
       try {
         await this.leaseManager.init();
       } catch (error) {
@@ -330,8 +328,6 @@ class App {
       }
 
       // Initialize Contract Management (with error handling)
-      // D1: fixed property names — this.contractManagement/contractManagementUI
-      // did not exist, so Contract Management never initialized.
       try {
         await this.contractManager.init();
       } catch (error) {
@@ -930,8 +926,7 @@ class App {
       this.userManager.exportUsers();
     });
 
-    // U2: the header "Export Report" button was a dead end; wire it to the
-    // same real export flow as #export-users.
+    // The header "Export Report" button shares the export flow with #export-users.
     const exportReportBtn = document.getElementById("export-report-btn");
     exportReportBtn?.addEventListener("click", () => {
       this.userManager.exportUsers();
@@ -1817,10 +1812,10 @@ class App {
   }
 
   #setupGlobalActionListeners() {
-    // U2: unimplemented actions are disabled up front (with a tooltip) instead
-    // of remaining clickable dead ends. Implemented actions (#refresh-dashboard,
-    // handled by ChartManager, and #export-report-btn, wired below) are not
-    // blocked.
+    // Actions without implementations are disabled up front (with a tooltip)
+    // rather than left as clickable dead ends. Implemented actions
+    // (#refresh-dashboard via ChartManager, #export-report-btn wired below)
+    // are not blocked.
     const unimplementedActions = [
       "#view-audit-btn",
       "#add-royalty-record",

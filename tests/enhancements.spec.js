@@ -17,8 +17,7 @@ test.describe('Enhanced Features Verification', () => {
 
   test('Fuzzy Search and QuickSearch (Ctrl+K)', async ({ page }) => {
     // Seed a contract through IndexedDB and rebuild both search indexes so
-    // the fuzzy search has data to match (fresh DBs are honestly empty —
-    // see APPLICATION_REVIEW.md §8).
+    // the fuzzy search has data to match (fresh databases start empty).
     await page.evaluate(async () => {
       const db = await new Promise((resolve, reject) => {
         const req = indexedDB.open("RoyaltiesDB");
@@ -67,7 +66,7 @@ test.describe('Enhanced Features Verification', () => {
 
   test('Document Versioning UI', async ({ page }) => {
     // Seed a document so the table has rows with version actions (fresh
-    // DBs are honestly empty — see APPLICATION_REVIEW.md §8).
+    // databases start empty).
     await page.evaluate(async () => {
       const db = await new Promise((resolve, reject) => {
         const req = indexedDB.open("RoyaltiesDB");
