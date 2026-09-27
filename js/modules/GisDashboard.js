@@ -343,15 +343,28 @@ export class GisDashboard {
             `;
     }
 
+    // CSP: inline onclick attributes are blocked by the hash-based
+    // script-src — popup actions use data attributes, bound via the
+    // document-level delegated listener at the bottom of this module.
+    // HTML-escape mine.name for safe use inside an attribute. The entities
+    // are built via String.fromCharCode so the source contains no raw
+    // ampersand-entity sequences (which are vulnerable to mangling).
+    const AMP = String.fromCharCode(38);
+    const QUOTE = String.fromCharCode(34);
+    const safeName = String(mine.name)
+      .split(AMP)
+      .join(AMP + "amp;")
+      .split(QUOTE)
+      .join(AMP + "quot;");
     popupContent += `
                 <div class="popup-actions">
-                    <button onclick="app.gisDashboard.zoomToLocation(${mine.lat}, ${mine.lon})" class="btn btn-sm btn-primary">
+                    <button data-action="zoom" data-lat="${mine.lat}" data-lon="${mine.lon}" class="btn btn-sm btn-primary">
                         <i class="fas fa-search-plus"></i> Zoom In
                     </button>
-                    <button onclick="app.gisDashboard.measureDistance(${mine.lat}, ${mine.lon})" class="btn btn-sm btn-info">
+                    <button data-action="measure" data-lat="${mine.lat}" data-lon="${mine.lon}" class="btn btn-sm btn-info">
                         <i class="fas fa-ruler"></i> Measure
                     </button>
-                    <button onclick="app.gisDashboard.showDetails('${mine.name}')" class="btn btn-sm btn-secondary">
+                    <button data-action="details" data-name="${safeName}" class="btn btn-sm btn-secondary">
                         <i class="fas fa-info-circle"></i> Details
                     </button>
                 </div>

@@ -40,6 +40,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'royalties.html'),
+        // Key must be "index" so the build emits dist/index.html (the site
+        // root). In dev, Vite serves <root>/index.html at "/" automatically.
+        index: resolve(__dirname, 'index.html'),
       },
       output: {
         manualChunks: {

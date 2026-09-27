@@ -33,6 +33,10 @@ self.addEventListener("install", (event) => {
         console.log("Caching app assets");
         return cache.addAll(ASSETS);
       })
+      // Apply the new service worker immediately instead of waiting for all
+      // tabs to close — prevents stale cached assets from being served after
+      // fixes are deployed.
+      .then(() => self.skipWaiting())
       .catch((error) => {
         console.error("Cache installation failed:", error);
       }),
@@ -53,6 +57,8 @@ self.addEventListener("activate", (event) => {
       })
       .then(() => {
         console.log("Service Worker activated");
+        // Take control of already-open pages immediately.
+        return self.clients.claim();
       }),
   );
 });

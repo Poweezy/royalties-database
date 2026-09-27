@@ -3,6 +3,7 @@
  * Provides detailed user profile management interface
  */
 
+import { trapFocus } from "../utils/focus-trap.js";
 import { permissionService } from "../services/permission.service.js";
 import { userSecurityService } from "../services/user-security.service.js";
 
@@ -116,7 +117,7 @@ export class UserProfileModal {
                 </div>
                 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+                    <button type="button" class="btn btn-secondary" id="close-profile-footer">Close</button>
                     <button type="button" class="btn btn-primary" id="save-profile">Save Changes</button>
                 </div>
             </div>
@@ -465,8 +466,8 @@ export class UserProfileModal {
                                     <h6>${step.name}</h6>
                                     <div class="step-actions">
                                         ${step.required ? '<span class="badge badge-danger">Required</span>' : '<span class="badge badge-secondary">Optional</span>'}
-                                        <button class="btn btn-sm ${isCompleted ? "btn-warning" : "btn-success"}" 
-                                                onclick="this.toggleStepCompletion('${step.id}', ${!isCompleted})">
+                                        <button class="btn btn-sm ${isCompleted ? "btn-warning" : "btn-success"}"
+                                                data-action="toggle-step" data-step-id="${step.id}" data-next-state="${!isCompleted}">
                                             ${isCompleted ? "Mark Incomplete" : "Mark Complete"}
                                         </button>
                                     </div>
@@ -523,6 +524,24 @@ export class UserProfileModal {
     if (revokeSessionsBtn) {
       revokeSessionsBtn.addEventListener("click", () => this.revokeSessions());
     }
+
+    // Footer close button (U7: replaced inline onclick attribute)
+    const closeProfileFooterBtn = modal.querySelector("#close-profile-footer");
+    if (closeProfileFooterBtn) {
+      closeProfileFooterBtn.addEventListener("click", () => modal.remove());
+    }
+
+    // Onboarding step toggles (U7/CSP: replaced inline onclick with
+    // data-attribute delegation — no inline JS execution required)
+    modal.addEventListener("click", (e) => {
+      const stepBtn = e.target.closest("[data-action='toggle-step']");
+      if (stepBtn) {
+        this.toggleStepCompletion(
+          stepBtn.dataset.stepId,
+          stepBtn.dataset.nextState === "true",
+        );
+      }
+    });
   }
 
   /**

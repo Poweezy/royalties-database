@@ -23,12 +23,35 @@ export class NotificationManager {
   show(message, type = "info", duration = 5000) {
     this.clearExisting();
 
+    // U7: mirror the message into a persistent aria-live region so screen
+    // readers announce toasts (dynamically inserted regions alone are missed).
+    this.ensureLiveRegion().textContent = message;
+
     const notification = this.createElement(message, type);
     document.body.appendChild(notification);
     this.notifications.add(notification);
 
     this.animate(notification, duration);
     return notification;
+  }
+
+  /**
+   * Ensure a persistent, visually-hidden aria-live region exists (U7).
+   * @returns {HTMLElement} The live region element.
+   */
+  ensureLiveRegion() {
+    let region = document.getElementById("aria-live-region");
+    if (!region) {
+      region = document.createElement("div");
+      region.id = "aria-live-region";
+      region.setAttribute("role", "status");
+      region.setAttribute("aria-live", "polite");
+      // Visually hidden but available to screen readers
+      region.style.cssText =
+        "position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;";
+      document.body.appendChild(region);
+    }
+    return region;
   }
 
   clearExisting() {
@@ -49,6 +72,7 @@ export class NotificationManager {
     const config = this.types[type] || this.types.info;
     const notification = document.createElement("div");
     notification.className = `notification-toast notification-${type}`;
+    notification.setAttribute("role", "status");
 
     notification.style.cssText = `
       position: fixed; top: 20px; right: 20px; z-index: 10000;
@@ -70,6 +94,8 @@ export class NotificationManager {
 
     const closeButton = document.createElement("button");
     closeButton.className = "btn";
+    closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "Close notification");
     closeButton.innerHTML = "×";
     closeButton.style.cssText = `
       background: none; border: none; color: ${config.color};

@@ -367,7 +367,19 @@ During live validation, the app was found to **never boot at all** (stuck on the
 - `enhancements.spec.js` / `pdf-export.spec.js` — updated to seed data via the app's own managers (`window.app.royaltyRecords`, `documentManager`, `searchManager`) instead of assuming pre-seeded mock rows.
 - `UserProfileModal.js` — display bug fixed found during test runs.
 
-### 8.3 Final validation (2026-09-25)
+### 8.3 Root URL blank page fixed (2026-09-26)
+
+`http://localhost:5173/` rendered blank because **no `index.html` existed** — vite dev returns 404 for `/`. This also broke the service worker: the SW pre-cache list includes `"/"`, and `cache.addAll()` fails atomically when any request fails, so **offline caching never installed**.
+
+**Fixes (verified live):**
+- Created `index.html` — zero-JS meta-refresh redirect to `./royalties.html` (branded, a11y-friendly with `role="status"`/manual link/noscript fallback).
+- Added `index.html` to `rollupOptions.input` so production builds include the root redirect.
+- Added `self.skipWaiting()` + `self.clients.claim()` to the service worker so updates apply immediately instead of waiting for all tabs to close (prevents stale cached assets after deployments).
+- Verified: `http://localhost:5173/` → `/royalties.html` → login form → dashboard renders; zero page errors, zero console errors; **Playwright 18/18 still green (45.4s)**.
+
+**Note for existing browsers:** with `skipWaiting`/`clients.claim` now in place, one or two normal refreshes pick up all fixes; a hard refresh (Ctrl+Shift+R) forces it immediately.
+
+### 8.4 Final validation (2026-09-25, re-run 2026-09-26)
 
 - **Playwright: 18/18 passed** (51.8s) — add-user 1/1, dashboard_navigation 3/3, enhancements 3/3, expense-tracking 5/5, forgot_password 1/1, gis_dashboard 2/2, import-export 2/2, pdf-export 1/1.
 - **`node scripts/security-audit.js`: runs end-to-end** and correctly reports the remaining C2 launch blocker (demo bcrypt hashes in the client bundle — must be removed before production, tied to C1 server-side auth).
@@ -408,12 +420,19 @@ The 77 Mediums are dominated by "Missing X-Frame-Options header" on static pages
 - **`node scripts/security-audit.js`: runs end-to-end**, reporting remaining launch blockers as designed.
 - `scripts/cdn-sri.json` persisted as the canonical CDN integrity manifest.
 
-### 9.3 What remains (next sprint)
+### 9.4 Post-structural regression found and fixed (2026-09-26)
 
-- **U7 (full)** — modal focus traps + focus restore, `aria-live` toasts.
-- **U4** — consolidate the 8 CSS layers into the design system.
-- **Triage the 77 Medium audit findings** (X-Frame-Options on static pages, etc.).
-- **Launch blockers (unchanged)** — C1 server-side auth + C5 server-side rate limiting, real TOTP (C4 full), remove demo credentials from the client bundle entirely.
+After the structural edits, a fresh-context boot failure reappeared and was traced to a **syntax error in `js/modules/GisDashboard.js`** (line 351): the HTML-entity escape in the popup `safeName` sanitization had been mangled in transit — the entity sequence for the double-quote character arrived as an unbalanced run of quote characters — so the module failed vite's import analysis (HTTP 500), which broke the entire ES-module import chain and left the app stuck on the loading screen.
+
+- **Fix:** replaced the entity-literal escaping with a mangler-proof `String.fromCharCode(38)`-based escape (the source now contains no raw ampersand-entity sequences); `node --check js/modules/GisDashboard.js` passes.
+- **Diagnostic method:** probed module URLs directly (vite 500 + error frame), then `node --check` for the authoritative error location, then `node --check` parity + raw-line inspection.
+- **Lesson recorded:** entity-bearing edits must be verified with a syntax check immediately — the editor/transport can HTML-decode `&`/`"`/`&times;` sequences in tool payloads.
+
+### 9.5 Re-validation after 9.4 (2026-09-26)
+
+- **Playwright: 18/18 passed** (48.0s) — add-user 1/1, dashboard_navigation 3/3, enhancements 3/3, expense-tracking 5/5, forgot_password 1/1, gis_dashboard 2/2, import-export 2/2, pdf-export 1/1.
+- App boots in fresh contexts (login form visible, zero page errors, all services initialize).
+- Temp diagnostic scripts removed; workspace clean.
 
 
 ---

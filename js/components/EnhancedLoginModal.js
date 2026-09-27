@@ -6,6 +6,7 @@ import { authService } from "../services/auth.service.js";
 
 import { deviceFingerprint } from "../utils/device-fingerprint.js";
 import { ErrorHandler } from "../utils/error-handler.js";
+import { trapFocus } from "../utils/focus-trap.js";
 
 class EnhancedLoginModal {
   constructor() {
@@ -716,6 +717,11 @@ class EnhancedLoginModal {
     this.currentStep = "login";
     this.showStep("login");
     document.getElementById("enhancedLoginModal").style.display = "block";
+    // U7: trap focus in the modal and close on Escape; focus is restored on hide.
+    this.releaseFocusTrap = trapFocus(
+      document.getElementById("enhancedLoginModal"),
+      { onEscape: () => this.hide() },
+    );
     document.getElementById("loginUsername").focus();
   }
 
@@ -725,6 +731,11 @@ class EnhancedLoginModal {
   hide() {
     this.isVisible = false;
     document.getElementById("enhancedLoginModal").style.display = "none";
+    // U7: release the focus trap (restores focus to the trigger element).
+    if (this.releaseFocusTrap) {
+      this.releaseFocusTrap();
+      this.releaseFocusTrap = null;
+    }
     this.resetModal();
   }
 
@@ -1122,14 +1133,23 @@ class EnhancedLoginModal {
       info: "fa-info-circle",
     };
 
+    const container = document.getElementById("securityNotifications");
+    // U7: announce notifications to assistive technology.
+    container.setAttribute("role", "status");
+    container.setAttribute("aria-live", "polite");
+
     const notification = document.createElement("div");
     notification.className = `security-notification ${type}`;
-    notification.innerHTML = `
-            <i class="fas ${icons[type]}"></i>
-            ${message}
-        `;
+    notification.setAttribute("role", "status");
 
-    const container = document.getElementById("securityNotifications");
+    // H1: build DOM instead of interpolating into innerHTML (XSS sink).
+    const icon = document.createElement("i");
+    icon.className = `fas ${icons[type] || icons.info}`;
+    const text = document.createElement("span");
+    text.textContent = message;
+    notification.appendChild(icon);
+    notification.appendChild(text);
+
     container.appendChild(notification);
 
     // Auto remove after 5 seconds

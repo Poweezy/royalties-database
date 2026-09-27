@@ -4,6 +4,7 @@ import { permissionService } from "../services/permission.service.js";
 import { dbService } from "../services/database.service.js";
 import { ErrorHandler } from "../utils/error-handler.js";
 import { security } from "../utils/security.js";
+import { trapFocus } from "../utils/focus-trap.js";
 import { logger } from "../utils/logger.js";
 import { BulkOperationsPanel } from "../components/BulkOperationsPanel.js";
 import { UserProfileModal } from "../components/UserProfileModal.js";
@@ -1159,22 +1160,46 @@ export class UserManager {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
-          <button type="button" class="btn btn-primary" onclick="userManager.sendBulkEmail()">Send Email</button>
+          <button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-action="send-bulk-email">Send Email</button>
         </div>
       </div>
     `;
 
+    // U7: trap focus inside the modal while open; release on close
+    let releaseTrap = null;
+    const closeModal = () => {
+      if (releaseTrap) {
+        releaseTrap();
+        releaseTrap = null;
+      }
+      modal.remove();
+    };
+    releaseTrap = trapFocus(modal, { onEscape: () => closeModal() });
+
     // Close modal on click outside
     modal.addEventListener("click", (e) => {
       if (e.target === modal) {
-        modal.remove();
+        closeModal();
       }
     });
 
     // Close modal on X click
     modal.querySelector(".close").addEventListener("click", () => {
-      modal.remove();
+      closeModal();
+    });
+
+    // CSP: inline onclick attributes are blocked by the hash-based
+    // script-src — bind footer actions with a delegated listener instead
+    // (also fixes the previously undefined global `userManager` reference).
+    modal.addEventListener("click", (e) => {
+      const actionBtn = e.target.closest("[data-action]");
+      if (!actionBtn) return;
+      if (actionBtn.dataset.action === "close-modal") {
+        closeModal();
+      } else if (actionBtn.dataset.action === "send-bulk-email") {
+        this.sendBulkEmail();
+      }
     });
 
     return modal;
@@ -1429,6 +1454,9 @@ export class UserManager {
     const notification = document.createElement("div");
     notification.className = `notification ${type}`;
     notification.textContent = message;
+    // U7: announce to assistive technology.
+    notification.setAttribute("role", "status");
+    notification.setAttribute("aria-live", "polite");
 
     document.body.appendChild(notification);
 

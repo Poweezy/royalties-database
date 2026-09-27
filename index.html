@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <!-- The app entry point is royalties.html; this root page redirects so that
+         http://localhost:5173/ (and the production site root) works. -->
+    <meta http-equiv="refresh" content="0;url=./royalties.html" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Mining Royalties Manager — Redirecting…</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+        background: linear-gradient(135deg, #1a365d 0%, #2d5a88 100%);
+        color: #ffffff;
+      }
+      .redirect-box {
+        text-align: center;
+        padding: 2rem;
+      }
+      .redirect-box .logo {
+        font-size: 3rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+      }
+      .redirect-box a {
+        color: #90cdf4;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .redirect-box a:hover,
+      .redirect-box a:focus {
+        text-decoration: underline;
+      }
+      .spinner {
+        width: 2rem;
+        height: 2rem;
+        margin: 0 auto 1.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="redirect-box" role="status" aria-live="polite">
+      <div class="logo" aria-hidden="true">MR</div>
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Opening the Mining Royalties Manager…</p>
+      <p>
+        If you are not redirected automatically,
+        <a href="./royalties.html">open the application here</a>.
+      </p>
+    </main>
+    <noscript>
+      <p>
+        JavaScript is required for the application.
+        <a href="./royalties.html">Continue to the login screen</a>.
+      </p>
+    </noscript>
+  </body>
+</html>

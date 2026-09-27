@@ -114,16 +114,11 @@
         It seems you've lost your internet connection. Don't worry - any changes
         you make will be synchronized when you're back online.
       </p>
-      <button class="btn refresh-btn" onclick="window.location.reload()">
+      <button class="btn refresh-btn" id="try-again-btn">
         Try Again
       </button>
     </div>
 
-    <script>
-      // Check for online status
-      window.addEventListener("online", () => {
-        window.location.reload();
-      });
-    </script>
+    <script src="js/bootstrap/offline-page.js" defer></script>
   </body>
 </html>

@@ -3,6 +3,7 @@
  * Provides UI for bulk user operations
  */
 
+import { trapFocus } from "../utils/focus-trap.js";
 import { permissionService } from "../services/permission.service.js";
 
 export class BulkOperationsPanel {
@@ -470,8 +471,8 @@ export class BulkOperationsPanel {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="this.sendBulkNotification()">Send Notification</button>
+                    <button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-action="send-bulk-notification">Send Notification</button>
                 </div>
             </div>
         `;
@@ -479,12 +480,36 @@ export class BulkOperationsPanel {
     document.body.appendChild(modal);
     modal.style.display = "block";
 
+    // U7: trap focus inside the modal while open; release on close
+    let releaseTrap = null;
+    const closeModal = () => {
+      if (releaseTrap) {
+        releaseTrap();
+        releaseTrap = null;
+      }
+      modal.remove();
+    };
+    releaseTrap = trapFocus(modal, { onEscape: () => closeModal() });
+
     // Setup modal event listeners
     modal
       .querySelector(".close")
-      .addEventListener("click", () => modal.remove());
+      .addEventListener("click", () => closeModal());
     modal.addEventListener("click", (e) => {
-      if (e.target === modal) modal.remove();
+      if (e.target === modal) closeModal();
+    });
+
+    // CSP: inline onclick is blocked by the hash-based script-src — bind
+    // footer actions with a delegated listener instead (also fixes the
+    // `this`-is-the-button bug: Send Notification never worked).
+    modal.addEventListener("click", (e) => {
+      const actionBtn = e.target.closest("[data-action]");
+      if (!actionBtn) return;
+      if (actionBtn.dataset.action === "close-modal") {
+        closeModal();
+      } else if (actionBtn.dataset.action === "send-bulk-notification") {
+        this.sendBulkNotification();
+      }
     });
   }
 
