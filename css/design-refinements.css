@@ -1,0 +1,160 @@
+/**
+ * Design Refinements
+ * Final polish layer - unifies the navy/gold identity across all component
+ * stylesheets and refines tables, focus states, and typography.
+ * Loaded last on purpose: rules here are the intended final rendering.
+ */
+
+/* ------------------------------------------------------------------
+   1. Unified primary action color
+   Hover and keyboard focus stay within the navy palette instead of
+   jumping to bright blue; sidebar chrome follows the brand gradient.
+   ------------------------------------------------------------------ */
+.btn-primary:hover:not(:disabled),
+.btn-primary:focus-visible:not(:disabled) {
+  background: linear-gradient(135deg, #1a365d 0%, #2d5282 100%) !important;
+  box-shadow: 0 6px 20px rgba(26, 54, 93, 0.35) !important;
+}
+
+.geocoder-control button:hover {
+  background: #2d5282;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #1a365d 0%, #153450 100%) !important;
+}
+
+/* ------------------------------------------------------------------
+   2. Data tables
+   Consistent header treatment with a gold rule, subtle row striping,
+   and a calm hover (no scale). Every light rule carries a dark-theme
+   counterpart so theme switching stays correct.
+   ------------------------------------------------------------------ */
+.data-table th,
+table th {
+  background: #f7fafc !important;
+  color: #1a202c !important;
+  border-bottom: 2px solid #d4af37 !important;
+  font-weight: 600 !important;
+}
+
+.data-table td,
+table td {
+  border-bottom: 1px solid #e2e8f0 !important;
+  /* Neutralize the near-black top border from corporate-design-system.css;
+     row separation is handled by the bottom border alone. */
+  border-top: none !important;
+}
+
+.data-table tbody tr:nth-child(even) td {
+  background: #f8fafc !important;
+}
+
+.data-table tbody tr:hover td {
+  background: #f1f5f9 !important;
+  transform: none !important;
+}
+
+[data-theme="dark"] .data-table th {
+  background: #1e293b !important;
+  color: #f7fafc !important;
+  border-bottom-color: #b59410 !important;
+}
+
+[data-theme="dark"] .data-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .data-table tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-theme="dark"] .data-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ------------------------------------------------------------------
+   3. Login surface
+   Crisp border and a deeper, single-source shadow for the card.
+   ------------------------------------------------------------------ */
+.login-container {
+  border: 1px solid rgba(26, 54, 93, 0.12) !important;
+  box-shadow:
+    0 24px 48px -12px rgba(26, 54, 93, 0.22),
+    0 4px 12px -4px rgba(26, 54, 93, 0.12) !important;
+}
+
+/* ------------------------------------------------------------------
+   4. Focus visibility
+   Buttons, links, and tab-like controls get a consistent gold ring;
+   inputs keep their existing focus styling.
+   ------------------------------------------------------------------ */
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid #d4af37;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------
+   5. Typography details
+   Tabular numerals keep metric values aligned; balanced headings
+   avoid orphaned words (ignored where unsupported).
+   ------------------------------------------------------------------ */
+.metric-card p {
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* ------------------------------------------------------------------
+   6. Scrollbars and text selection
+   ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+/* ------------------------------------------------------------------
+   7. Reduced motion
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
